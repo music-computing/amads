@@ -59,6 +59,7 @@ def test_pulse_lengths_to_qstart_list(test_metres):
 
 def test_require_2_or_3():
     """Test a case with `require_2_or_3_between_levels` = True."""
+    assert False
     with pytest.raises(ValueError):
         qstart_list_from_pulse_lengths(
             pulse_lengths=[4, 1], require_2_or_3_between_levels=True
