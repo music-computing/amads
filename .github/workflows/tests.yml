@@ -34,7 +34,7 @@ jobs:
 
     - name: Run tests with coverage
       run: |
-        pytest --cov=./ --cov-report=xml || echo "Tests failed"
+        pytest --cov=./ --cov-report=xml
 
     - name: Upload coverage to Codecov
       if: always() && matrix.python-version == '3.11'
