@@ -30,10 +30,10 @@ def entropy(d: List[float]) -> float:
 
     Examples
     --------
-    >>> round(entropy([0.5, 0.5]), 6)
+    >>> entropy([0.5, 0.5])
     1.0
 
-    >>> round(entropy([0.0, 1.0]), 6)
+    >>> entropy([0.0, 1.0])
     0.0
     """
     d = np.asarray(d).flatten()  # Convert to a 1D numpy array

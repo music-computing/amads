@@ -37,7 +37,7 @@ Example test::
 
     def test_my_function():
         result = my_function()
-        assert result == expected_value 
+        assert result == expected_value
 
 Doctests
 --------
@@ -63,7 +63,7 @@ Example doctest::
 
         Examples
         --------
-        >>> round(entropy([0.5, 0.5]), 6)
+        >>> entropy([0.5, 0.5])
         1.0
         """
 
