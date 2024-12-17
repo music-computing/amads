@@ -7,11 +7,11 @@ Tests functionality for regrouping and quantizing musical durations.
 import pytest
 
 from amads.time.meter.break_it_up import (
-    ReGrouper,
+    MetricalSplitter,
     start_hierarchy_examples,
-    start_hierarchy_from_ts,
-    start_list_from_pulse_lengths,
-    starts_from_ts_and_levels,
+    starts_from_ts,
+    starts_from_pulse_lengths,
+    starts_from_ts_and_levels, MetricalHierarchy,
 )
 
 
@@ -51,7 +51,7 @@ def test_get_starts_from_ts_and_levels(test_metres):
 
 def test_pulse_lengths_to_start_list(test_metres):
     for tc in test_metres:
-        t = start_list_from_pulse_lengths(
+        t = starts_from_pulse_lengths(
             pulse_lengths=tc["pulses"], require_2_or_3_between_levels=False
         )
         assert t == tc["starts"]
@@ -60,7 +60,7 @@ def test_pulse_lengths_to_start_list(test_metres):
 def test_require_2_or_3():
     """Test a case with `require_2_or_3_between_levels` = True."""
     with pytest.raises(ValueError):
-        start_list_from_pulse_lengths(
+        starts_from_pulse_lengths(
             pulse_lengths=[4, 1], require_2_or_3_between_levels=True
         )
 
@@ -68,7 +68,7 @@ def test_require_2_or_3():
 def test_start_hierarchy_from_ts():
     """Test start_hierarchy_from_ts by running through test cases."""
     for k in start_hierarchy_examples:
-        oh = start_hierarchy_from_ts(k, minimum_pulse=32)
+        oh = starts_from_ts(k, minimum_pulse=32)
         assert oh == start_hierarchy_examples[k]
 
 
@@ -121,18 +121,20 @@ def test_from_pulse_length():
     ]
 
     for entry in all_plausible:
-        g = ReGrouper(entry[0], entry[1], pulse_lengths=entry[2])
+        this_meter = MetricalHierarchy(pulse_lengths=entry[2])
+        g = MetricalSplitter(note_start=entry[0], note_length=entry[1], meter=this_meter, split_same_level=False)
         assert g.start_duration_pairs == entry[3]
 
 
 def test_split_same_level():
     """Test the split_same_level parameter with cases in 6/8."""
-    eg1 = ReGrouper(0.5, 1, time_signature="6/8", split_same_level=False)
+    meter = MetricalHierarchy("6/8")
+    eg1 = MetricalSplitter(0.5, 1, meter, split_same_level=False)
     assert eg1.start_duration_pairs == [(0.5, 1)]
-    eg2 = ReGrouper(0.5, 1, time_signature="6/8", split_same_level=True)
+    eg2 = MetricalSplitter(0.5, 1, meter, split_same_level=True)
     assert eg2.start_duration_pairs == [(0.5, 0.5), (1, 0.5)]
 
-    eg1 = ReGrouper(0.5, 2, time_signature="6/8", split_same_level=False)
+    eg1 = MetricalSplitter(0.5, 2, meter, split_same_level=False)
     assert eg1.start_duration_pairs == [(0.5, 1), (1.5, 1)]
-    eg2 = ReGrouper(0.5, 2, time_signature="6/8", split_same_level=True)
+    eg2 = MetricalSplitter(0.5, 2, meter, split_same_level=True)
     assert eg2.start_duration_pairs == [(0.5, 0.5), (1, 0.5), (1.5, 1)]

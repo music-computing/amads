@@ -1,68 +1,180 @@
 """
-Make sense of the relationship between
+This module serves to map out metrical hierarchies in a number of different ways and
+to express the relationship between
 the notes in
 and
 the hierarchy of
 a metrical cycle.
 
 Uses include identifying notes that traverse metrical levels,
-for anaylsis (e.g., as a measure of syncopation)
+for analysis (e.g., as a measure of syncopation)
 and notation (e.g., re-notating to reflect the
 within-measure notational conventions).
-
-This delivers functionality promised in previous discussions on the music21
-list (https://groups.google.com/g/music21list/c/5G-UafJeW94/m/YcEBE0PFAQAJ)
-and repo (issue 992, https://github.com/cuthbertLab/music21/issues/992)
-
-Basically, the idea is that
-a single note can only cross metrical boundaries
-for levels lower than the one it starts on.
-If it traverses a metrical boundaries at a higher level, then
-it is split at that position into two note-heads to be connected by a tie.
-
-
-TODO:
-- Connect up to scores (work with note and time signature by context).
-- Divide the metrical structure logic from the operations
-
 """
 
 from typing import Optional, Union
 
-import numpy as np
 
 # ------------------------------------------------------------------------------
 
-
-class ReGrouper:
+class MetricalHierarchy:
     """
-    Split up notes and rests to reflect the
-    within-measure notational conventions
-    of metrical hierarchies in Western classical music.
+    This class serves to create standard, interoperable representations
+    of metrical hierarchy,
+    centred on a single representation
+    of metrical levels in terms of starts expressed by quarter length
+    from the start of the measure,
+    and (optionally) other representations.
+
+    At least one of the parameters (below) must be specified.
+    These are listed in order of override, e.g., if a full `start_hierarchy` is specified, all else are ignored.
+
+    For a 'quick start', the `time_signature` defaults will serve most use cases, and
+    that along with `levels` should be cover almost all.
+
+    Parameters
+    ----------
+    start_hierarchy
+        Users can specify the `start_hierarchy` directly
+        and completely from scratch (ignoring all other parameters and defaults).
+        Use this for advanced, non-standard metrical structures
+        including those without 2-/3- grouping, or even nested hierarchies.
+
+    pulse_lengths
+        In absense of a `start_hierarchy`, users can specify the structure by
+        `pulse_lengths` e.g., in the form [4, 2, 1].
+        This will be converted into a `start_hierarchy`.
+        See `starts_from_pulse_lengths` for further explanation.
+
+    time_signature
+        Alternatively, in absense of a `start_hierarchy` or `pulse_lengths` entry,
+        users can specify a `time_signature` (str) from which a `start_hierarchy` can be created.
+        See `starts_from_ts` for further explanation.
+
+    levels
+        If provided with a `time_signature`, optionally also specify the levels of the metrical hierarchy.
+        The default arrangement is to use all levels of a time signature's implied metrical hierarchy.
+        Alternatively, this parameter allows users to select certain levels for in-/exclusion.
+        See the `starts_from_ts_and_levels` function for further explanation.
+
+    names
+        Optionally create a dict mapping temporal positions to names.
+        Currently, this supports one textual value per temporal position (key),
+        e.g., {0.0: "ta", 1.0: "ka", 2.0: "di", 3.0: "mi"}.
+
+
+    Examples
+    --------
+    4/4 can be created and represented as follows:
+
+    >>> four_four = MetricalHierarchy("4/4")
+
+    This retains the assigned time signature name:
+
+    >>> four_four.time_signature
+    '4/4'
+
+    It also builds a corresponding `start_hierarchy` in several levels:
+
+    >>> four_four.start_hierarchy[0]
+    [0.0, 4.0]
+
+    >>> four_four.start_hierarchy[1]
+    [0.0, 2.0, 4.0]
+
+    >>> four_four.start_hierarchy[2]
+    [0.0, 1.0, 2.0, 3.0, 4.0]
+
+    This same structure can be created in many ways as outlined in the parameters.
+    For example:
+
+    >>> four_four_from_pulses = MetricalHierarchy(pulse_lengths=[4, 2, 1])
+    >>> four_four_from_pulses.start_hierarchy[0]
+    [0.0, 4.0]
+
+    >>> four_four_from_pulses.start_hierarchy[1]
+    [0.0, 2.0, 4.0]
+
+    >>> four_four_from_pulses.start_hierarchy[2]
+    [0.0, 1.0, 2.0, 3.0, 4.0]
+
+    Those levels of the hierarchy are the same, only the number of levels differs.
+
+    Again, for more on these converters, see the static function in this module, e.g., `starts_from_ts`.
+
+    """
+    def __init__(
+        self,
+        time_signature: Optional[str] = None,
+        levels: Optional[list] = None,
+        pulse_lengths: Optional[list] = None,
+        start_hierarchy: Optional[list] = None,
+        names: Optional[dict] = None
+    ):
+        # Retrieve or create the metrical structure
+        if start_hierarchy:
+            self.start_hierarchy = start_hierarchy
+            return
+        elif pulse_lengths:
+            self.pulse_lengths = pulse_lengths
+            self.start_hierarchy = starts_from_pulse_lengths(
+                pulse_lengths, require_2_or_3_between_levels=False
+            )
+            return
+        elif levels:
+            self.levels = levels
+            if time_signature:  # both time signature and levels
+                self.time_signature = time_signature
+                self.start_hierarchy = starts_from_ts_and_levels(time_signature, levels)
+            else:  # no time signature, yes levels
+                raise ValueError(
+                    "To specify levels, please also enter a valid time signature."
+                )
+        elif time_signature:  # time signature and no levels, assume all
+            self.time_signature = time_signature
+            self.start_hierarchy = starts_from_ts(time_signature)
+        else:
+            raise ValueError(" specify at least one of `start_hierarchy`, `pulse_length` or `time_signature`")
+
+        if not self.start_hierarchy:
+            raise ValueError(
+                "Cannot create a `start_hierarchy`. "
+                "Please enter a valid time signature or equivalent."
+            )
+        if names:
+            for key in names:
+                assert isinstance(key, float)
+                assert isinstance(names[key], str)
+
+
+class MetricalSplitter:
+    """
+    Split up notes and rest to reflect a specified metrical hierarchies.
 
     This class
     takes in a representation of a note in terms of the start position and duration,
-    and metrical context (the overall structure, and which part to use), and
-    returns a list of start-duration pairs for the broken-up note value.
+    along with a metrical context
+    and returns a list of start-duration pairs for the broken-up note value.
+
+    The metrical context should be expressed in the form of a `q
+    (effectively a list of lists for the hierarchy).
+    This can be provided directly, or made via the `MetricalHierarchy` class.
+    See notes on that class for the creation of hierarchies suitable to the task at hand
+    via a range of entry point.
 
     The basic premise here is that a single note can only traverse metrical boundaries
     for levels lower than the one it starts on.
     If it traverses the metrical boundary of a higher level, then
-    it is split at that position into two note-heads to be connected by a tie.
+    it is split at that position into two note-heads.
+    This split registers as a syncopation for those algorithms
+    and as a case for two note-heads to be connected by a tie in notation.
 
     There are many variants on this basic set up.
     This class aims to support almost any such variant, while providing easy defaults
     for simple, standard practice.
 
-    The flexibility comes from the definition of a metrical structure.
-    Here, everything ultimately runs through a single representation
-    of metrical levels in terms of starts expressed by quarter length
-    from the start of the measure,
-    e.g., levels 0-3 of a time signature like 4/4 would be represented as:
-    [[0.0, 4.0],
-    [0.0, 2.0, 4.0],
-    [0.0, 1.0, 2.0, 3.0, 4.0],
-    [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0]]
+    The flexibility comes from the definition of a metrical structure
+    (for which see the `MetricalHierarchy` class).
 
     Each split of the note duration serves to move up one metrical level.
     For instance, for the 4/4 example above, a note of duration 2.0 starting at start
@@ -75,104 +187,59 @@ class ReGrouper:
     [(0.25, 0.25),
     (0.5, 0.5),
     (1.0, 1.0),
-    (1.0, 0.25)].
+    (1.0, 0.25)]
+    as demonstrated at ** below.    
 
-    There are three main user options (for advanced use cases only):
-    tweak a metrical hierarchy to only consider certain levels (see the `levels` parameter);
-    define a metrical structure completely from scratch (`start_hierarchy`);
-    determine the handling of splits within a level for metres like 6/8 (`split_same_level`).
+    Parameters
+    -------
+    note_start: float
+        The starting position of the note (or rest).
 
-    The input parameters are:
+    note_length: float,
+        The length (duration) of the note (or rest).
 
-    note_start_start:
-    the note or rest in question"s starting start.
+    meter: MetricalHierarchy,
+        The metrical strcuture to compare.
 
-    note_length:
-    the note or rest"s length.
+    split_same_level: bool
+        When creating hierarchies, decide whether to split elements at the same level, e.g., 1/8 and 2/8 in 6/8.
+        In cases of metrical structures with a 3-grouping
+        (two "weak" events between a "strong" in compound signatures like 6/8)
+        some conventions chose to split notes within-level as well as between them.
+        For instance, with a quarter note starting on the second eighth note (start 0.5) of 6/8,
+        some will want to split that into two 1/8th notes, divided on the third eighth note position,
+        while others will want to leave this intact.
+        The `split_same_level` option accommodates this:
+        it effects the within-level split when set to True and not otherwise (default).
 
-    time_signature (optional):
-    the time signature (currently expressed as a string).
-    to be converted into a start_hierarchy.
+    Examples
+    -------
+    >>> m = MetricalHierarchy("4/4")
+    >>> split = MetricalSplitter(0.25, 2.0, meter=m)
+    >>> split.start_duration_pairs
+    [(0.25, 0.25), (0.5, 0.5), (1.0, 1.0), (2.0, 0.25)]
 
-    levels (optional):
-    the default arrangement is to use all levels of a time signature"s metrical hierarchy.
-    Alternatively, this parameter allows users to select certain levels for in-/exclusion.
-    See the starts_from_ts_and_levels function for further explanation.
+)
 
-    pulse_lengths (optional):
-    this provides an alternative way of expressing the metrical hierarchy
-    in terms of pulse lengths (by quarter length), again
-    to be converted into a start_hierarchy.
-    See start_list_from_pulse_lengths for further explanation.
-
-    start_hierarchy (optional):
-    a final alternative way of expressing the metrical hierarchy
-    completely from scratch (ignoring all other parameters and defaults).
-    Use this for advanced cases requiring non-standard metrical structures
-    including those without 2-/3- grouping, or even nested hierarchies.
-
-    split_same_level:
-    in cases of metrical structures with a 3-grouping
-    (i.e., two "weak" events between a "strong" in compound signatures like 6/8)
-    some conventions chose to split notes within-level as well as between them.
-    For instance, with a quarter note starting on the second eighth note (start 0.5) of 6/8,
-    some will want to split that into two 1/8th notes, divided on the third eighth note position,
-    while others will want to leave this intact.
-    The split_same_level option accommodates this:
-    it effects the within-level split when set to True and not otherwise (default).
-
-    At least one of
-    time_signature,
-    levels (with a time_signature),
-    pulse_lengths, or
-    start_hierarchy
-    must be specified.
-
-    These are listed in order from the most standard to the most specialised.
-    The time_signature defaults will serve most use cases, and the
-    "levels" parameter should be enough for a particular editorial style.
     """
 
     def __init__(
         self,
-        note_start_start: Union[int, float],
-        note_length: Union[int, float],
-        time_signature: Optional[str] = None,
-        levels: Optional[list] = None,
-        pulse_lengths: Optional[list] = None,
-        start_hierarchy: Optional[list] = None,
-        split_same_level: bool = False,
+        note_start: float,
+        note_length: float,
+        meter: MetricalHierarchy,
+        split_same_level: bool = True
     ):
 
-        # Retrieve or create the metrical structure
-        if start_hierarchy:
-            self.start_hierarchy = start_hierarchy
-        elif pulse_lengths:
-            self.start_hierarchy = start_list_from_pulse_lengths(
-                pulse_lengths, require_2_or_3_between_levels=False
-            )
-        elif levels:
-            if not time_signature:
-                raise ValueError(
-                    "To specify levels, please also enter a valid time signature."
-                )
-            self.start_hierarchy = starts_from_ts_and_levels(time_signature, levels)
-        else:  # time_signature, not levels specified
-            self.start_hierarchy = starts_from_ts_and_levels(time_signature)
-
-        if not self.start_hierarchy:
-            raise ValueError(
-                "Cannot create a `start_hierarchy`. "
-                "Please enter a valid time signature or equivalent."
-            )
-
         self.note_length = note_length
-        self.note_start_start = note_start_start
+        self.note_start = note_start
+        self.meter = meter
+        self.start_hierarchy = meter.start_hierarchy
         self.split_same_level = split_same_level
 
         # Initialise
         self.start_duration_pairs = []
-        self.updated_start = note_start_start
+        self.updated_start = note_start
         self.remaining_length = note_length
         self.level_pass()
 
@@ -180,30 +247,30 @@ class ReGrouper:
 
     def level_pass(self):
         """
-        Having established the structure of the start_hierarchy,
+        Given a `start_hierarchy`,
         this method iterates across the levels of that hierarchy to find
-        the current start position, and (through advance_step) the start position to map to.
+        the current start position, and (through `advance_step`) the start position to map to.
 
         This method runs once for each such mapping,
         typically advancing up one (or more) layer of the metrical hierarchy with each call.
-        "Typically" because split_same_level is supported where relevant.
+        "Typically" because `split_same_level` is supported where relevant.
 
         Each iteration creates a new start-duration pair
         stored in the start_duration_pairs list
         that records the constituent parts of the split note.
         """
 
-        for levelIndex in range(len(self.start_hierarchy)):
+        for level_index in range(len(self.start_hierarchy)):
 
             if (
                 self.remaining_length <= 0
             ):  # sic, here due to the various routes through
                 return
 
-            this_level = self.start_hierarchy[levelIndex]
+            this_level = self.start_hierarchy[level_index]
 
             if self.updated_start in this_level:
-                if levelIndex == 0:  # i.e., updated_start == 0
+                if level_index == 0:  # i.e., updated_start == 0
                     self.start_duration_pairs.append(
                         (self.updated_start, self.remaining_length)
                     )
@@ -212,7 +279,7 @@ class ReGrouper:
                     if self.split_same_level:  # relevant option for e.g., 6/8
                         self.advance_step(this_level)
                     else:  # usually
-                        self.advance_step(self.start_hierarchy[levelIndex - 1])
+                        self.advance_step(self.start_hierarchy[level_index - 1])
 
         if self.remaining_length > 0:  # start not in the hierarchy at all
             self.advance_step(self.start_hierarchy[-1])  # get to the lowest level
@@ -222,7 +289,7 @@ class ReGrouper:
     def advance_step(self, positions_list: list):
         """
         For a start position, and a metrical level expressed as a list of starts,
-        finds the next higher value from those levels.
+        find the next higher value from those levels.
         Used for determining iterative divisions.
         """
         for p in positions_list:
@@ -248,38 +315,62 @@ class ReGrouper:
 
 # ------------------------------------------------------------------------------
 
-
-def start_hierarchy_from_ts(ts_str: str, minimum_pulse: int = 64):
+def starts_from_ts(
+        ts_str: str,
+        enforce_2s_3s: bool = True,
+        minimum_pulse: int = 64
+) -> list:
     """
     Create a start hierarchy for almost any time signature
     directly from a string (e.g., "4/4") without dependencies.
-    Returns a list of lists with start positions by level.
 
+
+    Parameters
+    ----------
+    ts_str
+        Any valid string repersenting a time signature. See examples below.
+    enforce_2s_3s
+        Map 4 to 2+2 and 6 to 3+3 etc. following the conventions of those time signatures.
+    minimum_pulse
+        Recursively create further down to the denominator level specified. Defaults to 64 for 64th notes.
+
+    Returns
+    -------
+    list
+        Returns a list of lists with start positions by level.
+
+    Examples
+    --------
     The following examples index the most interesting level:
 
-    >>> start_hierarchy_from_ts("4/4")[1]  # note the half cycle division
+    >>> starts_from_ts("4/4")[1]  # note the half cycle division
     [0.0, 2.0, 4.0]
 
+    >>> starts_from_ts("4/4", enforce_2s_3s=False)[1]  # note the absence of a half cycle division
+    [0.0, 1.0, 2.0, 3.0, 4.0]
 
-    >>> start_hierarchy_from_ts("6/8")[1]  # note the macro-beat division
+    >>> starts_from_ts("2/2")[1]  # note the presence of a half cycle division
+    [0.0, 2.0, 4.0]
+
+    >>> starts_from_ts("6/8")[1]  # note the macro-beat division
     [0.0, 1.5, 3.0]
 
 
     Numerators like 5 and 7 are supported.
     Use the total value only to avoid segmentation about the denominator level:
 
-    >>> start_hierarchy_from_ts("5/4")[1]  # note no 2+3 or 3+2 level division
+    >>> starts_from_ts("5/4")[1]  # note no 2+3 or 3+2 level division
     [0.0, 1.0, 2.0, 3.0, 4.0, 5.0]
 
     Or use numerator addition in the form "X+Y/Z" to clarify this level ...
 
-    >>> start_hierarchy_from_ts("2+3/4")[1]  # note the 2+3 division
+    >>> starts_from_ts("2+3/4")[1]  # note the 2+3 division
     [0.0, 2.0, 5.0]
 
-    >>> start_hierarchy_from_ts("2+2+3/8")[1]  # note the 2+2+3 division
+    >>> starts_from_ts("2+2+3/8")[1]  # note the 2+2+3 division
     [0.0, 1.0, 2.0, 3.5]
 
-    >>> start_hierarchy_from_ts("2+2+2+3/8")[1]  # note the 2+2+2+3 division
+    >>> starts_from_ts("2+2+2+3/8")[1]  # note the 2+2+2+3 division
     [0.0, 1.0, 2.0, 3.0, 4.5]
 
     Only standard denominators are supported:
@@ -287,19 +378,18 @@ def start_hierarchy_from_ts(ts_str: str, minimum_pulse: int = 64):
     1, 2, 4, 8, 16, 32, or 64.
     No so-called "irrational" meters yet (e.g., 2/3), sorry!
 
-    Likewise the minimum_pulse must be set to one of these values
+    Likewise, the minimum_pulse must be set to one of these values
     (default = 64 for 64th note) and not be longer than the meter.
 
-    TODO:
-    Whole signatures added together in the form "P/Q+R/S"
-    (split by "+" before "/").
+    Finally, although we support and provide defaults for time signatures in the form "2+3/8",
+    there is no such support for more than one "/" (i.e., the user must build cases like "4/4 + 3/8" explicitly).
     """
 
     # Prep and checks
     numerator, denominator = ts_str.split("/")
-    numerators = [int(x) for x in numerator.split("+")]
+    numerators = [int(x) for x in numerator.split("+")]  # Note: support "+" before one "/", e.g., `2+3/4`
     denominator = int(denominator)
-    # TODO ?regex for more than one "/", e.g., `4/4 + 3/8` = split by `+` first
+
 
     supported_denominators = [1, 2, 4, 8, 16, 32, 64]
     if denominator not in supported_denominators:
@@ -320,13 +410,14 @@ def start_hierarchy_from_ts(ts_str: str, minimum_pulse: int = 64):
         ([9], [3, 3, 3]),  # alternative groupings need to be set out, e.g., 2+2+2+3
         ([12], [[6, 6], [3, 3, 3, 3]]),  # " e.g., 2+2+2+3
         ([15], [3, 3, 3, 3, 3]),  # " e.g., 2+2+2+3
-        ([6, 9], [[6, 9], [3, 3, 3, 3, 3]]),  # TODO generalise
+        ([6, 9], [[6, 9], [3, 3, 3, 3, 3]]),
         ([9, 6], [[6, 6], [3, 3, 3, 3, 3]]),
     )
 
-    for h in hidden_layer_mappings:
-        if numerators == h[0]:
-            numerators = h[1]
+    if enforce_2s_3s:
+        for h in hidden_layer_mappings:
+            if numerators == h[0]:
+                numerators = h[1]
 
     if isinstance(numerators[0], list):
         sum_num = sum(numerators[0])
@@ -365,9 +456,8 @@ def start_hierarchy_from_ts(ts_str: str, minimum_pulse: int = 64):
 
 
 def starts_from_ts_and_levels(
-    ts_str: str,  # TODO Union[str, meter.time_signature] or similar
+    ts_str: str,
     levels: Union[list, None] = None,
-    use_music21: bool = False,
 ):
     """
     Gets starts from a time signature and a list of levels.
@@ -390,13 +480,24 @@ def starts_from_ts_and_levels(
     3 for the eight note level,
     and skipping in intervening level 2 (quarter note).
 
-    This function provides a hard-coded workaround that"s called when use_music21=False (default).
-    Note also the inclusion of the full cycle length here (useful in ReGrouper).
-    >>> starts_from_ts_and_levels("6/8", [1, 2], use_music21=False)
+    Parameters
+    ----------
+    ts_str
+        Any valid string repersenting a time signature. See examples below.
+    levels
+        Optionally specify which levels implied by the time signature to use.
+
+    Returns
+    -------
+    list
+        Returns a list of lists with start positions by level.
+
+    Examples
+    --------
+
+    >>> starts_from_ts_and_levels("6/8", [1, 2])
     [[0.0, 3.0], [0.0, 1.5, 3.0], [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0]]
 
-    The music21 beamSequence method may also be useful here (i.e., integrating the two).
-    See discussion on music21, issue 992.
     """
     if levels is None:
         levels = [0, 1, 2, 3]
@@ -409,23 +510,14 @@ def starts_from_ts_and_levels(
 
     starts_by_level = []
 
-    if use_music21:
-        from music21 import meter
-
-        ms = meter.MeterSequence(ts_str)
-        ms.subdivideNestedHierarchy(max(levels))
-        for level in levels:
-            starts_this_level = [x[0] for x in ms.getLevelSpan(level)]
-            starts_by_level.append(starts_this_level)
-    else:
-        full_hierarchy = start_hierarchy_from_ts(ts_str)
-        for level in levels:
-            starts_by_level.append(full_hierarchy[level])
+    full_hierarchy = starts_from_ts(ts_str)
+    for level in levels:
+        starts_by_level.append(full_hierarchy[level])
 
     return starts_by_level
 
 
-def start_list_from_pulse_lengths(
+def starts_from_pulse_lengths(
     pulse_lengths: list,
     measure_length: Union[float, int, None] = None,
     require_2_or_3_between_levels: bool = False,
@@ -435,22 +527,6 @@ def start_list_from_pulse_lengths(
     with start positions per metrical level.
     All values (pulse lengths, start positions, and measure_length)
     are all expressed in terms of quarter length.
-
-    The measure_length is not required - if not provided it's taken to be the longest pulse length.
-
-    >>> qsl = start_list_from_pulse_lengths(pulse_lengths=[4, 2, 1, 0.5])
-
-    >>> qsl[0]
-    [0.0, 4.0]
-
-    >>> qsl[1]
-    [0.0, 2.0, 4.0]
-
-    >>> qsl[2]
-    [0.0, 1.0, 2.0, 3.0, 4.0]
-
-    >>> qsl[3]
-    [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0]
 
     This does not work for ("nonisochronous") pulse streams of varying duration
     in time signatures like 5/x, 7/x
@@ -469,6 +545,39 @@ def start_list_from_pulse_lengths(
     Alternatively, this can be user-defined to anything as long as it is
     1) longer than the longest pulse and
     2) if `require_2_or_3_between_levels` is True then exactly 2x or 3x longer.
+
+
+    Parameters
+    ----------
+    pulse_lengths
+        Any valid list of pulse lengths, e.g., [4, 2, 1].
+    measure_length
+        Optional. If not provided it's taken to be given by the longest pulse length.
+    require_2_or_3_between_levels
+        Deafults to False. If True, raise a ValueError in the case of this condition not being met.
+
+    Returns
+    -------
+    list
+        Returns a list of lists with start positions by level.
+
+    Examples
+    --------
+
+    >>> qsl = starts_from_pulse_lengths(pulse_lengths=[4, 2, 1, 0.5])
+
+    >>> qsl[0]
+    [0.0, 4.0]
+
+    >>> qsl[1]
+    [0.0, 2.0, 4.0]
+
+    >>> qsl[2]
+    [0.0, 1.0, 2.0, 3.0, 4.0]
+
+    >>> qsl[3]
+    [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0]
+
     """
 
     pulse_lengths = sorted(pulse_lengths)[::-1]  # largest number first
@@ -478,7 +587,9 @@ def start_list_from_pulse_lengths(
 
     else:
         if pulse_lengths[0] > measure_length:
-            raise ValueError("_pulse lengths cannot be longer than the measure_length.")
+            raise ValueError(
+                f"The `pulse_length` {pulse_lengths[0]} is longer than the `measure_length` ({measure_length})."
+            )
 
     if require_2_or_3_between_levels:
         for level in range(len(pulse_lengths) - 1):
@@ -501,36 +612,56 @@ def start_list_from_pulse_lengths(
 
 # Subsidiary one-level converters
 
-
 def starts_from_lengths(
-    measure_length: Union[float, int],
-    pulse_length: Union[float, int],
-    include_measure_length: bool = True,
-    use_numpy: bool = True,
+    measure_length: float,
+    pulse_length: float,
+    include_measure_length: bool = True
 ):
     """
     Convert a pulse length and measure length into a list of starts.
     All expressed in quarter length.
-    If `include_measure_length` is True (default) then each level ends with the full cycle length
-    (i.e., the start of the start of the next cycle).
+
+    Note:
+    A maximum of 4 decimal places is hardcoded.
+    This is to avoid floating point errors or the need for one line of numpy (np.arange)
+    in a module that doesn't otherwise use it.
+    4dp should be sufficient for all realistic use cases.
+
+    Parameters
+    --------
+    measure_length
+        The quarter length of the metrical span overall.
+    pulse_length
+        The quarter length of the pulse (note: must be shorter than the `measure_length`).
+    include_measure_length
+        If True (default) then each level ends with the full cycle length
+        (i.e., the start of the start of the next cycle).
+
+    Examples
+    --------
+
+    >>> starts_from_lengths(4, 1)
+    [0.0, 1.0, 2.0, 3.0, 4.0]
+
+    >>> starts_from_lengths(4, 1, include_measure_length=False)
+    [0.0, 1.0, 2.0, 3.0]
     """
-    if use_numpy:
-        starts = [float(i) for i in np.arange(0, measure_length, pulse_length)]
-    else:  # music21 avoids numpy right?
-        current_index = 0
-        starts = []
-        while current_index < measure_length:
-            starts.append(float(current_index))  # float for type consistency
-            current_index += pulse_length
+    starts = []
+    count = 0
+    while count < measure_length:
+        starts.append(round(float(count), 4))
+        count += pulse_length
 
     if include_measure_length:
-        return starts + [measure_length]
-    else:
-        return starts
+        starts.append(round(float(count), 4))
+
+    return starts
 
 
 def starts_from_beat_pattern(
-    beat_list: list, denominator: Union[float, int], include_measure_length: bool = True
+    beat_list: list,
+    denominator: float,
+    include_measure_length: bool = True
 ):
     """
     Converts a list of beats
@@ -539,17 +670,35 @@ def starts_from_beat_pattern(
     or indeed
     [6, 9]
     into a list of starts.
+
+    Parameters
+    --------
+    beat_list
+        An ordered list of the beat types.
+    denominator
+        The lower value of a time signature to set the pulse value.
+    include_measure_length
+        If True (default) then each level ends with the full cycle length
+        (i.e., the start of the start of the next cycle).
+
+    Examples
+    --------
+
+    >>> starts_from_beat_pattern([2, 2, 3], 4)
+    [0.0, 2.0, 4.0, 7.0]
+
     """
-    starts = []
+    starts = [0.0]  # always float, always starts at zero
     count = 0
-    for x in beat_list:
+    for beat_val in beat_list:
+        count += beat_val
         this_start = count * 4 / denominator
         starts.append(this_start)
-        count += x
+
     if include_measure_length:  # include last value
-        this_start = count * 4 / denominator
-        starts.append(this_start)
-    return starts
+        return starts
+    else:
+        return starts[:-1]
 
 
 # ------------------------------------------------------------------------------
