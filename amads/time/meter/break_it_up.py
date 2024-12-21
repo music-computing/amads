@@ -643,6 +643,60 @@ def starts_from_pulse_lengths(
     return start_list
 
 
+def coincident_pulse_list(
+    m: MetricalHierarchy,
+    granular_pulse: float,
+) -> list:
+    """
+    Create a flat list in the form [4, 1, 2, 1, 3, 1, 2, 1]
+    from the number of intersecting pulses at each position.
+
+    Parameters
+    --------
+    m
+        A level hierarchy, in the form of a list of list,
+        or a metrical hierarchy storing the same.
+    granular_pulse
+        The pulse value of the fastest level to consider e.g., 1, or 0.25.
+
+    Examples
+    --------
+
+    >>> m = [[0.0, 4.0], [0.0, 2.0, 4.0], [0.0, 1.0, 2.0, 3.0, 4.0]]
+    >>> coincident_pulse_list(m, granular_pulse=1)
+    [3, 1, 2, 1]
+
+    You can currently set the `granular_pulse` value to anything (this behavious may change).
+    For instance, a faster level that's not present simply pads the data out:
+
+    >>> m = [[0.0, 4.0], [0.0, 2.0, 4.0], [0.0, 1.0, 2.0, 3.0, 4.0]]
+    >>> coincident_pulse_list(m, granular_pulse=0.5)
+    [3, 0, 1, 0, 2, 0, 1, 0]
+
+    """
+    if isinstance(m, MetricalHierarchy):
+        m = m.start_hierarchy
+    elif not isinstance(m, list):
+        raise ValueError("The X must be a `MetricalHierarchy` object or a list")
+
+    measure_length = m[0][-1]
+
+    for level in m:
+        assert level[-1] == measure_length
+
+    steps = int(measure_length / granular_pulse)
+    granular_level = [granular_pulse * count for count in range(steps)]
+
+    def count_instances(nested_list, target):
+        return sum([sublist.count(target) for sublist in nested_list])
+
+    coincidences = []
+    for target in granular_level:
+        coincidences.append(count_instances(m, target))
+
+    return coincidences
+
+
 # ------------------------------------------------------------------------------
 
 # Subsidiary one-level converters
