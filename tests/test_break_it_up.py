@@ -7,11 +7,12 @@ Tests functionality for regrouping and quantizing musical durations.
 import pytest
 
 from amads.time.meter.break_it_up import (
+    MetricalHierarchy,
     MetricalSplitter,
     start_hierarchy_examples,
-    starts_from_ts,
     starts_from_pulse_lengths,
-    starts_from_ts_and_levels, MetricalHierarchy,
+    starts_from_ts,
+    starts_from_ts_and_levels,
 )
 
 
@@ -122,7 +123,12 @@ def test_from_pulse_length():
 
     for entry in all_plausible:
         this_meter = MetricalHierarchy(pulse_lengths=entry[2])
-        g = MetricalSplitter(note_start=entry[0], note_length=entry[1], meter=this_meter, split_same_level=False)
+        g = MetricalSplitter(
+            note_start=entry[0],
+            note_length=entry[1],
+            meter=this_meter,
+            split_same_level=False,
+        )
         assert g.start_duration_pairs == entry[3]
 
 
