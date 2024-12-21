@@ -100,7 +100,14 @@ class MetricalHierarchy:
 
     Those levels of the hierarchy are the same, only the number of levels differs.
 
-    Again, for more on these converters, see the static function in this module, e.g., `starts_from_ts`.
+    Speaking of levels, they cn be specified by index alongside the time signature string.
+
+    >>> level_test = MetricalHierarchy(time_signature="6/8", levels=[1, 2])
+    >>> level_test.start_hierarchy
+    [[0.0, 3.0], [0.0, 1.5, 3.0], [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0]]
+
+    Again, for more on these converters, see the static function in this module,
+    e.g., `starts_from_ts`, `starts_from_ts_and_levels`.
 
     """
 
@@ -139,11 +146,6 @@ class MetricalHierarchy:
                 "Specify at least one of `start_hierarchy`, `pulse_length` or `time_signature`"
             )
 
-        if not self.start_hierarchy:
-            raise ValueError(
-                "Cannot create a `start_hierarchy`. "
-                "Please enter a valid time signature or equivalent."
-            )
         if names:
             for key in names:
                 assert isinstance(key, float)
@@ -501,9 +503,16 @@ def starts_from_ts_and_levels(
     >>> starts_from_ts_and_levels("6/8", [1, 2])
     [[0.0, 3.0], [0.0, 1.5, 3.0], [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0]]
 
+    >>> level_not_specified = starts_from_ts_and_levels("6/8")
+    >>> len(level_not_specified)
+    6
+
+    >>> level_not_specified[3]
+    [0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0]
+
     """
     if levels is None:
-        levels = [0, 1, 2, 3]
+        levels = range(6)
 
     if max(levels) > 6:
         raise ValueError("6 is the maximum level depth supported.")
@@ -522,7 +531,7 @@ def starts_from_ts_and_levels(
 
 def starts_from_pulse_lengths(
     pulse_lengths: list,
-    measure_length: Union[float, int, None] = None,
+    measure_length: Optional[float] = None,
     require_2_or_3_between_levels: bool = False,
 ):
     """
@@ -686,6 +695,9 @@ def starts_from_beat_pattern(
 
     >>> starts_from_beat_pattern([2, 2, 3], 4)
     [0.0, 2.0, 4.0, 7.0]
+
+    >>> starts_from_beat_pattern([2, 2, 3], 4, include_measure_length = False)
+    [0.0, 2.0, 4.0]
 
     """
     starts = [0.0]  # always float, always starts at zero
