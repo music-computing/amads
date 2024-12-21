@@ -144,3 +144,41 @@ def test_split_same_level():
     assert eg1.start_duration_pairs == [(0.5, 1), (1.5, 1)]
     eg2 = MetricalSplitter(0.5, 2, meter, split_same_level=True)
     assert eg2.start_duration_pairs == [(0.5, 0.5), (1, 0.5), (1.5, 1)]
+
+
+"""Test various cases that should raise errors."""
+
+
+def test_nothing():
+    with pytest.raises(ValueError):
+        MetricalHierarchy()
+
+
+def test_levels_no_ts():
+    with pytest.raises(ValueError):
+        MetricalHierarchy(levels=[2, 1])
+
+
+def test_invalid_denominator():
+    with pytest.raises(ValueError):
+        starts_from_ts("2/6")
+
+
+def test_invalid_minimum_pulse():
+    with pytest.raises(ValueError):
+        starts_from_ts("2/4", minimum_pulse=17)
+
+
+def test_level_beyond_6():
+    with pytest.raises(ValueError):
+        starts_from_ts_and_levels("2/4", levels=[7])
+
+
+def test_pulse_beyond_measure_length():
+    with pytest.raises(ValueError):
+        starts_from_pulse_lengths([4, 2, 1], measure_length=2)
+
+
+def test_require_2_3_fail():
+    with pytest.raises(ValueError):
+        starts_from_pulse_lengths([4, 1], require_2_or_3_between_levels=True)
