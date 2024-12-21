@@ -182,3 +182,17 @@ def test_pulse_beyond_measure_length():
 def test_require_2_3_fail():
     with pytest.raises(ValueError):
         starts_from_pulse_lengths([4, 1], require_2_or_3_between_levels=True)
+
+
+def test_name_format():
+    """
+    One case in the correct format, and one that raises.
+    """
+
+    MetricalHierarchy("4/4", names={0.0: "ta", 1.0: "ka", 2.0: "di", 3.0: "mi"})
+
+    with pytest.raises(AssertionError):
+        MetricalHierarchy("4/4", names="Aditya, Bella, Carlos")
+
+    with pytest.raises(AssertionError):
+        MetricalHierarchy("4/4", names={0.0: ["Aditya", "Bella", "Carlos"]})
