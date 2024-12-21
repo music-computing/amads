@@ -88,6 +88,14 @@ class MetricalHierarchy:
     This same structure can be created in many ways as outlined in the parameters.
     For example:
 
+    Hierarchies can be created directly.
+
+    >>> hierarchy = MetricalHierarchy(start_hierarchy=[[0.0, 4.0], [0.0, 2.0, 4.0]])
+    >>> hierarchy.start_hierarchy
+    [[0.0, 4.0], [0.0, 2.0, 4.0]]
+
+    They can be made from a list of `pulse_lengths`
+
     >>> four_four_from_pulses = MetricalHierarchy(pulse_lengths=[4, 2, 1])
     >>> four_four_from_pulses.start_hierarchy[0]
     [0.0, 4.0]
@@ -224,6 +232,16 @@ class MetricalSplitter:
         >>> split.start_duration_pairs
         [(0.25, 0.25), (0.5, 0.5), (1.0, 1.0), (2.0, 0.25)]
 
+        If the note runs past the end of the metrical span,
+        the remainng value is stored as follows:
+
+        >>> split = MetricalSplitter(0.25, 4.0, meter=m)
+        >>> split.start_duration_pairs
+        [(0.25, 0.25), (0.5, 0.5), (1.0, 1.0), (2.0, 2.0)]
+
+        >>> split.remaining_length
+        0.25
+
     )
 
     """
@@ -270,6 +288,11 @@ class MetricalSplitter:
             if (
                 self.remaining_length <= 0
             ):  # sic, here due to the various routes through
+                return
+
+            if (
+                self.updated_start == self.start_hierarchy[0][-1]
+            ):  # finished metrical span
                 return
 
             this_level = self.start_hierarchy[level_index]
