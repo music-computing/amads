@@ -300,7 +300,7 @@ class MetricalSplitter:
             if self.updated_start in this_level:
                 if level_index == 0:  # i.e., updated_start == 0
                     self.start_duration_pairs.append(
-                        (self.updated_start, self.remaining_length)
+                        (self.updated_start, round(self.remaining_length, 4))
                     )
                     return
                 else:  # level up. NB: duplicates in nested hierarchy help here
@@ -325,14 +325,14 @@ class MetricalSplitter:
                 duration_to_next_position = p - self.updated_start
                 if self.remaining_length <= duration_to_next_position:
                     self.start_duration_pairs.append(
-                        (self.updated_start, self.remaining_length)
+                        (self.updated_start, round(self.remaining_length, 4))
                     )
                     # done but still reduce remaining_length to end the whole process in level_pass
                     self.remaining_length -= duration_to_next_position
                     return
                 else:  # self.remaining_length > duration_to_next_position:
                     self.start_duration_pairs.append(
-                        (self.updated_start, duration_to_next_position)
+                        (self.updated_start, round(duration_to_next_position, 4))
                     )
                     # Updated start and position; run again
                     self.updated_start = p
