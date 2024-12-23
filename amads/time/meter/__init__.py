@@ -49,13 +49,13 @@ class MetricalHierarchy:
     time_signature
         Alternatively, in absense of a `start_hierarchy` or `pulse_lengths` entry,
         users can specify a `time_signature` (str) from which a `start_hierarchy` can be created.
-        See `starts_from_ts` for further explanation.
+        See `starts_from_time_signature` for further explanation.
 
     levels
         If provided with a `time_signature`, optionally also specify the levels of the metrical hierarchy.
         The default arrangement is to use all levels of a time signature's implied metrical hierarchy.
         Alternatively, this parameter allows users to select certain levels for in-/exclusion.
-        See the `starts_from_ts_and_levels` function for further explanation.
+        See the `starts_from_time_signature_and_levels` function for further explanation.
 
     names
         Optionally create a dict mapping temporal positions to names.
@@ -115,7 +115,7 @@ class MetricalHierarchy:
     [[0.0, 3.0], [0.0, 1.5, 3.0], [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0]]
 
     Again, for more on these converters, see the static function in this module,
-    e.g., `starts_from_ts`, `starts_from_ts_and_levels`.
+    e.g., `starts_from_time_signature`, `starts_from_time_signature_and_levels`.
 
     """
 
@@ -141,14 +141,16 @@ class MetricalHierarchy:
             self.levels = levels
             if time_signature:  # both time signature and levels
                 self.time_signature = time_signature
-                self.start_hierarchy = starts_from_ts_and_levels(time_signature, levels)
+                self.start_hierarchy = starts_from_time_signature_and_levels(
+                    time_signature, levels
+                )
             else:  # no time signature, yes levels
                 raise ValueError(
                     "To specify levels, please also enter a valid time signature."
                 )
         elif time_signature:  # time signature and no levels, assume all
             self.time_signature = time_signature
-            self.start_hierarchy = starts_from_ts(time_signature)
+            self.start_hierarchy = starts_from_time_signature(time_signature)
         else:
             raise ValueError(
                 "Specify at least one of `start_hierarchy`, `pulse_length` or `time_signature`"
@@ -163,7 +165,7 @@ class MetricalHierarchy:
 # ------------------------------------------------------------------------------
 
 
-def starts_from_ts(
+def starts_from_time_signature(
     ts_str: str, enforce_2s_3s: bool = True, minimum_pulse: int = 64
 ) -> list:
     """
@@ -189,34 +191,34 @@ def starts_from_ts(
     --------
     The following examples index the most interesting level:
 
-    >>> starts_from_ts("4/4")[1]  # note the half cycle division
+    >>> starts_from_time_signature("4/4")[1]  # note the half cycle division
     [0.0, 2.0, 4.0]
 
-    >>> starts_from_ts("4/4", enforce_2s_3s=False)[1]  # note the absence of a half cycle division
+    >>> starts_from_time_signature("4/4", enforce_2s_3s=False)[1]  # note the absence of a half cycle division
     [0.0, 1.0, 2.0, 3.0, 4.0]
 
-    >>> starts_from_ts("2/2")[1]  # note the presence of a half cycle division
+    >>> starts_from_time_signature("2/2")[1]  # note the presence of a half cycle division
     [0.0, 2.0, 4.0]
 
-    >>> starts_from_ts("6/8")[1]  # note the macro-beat division
+    >>> starts_from_time_signature("6/8")[1]  # note the macro-beat division
     [0.0, 1.5, 3.0]
 
 
     Numerators like 5 and 7 are supported.
     Use the total value only to avoid segmentation about the denominator level:
 
-    >>> starts_from_ts("5/4")[1]  # note no 2+3 or 3+2 level division
+    >>> starts_from_time_signature("5/4")[1]  # note no 2+3 or 3+2 level division
     [0.0, 1.0, 2.0, 3.0, 4.0, 5.0]
 
     Or use numerator addition in the form "X+Y/Z" to clarify this level ...
 
-    >>> starts_from_ts("2+3/4")[1]  # note the 2+3 division
+    >>> starts_from_time_signature("2+3/4")[1]  # note the 2+3 division
     [0.0, 2.0, 5.0]
 
-    >>> starts_from_ts("2+2+3/8")[1]  # note the 2+2+3 division
+    >>> starts_from_time_signature("2+2+3/8")[1]  # note the 2+2+3 division
     [0.0, 1.0, 2.0, 3.5]
 
-    >>> starts_from_ts("2+2+2+3/8")[1]  # note the 2+2+2+3 division
+    >>> starts_from_time_signature("2+2+2+3/8")[1]  # note the 2+2+2+3 division
     [0.0, 1.0, 2.0, 3.0, 4.5]
 
     Only standard denominators are supported:
@@ -302,7 +304,7 @@ def starts_from_ts(
     return start_hierarchy
 
 
-def starts_from_ts_and_levels(
+def starts_from_time_signature_and_levels(
     ts_str: str,
     levels: Union[list, None] = None,
 ):
@@ -342,10 +344,10 @@ def starts_from_ts_and_levels(
     Examples
     --------
 
-    >>> starts_from_ts_and_levels("6/8", [1, 2])
+    >>> starts_from_time_signature_and_levels("6/8", [1, 2])
     [[0.0, 3.0], [0.0, 1.5, 3.0], [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0]]
 
-    >>> level_not_specified = starts_from_ts_and_levels("6/8")
+    >>> level_not_specified = starts_from_time_signature_and_levels("6/8")
     >>> len(level_not_specified)
     6
 
@@ -364,7 +366,7 @@ def starts_from_ts_and_levels(
 
     starts_by_level = []
 
-    full_hierarchy = starts_from_ts(ts_str)
+    full_hierarchy = starts_from_time_signature(ts_str)
     for level in levels:
         starts_by_level.append(full_hierarchy[level])
 

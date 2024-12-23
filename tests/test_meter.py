@@ -10,8 +10,8 @@ from amads.time.meter import (
     MetricalHierarchy,
     examples,
     starts_from_pulse_lengths,
-    starts_from_ts,
-    starts_from_ts_and_levels,
+    starts_from_time_signature,
+    starts_from_time_signature_and_levels,
 )
 
 
@@ -43,9 +43,9 @@ def test_metres():
     return metres
 
 
-def test_get_starts_from_ts_and_levels(test_metres):
+def test_get_starts_from_time_signature_and_levels(test_metres):
     for tc in test_metres:
-        t = starts_from_ts_and_levels(tc["ts"], tc["levels"])
+        t = starts_from_time_signature_and_levels(tc["ts"], tc["levels"])
         assert t == tc["starts"]
 
 
@@ -65,10 +65,10 @@ def test_require_2_or_3():
         )
 
 
-def test_start_hierarchy_from_ts():
-    """Test start_hierarchy_from_ts by running through test cases."""
+def test_start_hierarchy_from_time_signature():
+    """Test start_hierarchy_from_time_signature by running through test cases."""
     for k in examples.start_hierarchy_examples:
-        oh = starts_from_ts(k, minimum_pulse=32)
+        oh = starts_from_time_signature(k, minimum_pulse=32)
         assert oh == examples.start_hierarchy_examples[k]
 
 
@@ -80,24 +80,24 @@ def test_nothing():
         MetricalHierarchy()
 
 
-def test_levels_no_ts():
+def test_levels_no_time_signature():
     with pytest.raises(ValueError):
         MetricalHierarchy(levels=[2, 1])
 
 
 def test_invalid_denominator():
     with pytest.raises(ValueError):
-        starts_from_ts("2/6")
+        starts_from_time_signature("2/6")
 
 
 def test_invalid_minimum_pulse():
     with pytest.raises(ValueError):
-        starts_from_ts("2/4", minimum_pulse=17)
+        starts_from_time_signature("2/4", minimum_pulse=17)
 
 
 def test_level_beyond_6():
     with pytest.raises(ValueError):
-        starts_from_ts_and_levels("2/4", levels=[7])
+        starts_from_time_signature_and_levels("2/4", levels=[7])
 
 
 def test_pulse_beyond_measure_length():
