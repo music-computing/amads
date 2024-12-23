@@ -233,7 +233,7 @@ class MetricalSplitter:
         [(0.25, 0.25), (0.5, 0.5), (1.0, 1.0), (2.0, 0.25)]
 
         If the note runs past the end of the metrical span,
-        the remainng value is stored as follows:
+        the remaining value is stored as follows:
 
         >>> split = MetricalSplitter(0.25, 4.0, meter=m)
         >>> split.start_duration_pairs
@@ -241,6 +241,13 @@ class MetricalSplitter:
 
         >>> split.remaining_length
         0.25
+
+        If the `note_start` is not in the hierarchy,
+        then the fist step is to map to the next nearest value in the lowest level.
+
+        >>> split = MetricalSplitter(0.05, 2.0, meter=m)
+        >>> split.start_duration_pairs
+        [(0.05, 0.0125), (0.0625, 0.0625), (0.125, 0.125), (0.25, 0.25), (0.5, 0.5), (1.0, 1.0), (2.0, 0.05)]
 
     )
 
