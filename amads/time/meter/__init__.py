@@ -146,6 +146,8 @@ class MetricalHierarchy:
         if not start_hierarchy:
             self.get_starts()
 
+        self.cycle_length = self.start_hierarchy[0][-1]
+
     def get_starts(self):
         """
         This class always gets the start position information from a time signature.
