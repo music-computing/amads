@@ -308,8 +308,7 @@ def starts_from_time_signature(
             f" {supported_denominators}."
         )
 
-    # Prep. "hiddenLayer"/s
-    hidden_layer_mappings = (
+    metrical_level_expansions = (
         ([4], [2, 2]),
         ([6], [3, 3]),
         ([9], [3, 3, 3]),  # alternative groupings need to be set out, e.g., 2+2+2+3
@@ -320,7 +319,7 @@ def starts_from_time_signature(
     )
 
     if enforce_2s_3s:
-        for h in hidden_layer_mappings:
+        for h in metrical_level_expansions:
             if numerators == h[0]:
                 numerators = h[1]
 
