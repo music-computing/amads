@@ -29,7 +29,8 @@ class MetricalHierarchy:
     At least one of the parameters (below) must be specified.
     These are listed in order of override, e.g., if a full `start_hierarchy` is specified, all else are ignored.
 
-    For a 'quick start', the `time_signature` defaults will serve most use cases, and
+    See below for several `Examples` of how to use these input options
+    or, for a 'quick start', the `time_signature` defaults will serve most use cases, and
     that along with `levels` should be cover almost all.
 
     Parameters
@@ -39,6 +40,9 @@ class MetricalHierarchy:
         and completely from scratch (ignoring all other parameters and defaults).
         Use this for advanced, non-standard metrical structures
         including those without 2-/3- grouping, or even nested hierarchies.
+        The only "well-formed" criteria we expect are:
+        use of 0.0 and full cycle length at the topic level,
+        presence of all timepoints from one level in each subsequent level.
 
     pulse_lengths
         In absense of a `start_hierarchy`, users can specify the structure by
@@ -127,60 +131,79 @@ class MetricalHierarchy:
         start_hierarchy: Optional[list] = None,
         names: Optional[dict] = None,
     ):
-        # Retrieve or create the metrical structure
-        if start_hierarchy:
-            self.start_hierarchy = start_hierarchy
-            return
-        elif pulse_lengths:
-            self.pulse_lengths = pulse_lengths
-            self.start_hierarchy = starts_from_pulse_lengths(
-                pulse_lengths, require_2_or_3_between_levels=False
-            )
-            return
-        elif levels:
-            self.levels = levels
-            if time_signature:  # both time signature and levels
-                self.time_signature = time_signature
-                self.start_hierarchy = starts_from_time_signature_and_levels(
-                    time_signature, levels
-                )
-            else:  # no time signature, yes levels
-                raise ValueError(
-                    "To specify levels, please also enter a valid time signature."
-                )
-        elif time_signature:  # time signature and no levels, assume all
-            self.time_signature = time_signature
-            self.start_hierarchy = starts_from_time_signature(time_signature)
-        else:
-            raise ValueError(
-                "Specify at least one of `start_hierarchy`, `pulse_length` or `time_signature`"
-            )
+        self.time_signature = time_signature
+        self.levels = levels
+        self.pulse_lengths = pulse_lengths
+        self.start_hierarchy = start_hierarchy
 
         if names:
             for key in names:
                 assert isinstance(key, float)
                 assert isinstance(names[key], str)
+        self.names = names
+
+        # Retrieve or create the metrical structure
+        if not start_hierarchy:
+            self.get_starts()
+
+    def get_starts(self):
+        """
+        This class always gets the start position information from a time signature.
+        This routine
+        """
+
+        if self.pulse_lengths:
+            self.start_hierarchy = starts_from_pulse_lengths(
+                self.pulse_lengths, require_2_or_3_between_levels=False
+            )
+            return
+        elif self.levels:
+            if self.time_signature:  # both time signature and levels
+                self.start_hierarchy = starts_from_time_signature_and_levels(
+                    self.time_signature, self.levels
+                )
+            else:  # no time signature, yes levels
+                raise ValueError(
+                    "To specify levels, please also enter a valid time signature."
+                )
+        elif self.time_signature:  # time signature and no levels, assume all
+            self.start_hierarchy = starts_from_time_signature(self.time_signature)
+        else:
+            raise ValueError(
+                "Specify at least one of `start_hierarchy`, `pulse_length` or `time_signature`"
+            )
 
 
 # ------------------------------------------------------------------------------
 
 
 def starts_from_time_signature(
-    ts_str: str, enforce_2s_3s: bool = True, minimum_pulse: int = 64
+    time_signature: str, enforce_2s_3s: bool = True, minimum_pulse: int = 64
 ) -> list:
     """
     Create a start hierarchy for almost any time signature
     directly from a string (e.g., "4/4") without dependencies.
+    See below for several `Examples` of how this handles
+    specific time signatures and related assumptions,
+     e.g., those in the form
+    "6/" start with a division into "3+3" by default
+    and
+    "5/" has no 3+2 or 2+3 division unless that's specified as in "2+3/4".
 
 
     Parameters
     ----------
-    ts_str
+    time_signature
         Any valid string repersenting a time signature. See examples below.
     enforce_2s_3s
         Map 4 to 2+2 and 6 to 3+3 etc. following the conventions of those time signatures.
+        This is a parameter exactly so that users can choose to switch it off.
     minimum_pulse
-        Recursively create further down to the denominator level specified. Defaults to 64 for 64th notes.
+        Recursively create further down to the denominator level specified.
+        Defaults to 64 for 64th notes.
+        There is psychological evidence for structures requiring levels beyond this
+        ceasing to be 'metrical' in the same sense.
+
 
     Returns
     -------
@@ -189,34 +212,62 @@ def starts_from_time_signature(
 
     Examples
     --------
-    The following examples index the most interesting level:
+    We begin with some common time signatures.
 
-    >>> starts_from_time_signature("4/4")[1]  # note the half cycle division
+    For "4/4", we assume the half cycle division by default:
+    this is because `enforce_2s_3s` defaults to `True`
+    and splits 4s into 2+2.
+
+    >>> starts_from_time_signature("4/4")[1]
     [0.0, 2.0, 4.0]
 
-    >>> starts_from_time_signature("4/4", enforce_2s_3s=False)[1]  # note the absence of a half cycle division
+    This behaviour can be 'switched off' by setting `enforce_2s_3s` to `False`.
+    By not enforcing 2 or 3 division between levels,
+    we can move directly from the 4 pulse cycle to the 1 as below:
+
+    >>> starts_from_time_signature("4/4", enforce_2s_3s=False)[1]
     [0.0, 1.0, 2.0, 3.0, 4.0]
 
-    >>> starts_from_time_signature("2/2")[1]  # note the presence of a half cycle division
+    In the case of "2/2", we consider the half cycle division to be explicitly in the time signature,
+    so `enforce_2s_3s=False` makes no difference.
+
+    >>> starts_from_time_signature("2/2")[1]
     [0.0, 2.0, 4.0]
 
-    >>> starts_from_time_signature("6/8")[1]  # note the macro-beat division
+    >>> starts_from_time_signature("2/2", enforce_2s_3s=False)[1]
+    [0.0, 2.0, 4.0]
+
+    Turning to 'compound' time signatures,
+    the equivalent assumption sees 6 divide into 3+3.
+    Note that macro-beat division in the following:
+
+    >>> starts_from_time_signature("6/8")[1]
     [0.0, 1.5, 3.0]
+
+    >>> starts_from_time_signature("6/8", enforce_2s_3s=False)[1]
+    [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0]
 
 
     Numerators like 5 and 7 are supported.
-    Use the total value only to avoid segmentation about the denominator level:
+    Use the total value only to avoid segmentation above the denominator level:
 
-    >>> starts_from_time_signature("5/4")[1]  # note no 2+3 or 3+2 level division
+    For instance, note the absense of 2+3 or 3+2 level division in the default handling of "5/4":
+
+    >>> starts_from_time_signature("5/4")[1]
     [0.0, 1.0, 2.0, 3.0, 4.0, 5.0]
 
-    Or use numerator addition in the form "X+Y/Z" to clarify this level ...
+    Alternatively, use numerator addition in the form "X+Y/Z" to clarify this level
+    ... so note the 2+3 division in this case ...
 
-    >>> starts_from_time_signature("2+3/4")[1]  # note the 2+3 division
+    >>> starts_from_time_signature("2+3/4")[1]
     [0.0, 2.0, 5.0]
 
-    >>> starts_from_time_signature("2+2+3/8")[1]  # note the 2+2+3 division
+    ... and likewise the 2+2+3 division in this one ...
+
+    >>> starts_from_time_signature("2+2+3/8")[1]
     [0.0, 1.0, 2.0, 3.5]
+
+    ... and so on ...
 
     >>> starts_from_time_signature("2+2+2+3/8")[1]  # note the 2+2+2+3 division
     [0.0, 1.0, 2.0, 3.0, 4.5]
@@ -226,15 +277,18 @@ def starts_from_time_signature(
     1, 2, 4, 8, 16, 32, or 64.
     No so-called "irrational" meters yet (e.g., 2/3), sorry!
 
-    Likewise, the minimum_pulse must be set to one of these values
+    Likewise, the `minimum_pulse` must be set to one of these values
     (default = 64 for 64th note) and not be longer than the meter.
+    There is psychological evidence for structures requiring levels beyond this
+    ceasing to be 'metrical' in the same sense.
 
     Finally, although we support and provide defaults for time signatures in the form "2+3/8",
-    there is no such support for more than one "/" (i.e., the user must build cases like "4/4 + 3/8" explicitly).
+    there is no such support for more than one "/"
+    (i.e., the user must build cases like "4/4 + 3/8" explicitly according to how they see it).
     """
 
     # Prep and checks
-    numerator, denominator = ts_str.split("/")
+    numerator, denominator = time_signature.split("/")
     numerators = [
         int(x) for x in numerator.split("+")
     ]  # Note: support "+" before one "/", e.g., `2+3/4`
@@ -305,7 +359,7 @@ def starts_from_time_signature(
 
 
 def starts_from_time_signature_and_levels(
-    ts_str: str,
+    time_signature: str,
     levels: Union[list, None] = None,
 ):
     """
@@ -331,7 +385,7 @@ def starts_from_time_signature_and_levels(
 
     Parameters
     ----------
-    ts_str
+    time_signature
         Any valid string repersenting a time signature. See examples below.
     levels
         Optionally specify which levels implied by the time signature to use.
@@ -366,7 +420,7 @@ def starts_from_time_signature_and_levels(
 
     starts_by_level = []
 
-    full_hierarchy = starts_from_time_signature(ts_str)
+    full_hierarchy = starts_from_time_signature(time_signature)
     for level in levels:
         starts_by_level.append(full_hierarchy[level])
 
@@ -384,6 +438,9 @@ def starts_from_pulse_lengths(
     All values (pulse lengths, start positions, and measure_length)
     are all expressed in terms of quarter length.
 
+    That is, the user provides pulse lengths for each level of a metrical hierarchy,
+    and the algorithm expands this into a hierarchy assuming equal spacing (aka "isochrony").
+
     This does not work for ("nonisochronous") pulse streams of varying duration
     in time signatures like 5/x, 7/x
     (e.g., the level of 5/4 with dotted/undotted 1/2 notes).
@@ -392,7 +449,7 @@ def starts_from_pulse_lengths(
     within those meters that are regular, equally spaced ("isochronous")
     (e.g., the 1/4 note level of 5/4).
 
-    The list of pulse lengths is set in decreasing order.
+    However they are entered, the list of pulse lengths is handled internally in decreasing order.
 
     If `require_2_or_3_between_levels` is True (default), this functions checks that
     each level is either a 2 or 3 multiple of the next.
@@ -435,8 +492,7 @@ def starts_from_pulse_lengths(
     [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0]
 
     """
-
-    pulse_lengths = sorted(pulse_lengths)[::-1]  # largest number first
+    pulse_lengths.sort(reverse=True)  # largest number first
 
     if not measure_length:
         measure_length = float(pulse_lengths[0])
@@ -465,12 +521,18 @@ def starts_from_pulse_lengths(
 
 
 def coincident_pulse_list(
-    m: MetricalHierarchy,
+    m: Union[MetricalHierarchy, list],
     granular_pulse: float,
 ) -> list:
     """
-    Create a flat list in the form [4, 1, 2, 1, 3, 1, 2, 1]
-    from the number of intersecting pulses at each position.
+    Create a flat list setting out the
+    number of intersecting pulses at each successive position in a metrical cycle.
+
+    For example,
+    the output [4, 1, 2, 1, 3, 1, 2, 1]
+    refers to a base pulse unit of 1,
+    with addition pulse streams accenting every 2nd, 4th, and 8th position.
+
 
     Parameters
     --------
@@ -483,15 +545,16 @@ def coincident_pulse_list(
     Examples
     --------
 
-    >>> m = [[0.0, 4.0], [0.0, 2.0, 4.0], [0.0, 1.0, 2.0, 3.0, 4.0]]
-    >>> coincident_pulse_list(m, granular_pulse=1)
+    You can currently set the `granular_pulse` value to anything (this behavious may change).
+    For instance, in the pair of example below,
+    first we have a `granular_pulse` that's present in the input,
+    and then a case using a faster level that's not present (this simply pads the data out):
+
+    >>> metrical_hierarchy = [[0.0, 4.0], [0.0, 2.0, 4.0], [0.0, 1.0, 2.0, 3.0, 4.0]]
+    >>> coincident_pulse_list(metrical_hierarchy, granular_pulse=1)
     [3, 1, 2, 1]
 
-    You can currently set the `granular_pulse` value to anything (this behavious may change).
-    For instance, a faster level that's not present simply pads the data out:
-
-    >>> m = [[0.0, 4.0], [0.0, 2.0, 4.0], [0.0, 1.0, 2.0, 3.0, 4.0]]
-    >>> coincident_pulse_list(m, granular_pulse=0.5)
+    >>> coincident_pulse_list(metrical_hierarchy, granular_pulse=0.5)
     [3, 0, 1, 0, 2, 0, 1, 0]
 
     """
@@ -554,6 +617,10 @@ def starts_from_lengths(
 
     >>> starts_from_lengths(4, 1, include_measure_length=False)
     [0.0, 1.0, 2.0, 3.0]
+
+    >>> starts_from_lengths(1.5, 0.5)
+    [0.0, 0.5, 1.0, 1.5]
+
     """
     starts = []
     count = 0
@@ -576,7 +643,12 @@ def starts_from_beat_pattern(
     or [3, 3]
     or indeed
     [6, 9]
-    into a list of starts.
+    into a list of within-measure starting positions, as defined relative
+    to the start of the measure cycle.
+    Basically the list of beats functions like a time signature numerator,
+    so for instance, `[2, 2, 3]` with the denominator `4` is a kind of 7/4.
+    This equates to starting positions of
+    `[0.0, 2.0, 4.0, 7.0]`.
 
     Parameters
     --------
