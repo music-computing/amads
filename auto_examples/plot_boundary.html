@@ -1,0 +1,659 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Boundary detection &#8212; amads  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'auto_examples/plot_boundary';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Sliding window analysis" href="plot_sliding_window.html" />
+    <link rel="prev" title="&lt;no title&gt;" href="plot_durdist2.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">amads  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">User guide:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/installation.html">Installation</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Developer notes:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../developer_notes/contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_notes/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_notes/design.html">Design considerations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_notes/modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_notes/music21.html">Music21</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_notes/testing.html">Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_notes/style.html">Style</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Examples:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Boundary detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot_sliding_window.html">Sliding window analysis</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">General algorithms:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.algorithms.entropy.html">amads.algorithms.entropy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.algorithms.nnotes.html">amads.algorithms.nnotes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.algorithms.scale.html">amads.algorithms.scale</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Pitch:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.hz2midi.html">amads.pitch.hz2midi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.ismonophonic.html">amads.pitch.ismonophonic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.ivdirdist1.html">amads.pitch.ivdirdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.ivdist1.html">amads.pitch.ivdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.ivdist2.html">amads.pitch.ivdist2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.ivsizedist1.html">amads.pitch.ivsizedist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.key.profiles.html">amads.pitch.key.profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.pcdist1.html">amads.pitch.pcdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.pcdist2.html">amads.pitch.pcdist2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.pitch_mean.html">amads.pitch.pitch_mean</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.transformations.html">amads.pitch.transformations</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Time:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.time.durdist1.html">amads.time.durdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.time.durdist2.html">amads.time.durdist2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.time.meter.break_it_up.html">amads.time.meter.break_it_up</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Harmony:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.harmony.root_finding.parncutt_1988.html">amads.harmony.root_finding.parncutt_1988</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Melody:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.melody.boundary.html">amads.melody.boundary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.melody.segment_gestalt.html">amads.melody.segment_gestalt</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Polyphony:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.polyphony.skyline.html">amads.polyphony.skyline</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Core:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.core.basics.html">amads.core.basics</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">IO:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.io.pianoroll.html">amads.io.pianoroll</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/auto_examples/plot_boundary.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Boundary detection</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-auto-examples-plot-boundary-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
+</div>
+<section class="sphx-glr-example-title" id="boundary-detection">
+<span id="sphx-glr-auto-examples-plot-boundary-py"></span><h1>Boundary detection<a class="headerlink" href="#boundary-detection" title="Link to this heading">#</a></h1>
+<p>This example demonstrates how to detect boundaries in a MIDI file using the
+boundary detection algorithm.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">amads.algorithms</span><span class="w"> </span><span class="kn">import</span> <span class="n">boundary</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">amads.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">partitura_midi_import</span><span class="p">,</span> <span class="n">pianoroll</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">amads.music</span><span class="w"> </span><span class="kn">import</span> <span class="n">example</span>
+
+<span class="c1"># Load example MIDI file</span>
+<span class="n">my_midi_file</span> <span class="o">=</span> <span class="n">example</span><span class="o">.</span><span class="n">fullpath</span><span class="p">(</span><span class="s2">&quot;midi/tempo.mid&quot;</span><span class="p">)</span>
+
+<span class="c1"># Import MIDI using partitura</span>
+<span class="n">myscore</span> <span class="o">=</span> <span class="n">partitura_midi_import</span><span class="p">(</span><span class="n">my_midi_file</span><span class="p">,</span> <span class="n">ptprint</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="c1"># Create piano roll visualization</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">pianoroll</span><span class="p">(</span><span class="n">myscore</span><span class="p">)</span>
+
+<span class="c1"># Detect boundaries and get strength values</span>
+<span class="n">strength_list</span> <span class="o">=</span> <span class="n">boundary</span><span class="p">(</span><span class="n">myscore</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">strength_list</span><span class="p">)</span>
+
+<span class="c1"># TODO: consider a graph sharing the same time axis as</span>
+<span class="c1"># our score plot so that the &quot;soft&quot; boundary strengths could be</span>
+<span class="c1"># accentuated. How do we visualize strength?</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>  <span class="c1"># hello</span>
+</pre></div>
+</div>
+<img src="../_images/sphx_glr_plot_boundary_001.png" srcset="../_images/sphx_glr_plot_boundary_001.png" alt="plot boundary" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/opt/hostedtoolcache/Python/3.10.16/x64/lib/python3.10/site-packages/partitura/io/importmidi.py:524: UserWarning: pitch spelling
+  warnings.warn(&quot;pitch spelling&quot;)
+/opt/hostedtoolcache/Python/3.10.16/x64/lib/python3.10/site-packages/partitura/utils/misc.py:68: UserWarning: voice estimation
+  return f(*args, **kwargs)
+/opt/hostedtoolcache/Python/3.10.16/x64/lib/python3.10/site-packages/partitura/io/importmidi.py:607: UserWarning: create_part
+  part = create_part(
+/opt/hostedtoolcache/Python/3.10.16/x64/lib/python3.10/site-packages/partitura/io/importmidi.py:607: UserWarning: add notes
+  part = create_part(
+/opt/hostedtoolcache/Python/3.10.16/x64/lib/python3.10/site-packages/partitura/io/importmidi.py:607: UserWarning: add time sigs and measures
+  part = create_part(
+/opt/hostedtoolcache/Python/3.10.16/x64/lib/python3.10/site-packages/partitura/io/importmidi.py:607: UserWarning: tie notes
+  part = create_part(
+/opt/hostedtoolcache/Python/3.10.16/x64/lib/python3.10/site-packages/partitura/io/importmidi.py:607: UserWarning: find tuplets
+  part = create_part(
+/opt/hostedtoolcache/Python/3.10.16/x64/lib/python3.10/site-packages/partitura/io/importmidi.py:607: UserWarning: done create_part
+  part = create_part(
+staff_numbers {None}
+measures [(1, 0, 1919), (&#39;timesig&#39;, 4, 4), (&#39;keysig&#39;, 0), (2, 1919, 3839), (3, 3839, 5759), (4, 5759, 7679), (5, 7679, 7681)]
+div_to_quarter: div 1919 qtrs 4.0
+div_to_quarter: div 0 qtrs 0.0
+div_to_quarter: div 3839 qtrs 8.0
+div_to_quarter: div 1919 qtrs 4.0
+div_to_quarter: div 5759 qtrs 12.0
+div_to_quarter: div 3839 qtrs 8.0
+div_to_quarter: div 7679 qtrs 16.0
+div_to_quarter: div 5759 qtrs 12.0
+div_to_quarter: div 7681 qtrs 16.0
+div_to_quarter: div 7679 qtrs 16.0
+added measures to staff:
+Staff at 0.000 delta 0.000 duration 16.000
+    Measure at 0.000 delta 0.000 duration 4.000
+        TimeSignature at 0.000 delta 0.000: 4/4
+        KeySignature at 4.000 delta 4.0000 flats
+    Measure at 4.000 delta 4.000 duration 4.000
+    Measure at 8.000 delta 8.000 duration 4.000
+    Measure at 12.000 delta 12.000 duration 4.000
+div=0 -&gt; qtr -3.9979166666666672
+measure_map(0) [   0 1919]
+measure_number_map(0) 1
+div_to_quarter: div 0 qtrs 0.0
+Note or Rest start 0.0 item.start.t 0
+ignoring 0-- Clef sign=G line=2 number=1
+ignoring 0--1919 Measure number=1 name=1
+ignoring 0-- TimeSignature 4/4
+div_to_quarter: div 0 qtrs 0.0
+Tempo start 0.0 tempo 1.6666666666666667
+append_beat_tempo 1.6666666666666667 &lt;amads.core.time_map.MapBeat object at 0x7fcba1b95f90&gt;
+ignoring 0-- KeySignature fifths=0, mode=major (C)
+div_to_quarter: div 481 qtrs 1.0020833333333334
+Note or Rest start 1.0020833333333334 item.start.t 481
+div_to_quarter: div 961 qtrs 2.002083333333333
+Note or Rest start 2.002083333333333 item.start.t 961
+div_to_quarter: div 1440 qtrs 3.0
+Tempo start 3.0 tempo 1.8333318055568286
+append_beat_tempo 1.8333318055568286 &lt;amads.core.time_map.MapBeat object at 0x7fcba1b94640&gt;
+div_to_quarter: div 1441 qtrs 3.002083333333333
+Note or Rest start 3.002083333333333 item.start.t 1441
+div_to_quarter: div 1919 qtrs 3.997916666666667
+Note or Rest start 3.997916666666667 item.start.t 1919
+ignoring 1919--3839 Measure number=2 name=2
+div_to_quarter: div 1921 qtrs 4.002083333333333
+Note or Rest start 4.002083333333333 item.start.t 1921
+div_to_quarter: div 2401 qtrs 5.002083333333333
+Note or Rest start 5.002083333333333 item.start.t 2401
+div_to_quarter: div 2880 qtrs 6.0
+Tempo start 6.0 tempo 1.499999250000375
+append_beat_tempo 1.499999250000375 &lt;amads.core.time_map.MapBeat object at 0x7fcba1b96a70&gt;
+div_to_quarter: div 2881 qtrs 6.002083333333333
+Note or Rest start 6.002083333333333 item.start.t 2881
+div_to_quarter: div 3361 qtrs 7.002083333333333
+Note or Rest start 7.002083333333333 item.start.t 3361
+div_to_quarter: div 3839 qtrs 7.997916666666667
+Note or Rest start 7.997916666666667 item.start.t 3839
+ignoring 3839--5759 Measure number=3 name=3
+div_to_quarter: div 3841 qtrs 8.002083333333333
+Note or Rest start 8.002083333333333 item.start.t 3841
+div_to_quarter: div 4320 qtrs 9.0
+Tempo start 9.0 tempo 2.0
+append_beat_tempo 2.0 &lt;amads.core.time_map.MapBeat object at 0x7fcba1b95f00&gt;
+div_to_quarter: div 4321 qtrs 9.002083333333333
+Note or Rest start 9.002083333333333 item.start.t 4321
+div_to_quarter: div 4801 qtrs 10.002083333333333
+Note or Rest start 10.002083333333333 item.start.t 4801
+div_to_quarter: div 5281 qtrs 11.002083333333333
+Note or Rest start 11.002083333333333 item.start.t 5281
+div_to_quarter: div 5759 qtrs 11.997916666666667
+Note or Rest start 11.997916666666667 item.start.t 5759
+ignoring 5759--7679 Measure number=4 name=4
+div_to_quarter: div 5760 qtrs 12.0
+Tempo start 12.0 tempo 1.6666666666666667
+append_beat_tempo 1.6666666666666667 &lt;amads.core.time_map.MapBeat object at 0x7fcba1b95300&gt;
+div_to_quarter: div 5761 qtrs 12.002083333333333
+Note or Rest start 12.002083333333333 item.start.t 5761
+div_to_quarter: div 6241 qtrs 13.002083333333333
+Note or Rest start 13.002083333333333 item.start.t 6241
+div_to_quarter: div 6720 qtrs 14.0
+Tempo start 14.0 tempo 1.8333318055568286
+append_beat_tempo 1.8333318055568286 &lt;amads.core.time_map.MapBeat object at 0x7fcba1b94d30&gt;
+div_to_quarter: div 6721 qtrs 14.002083333333333
+Note or Rest start 14.002083333333333 item.start.t 6721
+div_to_quarter: div 7201 qtrs 15.002083333333333
+Note or Rest start 15.002083333333333 item.start.t 7201
+div_to_quarter: div 7679 qtrs 15.997916666666667
+Note or Rest start 15.997916666666667 item.start.t 7679
+ignoring 7679--7681 Measure number=5 name=5
+events [[&#39;Note&#39;, 0.0, 1.0020833333333334, None, 67, &#39;n0&#39;, None], [&#39;Note&#39;, 1.0020833333333334, 1.0, None, 64, &#39;n1&#39;, None], [&#39;Note&#39;, 2.002083333333333, 1.0, None, 67, &#39;n2&#39;, None], [&#39;Note&#39;, 3.002083333333333, 0.9958333333333333, None, 65, &#39;n3&#39;, &#39;start&#39;], [&#39;Note&#39;, 3.997916666666667, 0.004166666666666667, None, 65, &#39;n3a&#39;, &#39;stop&#39;], [&#39;Note&#39;, 4.002083333333333, 1.0, None, 67, &#39;n4&#39;, None], [&#39;Note&#39;, 5.002083333333333, 1.0, None, 64, &#39;n5&#39;, None], [&#39;Note&#39;, 6.002083333333333, 1.0, None, 67, &#39;n6&#39;, None], [&#39;Note&#39;, 7.002083333333333, 0.9958333333333333, None, 71, &#39;n7&#39;, &#39;start&#39;], [&#39;Note&#39;, 7.997916666666667, 0.004166666666666667, None, 71, &#39;n7a&#39;, &#39;stop&#39;], [&#39;Note&#39;, 8.002083333333333, 1.0, None, 69, &#39;n8&#39;, None], [&#39;Note&#39;, 9.002083333333333, 1.0, None, 71, &#39;n9&#39;, None], [&#39;Note&#39;, 10.002083333333333, 1.0, None, 74, &#39;n10&#39;, None], [&#39;Note&#39;, 11.002083333333333, 0.9958333333333333, None, 71, &#39;n11&#39;, &#39;start&#39;], [&#39;Note&#39;, 11.997916666666667, 0.004166666666666667, None, 71, &#39;n11a&#39;, &#39;stop&#39;], [&#39;Note&#39;, 12.002083333333333, 1.0, None, 69, &#39;n12&#39;, None], [&#39;Note&#39;, 13.002083333333333, 1.0, None, 67, &#39;n13&#39;, None], [&#39;Note&#39;, 14.002083333333333, 1.0, None, 64, &#39;n14&#39;, None], [&#39;Note&#39;, 15.002083333333333, 0.9958333333333333, None, 67, &#39;n15&#39;, &#39;start&#39;], [&#39;Note&#39;, 15.997916666666667, 0.004166666666666667, None, 67, &#39;n15a&#39;, &#39;stop&#39;]]
+BEGIN retie_note [&#39;Note&#39;, 3.002083333333333, 0.9958333333333333, None, 65, &#39;n3&#39;, &#39;start&#39;]
+search for group Note 65 65 &lt;amads.core.basics.Staff object at 0x7fcba1b95b40&gt;
+**** found one **** [&#39;Note&#39;, 3.997916666666667, 0.004166666666666667, None, 65, &#39;n3a&#39;, &#39;stop&#39;]
+GROUP BEFORE:  [[&#39;Note&#39;, 3.002083333333333, 0.9958333333333333, None, 65, &#39;n3&#39;, &#39;start&#39;], [&#39;Note&#39;, 3.997916666666667, 0.004166666666666667, None, 65, &#39;n3a&#39;, &#39;stop&#39;]]
+found bar at 4.0 absdiff 0.002083333333333215
+GROUP AFTER:  [[&#39;Note&#39;, 3.002083333333333, 0.9979166666666668, None, 65, &#39;n3&#39;, None], [&#39;Note&#39;, 4.0, 0, None, 65, &#39;n3a&#39;, &#39;stop&#39;]]
+BEGIN retie_note [&#39;Note&#39;, 7.002083333333333, 0.9958333333333333, None, 71, &#39;n7&#39;, &#39;start&#39;]
+search for group Note 71 71 &lt;amads.core.basics.Staff object at 0x7fcba1b95b40&gt;
+**** found one **** [&#39;Note&#39;, 7.997916666666667, 0.004166666666666667, None, 71, &#39;n7a&#39;, &#39;stop&#39;]
+GROUP BEFORE:  [[&#39;Note&#39;, 7.002083333333333, 0.9958333333333333, None, 71, &#39;n7&#39;, &#39;start&#39;], [&#39;Note&#39;, 7.997916666666667, 0.004166666666666667, None, 71, &#39;n7a&#39;, &#39;stop&#39;]]
+found bar at 8.0 absdiff 0.002083333333333215
+GROUP AFTER:  [[&#39;Note&#39;, 7.002083333333333, 0.9979166666666668, None, 71, &#39;n7&#39;, None], [&#39;Note&#39;, 8.0, 0, None, 71, &#39;n7a&#39;, &#39;stop&#39;]]
+BEGIN retie_note [&#39;Note&#39;, 11.002083333333333, 0.9958333333333333, None, 71, &#39;n11&#39;, &#39;start&#39;]
+search for group Note 71 71 &lt;amads.core.basics.Staff object at 0x7fcba1b95b40&gt;
+**** found one **** [&#39;Note&#39;, 11.997916666666667, 0.004166666666666667, None, 71, &#39;n11a&#39;, &#39;stop&#39;]
+GROUP BEFORE:  [[&#39;Note&#39;, 11.002083333333333, 0.9958333333333333, None, 71, &#39;n11&#39;, &#39;start&#39;], [&#39;Note&#39;, 11.997916666666667, 0.004166666666666667, None, 71, &#39;n11a&#39;, &#39;stop&#39;]]
+found bar at 12.0 absdiff 0.002083333333333215
+GROUP AFTER:  [[&#39;Note&#39;, 11.002083333333333, 0.9979166666666668, None, 71, &#39;n11&#39;, None], [&#39;Note&#39;, 12.0, 0, None, 71, &#39;n11a&#39;, &#39;stop&#39;]]
+BEGIN retie_note [&#39;Note&#39;, 15.002083333333333, 0.9958333333333333, None, 67, &#39;n15&#39;, &#39;start&#39;]
+search for group Note 67 67 &lt;amads.core.basics.Staff object at 0x7fcba1b95b40&gt;
+**** found one **** [&#39;Note&#39;, 15.997916666666667, 0.004166666666666667, None, 67, &#39;n15a&#39;, &#39;stop&#39;]
+GROUP BEFORE:  [[&#39;Note&#39;, 15.002083333333333, 0.9958333333333333, None, 67, &#39;n15&#39;, &#39;start&#39;], [&#39;Note&#39;, 15.997916666666667, 0.004166666666666667, None, 67, &#39;n15a&#39;, &#39;stop&#39;]]
+found bar at 16.0 absdiff 0.002083333333333215
+GROUP AFTER:  [[&#39;Note&#39;, 15.002083333333333, 0.9979166666666668, None, 67, &#39;n15&#39;, None], [&#39;Note&#39;, 16.0, 0, None, 67, &#39;n15a&#39;, &#39;stop&#39;]]
+after re-tie notes, events:
+[[&#39;Note&#39;, 0.0, 1.0020833333333334, None, 67, &#39;n0&#39;, None], [&#39;Note&#39;, 1.0020833333333334, 1.0, None, 64, &#39;n1&#39;, None], [&#39;Note&#39;, 2.002083333333333, 1.0, None, 67, &#39;n2&#39;, None], [&#39;Note&#39;, 3.002083333333333, 0.9979166666666668, None, 65, &#39;n3&#39;, None], [&#39;Note&#39;, 4.0, 0, None, 65, &#39;n3a&#39;, &#39;stop&#39;], [&#39;Note&#39;, 4.002083333333333, 1.0, None, 67, &#39;n4&#39;, None], [&#39;Note&#39;, 5.002083333333333, 1.0, None, 64, &#39;n5&#39;, None], [&#39;Note&#39;, 6.002083333333333, 1.0, None, 67, &#39;n6&#39;, None], [&#39;Note&#39;, 7.002083333333333, 0.9979166666666668, None, 71, &#39;n7&#39;, None], [&#39;Note&#39;, 8.0, 0, None, 71, &#39;n7a&#39;, &#39;stop&#39;], [&#39;Note&#39;, 8.002083333333333, 1.0, None, 69, &#39;n8&#39;, None], [&#39;Note&#39;, 9.002083333333333, 1.0, None, 71, &#39;n9&#39;, None], [&#39;Note&#39;, 10.002083333333333, 1.0, None, 74, &#39;n10&#39;, None], [&#39;Note&#39;, 11.002083333333333, 0.9979166666666668, None, 71, &#39;n11&#39;, None], [&#39;Note&#39;, 12.0, 0, None, 71, &#39;n11a&#39;, &#39;stop&#39;], [&#39;Note&#39;, 12.002083333333333, 1.0, None, 69, &#39;n12&#39;, None], [&#39;Note&#39;, 13.002083333333333, 1.0, None, 67, &#39;n13&#39;, None], [&#39;Note&#39;, 14.002083333333333, 1.0, None, 64, &#39;n14&#39;, None], [&#39;Note&#39;, 15.002083333333333, 0.9979166666666668, None, 67, &#39;n15&#39;, None], [&#39;Note&#39;, 16.0, 0, None, 67, &#39;n15a&#39;, &#39;stop&#39;]]
+Before inserting note:
+Note at 0.000 delta 0.000 duration 1.002 pitch G4
+Before inserting note:
+Note at 1.002 delta 1.002 duration 1.000 pitch E4
+Before inserting note:
+Note at 2.002 delta 2.002 duration 1.000 pitch G4
+Before inserting note:
+Note at 3.002 delta 3.002 duration 0.998 pitch F4
+Before inserting note:
+Note at 0.002 delta 0.002 duration 1.000 pitch G4
+Before inserting note:
+Note at 1.002 delta 1.002 duration 1.000 pitch E4
+Before inserting note:
+Note at 2.002 delta 2.002 duration 1.000 pitch G4
+Before inserting note:
+Note at 3.002 delta 3.002 duration 0.998 pitch B4
+Before inserting note:
+Note at 0.002 delta 0.002 duration 1.000 pitch A4
+Before inserting note:
+Note at 1.002 delta 1.002 duration 1.000 pitch B4
+Before inserting note:
+Note at 2.002 delta 2.002 duration 1.000 pitch D5
+Before inserting note:
+Note at 3.002 delta 3.002 duration 0.998 pitch B4
+Before inserting note:
+Note at 0.002 delta 0.002 duration 1.000 pitch A4
+Before inserting note:
+Note at 1.002 delta 1.002 duration 1.000 pitch G4
+Before inserting note:
+Note at 2.002 delta 2.002 duration 1.000 pitch E4
+Before inserting note:
+Note at 3.002 delta 3.002 duration 0.998 pitch G4
+Something is wrong; could not find measure for [&#39;Note&#39;, 16.0, 0, None, 67, &#39;n15a&#39;, &#39;stop&#39;]
+[(0.0, 1), (1.0020833333333334, 0.0), (2.002083333333333, 0.0792702879157893), (3.002083333333333, 0.05249999787500048), (4.002083333333333, 0.05354116478155189), (5.002083333333333, 0.07874999681250064), (6.002083333333333, 0.05625000093749986), (7.002083333333333, 0.25), (8.002083333333333, 0.08854116628155156), (9.002083333333333, 0.052499997875000426), (10.002083333333333, 0.07874999681250064), (11.002083333333333, 0.07874999681250064), (12.002083333333333, 0.05354116478155189), (13.002083333333333, 0.052499997875000426), (14.002083333333333, 0.07874999681250064), (15.002083333333333, 0.0)]
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.716 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-plot-boundary-py">
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/f915f8fd7900ad34ac1771e6664af821/plot_boundary.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_boundary.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/c79c2cf7ae0266e5b050f8ba20ef2efd/plot_boundary.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_boundary.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/d0c6845a2bea64dcf95d31964c2e3ef5/plot_boundary.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">plot_boundary.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="plot_durdist2.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">&lt;no title&gt;</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="plot_sliding_window.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Sliding window analysis</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The AMADS team
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, The AMADS team.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

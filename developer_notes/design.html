@@ -1,0 +1,643 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Design considerations &#8212; amads  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'developer_notes/design';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Modules" href="modules.html" />
+    <link rel="prev" title="Documentation" href="documentation.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">amads  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">User guide:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/installation.html">Installation</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Developer notes:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Documentation</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Design considerations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="music21.html">Music21</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="style.html">Style</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Examples:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../auto_examples/plot_boundary.html">Boundary detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_examples/plot_sliding_window.html">Sliding window analysis</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">General algorithms:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.algorithms.entropy.html">amads.algorithms.entropy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.algorithms.nnotes.html">amads.algorithms.nnotes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.algorithms.scale.html">amads.algorithms.scale</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Pitch:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.hz2midi.html">amads.pitch.hz2midi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.ismonophonic.html">amads.pitch.ismonophonic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.ivdirdist1.html">amads.pitch.ivdirdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.ivdist1.html">amads.pitch.ivdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.ivdist2.html">amads.pitch.ivdist2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.ivsizedist1.html">amads.pitch.ivsizedist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.key.profiles.html">amads.pitch.key.profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.pcdist1.html">amads.pitch.pcdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.pcdist2.html">amads.pitch.pcdist2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.pitch_mean.html">amads.pitch.pitch_mean</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.transformations.html">amads.pitch.transformations</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Time:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.time.durdist1.html">amads.time.durdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.time.durdist2.html">amads.time.durdist2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.time.meter.break_it_up.html">amads.time.meter.break_it_up</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Harmony:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.harmony.root_finding.parncutt_1988.html">amads.harmony.root_finding.parncutt_1988</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Melody:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.melody.boundary.html">amads.melody.boundary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.melody.segment_gestalt.html">amads.melody.segment_gestalt</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Polyphony:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.polyphony.skyline.html">amads.polyphony.skyline</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Core:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.core.basics.html">amads.core.basics</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">IO:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.io.pianoroll.html">amads.io.pianoroll</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/developer_notes/design.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Design considerations</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-representation-and-simplifications">Basic Representation and Simplifications</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#measured-scores">Measured Scores</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#flattened-scores">Flattened Scores</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#other-scores">Other Scores</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#distributions">Distributions</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="design-considerations">
+<h1>Design considerations<a class="headerlink" href="#design-considerations" title="Link to this heading">#</a></h1>
+<section id="basic-representation-and-simplifications">
+<h2>Basic Representation and Simplifications<a class="headerlink" href="#basic-representation-and-simplifications" title="Link to this heading">#</a></h2>
+<p>I think this is an area where the API and method names need to be
+thought about carefully and possibly changed. Here are the issues that
+I see…</p>
+<p>The “standard” score has parts representing instrumental parts. Each
+part has 1 or more staves (e.g. a piano part would ordinarily have 2
+staves [“staves” is the plural of “staff”]), each staff has measures,
+and measures have notes and chords which have notes. Notes can be
+tied, so a single “logical” note can be represented (as in standard
+notation) by multiple notes tied together. This is basically because
+notes do not fit within the hierarchy imposed by measures and
+beats. When a note crosses a measure boundary, and sometimes when it
+crosses a beat boundary, it must be split across these boundaries and
+the original note is indicated by ties between the fragments.</p>
+<p>All this hierarchy can get in the way, so we allow various
+simplifications:</p>
+<ul class="simple">
+<li><p>Tied notes can be replaced by single notes, with durations that may
+extend beyond a measure boundary (<code class="docutils literal notranslate"><span class="pre">merge_tied_notes()</span></code> method)</p></li>
+<li><p>Staves within each part can be collapsed to a single staff
+(currently, no method does just this)</p></li>
+<li><p>Chords can be removed, moving notes “up” into measures
+(<code class="docutils literal notranslate"><span class="pre">remove_chords()</span></code> method)</p></li>
+<li><p>Staves, measures and chords can be removed and all “leaf” notes
+moved directly into parts (<code class="docutils literal notranslate"><span class="pre">flatten()</span></code> method, which additionally
+removes ties using <code class="docutils literal notranslate"><span class="pre">merge_tied_notes()</span></code>)</p></li>
+<li><p>Multiple parts can be combined into a single part (<code class="docutils literal notranslate"><span class="pre">merge_part()</span></code>
+method, but this also does <code class="docutils literal notranslate"><span class="pre">flatten()</span></code> which also does
+<code class="docutils literal notranslate"><span class="pre">merge_tied_notes()</span></code>)</p></li>
+</ul>
+<p>So there are lots of variations all having to do with removing
+different hierarchies. Maybe we need a “hierarchy of hierarchies”, in
+other words, removing one hierarchy implies removing all those below
+it in the “hierarchy of hierarchies”. The “hierarchy of hierarchies”
+(need a more intuitive name) could be, from most abstract to most
+detailed:</p>
+<ul class="simple">
+<li><p>Score with one part, no staves, no measures, no ties, no chords</p></li>
+<li><p>Score with multiple parts, no staves, no measures, no ties, no
+chords</p></li>
+<li><p>Score with multiple parts, staves, no measures, no ties, no chords</p></li>
+<li><p>Score with multiple parts, staves, measures, no ties, no chords</p></li>
+<li><p>Score with multiple parts, staves, measures, ties, no chords</p></li>
+<li><p>Score with multiple parts, staves, measures, ties, chords</p></li>
+</ul>
+<p>This can be summarized by looking at what gets added at each level:</p>
+<ul class="simple">
+<li><p>Score with one part</p></li>
+<li><p>add multiple parts per score</p></li>
+<li><p>add multiple staves per part</p></li>
+<li><p>add measures per staff</p></li>
+<li><p>add ties; notes can be split the way the appear visually</p></li>
+<li><p>add chords; a way of grouping notes that start simultaneously</p></li>
+</ul>
+<p>Maybe even this is too many and too flexible - do you want to take out
+ties and leave measures?</p>
+<p>Or maybe this is not flexible enough - do you want to take out
+measures and leave chords?</p>
+<p>And if restricting the number of forms that scores can take to 4 to 6
+variations, can we name them? E.g. Flattened, Flat Parts, Measureless,
+…. That doesn’t seem like it’s going to be very intuitive, e.g. who
+will intuitively grasp the meaning of “measureless” vs “flattened”?</p>
+<p>In conclusion, this is too many concepts. The main thing users should
+think about is measure structure vs. “flat” note lists, so let’s have
+two categories for scores: measured and flattened. Within these types,
+we can have properties for the more subtle differences and operations
+to remove structure:</p>
+<section id="measured-scores">
+<h3>Measured Scores<a class="headerlink" href="#measured-scores" title="Link to this heading">#</a></h3>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">.is_measured()</span></code></dt><dd><p>Test if this is a measured score. A measured score has a strict
+hierarchy described by: Score-Part-Staff-Measure-(Note or Chord-Note).
+A Staff cannot be a direct child of a Score, and a Measure cannot
+be a direct child of a Part or Score. A Chord can only be a child
+of a Measure, and a Note can only be a child of a Measure or Chord.
+(Rests and other objects are also allowed in Staff and Measure.)</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">.has_chords()</span></code></dt><dd><p>The score has one or more chords</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">.strip_chords()</span></code></dt><dd><p>Convert the score to one without chords (chord notes become ordinary
+notes within the staff or measure)</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">.has_ties()</span></code></dt><dd><p>The score has one or more tied notes</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">.strip_ties()</span></code></dt><dd><p>Convert the score to one without ties. Although not required, we
+expect ties to break notes where they cross measure boundaries.
+After <code class="docutils literal notranslate"><span class="pre">.strip_ties()</span></code>, notes durations may indicate that they
+cross one or more measure boundaries.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">.has_measures()</span></code></dt><dd><p>The score has one or more measures</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">.strip_measures()</span></code></dt><dd><p>There is NO <code class="docutils literal notranslate"><span class="pre">.strip_measures()</span></code> method. Such a method would
+logically leave you with Staff objects without measures, but this
+is neither a Measured Score nor a Flattened Score.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">.flatten()</span></code></dt><dd><p>Convert a measured score into a flattened score. Parts are preserved
+or collapsed based on an optional parameter.</p>
+</dd>
+</dl>
+</section>
+<section id="flattened-scores">
+<h3>Flattened Scores<a class="headerlink" href="#flattened-scores" title="Link to this heading">#</a></h3>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">.is_flattened()</span></code></dt><dd><p>Test if this is a flattened score. A flattened score has a strict
+hierarchy described by: Score-Part-Note. There are no other object
+types such as Staff, Chord, or Rest. There are no tied notes.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">.is_flattened_and_collapsed()</span></code></dt><dd><p>Test is this is a flattened score with all notes in a single Part.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">.part_count()</span></code></dt><dd><p>Returns number of parts</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">.collapse_parts()</span></code></dt><dd><p>Merge multiple Parts into a single Part. Optional parameters allow
+for selecting only certain Parts and/or Staff objects.</p>
+</dd>
+</dl>
+</section>
+<section id="other-scores">
+<h3>Other Scores<a class="headerlink" href="#other-scores" title="Link to this heading">#</a></h3>
+<p>Scores which are neither Measured nor Flattened are at least possible
+to construct. E.g. a Score-Part-Note hierarchy with tied notes
+or a Score with a mix of measured and flattened Parts. We’ve also
+considered “chordified” scores consisting of a sequence of Chord
+objects that are possibly empty or single notes.</p>
+<p>How all of these possibilities are handled in algorithms is not yet
+determined. Ideally, algorithms should detect violations in
+assumptions and report them as errors: We do not want users to call
+functions with an intuitive idea of what they <em>should</em> do, only to get
+some non-intuitive result that the user does not notice. It’s better
+to raise an error to say “you can’t do this, or I don’t support it”
+than to silently return something possibly wrong.</p>
+</section>
+</section>
+<section id="distributions">
+<h2>Distributions<a class="headerlink" href="#distributions" title="Link to this heading">#</a></h2>
+<p>The Distribution class models statistical distributions or
+histograms. Attributes describe the data with enough detail to produce
+reasonably labeled plots:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">distribution_type</span></code> - a str; one of “pitch_class”, “interval”,</dt><dd><p>“pitch_class_interval”, “duration”, “interval_size”,
+“interval_direction”, “duration”, “pitch_class_transition”,
+“interval_transition”, “duration_transition”, “key_correlation”</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">dimensions</span></code> - a List of dimensions, e.g. [12] for a pitch class</dt><dd><p>distribution or [25, 25] for an interval_transition (intervals are
+from -12 to +12 and include 0 for unison, intervals larger than
+one octave are ignored.</p>
+</dd>
+</dl>
+<p><code class="docutils literal notranslate"><span class="pre">name</span></code> - a str name for this distribution that is used for plot title.</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">x_categories</span></code> - a List of str with labels for x-axis categories;</dt><dd><p>inferred from distribution_type if needed.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">x_label</span></code> - x-axis label; inferred from distribution_type if not</dt><dd><p>present</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">y_categories</span></code> - a List of str with labels for y-axis categories;</dt><dd><p>inferred from bin_centers and then distribution_type if needed</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">y_label</span></code> - y-axis label; inferred from distribution_type if not</dt><dd><p>present</p>
+</dd>
+</dl>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="documentation.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Documentation</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="modules.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Modules</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-representation-and-simplifications">Basic Representation and Simplifications</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#measured-scores">Measured Scores</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#flattened-scores">Flattened Scores</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#other-scores">Other Scores</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#distributions">Distributions</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The AMADS team
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, The AMADS team.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

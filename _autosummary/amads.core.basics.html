@@ -1,0 +1,1278 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>amads.core.basics &#8212; amads  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/amads.core.basics';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="amads.io.pianoroll" href="amads.io.pianoroll.html" />
+    <link rel="prev" title="amads.polyphony.skyline" href="amads.polyphony.skyline.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">amads  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">User guide:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/installation.html">Installation</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Developer notes:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../developer_notes/contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_notes/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_notes/design.html">Design considerations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_notes/modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_notes/music21.html">Music21</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_notes/testing.html">Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_notes/style.html">Style</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Examples:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../auto_examples/plot_boundary.html">Boundary detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_examples/plot_sliding_window.html">Sliding window analysis</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">General algorithms:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="amads.algorithms.entropy.html">amads.algorithms.entropy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amads.algorithms.nnotes.html">amads.algorithms.nnotes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amads.algorithms.scale.html">amads.algorithms.scale</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Pitch:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="amads.pitch.hz2midi.html">amads.pitch.hz2midi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amads.pitch.ismonophonic.html">amads.pitch.ismonophonic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amads.pitch.ivdirdist1.html">amads.pitch.ivdirdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amads.pitch.ivdist1.html">amads.pitch.ivdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amads.pitch.ivdist2.html">amads.pitch.ivdist2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amads.pitch.ivsizedist1.html">amads.pitch.ivsizedist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amads.pitch.key.profiles.html">amads.pitch.key.profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amads.pitch.pcdist1.html">amads.pitch.pcdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amads.pitch.pcdist2.html">amads.pitch.pcdist2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amads.pitch.pitch_mean.html">amads.pitch.pitch_mean</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amads.pitch.transformations.html">amads.pitch.transformations</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Time:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="amads.time.durdist1.html">amads.time.durdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amads.time.durdist2.html">amads.time.durdist2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amads.time.meter.break_it_up.html">amads.time.meter.break_it_up</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Harmony:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="amads.harmony.root_finding.parncutt_1988.html">amads.harmony.root_finding.parncutt_1988</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Melody:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="amads.melody.boundary.html">amads.melody.boundary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amads.melody.segment_gestalt.html">amads.melody.segment_gestalt</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Polyphony:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="amads.polyphony.skyline.html">amads.polyphony.skyline</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Core:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">amads.core.basics</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">IO:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="amads.io.pianoroll.html">amads.io.pianoroll</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/_autosummary/amads.core.basics.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>amads.core.basics</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Chord"><code class="docutils literal notranslate"><span class="pre">Chord</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Chord.copy"><code class="docutils literal notranslate"><span class="pre">Chord.copy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Chord.deep_copy"><code class="docutils literal notranslate"><span class="pre">Chord.deep_copy()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Concurrence"><code class="docutils literal notranslate"><span class="pre">Concurrence</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Concurrence.append"><code class="docutils literal notranslate"><span class="pre">Concurrence.append()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Concurrence.copy"><code class="docutils literal notranslate"><span class="pre">Concurrence.copy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Concurrence.deep_copy"><code class="docutils literal notranslate"><span class="pre">Concurrence.deep_copy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Concurrence.pack"><code class="docutils literal notranslate"><span class="pre">Concurrence.pack()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Event"><code class="docutils literal notranslate"><span class="pre">Event</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Event.start"><code class="docutils literal notranslate"><span class="pre">Event.start</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.EventGroup"><code class="docutils literal notranslate"><span class="pre">EventGroup</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.EventGroup.find_all"><code class="docutils literal notranslate"><span class="pre">EventGroup.find_all()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.EventGroup.has_chords"><code class="docutils literal notranslate"><span class="pre">EventGroup.has_chords()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.EventGroup.has_measures"><code class="docutils literal notranslate"><span class="pre">EventGroup.has_measures()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.EventGroup.has_ties"><code class="docutils literal notranslate"><span class="pre">EventGroup.has_ties()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.EventGroup.insert"><code class="docutils literal notranslate"><span class="pre">EventGroup.insert()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.KeySignature"><code class="docutils literal notranslate"><span class="pre">KeySignature</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.KeySignature.copy"><code class="docutils literal notranslate"><span class="pre">KeySignature.copy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.KeySignature.deep_copy"><code class="docutils literal notranslate"><span class="pre">KeySignature.deep_copy()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Measure"><code class="docutils literal notranslate"><span class="pre">Measure</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Measure.copy"><code class="docutils literal notranslate"><span class="pre">Measure.copy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Measure.deep_copy"><code class="docutils literal notranslate"><span class="pre">Measure.deep_copy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Measure.is_measured"><code class="docutils literal notranslate"><span class="pre">Measure.is_measured()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Measure.strip_chords"><code class="docutils literal notranslate"><span class="pre">Measure.strip_chords()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Note"><code class="docutils literal notranslate"><span class="pre">Note</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Note.copy"><code class="docutils literal notranslate"><span class="pre">Note.copy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Note.deep_copy"><code class="docutils literal notranslate"><span class="pre">Note.deep_copy()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Part"><code class="docutils literal notranslate"><span class="pre">Part</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Part.copy"><code class="docutils literal notranslate"><span class="pre">Part.copy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Part.deep_copy"><code class="docutils literal notranslate"><span class="pre">Part.deep_copy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Part.flatten"><code class="docutils literal notranslate"><span class="pre">Part.flatten()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Part.is_measured"><code class="docutils literal notranslate"><span class="pre">Part.is_measured()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Part.strip_chords"><code class="docutils literal notranslate"><span class="pre">Part.strip_chords()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Part.strip_ties"><code class="docutils literal notranslate"><span class="pre">Part.strip_ties()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Pitch"><code class="docutils literal notranslate"><span class="pre">Pitch</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Pitch.enharmonic"><code class="docutils literal notranslate"><span class="pre">Pitch.enharmonic()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Pitch.lower_enharmonic"><code class="docutils literal notranslate"><span class="pre">Pitch.lower_enharmonic()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Pitch.name"><code class="docutils literal notranslate"><span class="pre">Pitch.name</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Pitch.name_str"><code class="docutils literal notranslate"><span class="pre">Pitch.name_str</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Pitch.octave"><code class="docutils literal notranslate"><span class="pre">Pitch.octave</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Pitch.upper_enharmonic"><code class="docutils literal notranslate"><span class="pre">Pitch.upper_enharmonic()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Rest"><code class="docutils literal notranslate"><span class="pre">Rest</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Rest.copy"><code class="docutils literal notranslate"><span class="pre">Rest.copy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Rest.deep_copy"><code class="docutils literal notranslate"><span class="pre">Rest.deep_copy()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Score"><code class="docutils literal notranslate"><span class="pre">Score</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Score.collapse_parts"><code class="docutils literal notranslate"><span class="pre">Score.collapse_parts()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Score.copy"><code class="docutils literal notranslate"><span class="pre">Score.copy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Score.deep_copy"><code class="docutils literal notranslate"><span class="pre">Score.deep_copy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Score.flatten"><code class="docutils literal notranslate"><span class="pre">Score.flatten()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Score.is_flattened_and_collapsed"><code class="docutils literal notranslate"><span class="pre">Score.is_flattened_and_collapsed()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Score.is_measured"><code class="docutils literal notranslate"><span class="pre">Score.is_measured()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Score.note_containers"><code class="docutils literal notranslate"><span class="pre">Score.note_containers()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Score.part_count"><code class="docutils literal notranslate"><span class="pre">Score.part_count()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Score.strip_chords"><code class="docutils literal notranslate"><span class="pre">Score.strip_chords()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Score.strip_ties"><code class="docutils literal notranslate"><span class="pre">Score.strip_ties()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Sequence"><code class="docutils literal notranslate"><span class="pre">Sequence</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Sequence.append"><code class="docutils literal notranslate"><span class="pre">Sequence.append()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Sequence.copy"><code class="docutils literal notranslate"><span class="pre">Sequence.copy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Sequence.deep_copy"><code class="docutils literal notranslate"><span class="pre">Sequence.deep_copy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Sequence.last_delta_end"><code class="docutils literal notranslate"><span class="pre">Sequence.last_delta_end</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Sequence.last_end"><code class="docutils literal notranslate"><span class="pre">Sequence.last_end</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Sequence.pack"><code class="docutils literal notranslate"><span class="pre">Sequence.pack()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Staff"><code class="docutils literal notranslate"><span class="pre">Staff</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Staff.copy"><code class="docutils literal notranslate"><span class="pre">Staff.copy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Staff.deep_copy"><code class="docutils literal notranslate"><span class="pre">Staff.deep_copy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Staff.is_measured"><code class="docutils literal notranslate"><span class="pre">Staff.is_measured()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Staff.strip_chords"><code class="docutils literal notranslate"><span class="pre">Staff.strip_chords()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Staff.strip_ties"><code class="docutils literal notranslate"><span class="pre">Staff.strip_ties()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Staff.tied_duration"><code class="docutils literal notranslate"><span class="pre">Staff.tied_duration()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.TimeSignature"><code class="docutils literal notranslate"><span class="pre">TimeSignature</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.TimeSignature.copy"><code class="docutils literal notranslate"><span class="pre">TimeSignature.copy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.TimeSignature.deep_copy"><code class="docutils literal notranslate"><span class="pre">TimeSignature.deep_copy()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.note_start"><code class="docutils literal notranslate"><span class="pre">note_start()</span></code></a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-amads.core.basics">
+<span id="amads-core-basics"></span><h1>amads.core.basics<a class="headerlink" href="#module-amads.core.basics" title="Link to this heading">#</a></h1>
+<p>Quick overview: The basic hierarchy of a score is shown here.
+Each level of this hierarchy can contain 0
+or more instances of the next level. Levels are optional,
+allowing for more note-list-like representations:</p>
+<dl>
+<dt>Score (one per musical work or movement)</dt><dd><dl>
+<dt>Part (one per instrument)</dt><dd><dl>
+<dt>Staff (usually 1, but e.g. 2 for grand staff)</dt><dd><dl>
+<dt>Measure (one for each measure)</dt><dd><p>(Measure can contain multiple instances of the following)
+Note
+Rest
+Chord</p>
+<blockquote>
+<div><p>Note (one for each note of the chord)</p>
+</div></blockquote>
+<p>KeySignature
+TimeSignature</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>A “flattened” score looks like this:</p>
+<dl class="simple">
+<dt>Score (one per musical work or movement)</dt><dd><dl class="simple">
+<dt>Part (one per instrument)</dt><dd><p>Note (no other instances allowed, no ties)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="amads.core.basics.Chord">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">amads.core.basics.</span></span><span class="sig-name descname"><span class="pre">Chord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Chord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Chord" title="Link to this definition">#</a></dt>
+<dd><p>A Chord is a collection of Notes, normally with deltas of zero
+and the same durations and distinct keynums, but this is not enforced.
+The order of notes is arbitrary. Normally, a Chord is a member of a
+Staff. There is no requirement that simultaneous or overlapping notes
+be grouped into Chords, so the Chord class is merely an optional
+element of music structure representation. Representation note: An
+alternative representation would be to subclass Note and allow a
+list of pitches, which has the advantage of enforcing the shared
+deltas and durations. However, there can be ties connected
+differently to each note within the Chord, thus we use a Concurrence
+with Note objects as elements. Each Note.tie can be different.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Chord.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Chord.copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Chord.copy" title="Link to this definition">#</a></dt>
+<dd><p>Make a copy, omitting weak link to parent.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Chord.deep_copy">
+<span class="sig-name descname"><span class="pre">deep_copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Chord.deep_copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Chord.deep_copy" title="Link to this definition">#</a></dt>
+<dd><p>Make a deep copy, omitting weak link to parent.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="amads.core.basics.Concurrence">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">amads.core.basics.</span></span><span class="sig-name descname"><span class="pre">Concurrence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Concurrence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Concurrence" title="Link to this definition">#</a></dt>
+<dd><p>Concurrence represents a temporally simultaneous collection
+of music events (but if elements have a non-zero delta, a Concurrence
+can represent events organized over time).  Thus, the main distinction
+between Concurrence and Sequence is the behavior of methods, since both
+classes can represent simultaneous or sequential events.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Concurrence.append">
+<span class="sig-name descname"><span class="pre">append</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_duration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Concurrence.append"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Concurrence.append" title="Link to this definition">#</a></dt>
+<dd><p>Append an element to the content with the given delta.
+(Specify delta=element.delta to retain the element’s delta.)
+By default, the duration(ation) of self is increased to the
+delta_end of element if the delta_end is greater than the
+current duration(ation). To retain the duration(ation) of self, specify
+update_duration=False.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Concurrence.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Concurrence.copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Concurrence.copy" title="Link to this definition">#</a></dt>
+<dd><p>Make a copy, omitting weak link to parent.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Concurrence.deep_copy">
+<span class="sig-name descname"><span class="pre">deep_copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Concurrence.deep_copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Concurrence.deep_copy" title="Link to this definition">#</a></dt>
+<dd><p>Make a deep copy, omitting weak link to parent.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Concurrence.pack">
+<span class="sig-name descname"><span class="pre">pack</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Concurrence.pack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Concurrence.pack" title="Link to this definition">#</a></dt>
+<dd><p>Adjust the content to deltas of zero. The duration(ation) of self
+is set to the maximum delta_end of the elements. This method
+essentially, arranges the content to eliminate gaps. pack() works
+recursively on elements that are EventGroups.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="amads.core.basics.Event">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">amads.core.basics.</span></span><span class="sig-name descname"><span class="pre">Event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">duration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Event"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Event" title="Link to this definition">#</a></dt>
+<dd><p>Event is a superclass for Note, Rest, EventGroup, and just about
+anything that takes place in time.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="amads.core.basics.Event.start">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">start</span></span><a class="headerlink" href="#amads.core.basics.Event.start" title="Link to this definition">#</a></dt>
+<dd><p>Retrieve the start time in quarters.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="amads.core.basics.EventGroup">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">amads.core.basics.</span></span><span class="sig-name descname"><span class="pre">EventGroup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#EventGroup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.EventGroup" title="Link to this definition">#</a></dt>
+<dd><p>An EventGroup is a collection of Event objects. This is an abstract
+class. Use one of the subclasses: Sequence or Concurrence.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.EventGroup.find_all">
+<span class="sig-name descname"><span class="pre">find_all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elemType</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#EventGroup.find_all"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.EventGroup.find_all" title="Link to this definition">#</a></dt>
+<dd><p>This is a generator that returns all contained instances of
+type using depth-first search.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.EventGroup.has_chords">
+<span class="sig-name descname"><span class="pre">has_chords</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#EventGroup.has_chords"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.EventGroup.has_chords" title="Link to this definition">#</a></dt>
+<dd><p>Test if EventGroup (e.g. Score, Part, Staff, Measure) has any
+Chord objects.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.EventGroup.has_measures">
+<span class="sig-name descname"><span class="pre">has_measures</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#EventGroup.has_measures"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.EventGroup.has_measures" title="Link to this definition">#</a></dt>
+<dd><p>Test if EventGroup (e.g. Score, Part, Staff) has any measures.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.EventGroup.has_ties">
+<span class="sig-name descname"><span class="pre">has_ties</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#EventGroup.has_ties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.EventGroup.has_ties" title="Link to this definition">#</a></dt>
+<dd><p>Test if EventGroup (e.g. Score, Part, Staff, Measure) has any
+tied notes.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.EventGroup.insert">
+<span class="sig-name descname"><span class="pre">insert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#EventGroup.insert"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.EventGroup.insert" title="Link to this definition">#</a></dt>
+<dd><p>insert an event without any changes to event.delta or
+self.duration. If the event is out of order, insert it just before
+the first element with a greater delta. This method is similar
+to append(), but it has different defaults for delta and
+update_duration.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="amads.core.basics.KeySignature">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">amads.core.basics.</span></span><span class="sig-name descname"><span class="pre">KeySignature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keysig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#KeySignature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.KeySignature" title="Link to this definition">#</a></dt>
+<dd><p>KeySignature is a zero-duration Event with keysig info.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.KeySignature.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#KeySignature.copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.KeySignature.copy" title="Link to this definition">#</a></dt>
+<dd><p>Make a copy, omitting weak link to parent.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.KeySignature.deep_copy">
+<span class="sig-name descname"><span class="pre">deep_copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#KeySignature.deep_copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.KeySignature.deep_copy" title="Link to this definition">#</a></dt>
+<dd><p>Make a deep copy, omitting weak link to parent.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="amads.core.basics.Measure">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">amads.core.basics.</span></span><span class="sig-name descname"><span class="pre">Measure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Measure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Measure" title="Link to this definition">#</a></dt>
+<dd><p>A Measure models a musical measure (bar) and can contain many object
+types including Note, Rest, Chord, KeySignature, Timesignature. Measures
+are elements of a Staff.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Measure.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Measure.copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Measure.copy" title="Link to this definition">#</a></dt>
+<dd><p>Make a copy, omitting weak link to parent.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Measure.deep_copy">
+<span class="sig-name descname"><span class="pre">deep_copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Measure.deep_copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Measure.deep_copy" title="Link to this definition">#</a></dt>
+<dd><p>Make a deep copy, omitting weak link to parent.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Measure.is_measured">
+<span class="sig-name descname"><span class="pre">is_measured</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Measure.is_measured"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Measure.is_measured" title="Link to this definition">#</a></dt>
+<dd><p>Test if Measure is well-formed. Conforms to strict hierarchy of:
+Measure-(Note or Chord-Note)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Measure.strip_chords">
+<span class="sig-name descname"><span class="pre">strip_chords</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Measure.strip_chords"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Measure.strip_chords" title="Link to this definition">#</a></dt>
+<dd><p>return a deep copy with Chord elements replaced by individual notes.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="amads.core.basics.Note">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">amads.core.basics.</span></span><span class="sig-name descname"><span class="pre">Note</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">duration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pitch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dynamic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lyric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Note"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Note" title="Link to this definition">#</a></dt>
+<dd><p>Note represents a musical note. It is normally an element of
+a Measure.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Note.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Note.copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Note.copy" title="Link to this definition">#</a></dt>
+<dd><p>Make a copy of just this object with no parent.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Note.deep_copy">
+<span class="sig-name descname"><span class="pre">deep_copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Note.deep_copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Note.deep_copy" title="Link to this definition">#</a></dt>
+<dd><p>Make a “deep” copy; pitch is immutable,
+so copyies can share the pitch object with the original</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="amads.core.basics.Part">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">amads.core.basics.</span></span><span class="sig-name descname"><span class="pre">Part</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instrument</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Part"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Part" title="Link to this definition">#</a></dt>
+<dd><p>A Part models a staff or staff group such as a grand staff. For that
+reason, a Part contains one or more Staff objects. It should not contain
+any other object types. Parts are normally elements of a Score.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Part.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Part.copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Part.copy" title="Link to this definition">#</a></dt>
+<dd><p>Make a copy, omitting weak link to parent.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Part.deep_copy">
+<span class="sig-name descname"><span class="pre">deep_copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Part.deep_copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Part.deep_copy" title="Link to this definition">#</a></dt>
+<dd><p>Make a deep copy, omitting weak link to parent.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Part.flatten">
+<span class="sig-name descname"><span class="pre">flatten</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Part.flatten"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Part.flatten" title="Link to this definition">#</a></dt>
+<dd><p>Deep copy notes in a part to a flattened part consisting of
+only Notes.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Part.is_measured">
+<span class="sig-name descname"><span class="pre">is_measured</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Part.is_measured"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Part.is_measured" title="Link to this definition">#</a></dt>
+<dd><p>Test if Part is measured. Conforms to strict hierarchy of:
+Part-Staff-Measure-(Note or Chord-Note)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Part.strip_chords">
+<span class="sig-name descname"><span class="pre">strip_chords</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Part.strip_chords"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Part.strip_chords" title="Link to this definition">#</a></dt>
+<dd><p>return a deep copy with Chord elements replaced by individual notes.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Part.strip_ties">
+<span class="sig-name descname"><span class="pre">strip_ties</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Part.strip_ties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Part.strip_ties" title="Link to this definition">#</a></dt>
+<dd><p>Create a new Part with tied note sequences replaced by
+equivalent notes in each staff</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="amads.core.basics.Pitch">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">amads.core.basics.</span></span><span class="sig-name descname"><span class="pre">Pitch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Pitch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Pitch" title="Link to this definition">#</a></dt>
+<dd><p>A Pitch represents a symbolic musical pitch. It has two parts:
+The keynum is a number that corresponds to the MIDI convention
+where C4 is 60, C# is 61, etc. The alt is an alteration, where +1
+represents a sharp and -1 represents a flat. Alterations can also
+be, for example, 2 (double-sharp) or -0.5 (quarter-tone flat).
+The symbolic note name is derived by <em>subtracting</em> alt from keynum.
+E.g. C#4 has keynum=61, alt=1, so 61-1 gives us 60, corresponding
+to note name C. A Db has the same keynum=61, but alt=-1, and 61-(-1)
+gives us 62, corresponding to note name D. There is no representation
+for the “natural sign” (other than alt=0, which could imply no
+accidental) or “courtesy accidentals.”  Because accidentals normally
+“stick” within a measure or are implied by key signatures, accidentals
+are often omitted in the score presentation. Nonetheless, these
+implied accidentals are encoded in the alt field and keynum is the
+intended pitch with the accidental applied.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Pitch.enharmonic">
+<span class="sig-name descname"><span class="pre">enharmonic</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Pitch.enharmonic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Pitch.enharmonic" title="Link to this definition">#</a></dt>
+<dd><p>“If alt is non-zero, return a Pitch where alt is zero
+or has the opposite sign and where alt is minimized. E.g.
+enharmonic(C-double-flat) is A-sharp (not B-flat). If alt
+is zero, return a Pitch with alt of +1 or -1 if possible.
+Otherwise, return a Pitch with alt of -2.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Pitch.lower_enharmonic">
+<span class="sig-name descname"><span class="pre">lower_enharmonic</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Pitch.lower_enharmonic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Pitch.lower_enharmonic" title="Link to this definition">#</a></dt>
+<dd><p>“return a valid Pitch with alt increased by 1 or 2, e.g. Db-&gt;C#,
+D-&gt;C##, D#-&gt;C###</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="amads.core.basics.Pitch.name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#amads.core.basics.Pitch.name" title="Link to this definition">#</a></dt>
+<dd><p>return one of {0, 2, 4, 5, 7, 9, 11} corresponding to letter names</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="amads.core.basics.Pitch.name_str">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name_str</span></span><a class="headerlink" href="#amads.core.basics.Pitch.name_str" title="Link to this definition">#</a></dt>
+<dd><p>return string name including accidentals (# or -) if alt is integral</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="amads.core.basics.Pitch.octave">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">octave</span></span><a class="headerlink" href="#amads.core.basics.Pitch.octave" title="Link to this definition">#</a></dt>
+<dd><p>Returns the octave number ignoring enharmonics. E.g. C4 is enharmonic
+to B#3 and represent the same (more or less) pitch, but BOTH have an
+octave of 4. On the other hand name_str() will return “C4” and “B#3”,
+respectively.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Pitch.upper_enharmonic">
+<span class="sig-name descname"><span class="pre">upper_enharmonic</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Pitch.upper_enharmonic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Pitch.upper_enharmonic" title="Link to this definition">#</a></dt>
+<dd><p>“return a valid Pitch with alt decreased by 1 or 2, e.g. C#-&gt;Db,
+C##-&gt;D, C###-&gt;D#.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="amads.core.basics.Rest">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">amads.core.basics.</span></span><span class="sig-name descname"><span class="pre">Rest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">duration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Rest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Rest" title="Link to this definition">#</a></dt>
+<dd><p>Rest represents a musical rest. It is normally an element of
+a Measure.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Rest.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Rest.copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Rest.copy" title="Link to this definition">#</a></dt>
+<dd><p>Make a copy of just this object with no parent.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Rest.deep_copy">
+<span class="sig-name descname"><span class="pre">deep_copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Rest.deep_copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Rest.deep_copy" title="Link to this definition">#</a></dt>
+<dd><p>Make a deep copy, omitting weak link to parent.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="amads.core.basics.Score">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">amads.core.basics.</span></span><span class="sig-name descname"><span class="pre">Score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_map</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Score"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Score" title="Link to this definition">#</a></dt>
+<dd><p>A score is a top-level object representing a musical work.
+Normally, a Score contains Part objects, all with delta zero.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Score.collapse_parts">
+<span class="sig-name descname"><span class="pre">collapse_parts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">part</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">staff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Score.collapse_parts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Score.collapse_parts" title="Link to this definition">#</a></dt>
+<dd><p>return a flattened score with all parts merged into one and
+sorted in order of note onset times. The returned score has the
+form:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Score</dt><dd><dl class="simple">
+<dt>Part</dt><dd><p>Note Note Note …</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+<dl>
+<dt>so the note list can be accessed using</dt><dd><p>score.collapse_parts(…).content[0].content</p>
+</dd>
+<dt>If part is given, only notes from the selected part are included.</dt><dd><p>part may be an integer to match a part number
+part may be a string to match a part instrument
+part may be a list with an index, e.g. [3] will select</p>
+<blockquote>
+<div><p>the 4th part (with zero-based indexing)</p>
+</div></blockquote>
+</dd>
+<dt>If staff is given, only the notes from selected staves are included.</dt><dd><p>staff may be an integer to match a staff number
+staff may be a list with an index, e.g. [1] will select</p>
+<blockquote>
+<div><p>the 2nd staff.</p>
+</div></blockquote>
+</dd>
+<dt>If staff is given without a part specification, an exception</dt><dd><p>is raised.</p>
+</dd>
+<dt>If staff is given and this is a flattened score (no staves),</dt><dd><p>an exception is raised.</p>
+</dd>
+<dt>Note: The use of the form [1] for part and staff index notation</dt><dd><p>is not ideal, but we need to distinguish between part numbers
+(arbitrary labels) and part index. Initially, I used tuples,
+but they are error prone. E.g. part=(0) means part=0, so you
+have to write keynum_list(part=((0))). With [n], you write
+keynum_list(part=[0]) to indicate an index. This is
+prettier and less prone to error.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Score.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Score.copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Score.copy" title="Link to this definition">#</a></dt>
+<dd><p>Make a copy, omitting weak link to parent.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Score.deep_copy">
+<span class="sig-name descname"><span class="pre">deep_copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Score.deep_copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Score.deep_copy" title="Link to this definition">#</a></dt>
+<dd><p>Make a deep copy, omitting weak link to parent.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Score.flatten">
+<span class="sig-name descname"><span class="pre">flatten</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">collapse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Score.flatten"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Score.flatten" title="Link to this definition">#</a></dt>
+<dd><p>Deep copy notes in a score to a flattened score consisting of
+only Parts containing Notes. If collapse is True, multiple parts are
+collapse into a single part, and notes are ordered according to
+onset times</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Score.is_flattened_and_collapsed">
+<span class="sig-name descname"><span class="pre">is_flattened_and_collapsed</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Score.is_flattened_and_collapsed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Score.is_flattened_and_collapsed" title="Link to this definition">#</a></dt>
+<dd><p>Determine if score has been flattened into one part</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Score.is_measured">
+<span class="sig-name descname"><span class="pre">is_measured</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Score.is_measured"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Score.is_measured" title="Link to this definition">#</a></dt>
+<dd><p>Test if Score is measured. Conforms to strict hierarchy of:
+Score-Part-Staff-Measure-(Note or Chord-Note)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Score.note_containers">
+<span class="sig-name descname"><span class="pre">note_containers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Score.note_containers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Score.note_containers" title="Link to this definition">#</a></dt>
+<dd><p>Returns a list of note containers. For Measured Scores, these
+are the Staff objects. For Flattened Scores, these are the Part
+objects. This is mainly useful for extracting note sequences where
+each staff represents a separate sequence. In a Flattened Score,
+staves are collapsed and each Part (instrument) represents a
+separate sequence.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Score.part_count">
+<span class="sig-name descname"><span class="pre">part_count</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Score.part_count"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Score.part_count" title="Link to this definition">#</a></dt>
+<dd><p>How many parts are in this score?</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Score.strip_chords">
+<span class="sig-name descname"><span class="pre">strip_chords</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Score.strip_chords"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Score.strip_chords" title="Link to this definition">#</a></dt>
+<dd><p>Create a new Score with chords replaced by
+individual notes in each staff</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Score.strip_ties">
+<span class="sig-name descname"><span class="pre">strip_ties</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Score.strip_ties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Score.strip_ties" title="Link to this definition">#</a></dt>
+<dd><p>Create a new Score with tied note sequences replaced by
+equivalent notes in each staff</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="amads.core.basics.Sequence">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">amads.core.basics.</span></span><span class="sig-name descname"><span class="pre">Sequence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Sequence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Sequence" title="Link to this definition">#</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Sequence.append">
+<span class="sig-name descname"><span class="pre">append</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_duration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Sequence.append"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Sequence.append" title="Link to this definition">#</a></dt>
+<dd><p>Append an element. If delta is specified, the element is
+modified to start at this delta, and the duration of self
+is unchanged. If delta is not specified or None, the element
+delta is changed to the duration(ation) of self, which is then
+incremented by the duration of element.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Sequence.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Sequence.copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Sequence.copy" title="Link to this definition">#</a></dt>
+<dd><p>Make a copy, omitting weak link to parent.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Sequence.deep_copy">
+<span class="sig-name descname"><span class="pre">deep_copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Sequence.deep_copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Sequence.deep_copy" title="Link to this definition">#</a></dt>
+<dd><p>Make a deep copy, omitting weak link to parent.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="amads.core.basics.Sequence.last_delta_end">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">last_delta_end</span></span><a class="headerlink" href="#amads.core.basics.Sequence.last_delta_end" title="Link to this definition">#</a></dt>
+<dd><p>return the delta_end (in quarters) of the last element,
+or 0 if the Sequence is empty</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="amads.core.basics.Sequence.last_end">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">last_end</span></span><a class="headerlink" href="#amads.core.basics.Sequence.last_end" title="Link to this definition">#</a></dt>
+<dd><p>return the end time (in quarters) of the last element,
+or the Sequence start time if the Sequence is empty</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Sequence.pack">
+<span class="sig-name descname"><span class="pre">pack</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Sequence.pack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Sequence.pack" title="Link to this definition">#</a></dt>
+<dd><p>Adjust the content to be sequential, with zero delta for the
+first element, and each other object at an delta equal to the
+delta_end of the previous element. The duration(ation) of self is set
+to the delta_end of the last element. This method essentially,
+arranges the content to eliminate gaps. pack() works recursively
+on elements that are EventGroups.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="amads.core.basics.Staff">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">amads.core.basics.</span></span><span class="sig-name descname"><span class="pre">Staff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Staff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Staff" title="Link to this definition">#</a></dt>
+<dd><p>A Staff models a musical staff line extending through all systems.
+It can also model one channel of a standard MIDI file track. A Staff
+normally contains Measure objects and is an element of a Part.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Staff.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Staff.copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Staff.copy" title="Link to this definition">#</a></dt>
+<dd><p>Make a shallow copy of just this object with no parent.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Staff.deep_copy">
+<span class="sig-name descname"><span class="pre">deep_copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Staff.deep_copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Staff.deep_copy" title="Link to this definition">#</a></dt>
+<dd><p>Make a deep copy, omitting weak link to parent.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Staff.is_measured">
+<span class="sig-name descname"><span class="pre">is_measured</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Staff.is_measured"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Staff.is_measured" title="Link to this definition">#</a></dt>
+<dd><p>Test if Staff is measured. Conforms to strict hierarchy of:
+Staff-Measure-(Note or Chord-Note)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Staff.strip_chords">
+<span class="sig-name descname"><span class="pre">strip_chords</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Staff.strip_chords"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Staff.strip_chords" title="Link to this definition">#</a></dt>
+<dd><p>return a deep copy with Chord elements replaced by individual notes.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Staff.strip_ties">
+<span class="sig-name descname"><span class="pre">strip_ties</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Staff.strip_ties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Staff.strip_ties" title="Link to this definition">#</a></dt>
+<dd><p>Create a new staff with tied note sequences replaced by
+equivalent notes</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.Staff.tied_duration">
+<span class="sig-name descname"><span class="pre">tied_duration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">note</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#Staff.tied_duration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.Staff.tied_duration" title="Link to this definition">#</a></dt>
+<dd><p>Compute the full duration of note as the sum of notes that note
+is tied to. note.tie must be ‘start’</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>note</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#amads.core.basics.Note" title="amads.core.basics.Note"><code class="xref py py-class docutils literal notranslate"><span class="pre">Note</span></code></a></span>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="amads.core.basics.TimeSignature">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">amads.core.basics.</span></span><span class="sig-name descname"><span class="pre">TimeSignature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">beat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beat_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#TimeSignature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.TimeSignature" title="Link to this definition">#</a></dt>
+<dd><p>TimeSignature is a zero-duration Event with timesig info.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.TimeSignature.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#TimeSignature.copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.TimeSignature.copy" title="Link to this definition">#</a></dt>
+<dd><p>Make a copy of just this object with no parent.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.core.basics.TimeSignature.deep_copy">
+<span class="sig-name descname"><span class="pre">deep_copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#TimeSignature.deep_copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.TimeSignature.deep_copy" title="Link to this definition">#</a></dt>
+<dd><p>Make a deep copy, omitting weak link to parent.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="amads.core.basics.note_start">
+<span class="sig-prename descclassname"><span class="pre">amads.core.basics.</span></span><span class="sig-name descname"><span class="pre">note_start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">note</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/core/basics.html#note_start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.core.basics.note_start" title="Link to this definition">#</a></dt>
+<dd><p>helper function to sort notes</p>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="amads.polyphony.skyline.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">amads.polyphony.skyline</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="amads.io.pianoroll.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">amads.io.pianoroll</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Chord"><code class="docutils literal notranslate"><span class="pre">Chord</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Chord.copy"><code class="docutils literal notranslate"><span class="pre">Chord.copy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Chord.deep_copy"><code class="docutils literal notranslate"><span class="pre">Chord.deep_copy()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Concurrence"><code class="docutils literal notranslate"><span class="pre">Concurrence</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Concurrence.append"><code class="docutils literal notranslate"><span class="pre">Concurrence.append()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Concurrence.copy"><code class="docutils literal notranslate"><span class="pre">Concurrence.copy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Concurrence.deep_copy"><code class="docutils literal notranslate"><span class="pre">Concurrence.deep_copy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Concurrence.pack"><code class="docutils literal notranslate"><span class="pre">Concurrence.pack()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Event"><code class="docutils literal notranslate"><span class="pre">Event</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Event.start"><code class="docutils literal notranslate"><span class="pre">Event.start</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.EventGroup"><code class="docutils literal notranslate"><span class="pre">EventGroup</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.EventGroup.find_all"><code class="docutils literal notranslate"><span class="pre">EventGroup.find_all()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.EventGroup.has_chords"><code class="docutils literal notranslate"><span class="pre">EventGroup.has_chords()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.EventGroup.has_measures"><code class="docutils literal notranslate"><span class="pre">EventGroup.has_measures()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.EventGroup.has_ties"><code class="docutils literal notranslate"><span class="pre">EventGroup.has_ties()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.EventGroup.insert"><code class="docutils literal notranslate"><span class="pre">EventGroup.insert()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.KeySignature"><code class="docutils literal notranslate"><span class="pre">KeySignature</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.KeySignature.copy"><code class="docutils literal notranslate"><span class="pre">KeySignature.copy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.KeySignature.deep_copy"><code class="docutils literal notranslate"><span class="pre">KeySignature.deep_copy()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Measure"><code class="docutils literal notranslate"><span class="pre">Measure</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Measure.copy"><code class="docutils literal notranslate"><span class="pre">Measure.copy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Measure.deep_copy"><code class="docutils literal notranslate"><span class="pre">Measure.deep_copy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Measure.is_measured"><code class="docutils literal notranslate"><span class="pre">Measure.is_measured()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Measure.strip_chords"><code class="docutils literal notranslate"><span class="pre">Measure.strip_chords()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Note"><code class="docutils literal notranslate"><span class="pre">Note</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Note.copy"><code class="docutils literal notranslate"><span class="pre">Note.copy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Note.deep_copy"><code class="docutils literal notranslate"><span class="pre">Note.deep_copy()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Part"><code class="docutils literal notranslate"><span class="pre">Part</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Part.copy"><code class="docutils literal notranslate"><span class="pre">Part.copy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Part.deep_copy"><code class="docutils literal notranslate"><span class="pre">Part.deep_copy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Part.flatten"><code class="docutils literal notranslate"><span class="pre">Part.flatten()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Part.is_measured"><code class="docutils literal notranslate"><span class="pre">Part.is_measured()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Part.strip_chords"><code class="docutils literal notranslate"><span class="pre">Part.strip_chords()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Part.strip_ties"><code class="docutils literal notranslate"><span class="pre">Part.strip_ties()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Pitch"><code class="docutils literal notranslate"><span class="pre">Pitch</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Pitch.enharmonic"><code class="docutils literal notranslate"><span class="pre">Pitch.enharmonic()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Pitch.lower_enharmonic"><code class="docutils literal notranslate"><span class="pre">Pitch.lower_enharmonic()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Pitch.name"><code class="docutils literal notranslate"><span class="pre">Pitch.name</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Pitch.name_str"><code class="docutils literal notranslate"><span class="pre">Pitch.name_str</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Pitch.octave"><code class="docutils literal notranslate"><span class="pre">Pitch.octave</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Pitch.upper_enharmonic"><code class="docutils literal notranslate"><span class="pre">Pitch.upper_enharmonic()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Rest"><code class="docutils literal notranslate"><span class="pre">Rest</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Rest.copy"><code class="docutils literal notranslate"><span class="pre">Rest.copy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Rest.deep_copy"><code class="docutils literal notranslate"><span class="pre">Rest.deep_copy()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Score"><code class="docutils literal notranslate"><span class="pre">Score</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Score.collapse_parts"><code class="docutils literal notranslate"><span class="pre">Score.collapse_parts()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Score.copy"><code class="docutils literal notranslate"><span class="pre">Score.copy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Score.deep_copy"><code class="docutils literal notranslate"><span class="pre">Score.deep_copy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Score.flatten"><code class="docutils literal notranslate"><span class="pre">Score.flatten()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Score.is_flattened_and_collapsed"><code class="docutils literal notranslate"><span class="pre">Score.is_flattened_and_collapsed()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Score.is_measured"><code class="docutils literal notranslate"><span class="pre">Score.is_measured()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Score.note_containers"><code class="docutils literal notranslate"><span class="pre">Score.note_containers()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Score.part_count"><code class="docutils literal notranslate"><span class="pre">Score.part_count()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Score.strip_chords"><code class="docutils literal notranslate"><span class="pre">Score.strip_chords()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Score.strip_ties"><code class="docutils literal notranslate"><span class="pre">Score.strip_ties()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Sequence"><code class="docutils literal notranslate"><span class="pre">Sequence</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Sequence.append"><code class="docutils literal notranslate"><span class="pre">Sequence.append()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Sequence.copy"><code class="docutils literal notranslate"><span class="pre">Sequence.copy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Sequence.deep_copy"><code class="docutils literal notranslate"><span class="pre">Sequence.deep_copy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Sequence.last_delta_end"><code class="docutils literal notranslate"><span class="pre">Sequence.last_delta_end</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Sequence.last_end"><code class="docutils literal notranslate"><span class="pre">Sequence.last_end</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Sequence.pack"><code class="docutils literal notranslate"><span class="pre">Sequence.pack()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Staff"><code class="docutils literal notranslate"><span class="pre">Staff</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Staff.copy"><code class="docutils literal notranslate"><span class="pre">Staff.copy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Staff.deep_copy"><code class="docutils literal notranslate"><span class="pre">Staff.deep_copy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Staff.is_measured"><code class="docutils literal notranslate"><span class="pre">Staff.is_measured()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Staff.strip_chords"><code class="docutils literal notranslate"><span class="pre">Staff.strip_chords()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Staff.strip_ties"><code class="docutils literal notranslate"><span class="pre">Staff.strip_ties()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.Staff.tied_duration"><code class="docutils literal notranslate"><span class="pre">Staff.tied_duration()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.TimeSignature"><code class="docutils literal notranslate"><span class="pre">TimeSignature</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.TimeSignature.copy"><code class="docutils literal notranslate"><span class="pre">TimeSignature.copy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.TimeSignature.deep_copy"><code class="docutils literal notranslate"><span class="pre">TimeSignature.deep_copy()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.core.basics.note_start"><code class="docutils literal notranslate"><span class="pre">note_start()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The AMADS team
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, The AMADS team.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
