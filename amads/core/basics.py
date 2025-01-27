@@ -1007,6 +1007,10 @@ class Score(Concurrence):
         # Flatten to get selected notes in order of onset time
         return mtn.flatten(collapse=True)
 
+    def get_notes(self):
+        """Lists all notes in the score, with parent hierarchies flattened, ties stripped, and notes sorted by onset time."""
+        return self.flatten().find_all(Note)
+
 
 class Part(Concurrence):
     """A Part models a staff or staff group such as a grand staff. For that
