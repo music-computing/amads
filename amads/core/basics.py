@@ -827,6 +827,83 @@ class Score(Concurrence):
         super().__init__(delta, duration, content)
         self.time_map = time_map if time_map else TimeMap()
 
+    @classmethod
+    def from_melody(cls, pitches, deltas=None, durations=None):
+        """Create a Score from lists of pitches, deltas, and durations.
+
+        Parameters
+        ----------
+        pitches : list of int
+            MIDI note numbers for each note
+        deltas : list of float, optional
+            Start times in quarters relative to the score's start. If not provided,
+            defaults to [0, 1, 2, ...].
+        durations : list of float, optional
+            Durations in quarters for each note. If not provided, defaults to
+            1.0 for each note.
+
+        Returns
+        -------
+        Score
+            A new Score object containing the melody in a single part
+
+        Raises
+        ------
+        ValueError
+            If input lists have different lengths or are empty
+
+        Examples
+        --------
+        Create a simple C major scale with default timing:
+
+        >>> score = Score.from_melody([60, 62, 64, 65, 67, 69, 71, 72])
+        >>> notes = score.content[0].content
+        >>> len(notes)  # number of notes in first part
+        8
+        >>> notes[0].pitch.keynum
+        60
+        >>> score.duration  # last note ends at t=8
+        8.0
+
+        Create three quarter notes with custom timing:
+
+        >>> score = Score.from_melody(
+        ...     pitches=[60, 62, 64],  # C4, D4, E4
+        ...     deltas=[1.0, 2.0, 4.0],  # start times
+        ...     durations=[0.5, 1.0, 2.0]  # note lengths
+        ... )
+        >>> score.duration  # last note ends at t=6
+        6.0
+        """
+        if len(pitches) == 0:
+            raise ValueError("Pitches list cannot be empty")
+
+        # Default to sequential deltas [0, 1, 2, ...] and durations of 1.0
+        if deltas is None:
+            deltas = [float(i) for i in range(len(pitches))]
+        if durations is None:
+            durations = [1.0] * len(pitches)
+
+        if not (len(pitches) == len(deltas) == len(durations)):
+            raise ValueError("All input lists must have the same length")
+
+        score = cls()
+        part = Part()
+        score.insert(part)
+
+        # Create notes and add them to the part
+        for pitch, delta, duration in zip(pitches, deltas, durations):
+            note = Note(duration=float(duration), pitch=pitch, delta=float(delta))
+            part.insert(note)
+
+        # Set the score duration to the end of the last note
+        if len(deltas) > 0:
+            score.duration = float(
+                max(delta + duration for delta, duration in zip(deltas, durations))
+            )
+
+        return score
+
     def copy(self):
         """Make a copy, omitting weak link to parent."""
         s = Score(delta=self.delta, duration=self.duration, time_map=self.time_map)
