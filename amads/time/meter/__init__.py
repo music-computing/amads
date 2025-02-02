@@ -146,7 +146,10 @@ class MetricalHierarchy:
         if not start_hierarchy:
             self.get_starts()
 
-        self.cycle_length = self.start_hierarchy[0][-1]
+        if self.start_hierarchy:
+            self.cycle_length = self.start_hierarchy[0][-1]
+        else:
+            self.cycle_length = None
 
     def get_starts(self):
         """
@@ -170,10 +173,103 @@ class MetricalHierarchy:
                 )
         elif self.time_signature:  # time signature and no levels, assume all
             self.start_hierarchy = starts_from_time_signature(self.time_signature)
-        else:
-            raise ValueError(
-                "Specify at least one of `start_hierarchy`, `pulse_length` or `time_signature`"
-            )
+
+    def from_time_signature(
+        self,
+        time_signature: str = "2+2+2+3/8",
+        enforce_2s_3s: bool = True,
+        minimum_pulse: int = 64,
+    ) -> None:
+        """
+        This is a convient 'wrapper' method.
+        See notes at `starts_from_time_signature`.
+
+        As well as creating a `MetricalHierarchy` with the `MetricalHierarchy(time_signature=`,
+        this method allows separation of those steps, to first create a placeholder object,
+        and then derive a metrical structure.
+
+        Note that this overwrites any existing attributes.
+
+        Parameters
+        ----------
+        time_signature
+            Any valid string repersenting a time signature. See examples below.
+        enforce_2s_3s
+            Map 4 to 2+2 and 6 to 3+3 etc. following the conventions of those time signatures.
+            This is a parameter exactly so that users can choose to switch it off.
+        minimum_pulse
+            Recursively create further down to the denominator level specified.
+            Defaults to 64 for 64th notes.
+            There is psychological evidence for structures requiring levels beyond this
+            ceasing to be 'metrical' in the same sense.
+
+
+        Returns
+        -------
+        None
+
+
+        Examples
+        --------
+
+        >>> m = MetricalHierarchy()
+        >>> m.from_time_signature("3/8")
+        >>> m.start_hierarchy[1]
+        [0.0, 0.5, 1.0, 1.5]
+
+        """
+
+        self.time_signature = time_signature
+        self.start_hierarchy = starts_from_time_signature(
+            time_signature, enforce_2s_3s=enforce_2s_3s, minimum_pulse=minimum_pulse
+        )
+
+    def from_pulse_lengths(
+        self,
+        pulse_lengths: list,
+        measure_length: Optional[float] = None,
+        require_2_or_3_between_levels: bool = False,
+    ):
+        """
+        This is a convient 'wrapper' method.
+        See notes at `starts_from_pulse_lengths`.
+
+        As well as creating a `MetricalHierarchy` with the `MetricalHierarchy(pulse_lengths=`,
+        this method allows separation of those steps, to first create a placeholder object,
+        and then derive a metrical structure.
+
+        Note that this overwrites any existing attributes.
+
+        Parameters
+        ----------
+        pulse_lengths
+            Any valid list of pulse lengths, e.g., [4, 2, 1].
+        measure_length
+            Optional. If not provided it's taken to be given by the longest pulse length.
+        require_2_or_3_between_levels
+            Deafults to False. If True, raise a ValueError in the case of this condition not being met.
+
+
+        Returns
+        -------
+        None
+
+
+        Examples
+        --------
+
+        >>> m = MetricalHierarchy()
+        >>> m.from_pulse_lengths([4, 2, 1])
+        >>> m.start_hierarchy[0]
+        [0.0, 4.0]
+
+        """
+        self.pulse_lengths = pulse_lengths
+        self.start_hierarchy = starts_from_pulse_lengths(
+            pulse_lengths,
+            measure_length=measure_length,
+            require_2_or_3_between_levels=require_2_or_3_between_levels,
+        )
 
 
 # ------------------------------------------------------------------------------
