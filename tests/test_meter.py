@@ -72,12 +72,15 @@ def test_start_hierarchy_from_time_signature():
         assert oh == examples.start_hierarchy_examples[k]
 
 
-"""Test various cases that should raise errors."""
+"""Test various cases that should raise errors and similar."""
 
 
 def test_nothing():
-    with pytest.raises(ValueError):
-        MetricalHierarchy()
+    """
+    When you can create an empty MetricalHierarchy object, all attributes are None.
+    """
+    m = MetricalHierarchy()
+    assert m.start_hierarchy is None
 
 
 def test_levels_no_time_signature():
