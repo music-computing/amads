@@ -12,6 +12,9 @@ and notation (e.g., re-notating to reflect the
 within-measure notational conventions).
 """
 
+__author__ = "Mark Gotham"
+
+
 from typing import Optional, Union
 
 # ------------------------------------------------------------------------------
