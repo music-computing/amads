@@ -194,10 +194,10 @@ def salami_slice(
 
             slices.append(
                 Slice(
-                    notes=notes,
+                    content=notes,
                     original_notes=timepoint.sounding_notes,
-                    start=slice_start,
-                    end=slice_end,
+                    delta=slice_start,
+                    duration=slice_end - slice_start,
                 )
             )
 

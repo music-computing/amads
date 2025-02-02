@@ -98,7 +98,10 @@ class Window(Slice):
         self.skip = skip
 
         super().__init__(
-            notes=notes, original_notes=original_notes, start=start, end=end
+            content=notes,
+            original_notes=original_notes,
+            delta=start,
+            duration=size,
         )
 
 

@@ -51,12 +51,13 @@ times = []
 mean_pitch_heights = []
 for window in windows:
     times.append(window.time)
-    if not window.notes:
+
+    if len(window.content) == 0:
         mean_pitch_heights.append(None)
         continue
 
-    total_duration = sum(note.duration for note in window.notes)
-    weighted_sum = sum(note.keynum * note.duration for note in window.notes)
+    total_duration = sum(note.duration for note in window.content)
+    weighted_sum = sum(note.keynum * note.duration for note in window.content)
     mean_pitch_heights.append(weighted_sum / total_duration)
 
 # %%

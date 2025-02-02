@@ -21,6 +21,7 @@ dependencies = [
     "numpy",
     "pandas",
     "matplotlib",
+    "scipy<1.12.0",
     "partitura",
     "setuptools",  # required for partitura
     "music21",
