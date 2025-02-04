@@ -1,5 +1,8 @@
 name: Tests
 
+env:
+  GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
 on:
   push:
     branches: [ main ]
@@ -7,7 +10,7 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
+  tests_main:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -30,11 +33,10 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -e .[test]
-        pip install pytest-cov
 
     - name: Run tests with coverage
       run: |
-        pytest --cov=./ --cov-report=xml
+        python -c "from amads.ci import run_main_tests; run_main_tests()"
 
     - name: Upload coverage to Codecov
       if: always() && matrix.python-version == '3.11'
@@ -42,3 +44,45 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         fail_ci_if_error: true
+        flags: python-tests
+
+  tests_melsim:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+
+    - name: Setup r2u
+      uses: eddelbuettel/github-actions/r2u-setup@master
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          libdeflate-dev \
+          liblzma-dev \
+          libbz2-dev \
+          libtirpc-dev \
+          libblas-dev \
+          liblapack-dev
+
+    - name: Install Python packages
+      run: |
+        pip install -e .[test,melsim]
+
+    - name: Run melsim tests with coverage
+      run: |
+        python -c "from amads.ci import run_ci_group_tests; run_ci_group_tests('tests_melsim')"
+
+    - name: Upload coverage to Codecov
+      if: always()
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        fail_ci_if_error: true
+        flags: melsim-tests
