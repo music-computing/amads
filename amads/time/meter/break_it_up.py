@@ -93,7 +93,9 @@ class MetricalSplitter:
         [(0.25, 0.25), (0.5, 0.5), (1.0, 1.0), (2.0, 0.25)]
 
         If the note runs past the end of the metrical span,
-        the remaining value is stored as follows:
+        the remaining value is stored with the
+        `start_duration_pairs` recording the within-measure pairs
+        and `remaining_length` attribute for the rest.
 
         >>> split = MetricalSplitter(0.25, 4.0, meter=m)
         >>> split.start_duration_pairs
