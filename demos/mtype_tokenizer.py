@@ -14,6 +14,7 @@ def example_usage():
     score = Score()
     part = Part()
     score.insert(part)
+    part.ioi = None
 
     # Add notes with different pitches and durations
     melody_1 = Score.from_melody(
@@ -27,22 +28,18 @@ def example_usage():
         ],  # quarter, eighth, quarter, half, quarter notes
     )
 
-    notes, iois, ioi_ratios = tokenizer.get_notes(melody_1)
+    # Count only bigrams (n=2)
+    bigram_counts = tokenizer.get_mtype_counts(melody_1, method=2)
+    print(f"Dictionary of bigram counts: {bigram_counts}\n")
 
-    # the output of segment_melody is not used
-    _ = tokenizer.segment_melody(notes, iois, ioi_ratios)
-    mtypes = tokenizer.tokenize_phrase(notes, ioi_ratios)
+    # Count only trigrams (n=3)
+    trigram_counts = tokenizer.get_mtype_counts(melody_1, method=3)
+    print(f"Dictionary of trigram counts: {trigram_counts}\n")
 
-    # Count bigrams (n=2)
-    bigram_counts = tokenizer.count_grams(mtypes, n=2)
-    print(bigram_counts)
+    # Count all n-grams
+    all_counts = tokenizer.get_mtype_counts(melody_1, method="all")
+    print(f"Dictionary of all n-gram counts: {all_counts}\n")
 
 
 if __name__ == "__main__":
     example_usage()
-
-# TODO:
-# get_mtype_counts should be the top level function, taking a Score object as input
-# and returning a dictionary of mtype counts
-# perhaps the best interface would be to have a method argument that specifies
-# the n-gram length, so "all", 1, 2, 3, etc.

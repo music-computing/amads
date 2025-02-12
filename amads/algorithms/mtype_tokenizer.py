@@ -1,20 +1,29 @@
 from collections.abc import (  # collections.abc currently not supported in Python 3.13.1
     Hashable,
 )
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
 from amads.core.basics import Note, Score
 
 
 class MelodyTokenizer:
-    """Base class for tokenizing melodies into n-grams."""
+    """Base class for tokenizing melodies into n-grams.
+
+    Attributes
+    ----------
+    precision : int
+        Number of decimal places to round IOI values to
+    phrases : list
+        List of melody phrases after segmentation
+    """
 
     def __init__(self):
         self.precision = 6
         self.phrases = []
 
     def tokenize_melody(self, score: Score) -> List[List]:
-        """
+        """Tokenize a melody into phrases.
+
         Parameters
         ----------
         score : Score
@@ -22,93 +31,196 @@ class MelodyTokenizer:
 
         Returns
         -------
-        List[List]
+        list[list]
             List of tokenized phrases
         """
-        notes, iois, ioi_ratios = self.get_notes(score)
-        self.phrases = self.segment_melody(notes, iois, ioi_ratios)
-        return [self.tokenize_phrase(phrase, ioi_ratios) for phrase in self.phrases]
+        notes = self.get_notes(score)
+        self.phrases = self.segment_melody(notes)
+        return [self.tokenize_phrase(phrase) for phrase in self.phrases]
 
     def get_notes(self, score: Score) -> List[Note]:
+        """Extract notes from score and calculate IOI values.
+
+        Parameters
+        ----------
+        score : Score
+            Score object to extract notes from
+
+        Returns
+        -------
+        list[Note]
+            List of notes with IOI and IOI ratio values calculated
+        """
         flattened_score = score.flatten(collapse=True)
         notes = list(flattened_score.find_all(Note))
 
-        onsets = [note.start for note in notes]
-
-        iois = []
-        ioi_ratios = []
-        for i, onset in enumerate(onsets):
-            if i < len(onsets) - 1:
-                ioi = round(onsets[i + 1] - onset, self.precision)
+        # Calculate IOIs and IOI ratios
+        for i, note in enumerate(notes):
+            if i < len(notes) - 1:
+                note.ioi = round(notes[i + 1].start - note.start, self.precision)
             else:
-                ioi = None
-            iois.append(ioi)
+                note.ioi = None
 
-        for i in range(len(onsets)):
             if i == 0:
-                ioi_ratio = None
+                note.ioi_ratio = None
             else:
-                ioi = iois[i]
-                prev_ioi = iois[i - 1]
+                prev_ioi = notes[i - 1].ioi
+                ioi = note.ioi
                 if ioi is None or prev_ioi is None:
-                    ioi_ratio = None
+                    note.ioi_ratio = None
                 else:
-                    ioi_ratio = round(ioi / prev_ioi, self.precision)
-            ioi_ratios.append(ioi_ratio)
+                    note.ioi_ratio = round(ioi / prev_ioi, self.precision)
 
-        return notes, iois, ioi_ratios
+        return notes
 
-    def segment_melody(
-        self, notes: List[Note], iois: List[float], ioi_ratios: List[float]
-    ) -> List[List]:
+    def segment_melody(self, notes: List[Note]) -> List[List]:
+        """Segment melody into phrases.
+
+        Parameters
+        ----------
+        notes : list[Note]
+            List of notes to segment
+
+        Returns
+        -------
+        list[list]
+            List of note phrases
+        """
         raise NotImplementedError
 
-    def tokenize_phrase(self, phrase: List[Note], ioi_ratios: List[float]) -> List:
+    def tokenize_phrase(self, phrase: List[Note]) -> List:
+        """Tokenize a phrase into a list of tokens.
+
+        Parameters
+        ----------
+        phrase : list[Note]
+            Phrase to tokenize
+
+        Returns
+        -------
+        list
+            List of tokens
+        """
         raise NotImplementedError
 
-    def ngram_counts(self, n: int, ioi_ratios: List[float]) -> Dict:
+    def ngram_counts(self, method: Union[str, int]) -> Dict:
         """Count n-grams in all phrases.
 
         Parameters
         ----------
-        n : int
-            Length of n-grams to count
+        method : str or int
+            If "all", count n-grams of all lengths.
+            If int, count n-grams of that specific length.
 
         Returns
         -------
-        Dict
+        dict
             Counts of each n-gram
         """
         counts = {}
         for phrase in self.phrases:
-            tokens = self.tokenize_phrase(phrase, ioi_ratios)
-            for i in range(len(tokens) - n + 1):
-                ngram = tuple(tokens[i : i + n])
-                counts[ngram] = counts.get(ngram, 0) + 1
+            tokens = self.tokenize_phrase(phrase)
+            if method == "all":
+                # Count n-grams of all possible lengths
+                for n in range(1, len(tokens) + 1):
+                    for i in range(len(tokens) - n + 1):
+                        ngram = tuple(tokens[i : i + n])
+                        counts[ngram] = counts.get(ngram, 0) + 1
+            else:
+                # Count n-grams of specific length
+                n = method
+                for i in range(len(tokens) - n + 1):
+                    ngram = tuple(tokens[i : i + n])
+                    counts[ngram] = counts.get(ngram, 0) + 1
         return counts
 
 
 class FantasticTokenizer(MelodyTokenizer):
+    """Tokenizer that produces M-Types defined in the FANTASTIC toolbox.
+
+    This tokenizer produces the M-Types defined in the FANTASTIC toolbox [1].
+
+    Parameters
+    ----------
+    phrase_gap : float, optional
+        Time gap in seconds that defines phrase boundaries, by default 1.0
+
+    Attributes
+    ----------
+    phrase_gap : float
+        Time gap in seconds that defines phrase boundaries
+    tokens : list
+        List of tokens after tokenization
+
+    References
+    ----------
+    [1] Müllensiefen, D. (2009). Fantastic: Feature ANalysis Technology Accessing
+        STatistics (In a Corpus): Technical Report v1.5
+    """
+
     def __init__(self, phrase_gap: float = 1.0):
         super().__init__()
         self.phrase_gap = phrase_gap
         self.tokens = []
 
+    def get_mtype_counts(self, score: Score, method: Union[str, int] = "all") -> Dict:
+        """Get counts of M-Type n-grams in a score.
+
+        First segments melody into phrases, then tokenizes each phrase into pitch interval
+        and IOI ratio classes. Finally counts unique n-grams.
+
+        Parameters
+        ----------
+        score : Score
+            Score object containing melody
+        method : str or int, optional
+            If "all", count n-grams of all lengths.
+            If int, count n-grams of that specific length, by default "all"
+
+        Returns
+        -------
+        dict
+            Counts of each unique n-gram
+        """
+        self.tokenize_melody(score)
+        return self.ngram_counts(method)
+
     def tokenize_melody(self, score: Score) -> List[List]:
+        """Tokenize melody into M-Types.
+
+        Parameters
+        ----------
+        score : Score
+            Score object to tokenize
+
+        Returns
+        -------
+        list[list]
+            List of tokenized phrases
+        """
         self.tokens = super().tokenize_melody(score)
         return self.tokens
 
-    def segment_melody(
-        self, notes: List[Note], iois: List[float], ioi_ratios: List[float]
-    ) -> List[List]:
+    def segment_melody(self, notes: List[Note]) -> List[List]:
+        """Segment melody into phrases based on IOI gaps.
+
+        Parameters
+        ----------
+        notes : list[Note]
+            List of notes to segment
+
+        Returns
+        -------
+        list[list]
+            List of note phrases
+        """
         phrases = []
         current_phrase = []
 
-        for note in zip(notes, iois, ioi_ratios):
+        for note in notes:
             # Check whether we need to make a new phrase
             need_new_phrase = (
-                len(current_phrase) > 0
-                and iois[len(current_phrase) - 1] > self.phrase_gap
+                len(current_phrase) > 0 and current_phrase[-1].ioi > self.phrase_gap
             )
             if need_new_phrase:
                 phrases.append(current_phrase)
@@ -120,12 +232,24 @@ class FantasticTokenizer(MelodyTokenizer):
 
         return phrases
 
-    def tokenize_phrase(self, phrase: List[Note], ioi_ratios: List[float]) -> List:
+    def tokenize_phrase(self, phrase: List[Note]) -> List:
+        """Tokenize a phrase into M-Types.
+
+        Parameters
+        ----------
+        phrase : list[Note]
+            Phrase to tokenize
+
+        Returns
+        -------
+        list
+            List of M-Type tokens
+        """
         tokens = []
 
-        for i, (prev_note, current_note) in enumerate(zip(phrase[:-1], phrase[1:])):
+        for prev_note, current_note in zip(phrase[:-1], phrase[1:]):
             pitch_interval = current_note.keynum - prev_note.keynum
-            ioi_ratio = ioi_ratios[i]
+            ioi_ratio = current_note.ioi_ratio
 
             pitch_interval_class = self.classify_pitch_interval(pitch_interval)
             ioi_ratio_class = self.classify_ioi_ratio(ioi_ratio)
@@ -140,17 +264,18 @@ class FantasticTokenizer(MelodyTokenizer):
 
         Parameters
         ----------
-        pitch_interval : int
+        pitch_interval : int or None
             Interval in semitones between consecutive notes
 
         Returns
         -------
-        str
+        str or None
             Interval class label (e.g. 'd8', 'd7', 'u2', etc.)
             'd' = downward interval
             'u' = upward interval
             's' = same pitch
             't' = tritone
+            Returns None if input is None
         """
         # Clamp interval to [-12, 12] semitone range
         if pitch_interval is None:
@@ -197,15 +322,16 @@ class FantasticTokenizer(MelodyTokenizer):
 
         Parameters
         ----------
-        ioi_ratio : float
+        ioi_ratio : float or None
             Inter-onset interval ratio between consecutive notes
 
         Returns
         -------
-        str
+        str or None
             'q' for quicker (<0.8119)
             'e' for equal (0.8119-1.4946)
             'l' for longer (>1.4946)
+            Returns None if input is None
         """
         if ioi_ratio is None:
             return None
@@ -219,7 +345,22 @@ class FantasticTokenizer(MelodyTokenizer):
     def count_grams(
         self, sequence: List[Hashable], n: int, existing: Optional[Dict] = None
     ) -> Dict:
+        """Count n-grams in a sequence.
 
+        Parameters
+        ----------
+        sequence : list[Hashable]
+            Sequence to count n-grams in
+        n : int
+            Length of n-grams to count
+        existing : dict, optional
+            Existing counts to add to, by default None
+
+        Returns
+        -------
+        dict
+            Counts of each n-gram
+        """
         # Count n-grams in a sequence
         if existing is None:
             existing = {}
