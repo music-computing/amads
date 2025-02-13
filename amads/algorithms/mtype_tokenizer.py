@@ -1,6 +1,7 @@
-from collections.abc import (  # collections.abc currently not supported in Python 3.13.1
-    Hashable,
-)
+import warnings
+from collections.abc import Hashable
+
+# collections.abc is currently not supported in Python 3.13.1
 from typing import Dict, List, Optional, Union
 
 from amads.core.basics import Note, Score
@@ -118,8 +119,13 @@ class MelodyTokenizer:
             Counts of each n-gram
         """
         counts = {}
-        for phrase in self.phrases:
+        for i, phrase in enumerate(self.phrases):
             tokens = self.tokenize_phrase(phrase)
+            if not tokens:
+                warnings.warn(
+                    f"Empty token sequence found - skipping n-gram counting for phrase {i + 1}\n"
+                )
+                continue
             if method == "all":
                 # Count n-grams of all possible lengths
                 for n in range(1, len(tokens) + 1):
@@ -129,6 +135,10 @@ class MelodyTokenizer:
             else:
                 # Count n-grams of specific length
                 n = method
+                if n > len(tokens):
+                    raise ValueError(
+                        f"n-gram length {n} is larger than token sequence length {len(tokens)}"
+                    )
                 for i in range(len(tokens) - n + 1):
                     ngram = tuple(tokens[i : i + n])
                     counts[ngram] = counts.get(ngram, 0) + 1
@@ -136,9 +146,16 @@ class MelodyTokenizer:
 
 
 class FantasticTokenizer(MelodyTokenizer):
-    """Tokenizer that produces M-Types defined in the FANTASTIC toolbox.
+    """This tokenizer produces the M-Types as defined in the FANTASTIC toolbox [1].
 
-    This tokenizer produces the M-Types defined in the FANTASTIC toolbox [1].
+    An M-Type is a sequence of musical symbols (pitch intervals and duration ratios) that
+    represents a melodic fragment, similar to how an n-gram represents a sequence of n
+    consecutive items from a text. The length of an M-Type can vary, just like n-grams
+    can be of different lengths (bigrams, trigrams, etc.)
+
+    The tokenizer takes a score as the input, and returns a dictionary of unique M-Type
+    (n-gram) counts. The top level function `get_mtype_counts()` is best for most users,
+    though the other functions defined in the class are available for more specific use cases.
 
     Parameters
     ----------
@@ -164,10 +181,15 @@ class FantasticTokenizer(MelodyTokenizer):
         self.tokens = []
 
     def get_mtype_counts(self, score: Score, method: Union[str, int] = "all") -> Dict:
-        """Get counts of M-Type n-grams in a score.
+        """Get counts of M-Type n-grams in a score. This top level function takes a
+        score as the input, and returns a dictionary of unique M-Type (n-gram) counts.
 
         First segments melody into phrases, then tokenizes each phrase into pitch interval
         and IOI ratio classes. Finally counts unique n-grams.
+
+        The method argument is used to specify the length of the n-grams to count.
+        If "all", all n-grams of all lengths are counted. If an integer, only n-grams
+        of that specific length are counted.
 
         Parameters
         ----------
@@ -198,7 +220,9 @@ class FantasticTokenizer(MelodyTokenizer):
         list[list]
             List of tokenized phrases
         """
-        self.tokens = super().tokenize_melody(score)
+        notes = self.get_notes(score)
+        self.phrases = self.segment_melody(notes)
+        self.tokens = [self.tokenize_phrase(phrase) for phrase in self.phrases]
         return self.tokens
 
     def segment_melody(self, notes: List[Note]) -> List[List]:
@@ -220,7 +244,9 @@ class FantasticTokenizer(MelodyTokenizer):
         for note in notes:
             # Check whether we need to make a new phrase
             need_new_phrase = (
-                len(current_phrase) > 0 and current_phrase[-1].ioi > self.phrase_gap
+                len(current_phrase) > 0
+                and current_phrase[-1].ioi is not None
+                and current_phrase[-1].ioi > self.phrase_gap
             )
             if need_new_phrase:
                 phrases.append(current_phrase)
@@ -246,6 +272,10 @@ class FantasticTokenizer(MelodyTokenizer):
             List of M-Type tokens
         """
         tokens = []
+
+        # Skip if phrase is too short
+        if len(phrase) < 2:
+            return tokens
 
         for prev_note, current_note in zip(phrase[:-1], phrase[1:]):
             pitch_interval = current_note.keynum - prev_note.keynum
