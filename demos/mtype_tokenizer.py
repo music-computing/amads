@@ -23,9 +23,9 @@ def example_usage():
             1.0,
             0.5,
             1.0,
-            2.0,
-            1.0,
-        ],  # quarter, eighth, quarter, half, quarter notes
+            0.5,
+            0.5,
+        ],  # quarter, eighth, quarter, eighth, eighth notes
     )
 
     # Count only bigrams (n=2)

@@ -1,10 +1,10 @@
 import warnings
 from collections.abc import Hashable
-
-# collections.abc is currently not supported in Python 3.13.1
 from typing import Dict, List, Optional, Union
 
 from amads.core.basics import Note, Score
+
+# collections.abc is currently not supported in Python 3.13.1
 
 
 class MelodyTokenizer:
@@ -123,7 +123,8 @@ class MelodyTokenizer:
             tokens = self.tokenize_phrase(phrase)
             if not tokens:
                 warnings.warn(
-                    f"Empty token sequence found - skipping n-gram counting for phrase {i + 1}\n"
+                    f"Empty token sequence found - skipping n-gram counting for "
+                    f"phrase {i + 1}\n"
                 )
                 continue
             if method == "all":
@@ -137,8 +138,11 @@ class MelodyTokenizer:
                 n = method
                 if n > len(tokens):
                     raise ValueError(
-                        f"n-gram length {n} is larger than token sequence length {len(tokens)}"
+                        f"n-gram length {n} is larger than token sequence length "
+                        f"{len(tokens)}"
                     )
+                if n < 1:
+                    raise ValueError(f"n-gram length {n} is less than 1")
                 for i in range(len(tokens) - n + 1):
                     ngram = tuple(tokens[i : i + n])
                     counts[ngram] = counts.get(ngram, 0) + 1
@@ -148,14 +152,15 @@ class MelodyTokenizer:
 class FantasticTokenizer(MelodyTokenizer):
     """This tokenizer produces the M-Types as defined in the FANTASTIC toolbox [1].
 
-    An M-Type is a sequence of musical symbols (pitch intervals and duration ratios) that
-    represents a melodic fragment, similar to how an n-gram represents a sequence of n
-    consecutive items from a text. The length of an M-Type can vary, just like n-grams
-    can be of different lengths (bigrams, trigrams, etc.)
+    An M-Type is a sequence of musical symbols (pitch intervals and duration ratios)
+    that represents a melodic fragment, similar to how an n-gram represents a sequence
+    of n consecutive items from a text. The length of an M-Type can vary, just like
+    n-grams can be of different lengths (bigrams, trigrams, etc.)
 
-    The tokenizer takes a score as the input, and returns a dictionary of unique M-Type
-    (n-gram) counts. The top level function `get_mtype_counts()` is best for most users,
-    though the other functions defined in the class are available for more specific use cases.
+    The tokenizer takes a score as the input, and returns a dictionary of unique
+    M-Type (n-gram) counts. The top level function `get_mtype_counts()` is best for
+    most users, though the other functions defined in the class are available for
+    more specific use cases.
 
     Parameters
     ----------
@@ -182,14 +187,15 @@ class FantasticTokenizer(MelodyTokenizer):
 
     def get_mtype_counts(self, score: Score, method: Union[str, int] = "all") -> Dict:
         """Get counts of M-Type n-grams in a score. This top level function takes a
-        score as the input, and returns a dictionary of unique M-Type (n-gram) counts.
+        score as the input, and returns a dictionary of unique M-Type (n-gram)
+        counts.
 
-        First segments melody into phrases, then tokenizes each phrase into pitch interval
-        and IOI ratio classes. Finally counts unique n-grams.
+        First segments melody into phrases, then tokenizes each phrase into pitch
+        interval and IOI ratio classes. Finally counts unique n-grams.
 
         The method argument is used to specify the length of the n-grams to count.
-        If "all", all n-grams of all lengths are counted. If an integer, only n-grams
-        of that specific length are counted.
+        If "all", all n-grams of all lengths are counted. If an integer, only
+        n-grams of that specific length are counted.
 
         Parameters
         ----------
