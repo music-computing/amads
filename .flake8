@@ -19,9 +19,9 @@ exclude =
 per-file-ignores =
     */__init__.py: F401, F403
     amads/all.py: F401, F403
+    tests/test_cached_event_property.py: F841
     ; amads/algorithms/__init__.py: F401, F403
     ; amads/all.py: F401, F403
     ; amads/core/__init__.py: F401, F403
     ; amads/harmony/__init__.py: F401, F403
     ; amads/io/__init__.py: F401, F403
-
