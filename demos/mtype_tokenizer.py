@@ -5,7 +5,7 @@ from amads.core.basics import Part, Score
 def example_usage():
     """Example usage of the MType tokenizer.
 
-    This shows how to tokenize a melody into melodic types (mtypes)
+    This shows how to tokenize a melody into MTypes
     and count n-grams of the resulting tokens.
     """
 
@@ -14,7 +14,6 @@ def example_usage():
     score = Score()
     part = Part()
     score.insert(part)
-    part.ioi = None
 
     # Add notes with different pitches and durations
     melody_1 = Score.from_melody(

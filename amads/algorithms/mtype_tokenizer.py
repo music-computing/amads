@@ -56,6 +56,7 @@ class MelodyTokenizer:
         notes = list(flattened_score.find_all(Note))
 
         # Calculate IOIs and IOI ratios
+        # n.b. when #68 is merged, this should be revised
         for i, note in enumerate(notes):
             if i < len(notes) - 1:
                 note.ioi = round(notes[i + 1].start - note.start, self.precision)
