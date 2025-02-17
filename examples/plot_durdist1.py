@@ -1,5 +1,6 @@
 """
-Plot the duration distribution of notes in a MIDI file.
+Duration distributions (I)
+==========================
 
 This example demonstrates how to calculate and visualize the duration distribution
 of notes in a MIDI file.
