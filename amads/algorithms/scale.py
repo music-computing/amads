@@ -24,11 +24,6 @@ def scale(score, factor=2.0, dim="all"):
     -------
     EventGroup
         The scaled version of the input score (modified in place)
-
-    Examples
-    --------
-    >>> scaled_score = scale(score.copy(), factor=2, dim='start')  # scales start by factor of 2
-    >>> scaled_score = scale(score.copy(), factor=0.5, dim='duration')  # shortens durations by factor of 2
     """
     if dim == "all":
         scale(score, factor, "duration")
