@@ -26,7 +26,6 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -e ".[dev, melsim]"
-          python -c "from amads.melody.similarity.melsim import install_dependencies; install_dependencies()"
 
       - name: Sphinx build
         run: |
