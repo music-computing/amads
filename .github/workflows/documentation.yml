@@ -18,8 +18,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install sphinx sphinx_rtd_theme myst_parser
-          pip install -e ".[dev]"
+          pip install -e ".[dev, melsim]"
 
       - name: Sphinx build
         run: |
