@@ -1,0 +1,19 @@
+name: 'Setup R dependencies'
+description: 'Sets up R and required system dependencies'
+runs:
+  using: "composite"
+  steps:
+    - name: Setup r2u
+      uses: eddelbuettel/github-actions/r2u-setup@master
+
+    - name: Install system dependencies
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          libdeflate-dev \
+          liblzma-dev \
+          libbz2-dev \
+          libtirpc-dev \
+          libblas-dev \
+          liblapack-dev
