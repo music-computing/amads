@@ -6,6 +6,11 @@ We welcome contributions to the project! Whether you want to fix bugs, improve d
 GitHub contribution workflow
 ---------------------------
 
+0. Install pre-commit hooks::
+
+   pip install pre-commit && pre-commit install
+
+
 1. Submit a pull request
 ~~~~~~~~~~~~~~~~~~~~~~~
 
