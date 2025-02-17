@@ -1,6 +1,7 @@
 name: Tests
 
 env:
+  # This is needed for R's install_github scripts
   GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
 on:
