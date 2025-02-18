@@ -1,17 +1,17 @@
-import os
 import runpy
+from glob import glob
 
 import pytest
 
+from amads.ci import should_run
 
-@pytest.mark.parametrize(
-    "script", [f for f in os.listdir("demos") if f.endswith(".py")]
-)
-def test_demos_run_without_errors(script):
-    if script == "durdist2.py":
+
+@pytest.mark.parametrize("file", glob("demos/*.py"))
+def test_demos_run_without_errors(file):
+    if file == "demos/durdist2.py":
         pytest.skip(
             "Skipping durdist2 demo (see https://github.com/music-computing/amads/issues/43)"
         )
 
-    script_path = os.path.join("demos", script)
-    runpy.run_path(script_path, run_name="__main__")
+    if should_run(file):
+        runpy.run_path(file, run_name="__main__")

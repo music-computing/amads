@@ -1,5 +1,9 @@
 name: Documentation
 
+env:
+  # This is needed for R's install_github scripts
+  GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
 on:
   push:
   workflow_dispatch:
@@ -16,10 +20,12 @@ jobs:
         with:
           python-version: '3.10'
 
+      - name: Setup R dependencies
+        uses: ./.github/actions/setup-r
+
       - name: Install dependencies
         run: |
-          pip install sphinx sphinx_rtd_theme myst_parser
-          pip install -e ".[dev]"
+          pip install -e ".[dev, melsim]"
 
       - name: Sphinx build
         run: |

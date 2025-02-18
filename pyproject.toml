@@ -36,11 +36,15 @@ dev = [
     "sphinx-autodoc-typehints",
     "myst-parser",
     "pre-commit",
-    "pytest-cov",
 ]
 test = [
     "pretty_midi",
     "pytest>=7.0.0",
+    "pytest-cov",
+]
+melsim = [
+    "pandas",
+    "rpy2"
 ]
 
 [project.urls]
