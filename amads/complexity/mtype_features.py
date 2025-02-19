@@ -353,13 +353,13 @@ def mean_productivity(ngram_counts: dict[tuple, int]) -> float:
     >>> score = Score.from_melody([60, 62, 64, 62, 60], durations=1.0)
     >>> tokenizer = FantasticTokenizer()
     >>> high_repetition_counts = tokenizer.get_mtype_counts(score, method="all")
-    >>> mean_productivity(high_repetition_counts)  # Higher productivity indicates more hapax legomena
+    >>> mean_productivity(high_repetition_counts)  # Lower productivity indicates less hapax legomena
     0.8
     >>> # Sample melody with low repetition
     >>> score = Score.from_melody([60, 61, 62, 68, 59, 71], durations=[0.25, 0.5, 0.75, 0.35, 0.15, 0.25])
     >>> tokenizer = FantasticTokenizer()
     >>> low_repetition_counts = tokenizer.get_mtype_counts(score, method="all")
-    >>> mean_productivity(low_repetition_counts)  # Even higher productivity indicates more hapax legomena
+    >>> mean_productivity(low_repetition_counts)  # Higher productivity indicates more hapax legomena
     0.9
     >>> # Empty input
     >>> mean_productivity({})
