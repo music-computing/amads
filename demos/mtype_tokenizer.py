@@ -41,6 +41,74 @@ def example_usage():
     all_counts = ngrams.count_ngrams(tokenizer.tokens, method="all")
     print(f"Dictionary of all n-gram counts: {all_counts}\n")
 
+    happy_birthday = Score.from_melody(
+        pitches=[
+            60,
+            60,
+            62,
+            60,
+            65,
+            64,
+            60,
+            60,
+            62,
+            60,
+            67,
+            65,
+            60,
+            60,
+            72,
+            69,
+            65,
+            65,
+            64,
+            62,
+            70,
+            70,
+            69,
+            65,
+            67,
+            65,
+        ],
+        durations=[
+            0.75,
+            0.25,
+            1.0,
+            1.0,
+            1.0,
+            2.0,
+            0.75,
+            0.25,
+            1.0,
+            1.0,
+            1.0,
+            2.0,
+            0.75,
+            0.25,
+            1.0,
+            1.0,
+            0.75,
+            0.25,
+            1.0,
+            1.0,
+            0.75,
+            0.25,
+            1.0,
+            1.0,
+            1.0,
+            2.0,
+        ],
+    )
+
+    tokenizer.tokenize_melody(happy_birthday)
+    ngrams.count_ngrams(tokenizer.tokens, method="all")
+    print(f"Yule's K: {ngrams.yules_k}")
+    print(f"Simpson's D: {ngrams.simpsons_d}")
+    print(f"Sichel's S: {ngrams.sichels_s}")
+    print(f"Honore's H: {ngrams.honores_h}")
+    print(f"Normalized Entropy: {ngrams.mean_entropy}")
+    print(f"Mean Productivity: {ngrams.mean_productivity}")
+
 
 if __name__ == "__main__":
     example_usage()
