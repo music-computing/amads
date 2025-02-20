@@ -1,8 +1,9 @@
-import warnings
+from collections import OrderedDict
 from collections.abc import Hashable
-from typing import Dict, List, Optional, Union
+from typing import List, Optional
 
 from amads.core.basics import Note, Score
+from amads.melody.segment import fantastic_segmenter
 
 # collections.abc is currently not supported in Python 3.13.1
 
@@ -18,8 +19,8 @@ class MelodyTokenizer:
         List of melody phrases after segmentation
     """
 
-    def __init__(self):
-        self.precision = 6
+    def __init__(self, precision: int = 6):
+        self.precision = precision
         self.phrases = []
 
     def tokenize_melody(self, score: Score) -> List[List]:
@@ -75,7 +76,7 @@ class MelodyTokenizer:
 
         return notes
 
-    def segment_melody(self, notes: List[Note]) -> List[List]:
+    def segment_melody(self, notes: List[Note]) -> List:
         """Segment melody into phrases.
 
         Parameters
@@ -104,50 +105,6 @@ class MelodyTokenizer:
             List of tokens
         """
         raise NotImplementedError
-
-    def ngram_counts(self, method: Union[str, int]) -> Dict:
-        """Count n-grams in all phrases.
-
-        Parameters
-        ----------
-        method : str or int
-            If "all", count n-grams of all lengths.
-            If int, count n-grams of that specific length.
-
-        Returns
-        -------
-        dict
-            Counts of each n-gram
-        """
-        counts = {}
-        for i, phrase in enumerate(self.phrases):
-            tokens = self.tokenize_phrase(phrase)
-            if not tokens:
-                warnings.warn(
-                    f"Empty token sequence found - skipping n-gram counting for "
-                    f"phrase {i + 1}\n"
-                )
-                continue
-            if method == "all":
-                # Count n-grams of all possible lengths
-                for n in range(1, len(tokens) + 1):
-                    for i in range(len(tokens) - n + 1):
-                        ngram = tuple(tokens[i : i + n])
-                        counts[ngram] = counts.get(ngram, 0) + 1
-            else:
-                # Count n-grams of specific length
-                n = method
-                if n > len(tokens):
-                    raise ValueError(
-                        f"n-gram length {n} is larger than token sequence length "
-                        f"{len(tokens)}"
-                    )
-                if n < 1:
-                    raise ValueError(f"n-gram length {n} is less than 1")
-                for i in range(len(tokens) - n + 1):
-                    ngram = tuple(tokens[i : i + n])
-                    counts[ngram] = counts.get(ngram, 0) + 1
-        return counts
 
 
 class FantasticTokenizer(MelodyTokenizer):
@@ -186,34 +143,6 @@ class FantasticTokenizer(MelodyTokenizer):
         self.phrase_gap = phrase_gap
         self.tokens = []
 
-    def get_mtype_counts(self, score: Score, method: Union[str, int] = "all") -> Dict:
-        """Get counts of M-Type n-grams in a score. This top level function takes a
-        score as the input, and returns a dictionary of unique M-Type (n-gram)
-        counts.
-
-        First segments melody into phrases, then tokenizes each phrase into pitch
-        interval and IOI ratio classes. Finally counts unique n-grams.
-
-        The method argument is used to specify the length of the n-grams to count.
-        If "all", all n-grams of all lengths are counted. If an integer, only
-        n-grams of that specific length are counted.
-
-        Parameters
-        ----------
-        score : Score
-            Score object containing melody
-        method : str or int, optional
-            If "all", count n-grams of all lengths.
-            If int, count n-grams of that specific length, by default "all"
-
-        Returns
-        -------
-        dict
-            Counts of each unique n-gram
-        """
-        self.tokenize_melody(score)
-        return self.ngram_counts(method)
-
     def tokenize_melody(self, score: Score) -> List[List]:
         """Tokenize melody into M-Types.
 
@@ -227,51 +156,18 @@ class FantasticTokenizer(MelodyTokenizer):
         list[list]
             List of tokenized phrases
         """
-        notes = self.get_notes(score)
-        self.phrases = self.segment_melody(notes)
+
+        self.phrases = fantastic_segmenter(score, self.phrase_gap)
         self.tokens = [self.tokenize_phrase(phrase) for phrase in self.phrases]
         return self.tokens
-
-    def segment_melody(self, notes: List[Note]) -> List[List]:
-        """Segment melody into phrases based on IOI gaps.
-
-        Parameters
-        ----------
-        notes : list[Note]
-            List of notes to segment
-
-        Returns
-        -------
-        list[list]
-            List of note phrases
-        """
-        phrases = []
-        current_phrase = []
-
-        for note in notes:
-            # Check whether we need to make a new phrase
-            need_new_phrase = (
-                len(current_phrase) > 0
-                and current_phrase[-1].ioi is not None
-                and current_phrase[-1].ioi > self.phrase_gap
-            )
-            if need_new_phrase:
-                phrases.append(current_phrase)
-                current_phrase = []
-            current_phrase.append(note)
-
-        if current_phrase:
-            phrases.append(current_phrase)
-
-        return phrases
 
     def tokenize_phrase(self, phrase: List[Note]) -> List:
         """Tokenize a phrase into M-Types.
 
         Parameters
         ----------
-        phrase : list[Note]
-            Phrase to tokenize
+        phrase : Score
+            Score object containing phrase to tokenize
 
         Returns
         -------
@@ -279,19 +175,21 @@ class FantasticTokenizer(MelodyTokenizer):
             List of M-Type tokens
         """
         tokens = []
-
         # Skip if phrase is too short
         if len(phrase) < 2:
             return tokens
 
         for prev_note, current_note in zip(phrase[:-1], phrase[1:]):
             pitch_interval = current_note.keynum - prev_note.keynum
-            ioi_ratio = current_note.ioi_ratio
+            if prev_note.ioi is None or current_note.ioi is None:
+                ioi_ratio = None
+            else:
+                ioi_ratio = current_note.ioi / prev_note.ioi
 
             pitch_interval_class = self.classify_pitch_interval(pitch_interval)
             ioi_ratio_class = self.classify_ioi_ratio(ioi_ratio)
 
-            token = (pitch_interval_class, ioi_ratio_class)
+            token = MType(pitch_interval_class, ioi_ratio_class)
             tokens.append(token)
 
         return tokens
@@ -326,32 +224,41 @@ class FantasticTokenizer(MelodyTokenizer):
         # Map intervals to class labels based on Fantastic's scheme
         return self.interval_map[pitch_interval]
 
-    interval_map = {
-        -12: "d8",  # Descending octave
-        -11: "d7",  # Descending major seventh
-        -10: "d7",  # Descending minor seventh
-        -9: "d6",  # Descending major sixth
-        -8: "d6",  # Descending minor sixth
-        -7: "d5",  # Descending perfect fifth
-        -6: "dt",  # Descending tritone
-        -5: "d4",  # Descending perfect fourth
-        -4: "d3",  # Descending major third
-        -3: "d3",  # Descending minor third
-        -2: "d2",  # Descending major second
-        -1: "d2",  # Descending minor second
-        0: "s1",  # Unison
-        1: "u2",  # Ascending minor second
-        2: "u2",  # Ascending major second
-        3: "u3",  # Ascending minor third
-        4: "u3",  # Ascending major third
-        5: "u4",  # Ascending perfect fourth
-        6: "ut",  # Ascending tritone
-        7: "u5",  # Ascending perfect fifth
-        8: "u6",  # Ascending minor sixth
-        9: "u6",  # Ascending major sixth
-        10: "u7",  # Ascending minor seventh
-        11: "u7",  # Ascending major seventh
-        12: "u8",  # Ascending octave
+    interval_map = OrderedDict(
+        [
+            (None, None),  # missing interval
+            (-12, "d8"),  # Descending octave
+            (-11, "d7"),  # Descending major seventh
+            (-10, "d7"),  # Descending minor seventh
+            (-9, "d6"),  # Descending major sixth
+            (-8, "d6"),  # Descending minor sixth
+            (-7, "d5"),  # Descending perfect fifth
+            (-6, "dt"),  # Descending tritone
+            (-5, "d4"),  # Descending perfect fourth
+            (-4, "d3"),  # Descending major third
+            (-3, "d3"),  # Descending minor third
+            (-2, "d2"),  # Descending major second
+            (-1, "d2"),  # Descending minor second
+            (0, "s1"),  # Unison
+            (1, "u2"),  # Ascending minor second
+            (2, "u2"),  # Ascending major second
+            (3, "u3"),  # Ascending minor third
+            (4, "u3"),  # Ascending major third
+            (5, "u4"),  # Ascending perfect fourth
+            (6, "ut"),  # Ascending tritone
+            (7, "u5"),  # Ascending perfect fifth
+            (8, "u6"),  # Ascending minor sixth
+            (9, "u6"),  # Ascending major sixth
+            (10, "u7"),  # Ascending minor seventh
+            (11, "u7"),  # Ascending major seventh
+            (12, "u8"),  # Ascending octave
+        ]
+    )
+
+    interval_classes = OrderedDict.fromkeys(interval_map.values())
+
+    interval_class_codes = {
+        string: integer for integer, string in enumerate(interval_classes.keys())
     }
 
     def classify_ioi_ratio(self, ioi_ratio: Optional[float]) -> str:
@@ -379,34 +286,61 @@ class FantasticTokenizer(MelodyTokenizer):
         else:
             return "l"
 
-    def count_grams(
-        self, sequence: List[Hashable], n: int, existing: Optional[Dict] = None
-    ) -> Dict:
-        """Count n-grams in a sequence.
+    ioi_ratio_classes = [None, "q", "e", "l"]
+    ioi_ratio_class_codes = {
+        None: 0,
+        "q": 1,
+        "e": 2,
+        "l": 3,
+    }
 
-        Parameters
-        ----------
-        sequence : list[Hashable]
-            Sequence to count n-grams in
-        n : int
-            Length of n-grams to count
-        existing : dict, optional
-            Existing counts to add to, by default None
 
-        Returns
-        -------
-        dict
-            Counts of each n-gram
-        """
-        # Count n-grams in a sequence
-        if existing is None:
-            existing = {}
+class MType:
+    """A class for representing M-Types."""
 
-        for i in range(len(sequence) - n + 1):
-            # Convert sequence slice to tuple to ensure hashability
-            ngram = tuple(
-                tuple(x) if isinstance(x, list) else x for x in sequence[i : i + n]
-            )
-            existing[ngram] = existing.get(ngram, 0) + 1
+    def __init__(
+        self,
+        pitch_interval_class: Optional[str],
+        ioi_ratio_class: Optional[str],
+    ):
+        self.pitch_interval_class = pitch_interval_class
+        self.ioi_ratio_class = ioi_ratio_class
+        self.integer = self.encode()
 
-        return existing
+    def encode(self) -> int:
+        n_ioi_ratio_classes = len(FantasticTokenizer.ioi_ratio_classes)
+
+        interval_class_code = FantasticTokenizer.interval_class_codes[
+            self.pitch_interval_class
+        ]
+        ioi_ratio_class_code = FantasticTokenizer.ioi_ratio_class_codes[
+            self.ioi_ratio_class
+        ]
+
+        # interval_class_code = 0, ioi_ratio_class_code = 0 -> 0
+        # interval_class_code = 0, ioi_ratio_class_code = 1 -> 1
+        # interval_class_code = 0, ioi_ratio_class_code = 2 -> 2
+        # interval_class_code = 0, ioi_ratio_class_code = 3 -> 3
+        # interval_class_code = 1, ioi_ratio_class_code = 0 -> 4
+        # interval_class_code = 1, ioi_ratio_class_code = 1 -> 5
+        # interval_class_code = 1, ioi_ratio_class_code = 2 -> 6
+        # interval_class_code = 1, ioi_ratio_class_code = 3 -> 7
+        # interval_class_code = 2, ioi_ratio_class_code = 0 -> 8
+        # interval_class_code = 2, ioi_ratio_class_code = 1 -> 9
+        # interval_class_code = 2, ioi_ratio_class_code = 2 -> 10
+        # interval_class_code = 2, ioi_ratio_class_code = 3 -> 11
+        return interval_class_code * n_ioi_ratio_classes + ioi_ratio_class_code
+
+    def __hash__(self):
+        """Return the hash based on the integer attribute."""
+        return hash(self.integer)
+
+    def __eq__(self, other):
+        """Check equality based on the integer attribute."""
+        if isinstance(other, MType):
+            return self.integer == other.integer
+        return False
+
+    def __repr__(self):
+        """Return a string representation of the MType."""
+        return f"MType {self.integer}"

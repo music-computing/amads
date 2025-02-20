@@ -6,12 +6,12 @@ import numpy as np
 def yules_k(ngram_counts: dict[tuple, int]) -> float:
     """Calculates mean Yule's K statistic over m-type n-grams.
     Yule's K is a measure of the rate at which words are repeated in a given text.
-    In the context of music, it measures the rate at which m-types are repeated in a given melody,
-    according to the formula:
+    In the context of music, it measures the rate at which m-types are repeated in a given melody
+    or corpus, according to the formula:
 
-    :math:`K = 1000 * (sum(V(m,N) * m²) - N) / (N * N)`
+    :math:`K = 1000 * (sum(V(m,N) * m^2) - N) / (N * N)`
     where:
-    - :math:`V(m,N)` is the number of m-types with frequency :math:`m` in a melody with :math:`N` m-tokens
+    - :math:`V(m,N)` is the number of m-types with frequency :math:`m` with :math:`N` m-tokens
     - :math:`N` is the total number of m-tokens in the melody
     - :math:`m` is the index for the frequency class in the frequency distribution
 
@@ -47,23 +47,26 @@ def yules_k(ngram_counts: dict[tuple, int]) -> float:
     """
     if not ngram_counts:
         return 0.0
-
     k_values = []
 
-    # Get frequency of frequencies
-    freq_spec = Counter(ngram_counts.values())
+    for counts in ngram_counts:
+        if not counts:
+            continue
 
-    # Calculate total_tokens (total tokens)
-    total_tokens = sum(ngram_counts.values())
-    if total_tokens == 0:
-        return 0.0
+        # Get frequency of frequencies
+        freq_spec = Counter(counts.values())
 
-    # Calculate sum(vm * m²) where vm is frequency of value m
-    vm_m2_sum = sum(freq * (count * count) for count, freq in freq_spec.items())
+        # Calculate N (total tokens)
+        N = sum(counts.values())
+        if N == 0:
+            continue
 
-    # Calculate K with scaling factor of 1000
-    k = 1000 * (vm_m2_sum - total_tokens) / (total_tokens * total_tokens)
-    k_values.append(k)
+        # Calculate sum(vm * m²) where vm is frequency of value m
+        vm_m2_sum = sum(freq * (count * count) for count, freq in freq_spec.items())
+
+        # Calculate K with scaling factor of 1000
+        K = 1000 * (vm_m2_sum - N) / (N * N)
+        k_values.append(K)
 
     return float(np.mean(k_values)) if k_values else 0.0
 
@@ -114,16 +117,20 @@ def simpsons_d(ngram_counts: dict[tuple, int]) -> float:
 
     d_values = []
 
-    # Get counts
-    count_values = list(ngram_counts.values())
-    total_tokens = sum(count_values)  # total_tokens holds total tokens
+    for counts in ngram_counts:
+        if not counts:
+            continue
 
-    if total_tokens <= 1:
-        return 0.0
+        # Get counts
+        count_values = list(counts.values())
+        total_tokens = sum(count_values)  # total_tokens holds total tokens
 
-    # Calculate D using the formula: sum(n_i * (n_i - 1)) / (total_tokens * (total_tokens - 1))
-    d = sum(n * (n - 1) for n in count_values) / (total_tokens * (total_tokens - 1))
-    d_values.append(d)
+        if total_tokens <= 1:
+            continue
+
+        # Calculate D using the formula: sum(n_i * (n_i - 1)) / (total_tokens * (total_tokens - 1))
+        d = sum(n * (n - 1) for n in count_values) / (total_tokens * (total_tokens - 1))
+        d_values.append(d)
 
     return float(np.mean(d_values)) if d_values else 0.0
 
@@ -175,19 +182,24 @@ def sichels_s(ngram_counts: dict[tuple, int]) -> float:
         return 0.0
 
     s_values = []
+    n = len(ngram_counts)  # |n| is the number of different lengths of Mtype
 
-    # Count how many n-grams occur exactly twice
-    doubles = sum(1 for count in ngram_counts.values() if count == 2)
+    for counts in ngram_counts:
+        if not counts:
+            continue
 
-    # Get total_types (total number of unique n-grams)
-    total_types = len(ngram_counts)
+        # Count how many n-grams occur exactly twice
+        doubles = sum(1 for count in counts.values() if count == 2)
 
-    if total_types == 0:
-        return 0.0
+        # Get total_types (total number of unique n-grams)
+        total_types = len(counts)
 
-    # Calculate S value
-    s = float(doubles) / total_types
-    s_values.append(s)
+        if total_types == 0:
+            continue
+
+        # Calculate S value using 1/|n| * V(2,N)/V(N)
+        s = (1.0 / n) * (float(doubles) / total_types)
+        s_values.append(s)
 
     return float(np.mean(s_values)) if s_values else 0.0
 
@@ -239,22 +251,26 @@ def honores_h(ngram_counts: dict[tuple, int]) -> float:
 
     h_values = []
 
-    # Get total_tokens (total tokens)
-    total_tokens = sum(ngram_counts.values())
+    for counts in ngram_counts:
+        if not counts:
+            continue
 
-    # Get hapax_count (number of hapax legomena)
-    hapax_count = sum(1 for count in ngram_counts.values() if count == 1)
+        # Get total_tokens (total tokens)
+        total_tokens = sum(counts.values())
 
-    # Get total_types (total types)
-    total_types = len(ngram_counts)
+        # Get hapax_count (number of hapax legomena)
+        hapax_count = sum(1 for count in counts.values() if count == 1)
 
-    # Handle edge cases
-    if total_types == 0 or hapax_count == 0 or hapax_count == total_types:
-        return 0.0
+        # Get total_types (total types)
+        total_types = len(counts)
 
-    # Calculate H value using total_tokens, hapax_count, and total_types
-    h = 100.0 * (np.log(total_tokens) / (1.01 - (float(hapax_count) / total_types)))
-    h_values.append(h)
+        # Handle edge cases
+        if total_types == 0 or hapax_count == 0 or hapax_count == total_types:
+            continue
+
+        # Calculate H value using total_tokens, hapax_count, and total_types
+        h = 100.0 * (np.log(total_tokens) / (1.01 - (float(hapax_count) / total_types)))
+        h_values.append(h)
 
     return float(np.mean(h_values)) if h_values else 0.0
 
@@ -306,21 +322,25 @@ def mean_entropy(ngram_counts: dict[tuple, int]) -> float:
 
     entropy_values = []
 
-    # Get total_tokens
-    total_tokens = sum(ngram_counts.values())
+    for counts in ngram_counts:
+        if not counts:
+            continue
 
-    if total_tokens <= 1:
-        return 0.0
+        # Get total_tokens
+        total_tokens = sum(counts.values())
 
-    # Calculate probabilities using total_tokens
-    probabilities = [count / total_tokens for count in ngram_counts.values()]
+        if total_tokens <= 1:
+            continue
 
-    # Calculate entropy using probabilities
-    entropy = -np.sum(probabilities * np.log2(probabilities))
+        # Calculate probabilities using total_tokens
+        probabilities = [count / total_tokens for count in counts.values()]
 
-    # Normalize entropy by log(total_tokens)
-    entropy_norm = entropy / np.log2(total_tokens)
-    entropy_values.append(entropy_norm)
+        # Calculate entropy using probabilities
+        entropy = -np.sum(probabilities * np.log2(probabilities))
+
+        # Normalize entropy by log(total_tokens)
+        entropy_norm = entropy / np.log2(total_tokens)
+        entropy_values.append(entropy_norm)
 
     return float(np.mean(entropy_values)) if entropy_values else 0.0
 
@@ -370,17 +390,21 @@ def mean_productivity(ngram_counts: dict[tuple, int]) -> float:
 
     productivity_values = []
 
-    # Get total_tokens
-    total_tokens = sum(ngram_counts.values())
+    for counts in ngram_counts:
+        if not counts:
+            continue
 
-    if total_tokens == 0:
-        return 0.0
+        # Get total_tokens
+        total_tokens = sum(counts.values())
 
-    # Count hapax_count (types occurring once)
-    hapax_count = sum(1 for count in ngram_counts.values() if count == 1)
+        if total_tokens == 0:
+            continue
 
-    # Calculate productivity using hapax_count and total_tokens
-    productivity = hapax_count / total_tokens
-    productivity_values.append(productivity)
+        # Count hapax_count (types occurring once)
+        hapax_count = sum(1 for count in counts.values() if count == 1)
+
+        # Calculate productivity using hapax_count and total_tokens
+        productivity = hapax_count / total_tokens
+        productivity_values.append(productivity)
 
     return float(np.mean(productivity_values)) if productivity_values else 0.0
