@@ -1,3 +1,4 @@
+from amads.algorithms.mtype_tokenizer import FantasticTokenizer
 from amads.algorithms.ngrams import NGramCounter
 from amads.core.basics import Score
 
@@ -21,19 +22,23 @@ def example_usage():
         ],  # quarter, eighth, quarter, eighth, eighth notes
     )
 
-    # Initialize the n-gram counter
-    counter = NGramCounter(melody)
+    # Initialize tokenizer and counter
+    tokenizer = FantasticTokenizer()
+    ngrams = NGramCounter()
+
+    # Tokenize melody and count n-grams
+    tokenizer.tokenize_melody(melody)
 
     # Count only bigrams (n=2)
-    bigram_counts = counter.get_mtype_counts(method=2)
+    bigram_counts = ngrams.count_ngrams(tokenizer.tokens, method=2)
     print(f"Dictionary of bigram counts: {bigram_counts}\n")
 
     # Count only trigrams (n=3)
-    trigram_counts = counter.get_mtype_counts(method=3)
+    trigram_counts = ngrams.count_ngrams(tokenizer.tokens, method=3)
     print(f"Dictionary of trigram counts: {trigram_counts}\n")
 
     # Count all n-grams
-    all_counts = counter.get_mtype_counts(method="all")
+    all_counts = ngrams.count_ngrams(tokenizer.tokens, method="all")
     print(f"Dictionary of all n-gram counts: {all_counts}\n")
 
 
