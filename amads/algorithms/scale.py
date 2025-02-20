@@ -25,19 +25,22 @@ def scale(score, factor=2.0, dim="all"):
     EventGroup
         The scaled version of the input score (modified in place)
     """
+    assert dim in ["all", "onset", "duration"]
     if dim == "all":
         scale(score, factor, "duration")
-        scale(score, factor, "start")
+        scale(score, factor, "onset")
         return score
     for elem in score.content:
         if isinstance(elem, EventGroup):
             scale(elem, factor, dim)
-            if dim == "start":
-                elem.start *= factor
+            if dim == "onset":
+                elem.onset *= factor
         else:
             if dim == "duration":
                 elem.duration *= factor
-            elif dim == "start":
-                elem.start *= factor
-        score.duration = max(score.duration, elem.end)
+            elif dim == "onset":
+                elem.onset *= factor
+            else:
+                raise ValueError(f"Invalid dimension: {dim}")
+        score.duration = max(score.duration, elem.offset)
     return score

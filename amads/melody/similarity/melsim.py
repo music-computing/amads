@@ -239,7 +239,7 @@ def r_load_melody(melody: Score, name: str):
     notes = list(flattened_score.find_all(Note))
 
     # Extract onset, pitch, duration for each note
-    onsets = FloatVector([note.start for note in notes])
+    onsets = FloatVector([note.onset for note in notes])
     pitches = FloatVector([note.keynum for note in notes])
     durations = FloatVector([note.duration for note in notes])
 

@@ -268,7 +268,7 @@ def partitura_convert_part(ppart, score):
                 print("Something is wrong; could not find measure for", event)
                 break  # use previous measure, but probably there is a bug here
             measure = staff.content[mindex]
-        delta = event[1] - measure.start
+        delta = event[1] - measure.onset
         if event[0] == "Note":
             if event[2] > 0:  # zero duration means skip note
                 note = Note(duration=event[2], pitch=event[4], delta=delta)
