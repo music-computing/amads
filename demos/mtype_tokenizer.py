@@ -30,15 +30,15 @@ def example_usage():
     tokenizer.tokenize_melody(melody)
 
     # Count only bigrams (n=2)
-    bigram_counts = ngrams.count_ngrams(tokenizer.tokens, method=2)
+    bigram_counts = ngrams.count_ngrams(tokenizer.tokens, n=2)
     print(f"Dictionary of bigram counts: {bigram_counts}\n")
 
     # Count only trigrams (n=3)
-    trigram_counts = ngrams.count_ngrams(tokenizer.tokens, method=3)
+    trigram_counts = ngrams.count_ngrams(tokenizer.tokens, n=3)
     print(f"Dictionary of trigram counts: {trigram_counts}\n")
 
     # Count all n-grams
-    all_counts = ngrams.count_ngrams(tokenizer.tokens, method="all")
+    all_counts = ngrams.count_ngrams(tokenizer.tokens, n=None)
     print(f"Dictionary of all n-gram counts: {all_counts}\n")
     happy_birthday = Score.from_melody(
         pitches=[
@@ -100,7 +100,7 @@ def example_usage():
     )
 
     tokenizer.tokenize_melody(happy_birthday)
-    ngrams.count_ngrams(tokenizer.tokens, method="all")
+    ngrams.count_ngrams(tokenizer.tokens, n=None)
     # These are the complexity measures computed from the n-grams of all lengths
     print("All n-grams:")
     print(f"Yule's K: {ngrams.yules_k}")
@@ -111,7 +111,7 @@ def example_usage():
     print(f"Mean Productivity: {ngrams.mean_productivity}\n")
 
     # If we instead count only bigrams, we get a different set of results
-    bigram_counts = ngrams.count_ngrams(tokenizer.tokens, method=2)
+    bigram_counts = ngrams.count_ngrams(tokenizer.tokens, n=2)
     print("Bigrams:")
     print(f"Yule's K: {ngrams.yules_k}")
     print(f"Simpson's D: {ngrams.simpsons_d}")

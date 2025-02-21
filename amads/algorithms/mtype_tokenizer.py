@@ -156,7 +156,10 @@ class FantasticTokenizer(MelodyTokenizer):
         """
 
         self.phrases = fantastic_segmenter(score, self.phrase_gap)
-        self.tokens = [self.tokenize_phrase(phrase) for phrase in self.phrases]
+        self.tokens = []
+        for phrase in self.phrases:
+            self.tokens.extend(self.tokenize_phrase(phrase))
+
         return self.tokens
 
     def tokenize_phrase(self, phrase: List[Note]) -> List:

@@ -9,52 +9,54 @@ class NGramCounter:
     def __init__(self):
         self.ngram_counts = None  # Initialize ngram_counts as None
 
-    def count_ngrams(self, tokens: list, method: Union[str, int]) -> Dict:
+    def count_ngrams(self, tokens: list, n: Union[int, list, None] = None) -> Dict:
         """Count n-grams in a sequence of tokens.
 
         Parameters
         ----------
         tokens : list
-            List of tokens to process (will be flattened if nested)
-        method : str or int
-            If "all", count n-grams of all possible lengths.
-            If int, count n-grams of that specific length only.
+            List of tokens to process
+        n : int, list, or None
+            If int, count n-grams of that specific length.
+            If list, count n-grams of the specified lengths.
+            If None, count n-grams of all possible lengths.
 
         Returns
         -------
         dict
             Dictionary mapping each n-gram to its count
         """
-        # Flatten nested list structure
-        flat_tokens = (
-            [token for sublist in tokens for token in sublist]
-            if tokens and isinstance(tokens[0], list)
-            else tokens
-        )
 
-        if not flat_tokens:
-            return {}
-
-        if method == "all":
-            n_values = range(1, len(flat_tokens) + 1)
-        else:
-            if not isinstance(method, int):
-                raise TypeError(f"method must be 'all' or int, got {type(method)}")
-            if method < 1:
-                raise ValueError(f"n-gram length {method} is less than 1")
-            if method > len(flat_tokens):
+        if n is None:
+            n_values = range(1, len(tokens) + 1)
+        elif isinstance(n, int):
+            if n < 1:
+                raise ValueError(f"n-gram length {n} is less than 1")
+            if n > len(tokens):
                 raise ValueError(
-                    f"n-gram length {method} is larger than token sequence "
-                    f"length {len(flat_tokens)}"
+                    f"n-gram length {n} is larger than token sequence "
+                    f"length {len(tokens)}"
                 )
-
-            n_values = [method]
+            n_values = [n]
+        else:
+            # n is a list
+            for val in n:
+                if not isinstance(val, int):
+                    raise TypeError(f"n-gram lengths must be integers, got {type(val)}")
+                if val < 1:
+                    raise ValueError(f"n-gram length {val} is less than 1")
+                if val > len(tokens):
+                    raise ValueError(
+                        f"n-gram length {val} is larger than token sequence "
+                        f"length {len(tokens)}"
+                    )
+            n_values = n
 
         counts = {}
         for n in n_values:
-            for i in range(len(flat_tokens) - n + 1):
+            for i in range(len(tokens) - n + 1):
                 # Create hashable n-gram
-                ngram = tuple(str(token) for token in flat_tokens[i : i + n])
+                ngram = tuple(str(token) for token in tokens[i : i + n])
                 counts[ngram] = counts.get(ngram, 0) + 1
         self.ngram_counts = counts
         return self.ngram_counts
@@ -302,7 +304,7 @@ class NGramCounter:
         - :math: `|n|` is the number of n-gram lengths
 
         Interpretation:
-        - Higher productivity indicates more creative/generative sequences with many unique tokens
+        - Higher productivity indicates more diverse/generative sequences with many unique tokens
         - Lower productivity indicates more repetitive sequences with fewer unique tokens
 
         Returns

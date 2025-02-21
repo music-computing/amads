@@ -25,28 +25,28 @@ def test_mtype_tokenizer():
 
     # Tokenize melody and count n-grams
     tokenizer.tokenize_melody(melody_1)
-    bigram_counts = ngrams.count_ngrams(tokenizer.tokens, method=2)
+    bigram_counts = ngrams.count_ngrams(tokenizer.tokens, n=2)
     for ngram in bigram_counts:
         assert len(ngram) == 2
 
-    trigram_counts = ngrams.count_ngrams(tokenizer.tokens, method=3)
+    trigram_counts = ngrams.count_ngrams(tokenizer.tokens, n=3)
     for ngram in trigram_counts:
         assert len(ngram) == 3
 
     # Test that n-grams cannot be counted if method is larger than sequence length
     with pytest.raises(ValueError):
-        ngrams.count_ngrams(tokenizer.tokens, method=10)
+        ngrams.count_ngrams(tokenizer.tokens, n=10)
 
     # Test that n-grams cannot be counted if method n = 0
     with pytest.raises(ValueError):
-        ngrams.count_ngrams(tokenizer.tokens, method=0)
+        ngrams.count_ngrams(tokenizer.tokens, n=0)
 
     # Test that method="all" returns all n-grams
-    all_counts = ngrams.count_ngrams(tokenizer.tokens, method="all")
+    all_counts = ngrams.count_ngrams(tokenizer.tokens, n=None)
     # Test each n-gram length by comparing to individual n-gram counts
     max_length = max(len(ngram) for ngram in all_counts)
     for n in range(1, max_length + 1):
-        n_gram_counts = ngrams.count_ngrams(tokenizer.tokens, method=n)
+        n_gram_counts = ngrams.count_ngrams(tokenizer.tokens, n=n)
         # Check that all n-grams of length n in n_gram_counts are also in all_counts
         for ngram in n_gram_counts:
             assert ngram in all_counts
@@ -80,16 +80,16 @@ def test_mtype_tokenizer():
 
     # Test that the melody is segmented into 2 phrases
     tokenizer.tokenize_melody(melody_2)
-    ngrams.count_ngrams(tokenizer.tokens, method=2)
-    # The first phrase has 7 notes in so the maximum length n-gram is 6
+    ngrams.count_ngrams(tokenizer.tokens, n=2)
+    # The first phrase has 7 notes in so the maximum length n-gram is 7
     assert len(tokenizer.phrases[0]) == 7
     with pytest.raises(ValueError):
-        ngrams.count_ngrams(tokenizer.tokens[0], method=7)
+        ngrams.count_ngrams(tokenizer.phrases[0], n=8)
 
     # This is true of the second phrase as well
     assert len(tokenizer.phrases[1]) == 7
     with pytest.raises(ValueError):
-        ngrams.count_ngrams(tokenizer.tokens[0], method=7)
+        ngrams.count_ngrams(tokenizer.phrases[1], n=8)
 
 
 def test_mtype_encodings():
@@ -127,18 +127,44 @@ def test_mtype_encodings():
 def test_ngram_counts():
 
     simple_list = [0, 1, 1, 0, 1]
-    ngrams = NGramCounter()
+    complex_list = [0, 1, 2, 3, 4, 5]
+    simple_ngrams = NGramCounter()
+    complex_ngrams = NGramCounter()
 
     # Features calculated from the ngrams are not available until ngrams are counted
     with pytest.raises(ValueError):
-        _ = ngrams.yules_k
+        _ = simple_ngrams.yules_k
 
     # Count the ngrams
-    ngrams.count_ngrams(simple_list, method=2)
-    assert ngrams.ngram_counts == {("0", "1"): 2, ("1", "1"): 1, ("1", "0"): 1}
+    simple_ngrams.count_ngrams(simple_list, n=2)
+    assert simple_ngrams.ngram_counts == {("0", "1"): 2, ("1", "1"): 1, ("1", "0"): 1}
 
     # Now the features are available
-    assert ngrams.yules_k is not None
+    assert simple_ngrams.yules_k is not None
+
+    complex_ngrams.count_ngrams(complex_list, n=2)
+
+    # We expect that Yule's K is lower for the complex list, as there is more variety in the n-grams
+    # Yule's K takes a higher value for more repetitive sequences
+    assert complex_ngrams.yules_k < simple_ngrams.yules_k
+
+    # Simpson's D should also be higher for more repetitive sequences
+    assert complex_ngrams.simpsons_d < simple_ngrams.simpsons_d
+
+    # Sichel's S should also be higher for more the simple list,
+    # as complex_list contains no n-grams that occur exactly twice
+    assert complex_ngrams.sichels_s < simple_ngrams.sichels_s
+
+    # Honore's H is incalculable for complex_list,
+    # as the number of hapax legomena is equal to the number of total types
+    with pytest.raises(ValueError):
+        _ = complex_ngrams.honores_h
+
+    # Normalized entropy should be lower for more repetitive sequences
+    assert complex_ngrams.mean_entropy > simple_ngrams.mean_entropy
+
+    # Mean productivity should be higher for more diverse sequences
+    assert complex_ngrams.mean_productivity > simple_ngrams.mean_productivity
 
 
 if __name__ == "__main__":
