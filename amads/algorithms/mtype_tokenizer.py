@@ -5,8 +5,6 @@ from typing import List, Optional
 from amads.core.basics import Note, Score
 from amads.melody.segment import fantastic_segmenter
 
-# collections.abc is currently not supported in Python 3.13.1
-
 
 class MelodyTokenizer:
     """Base class for tokenizing melodies into n-grams.
