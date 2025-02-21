@@ -101,12 +101,24 @@ def example_usage():
 
     tokenizer.tokenize_melody(happy_birthday)
     ngrams.count_ngrams(tokenizer.tokens, method="all")
+    # These are the complexity measures computed from the n-grams of all lengths
+    print("All n-grams:")
     print(f"Yule's K: {ngrams.yules_k}")
     print(f"Simpson's D: {ngrams.simpsons_d}")
     print(f"Sichel's S: {ngrams.sichels_s}")
     print(f"Honore's H: {ngrams.honores_h}")
     print(f"Normalized Entropy: {ngrams.mean_entropy}")
-    print(f"Mean Productivity: {ngrams.mean_productivity}")
+    print(f"Mean Productivity: {ngrams.mean_productivity}\n")
+
+    # If we instead count only bigrams, we get a different set of results
+    bigram_counts = ngrams.count_ngrams(tokenizer.tokens, method=2)
+    print("Bigrams:")
+    print(f"Yule's K: {ngrams.yules_k}")
+    print(f"Simpson's D: {ngrams.simpsons_d}")
+    print(f"Sichel's S: {ngrams.sichels_s}")
+    print(f"Honore's H: {ngrams.honores_h}")
+    print(f"Normalized Entropy: {ngrams.mean_entropy}")
+    print(f"Mean Productivity: {ngrams.mean_productivity}\n")
 
 
 if __name__ == "__main__":

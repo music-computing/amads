@@ -10,20 +10,20 @@ class NGramCounter:
         self.ngram_counts = None  # Initialize ngram_counts as None
 
     def count_ngrams(self, tokens: list, method: Union[str, int]) -> Dict:
-        """Count all n-grams from a list of tokens.
+        """Count n-grams in a sequence of tokens.
 
         Parameters
         ----------
         tokens : list
             List of tokens to process (will be flattened if nested)
         method : str or int
-            If "all", count n-grams of all lengths.
-            If int, count n-grams of that specific length.
+            If "all", count n-grams of all possible lengths.
+            If int, count n-grams of that specific length only.
 
         Returns
         -------
         dict
-            Counts of each n-gram
+            Dictionary mapping each n-gram to its count
         """
         # Flatten nested list structure
         flat_tokens = (
@@ -61,7 +61,7 @@ class NGramCounter:
 
     @property
     def yules_k(self) -> float:
-        """Calculate Yule's K statistic for a given n-gram count dictionary.
+        """Calculate Yule's K statistic for the n-gram counts.
 
         Yule's K is a measure of the rate at which tokens are repeated in a sequence.
         It is calculated according to the formula:
@@ -72,6 +72,11 @@ class NGramCounter:
         - :math:`V(m,N)` is the number of types with frequency :math:`m` with :math:`N` tokens
         - :math:`N` is the total number of tokens in the sequence
         - :math:`m` is the index for the frequency class in the frequency distribution
+
+        Interpretation:
+        - Higher K values indicate more repetitive sequences
+        - Lower K values indicate more diverse sequences with less repetition
+        - K is scaled by 1000 to make values more readable
 
         Returns
         -------
@@ -108,6 +113,10 @@ class NGramCounter:
         - :math:`n_i` is the frequency of the i-th type
         - :math:`N` is the total number of tokens in the sequence
         - :math:`D` is the Simpson's D diversity index
+
+        Interpretation:
+        - Higher D values indicate more repetitive sequences where tokens are often repeated
+        - Lower D values indicate more diverse sequences with many different tokens
 
         Returns
         -------
@@ -152,6 +161,10 @@ class NGramCounter:
         - :math:`V(N)` is the total number of types in the sequence
         - :math:`|n|` is the number of n-gram lengths considered
 
+        Interpretation:
+        - Higher S values indicate more types occurring exactly twice
+        - Lower S values indicate fewer types occurring exactly twice
+
         Returns
         -------
         float
@@ -195,6 +208,10 @@ class NGramCounter:
         - :math:`V1` is the number of types that occur exactly once
         - :math:`V(N)` : The number of different types in a sequence with N tokens.
             This can be interpreted as the size of the token vocabulary of the sequence.
+
+        Interpretation:
+        - Higher H values indicate more lexically rich sequences with many unique tokens
+        - Lower H values indicate more repetitive sequences with fewer unique tokens
 
         Returns
         -------
@@ -242,6 +259,10 @@ class NGramCounter:
         - :math:`N` is the total number of tokens in the sequence
         - :math:`p(x_i)` is the probability of the i-th type
 
+        Interpretation:
+        - Higher entropy indicates more random/unpredictable sequences
+        - Lower entropy indicates more predictable/structured sequences
+
         Returns
         -------
         float
@@ -279,6 +300,10 @@ class NGramCounter:
         mean_productivity = sum(V1(N)/|n|) where
         - :math: `V1(N)` is the number of types occurring once
         - :math: `|n|` is the number of n-gram lengths
+
+        Interpretation:
+        - Higher productivity indicates more creative/generative sequences with many unique tokens
+        - Lower productivity indicates more repetitive sequences with fewer unique tokens
 
         Returns
         -------
