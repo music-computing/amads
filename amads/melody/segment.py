@@ -14,8 +14,8 @@ def fantastic_segmenter(score: Score, phrase_gap: float = 1.0) -> List[Note]:
 
     Returns
     -------
-    list[Score]
-        List of Score objects representing phrases
+    list[Note]
+        List of Note objects representing phrases
     """
     # Extract notes from score
     flattened_score = score.flatten(collapse=True)
