@@ -40,7 +40,6 @@ def example_usage():
     # Count all n-grams
     all_counts = ngrams.count_ngrams(tokenizer.tokens, method="all")
     print(f"Dictionary of all n-gram counts: {all_counts}\n")
-
     happy_birthday = Score.from_melody(
         pitches=[
             60,

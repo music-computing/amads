@@ -124,6 +124,24 @@ def test_mtype_encodings():
         assert 0 <= integer <= len(integers) - 1
 
 
+def test_ngram_counts():
+
+    simple_list = [0, 1, 1, 0, 1]
+    ngrams = NGramCounter()
+
+    # Features calculated from the ngrams are not available until ngrams are counted
+    with pytest.raises(ValueError):
+        _ = ngrams.yules_k
+
+    # Count the ngrams
+    ngrams.count_ngrams(simple_list, method=2)
+    assert ngrams.ngram_counts == {("0", "1"): 2, ("1", "1"): 1, ("1", "0"): 1}
+
+    # Now the features are available
+    assert ngrams.yules_k is not None
+
+
 if __name__ == "__main__":
     test_mtype_tokenizer()
     test_mtype_encodings()
+    test_ngram_counts()

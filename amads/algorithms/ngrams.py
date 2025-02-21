@@ -63,33 +63,32 @@ class NGramCounter:
     def yules_k(self) -> float:
         """Calculate Yule's K statistic for a given n-gram count dictionary.
 
-        Yule's K is a measure of the rate at which words are repeated in a given text.
-        In the context of music, it measures the rate at which m-types are repeated in a given
-        melody or corpus, according to the formula:
+        Yule's K is a measure of the rate at which tokens are repeated in a sequence.
+        It is calculated according to the formula:
 
         :math:`K = 1 / |n| * 1000 * (sum(V(m,N) * m^2) - N) / (N * N)`
         where:
         - :math:`|n|` is the number of different n-gram lengths
-        - :math:`V(m,N)` is the number of m-types with frequency :math:`m` with :math:`N` m-tokens
-        - :math:`N` is the total number of m-tokens in the melody
+        - :math:`V(m,N)` is the number of types with frequency :math:`m` with :math:`N` tokens
+        - :math:`N` is the total number of tokens in the sequence
         - :math:`m` is the index for the frequency class in the frequency distribution
 
         Returns
         -------
         float
             Mean Yule's K statistic across all n-gram lengths.
-            Returns 0 for empty input.
+            Raises ValueError for empty input.
         """
         if self.ngram_counts is None:
             raise ValueError(
-                "N-gram counts have not been calculated. Call get_mtype_counts() first."
+                "N-gram counts have not been calculated. Call count_ngrams() first."
             )
 
         n_lengths = len(self.ngram_counts)
         freq_spec = Counter(self.ngram_counts.values())
         n = sum(self.ngram_counts.values())
         if n == 0:
-            return 0.0
+            raise ValueError("Cannot calculate Yule's K for empty sequence")
 
         # Calculate sum(vm * m²) where vm is frequency of value m
         vm_m2_sum = sum(freq * (count * count) for count, freq in freq_spec.items())
@@ -101,42 +100,37 @@ class NGramCounter:
 
     @property
     def simpsons_d(self) -> float:
-        """Compute mean Simpson's D diversity index over m-type n-grams.
-        Simpson's D is also a measure of the diversity of m-types in a melody,
-        and mathematically resembles the definition of Yule's K:
+        """Compute mean Simpson's D diversity index over n-grams. This is closely
+        mathematically related to the definition of Yule's K.
+        Simpson's D is a measure of diversity in a sequence:
         :math:`D = 1 - sum(n_i * (n_i - 1)) / (N * (N - 1))`
         where:
-        - :math:`n_i` is the frequency of the i-th m-type
-        - :math:`N` is the total number of m-types in the melody
+        - :math:`n_i` is the frequency of the i-th type
+        - :math:`N` is the total number of tokens in the sequence
         - :math:`D` is the Simpson's D diversity index
-
-        Parameters
-        ----------
-        ngram_counts : dict[tuple, int]
-            Dictionary of n-gram counts
 
         Returns
         -------
         float
             Mean Simpson's D value across n-gram lengths.
-            Returns 0.0 for empty input.
+            Raises ValueError for empty input.
         """
         if self.ngram_counts is None:
             raise ValueError(
-                "N-gram counts have not been calculated. Call get_mtype_counts() first."
+                "N-gram counts have not been calculated. Call count_ngrams() first."
             )
 
         n_lengths = len(self.ngram_counts)
         n = sum(self.ngram_counts.values())
         if n == 0:
-            return 0.0
+            raise ValueError("Cannot calculate Simpson's D for empty sequence")
 
         # Get counts
         count_values = list(self.ngram_counts.values())
         total_tokens = sum(count_values)
 
         if total_tokens <= 1:
-            return 0.0
+            raise ValueError("Cannot calculate Simpson's D for sequence of length <= 1")
 
         # Calculate D using the formula: 1 / |n| * sum(n_i * (n_i - 1)) / (total_tokens * (total_tokens - 1))
         d = (
@@ -149,37 +143,30 @@ class NGramCounter:
 
     @property
     def sichels_s(self) -> float:
-        """Compute Sichel's S statistic over m-type n-grams.
-        Sichel's S is a measure of the proportion of m-types that occur exactly twice in a melody,
-        based on alinguistic phenomenon: that words occuring twice with regards to vocabulary size
-        appear to be constant for a given text.
+        """Compute Sichel's S statistic over n-grams.
+        Sichel's S is a measure of the proportion of token types that occur exactly twice in a sequence.
         It is defined as:
         :math:`S = V(2,N)/(|n| * V(N))`
         where:
-        - :math:`V(2,N)` is the number of m-types that occur exactly twice in the melody
-        - :math:`V(N)` is the total number of m-types in the melody
+        - :math:`V(2,N)` is the number of types that occur exactly twice in the sequence
+        - :math:`V(N)` is the total number of types in the sequence
         - :math:`|n|` is the number of n-gram lengths considered
-
-        Parameters
-        ----------
-        ngram_counts : dict[tuple, int]
-            Dictionary of n-gram counts
 
         Returns
         -------
         float
             Mean Sichel's S value across n-gram lengths.
-            Returns 0.0 for empty input.
+            Raises ValueError for empty input.
         """
         if self.ngram_counts is None:
             raise ValueError(
-                "N-gram counts have not been calculated. Call get_mtype_counts() first."
+                "N-gram counts have not been calculated. Call count_ngrams() first."
             )
 
         n_lengths = len(self.ngram_counts)
         n = sum(self.ngram_counts.values())
         if n == 0:
-            return 0.0
+            raise ValueError("Cannot calculate Sichel's S for empty sequence")
 
         # Count how many n-grams occur exactly twice
         doubles = sum(1 for count in self.ngram_counts.values() if count == 2)
@@ -188,7 +175,7 @@ class NGramCounter:
         total_types = len(self.ngram_counts)
 
         if total_types == 0:
-            return 0.0
+            raise ValueError("Cannot calculate Sichel's S when no types exist")
 
         # Calculate S value using 1/|n| * V(2,N)/V(N)
         s = (1.0 / n_lengths) * (float(doubles) / total_types)
@@ -197,31 +184,32 @@ class NGramCounter:
 
     @property
     def honores_h(self) -> float:
-        """Compute Honore's H statistic over m-type n-grams.
-        Honore's H is based on the assumption that the proportion of ngrams
+        """Compute Honore's H statistic over n-grams.
+        Honore's H is based on the assumption that the proportion of tokens
         occuring exactly once is logarithmically related to the total number
-        of ngrams in the melody.
+        of tokens in the sequence.
         It is defined as:
         :math:`H = 100 * (log(N) / (1.01 - (V1/V)))`
         where:
-        - :math:`N` is the total number of m-types in the melody
-        - :math:`V1` is the number of m-types that occur exactly once
-        - :math:`V` is the total number of m-types in the melody
+        - :math:`N` is the total number of tokens in the sequence
+        - :math:`V1` is the number of types that occur exactly once
+        - :math:`V(N)` : The number of different types in a sequence with N tokens.
+            This can be interpreted as the size of the token vocabulary of the sequence.
 
         Returns
         -------
         float
             Mean Honore's H value across n-gram lengths.
-            Returns 0.0 for empty input.
+            Raises ValueError for empty input.
         """
         if self.ngram_counts is None:
             raise ValueError(
-                "N-gram counts have not been calculated. Call get_mtype_counts() first."
+                "N-gram counts have not been calculated. Call count_ngrams() first."
             )
 
         n = sum(self.ngram_counts.values())
         if n == 0:
-            return 0.0
+            raise ValueError("Cannot calculate Honore's H for empty sequence")
 
         # Get hapax_count (number of hapax legomena)
         hapax_count = sum(1 for count in self.ngram_counts.values() if count == 1)
@@ -231,7 +219,9 @@ class NGramCounter:
 
         # Handle edge cases
         if total_types == 0 or hapax_count == 0 or hapax_count == total_types:
-            return 0.0
+            raise ValueError(
+                "Cannot calculate Honore's H for this sequence, insufficient variation in inputs"
+            )
 
         # Calculate H value
         h = 100.0 * (np.log(n) / (1.01 - (float(hapax_count) / total_types)))
@@ -240,29 +230,32 @@ class NGramCounter:
 
     @property
     def mean_entropy(self) -> float:
-        """Compute entropy of m-type n-gram distribution.
-        Calulates the mean Shannon entropy of the m-type n-gram distribution.
+        """Compute entropy of n-gram distribution.
+        For each ngram length n, calculates the Shannon entropy of the ngram distribution
+        and divides by the maximum entropy for that length (log2 N). The mean is then taken
+        over these relative entropy values across all lengths.
+
         This is defined as:
-        :math:`H = -sum(p(x) * log2(p(x)))`
+        :math: `H = -sum_{i=1}^{N}(p(x_i) * log2(p(x_i)))`
         where:
-        - :math:`p(x)` is the probability of the i-th m-type
-        - :math:`N` is the total number of m-types in the melody
         - :math:`H` is the Shannon entropy
+        - :math:`N` is the total number of tokens in the sequence
+        - :math:`p(x_i)` is the probability of the i-th type
 
         Returns
         -------
         float
-            Mean normalized entropy value across n-gram lengths.
-            Returns 0.0 for empty input.
+            Mean Shannon entropy value across n-gram lengths.
+            Raises ValueError for empty input.
         """
         if self.ngram_counts is None:
             raise ValueError(
-                "N-gram counts have not been calculated. Call get_mtype_counts() first."
+                "N-gram counts have not been calculated. Call count_ngrams() first."
             )
 
         total_tokens = sum(self.ngram_counts.values())
         if total_tokens <= 1:
-            return 0.0
+            raise ValueError("Cannot calculate entropy for sequence of length <= 1")
 
         # Calculate probabilities
         probabilities = [count / total_tokens for count in self.ngram_counts.values()]
@@ -270,35 +263,37 @@ class NGramCounter:
         # Calculate entropy
         entropy = -np.sum(probabilities * np.log2(probabilities))
 
-        # Normalize entropy
+        # Normalize entropy by maximum possible entropy for sequence length
         entropy_norm = entropy / np.log2(total_tokens)
 
         return float(entropy_norm)
 
     @property
     def mean_productivity(self) -> float:
-        """Compute mean productivity of m-type n-gram distribution.
+        """Compute mean productivity of n-gram distribution.
 
-        Mean productivity is defined as the mean over all lengths of the number of m-types
-        occurring only once divided by the total number of m-tokens. The m-types occurring
-        only once in a text are known as hapax legomena.
+        Mean productivity is defined as the mean of the number of types
+        occurring only once divided by the total number of tokens. The types occurring
+        only once in a sequence are known as hapax legomena.
 
-        mean_productivity = sum(V1(N)/|n|) where V1(N) is the number of types occurring once
+        mean_productivity = sum(V1(N)/|n|) where
+        - :math: `V1(N)` is the number of types occurring once
+        - :math: `|n|` is the number of n-gram lengths
 
         Returns
         -------
         float
             Mean productivity value across n-gram lengths.
-            Returns 0.0 for empty input.
+            Raises ValueError for empty input.
         """
         if self.ngram_counts is None:
             raise ValueError(
-                "N-gram counts have not been calculated. Call get_mtype_counts() first."
+                "N-gram counts have not been calculated. Call count_ngrams() first."
             )
 
         total_tokens = sum(self.ngram_counts.values())
         if total_tokens == 0:
-            return 0.0
+            raise ValueError("Cannot calculate productivity for empty sequence")
 
         # Count hapax_count (types occurring once)
         hapax_count = sum(1 for count in self.ngram_counts.values() if count == 1)
