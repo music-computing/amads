@@ -1,5 +1,25 @@
 [MESSAGES CONTROL]
-disable=
-    missing-module-docstring,
-    missing-class-docstring,
-    missing-function-docstring 
+disable=E1133,  # not-an-iterable
+        C0111,  # missing-docstring
+        C0103,  # invalid-name
+        C0114,  # missing-module-docstring
+        C0115,  # missing-class-docstring
+        C0116   # missing-function-docstring
+
+[FORMAT]
+max-line-length=88
+
+[BASIC]
+good-names=i,j,k,ex,Run,_,id,x,y,z,t,n,m,f,g,h
+
+[DESIGN]
+max-args=10
+max-attributes=10
+max-bool-expr=5
+max-branches=12
+max-locals=15
+max-parents=7
+max-public-methods=20
+max-returns=6
+max-statements=50
+min-public-methods=1

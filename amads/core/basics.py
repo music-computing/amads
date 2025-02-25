@@ -33,11 +33,58 @@ Score (one per musical work or movement)
 
 
 import functools
-import weakref
 from math import floor
 from typing import List, Optional, Union
 
 from .time_map import TimeMap
+
+
+def cached_event_property(func):
+    """
+    Decorator to cache the value of a property in Event.cache.
+    This allows us to define properties that are computed on first access,
+    and recomputed only when the object is modified.
+
+    One example is the Score.is_monophonic property, which is computed
+    by iterating over all notes and checking if any two notes are overlapping.
+    We don't want to recompute this property from scratch every time it is accessed,
+    so we cache the result.
+    But we also want to invalidate the cache if any notes are added, removed, or modified.
+
+    Setting an attribute of an object will automatically trigger a flag_modified() call on that object,
+    which will invalidate the cache of all properties that depend on that object.
+    If the object has a parent, the parent will also be flagged as modified,
+    and so on up the hierarchy.
+    flag_modified is also called as part of various methods,
+    such as insert(), append(), and pack().
+
+    Normally users should treat Event objects as immutable, so should not have to worry
+    about cache invalidation. If you do need to modify an Event object, and you're doing
+    something more complicated than just setting attributes, you might want to
+    call the object's flag_modified() method just to be safe.
+
+    Parameters
+    ----------
+    func : method
+        The method to be turned into a cached property.
+
+    Returns
+    -------
+    property
+        A property that caches its value upon first access.
+    """
+    property_name = func.__name__
+
+    @property
+    def wrapper(self):
+        try:
+            return self.cache.get(property_name)
+        except KeyError:
+            value = func(self)
+            self.cache.set(property_name, value)
+            return value
+
+    return wrapper
 
 
 class Event:
@@ -52,7 +99,8 @@ class Event:
     def __init__(self, duration, delta):
         self.delta = delta
         self.duration = duration
-        self._parent = None
+        self.parent = None
+        self.cache = Cache()
 
     def copy(self):
         raise Exception("Event is abstract, subclass should override copy()")
@@ -60,19 +108,30 @@ class Event:
     def deep_copy(self):
         raise Exception("Event is abstract, subclass should override deep_copy()")
 
+    def flag_modified(self):
+        """
+        Flag the object as modified.
+
+        Flagging an object as modified will cause cached attributes to be recomputed
+        the next time they are accessed.
+        Note that flagging an object as modified will also flag its parent, and
+        so on up the hierarchy.
+        """
+        if hasattr(self, "cache"):
+            self.cache.invalidate()
+        if hasattr(self, "parent") and self.parent:
+            self.parent.flag_modified()
+
+    def __setattr__(self, name, value):
+        # Whenever an attribute is set, we need to flag the object as modified
+        # to invalidate any cached properties. This invalidation will
+        # be passed upward to the parent too.
+        super().__setattr__(name, value)
+        self.flag_modified()
+
     @property
     def delta_end(self):
         return self.delta + self.duration
-
-    @property
-    def parent(self):
-        if self._parent is None:
-            return None
-        return self._parent()
-
-    @parent.setter
-    def parent(self, p):
-        self._parent = weakref.ref(p)
 
     @property
     def start(self):
@@ -97,6 +156,50 @@ class Event:
     def end(self, value):
         self.duration = value - self.start
         assert self.duration >= 0
+
+    @property
+    def score(self):
+        if self.parent is None:
+            raise ValueError(f"{self} is not in a score")
+        if isinstance(self.parent, Score):
+            return self.parent
+        return self.parent.score
+
+
+class Cache:
+    """A cache for storing computed values.
+
+    The Cache class provides a simple key-value store with the ability to invalidate
+    all cached values at once. It is used internally by cached_event_property to store
+    computed property values.
+
+    Methods
+    -------
+    get(key)
+        Get a value from the cache. Raises KeyError if key not found.
+    set(key, value)
+        Store a value in the cache.
+    invalidate()
+        Clear all values from the cache.
+
+    Raises
+    ------
+    KeyError
+        When attempting to get a key that is not in the cache.
+    """
+
+    def __init__(self):
+        self.data = {}
+
+    def get(self, key):
+        return self.data[key]
+
+    def set(self, key, value):
+        self.data[key] = value
+
+    def invalidate(self):
+        if self.data:
+            self.data = {}
 
 
 class Rest(Event):
@@ -244,6 +347,70 @@ class Note(Event):
 
     def lower_enharmonic(self):
         return self.pitch.lower_enharmonic()
+
+    @property
+    def next_note(self):
+        return self.score.next_notes[self]
+
+    @property
+    def previous_note(self):
+        return self.score.previous_notes[self]
+
+    @property
+    def ioi(self):
+        """Calculate the inter-onset interval, i.e. the time interval between this note's start and the
+        previous note's start, excluding any other notes that are sounding at the same time.
+
+        Returns
+        -------
+        float or None
+            The time interval in quarters between this note's start time and the
+            start time of the previous note.
+            If there is no previous note, returns None.
+        """
+        previous_start = self.previous_start
+        if previous_start is None:
+            return None
+        return self.start - previous_start
+
+    @property
+    def previous_start(self):
+        """
+        The start time of the previous note, excluding any other notes that are
+        sounding at the same time. If there is no previous note, returns None.
+        """
+        previous_start = self.score.previous_note_starts[self.start]
+        if previous_start is None:
+            return None
+        return previous_start
+
+    @property
+    def ioi_ratio(self):
+        """
+        The ratio of this note's inter-onset interval to the inter-onset interval
+        of the previous note. If there are not at least two previous notes, returns
+        None.
+        """
+        ioi = self.ioi
+        if ioi is None:
+            return None
+        previous_ioi = self.previous_ioi
+        if previous_ioi is None:
+            return None
+        return ioi / previous_ioi
+
+    @property
+    def previous_ioi(self):
+        """
+        The inter-onset interval of the previous note.
+        """
+        previous_start = self.previous_start
+        if previous_start is None:
+            return None
+        previous_previous_start = self.score.previous_note_starts[previous_start]
+        if previous_previous_start is None:
+            return None
+        return previous_start - previous_previous_start
 
 
 class TimeSignature(Event):
@@ -548,6 +715,7 @@ class EventGroup(Event):
         else:  # simply append at the end of content:
             self.content.append(event)
         event.parent = self
+        self.flag_modified()
         return self
 
     def find_all(self, elemType):
@@ -645,6 +813,7 @@ class Sequence(EventGroup):
             if isinstance(elem, EventGroup):
                 elem.pack()
             delta += elem.duration
+        self.flag_modified()
 
 
 class Concurrence(EventGroup):
@@ -698,6 +867,7 @@ class Concurrence(EventGroup):
             if isinstance(elem, EventGroup):
                 elem.pack()
             self.duration = max(self.duration, elem.duration)
+        self.flag_modified()
 
     def append(self, element, delta=0, update_duration=True):
         """Append an element to the content with the given delta.
@@ -711,6 +881,7 @@ class Concurrence(EventGroup):
         self.insert(element)
         if update_duration:
             self.duration = max(self.duration, element.delta_end)
+        self.flag_modified()
 
 
 class Chord(Concurrence):
@@ -827,6 +998,77 @@ class Score(Concurrence):
     def __init__(self, delta=0, duration=0, content=None, time_map=None):
         super().__init__(delta, duration, content)
         self.time_map = time_map if time_map else TimeMap()
+
+    @cached_event_property
+    def notes(self) -> List[Note]:
+        """Get all notes in the score in sequential order, stripping ties,
+        sorted by start time. When two notes have the same start time,
+        they are sorted by pitch (lowest to highest).
+
+        Returns
+        -------
+        List[Note]
+            List of Note objects in the score.
+        """
+        score = self.flatten(collapse=True).strip_ties()
+        notes = list(score.find_all(Note))
+        for note in notes:
+            note.parent = score
+        notes.sort(key=lambda note: (note.start, note.pitch))
+        return notes
+
+    @cached_event_property
+    def next_notes(self):
+        """A lookup table that for each note, returns the next note in the score."""
+        # We use find_all(Note) rather than self.notes because self.notes creates copies of the notes
+        notes = list(self.find_all(Note))
+        next_notes = {}
+        for i, note in enumerate(notes):
+            if i == len(notes) - 1:
+                next_notes[note] = None
+            else:
+                next_notes[note] = notes[i + 1]
+        return next_notes
+
+    @cached_event_property
+    def previous_notes(self):
+        """A lookup table that for each note, returns the previous note in the score."""
+        # We use find_all(Note) rather than self.notes because self.notes creates copies of the notes
+        notes = list(self.find_all(Note))
+        previous_notes = {}
+        for i, note in enumerate(notes):
+            if i == 0:
+                previous_notes[note] = None
+            else:
+                previous_notes[note] = notes[i - 1]
+        return previous_notes
+
+    @cached_event_property
+    def note_starts(self) -> List[float]:
+        """A sorted list of all note start times in the score."""
+        return sorted({note.start for note in self.notes})
+
+    @cached_event_property
+    def previous_note_starts(self):
+        """
+        A dictionary keyed by note starts where the value is the start of the previous note.
+        If there is no previous note, the value is None.
+        We use this for efficient calculation of inter-onset intervals.
+        """
+        note_starts = self.note_starts
+        previous_note_starts = {}
+        for i, start in enumerate(note_starts):
+            if i == 0:
+                previous_note_starts[start] = None
+            else:
+                previous_note_starts[start] = note_starts[i - 1]
+        return previous_note_starts
+
+    @cached_event_property
+    def is_monophonic(self):
+        from ..pitch.ismonophonic import ismonophonic
+
+        return ismonophonic(self)
 
     @classmethod
     def from_melody(
@@ -1072,14 +1314,14 @@ class Score(Concurrence):
         pass
 
     def is_flattened_and_collapsed(self):
-        """Determine if score has been flattened into one part"""
+        """Determine if score has been flattened into one part."""
         return self.part_count() == 1 and (
             len(self.content[0].content) == 0  # no notes
-            or isinstance(self.content[0].content[0], Note)
-        )  # Part has notes
+            or isinstance(self.content[0].content[0], Note)  # Part has notes
+        )
 
     def part_count(self):
-        """How many parts are in this score?"""
+        """Return the number of parts in this score."""
         return len(self.content)
 
     def flatten(self, collapse=False):
