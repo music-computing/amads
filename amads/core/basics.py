@@ -33,12 +33,11 @@ Score (one per musical work or movement)
 
 
 import functools
-import weakref
 from math import floor
 from typing import List, Optional, Union
 
-from .time_map import TimeMap
 
+from .time_map import TimeMap
 
 class Event:
     """Event is a superclass for Note, Rest, EventGroup, and just about
@@ -47,12 +46,12 @@ class Event:
 
     # delta -- start time in quarters expressed relative to the parent's start time
     # duration -- duration in quarters
-    # _parent -- weak reference to containing object if any
+    # parent -- containing object or None
 
     def __init__(self, duration, delta):
         self.delta = delta
         self.duration = duration
-        self._parent = None
+        self.parent = None
 
     def copy(self):
         raise Exception("Event is abstract, subclass should override copy()")
@@ -63,16 +62,6 @@ class Event:
     @property
     def delta_end(self):
         return self.delta + self.duration
-
-    @property
-    def parent(self):
-        if self._parent is None:
-            return None
-        return self._parent()
-
-    @parent.setter
-    def parent(self, p):
-        self._parent = weakref.ref(p)
 
     @property
     def start(self):
@@ -106,7 +95,7 @@ class Rest(Event):
 
     # delta -- start time in quarters as an delta from parent's start time
     # duration -- duration in quarters
-    # _parent -- weak reference to containing object if any
+    # parent -- containing object or None
 
     def __init__(self, duration=1, delta=0):
         super().__init__(duration, delta)
@@ -125,7 +114,7 @@ class Rest(Event):
         return self
 
     def deep_copy(self):
-        """Make a deep copy, omitting weak link to parent."""
+        """Make a deep copy, omitting parent."""
         r = Rest(self.duration, self.delta)
         return r
 
@@ -137,7 +126,7 @@ class Note(Event):
 
     # delta -- start time in quarters as an delta from parent's start time
     # duration -- duration in quarters
-    # _parent -- weak reference to containing object if any
+    # parent -- containing object or None
     # pitch -- a Pitch
     # dynamic -- None, integer, or string
     # lyric -- None or string
@@ -251,7 +240,7 @@ class TimeSignature(Event):
 
     # delta -- start time in quarters as an delta from parent's start time
     # duration -- duration in quarters
-    # _parent -- weak reference to containing object if any
+    # parent -- containing object or None
     # beat -- the "numerator" of the key signature: beats per measure, a
     #         number, which may be a fraction.
     # beat_type -- the "numerator" of the key signature: a whole number
@@ -276,7 +265,7 @@ class TimeSignature(Event):
         return self
 
     def deep_copy(self):
-        """Make a deep copy, omitting weak link to parent."""
+        """Make a deep copy, omitting parent."""
         ts = self.copy()
         return ts
 
@@ -286,7 +275,7 @@ class KeySignature(Event):
 
     # delta -- start time in quarters as an delta from parent's start time
     # duration -- duration in quarters
-    # _parent -- weak reference to containing object if any
+    # parent -- containing object or None
     # keysig -- an integer, number of sharps (if positive) and flats (if
     #         negative), e.g. -3 for Eb major or C minor.
 
@@ -295,7 +284,7 @@ class KeySignature(Event):
         self.keysig = keysig
 
     def copy(self):
-        """Make a copy, omitting weak link to parent."""
+        """Make a copy, omitting parent."""
         ks = KeySignature(keysig=self.keysig, delta=self.delta)
         return ks
 
@@ -311,7 +300,7 @@ class KeySignature(Event):
         return self
 
     def deep_copy(self):
-        """Make a deep copy, omitting weak link to parent."""
+        """Make a deep copy, omitting parent."""
         return self.copy()
 
 
@@ -477,7 +466,7 @@ class EventGroup(Event):
 
     # delta -- start time in quarters as an delta from parent's start time
     # duration -- duration in quarters
-    # _parent -- weak reference to containing object if any
+    # parent -- containing object or None
     # content -- elements contained within this collection
 
     def __init__(self, delta, duration, content):
@@ -564,7 +553,7 @@ class EventGroup(Event):
 class Sequence(EventGroup):
     # delta -- start time in quarters as an delta from parent's start time
     # duration -- duration in quarters
-    # _parent -- weak reference to containing object if any
+    # parent -- containing object or None
     # content -- elements contained within this collection
 
     def __init__(self, delta=0, duration=None, content=None):
@@ -582,7 +571,7 @@ class Sequence(EventGroup):
         super().__init__(delta, duration, content)
 
     def copy(self):
-        """Make a copy, omitting weak link to parent."""
+        """Make a copy, omitting parent."""
         s = Sequence(delta=self.delta, duration=self.duration)
         return s
 
@@ -590,7 +579,7 @@ class Sequence(EventGroup):
         return super().show(indent, label)
 
     def deep_copy(self):
-        """Make a deep copy, omitting weak link to parent."""
+        """Make a deep copy, omitting parent."""
         s = self.copy()
         for event in self.content:
             s.insert(event.deep_copy())
@@ -657,6 +646,7 @@ class Concurrence(EventGroup):
 
     # delta -- start time in quarters as an delta from parent's start time
     # duration -- duration in quarters
+    # parent -- containing object or None
     # content -- elements contained within this collection
 
     def __init__(self, delta=0, duration=None, content=None):
@@ -672,7 +662,7 @@ class Concurrence(EventGroup):
         super().__init__(delta, duration, content)
 
     def copy(self):
-        """Make a copy, omitting weak link to parent."""
+        """Make a copy, omitting parent."""
         c = Concurrence(delta=self.delta, duration=self.duration)
         return c
 
@@ -680,7 +670,7 @@ class Concurrence(EventGroup):
         return super().show(indent, label)
 
     def deep_copy(self):
-        """Make a deep copy, omitting weak link to parent."""
+        """Make a deep copy, omitting parent."""
         c = self.copy()
         for event in self.content:
             c.insert(event.deep_copy())
@@ -729,7 +719,7 @@ class Chord(Concurrence):
 
     # delta -- start time in quarters as an delta from parent's start time
     # duration -- duration in quarters
-    # _parent -- weak reference to containing object if any
+    # parent -- containing object or None
     # content -- elements contained within this collection
 
     def show(self, indent=0):
@@ -739,7 +729,7 @@ class Chord(Concurrence):
         return Chord(delta=self.delta, duration=self.duration)
 
     def deep_copy(self):
-        """Make a deep copy, omitting weak link to parent."""
+        """Make a deep copy, omitting parent."""
         m = self.copy()
         for event in self.content:
             m.insert(event.deep_copy())
@@ -754,6 +744,7 @@ class Measure(Sequence):
 
     # delta -- start time in quarters as an delta from parent's start time
     # duration -- duration in quarters
+    # parent -- containing object or None
     # content -- elements contained within this collection
     # number -- A string or None. The number assigned to the measure in the
     #         score (if any). E.g. "22a".
@@ -763,7 +754,7 @@ class Measure(Sequence):
         self.number = number
 
     def copy(self):
-        """Make a copy, omitting weak link to parent."""
+        """Make a copy, omitting parent."""
         m = Measure(number=self.number, delta=self.delta, duration=self.duration)
         return m
 
@@ -772,7 +763,7 @@ class Measure(Sequence):
         return super().show(indent, "Measure" + nstr)
 
     def deep_copy(self):
-        """Make a deep copy, omitting weak link to parent."""
+        """Make a deep copy, omitting parent."""
         m = self.copy()
         for event in self.content:
             m.insert(event.deep_copy())
@@ -818,6 +809,7 @@ class Score(Concurrence):
 
     # delta -- start time in quarters as an delta from parent's start time
     # duration -- duration in quarters
+    # parent -- containing object or None
     # content -- elements contained within this collection
     # time_map -- a map from quarters to seconds (or seconds to quarters)
     #
@@ -993,7 +985,7 @@ class Score(Concurrence):
         return score
 
     def copy(self):
-        """Make a copy, omitting weak link to parent."""
+        """Make a copy, omitting parent."""
         s = Score(delta=self.delta, duration=self.duration, time_map=self.time_map)
         return s
 
@@ -1010,7 +1002,7 @@ class Score(Concurrence):
         return self
 
     def deep_copy(self):
-        """Make a deep copy, omitting weak link to parent."""
+        """Make a deep copy, omitting parent."""
         s = self.copy()
         s.time_map = self.time_map.deep_copy()
         for event in self.content:
@@ -1181,6 +1173,7 @@ class Part(Concurrence):
 
     # delta -- start time in quarters as an delta from parent's start time
     # duration -- duration in quarters
+    # parent -- containing object or None
     # content -- elements contained within this collection
     # number -- None or an integer. Normally, the Parts are numbered according
     #         to their top-to-bottom ordering in the Score, starting with 1.
@@ -1192,7 +1185,7 @@ class Part(Concurrence):
         self.instrument = instrument
 
     def copy(self):
-        """Make a copy, omitting weak link to parent."""
+        """Make a copy, omitting parent."""
         p = Part(
             number=self.number,
             instrument=self.instrument,
@@ -1207,7 +1200,7 @@ class Part(Concurrence):
         return super().show(indent, "Part" + nstr + name)
 
     def deep_copy(self):
-        """Make a deep copy, omitting weak link to parent."""
+        """Make a deep copy, omitting parent."""
         p = self.copy()
         for event in self.content:
             # deep copy each component into p
@@ -1267,6 +1260,7 @@ class Staff(Sequence):
 
     # delta -- start time in quarters as an delta from parent's start time
     # duration -- duration in quarters
+    # parent -- containing object or None
     # content -- elements contained within this collection
     # number -- Normally a Staff is given an integer number where 1 is the
     #         top staff of the part, 2 is the 2nd, etc. number may be None.
@@ -1284,7 +1278,7 @@ class Staff(Sequence):
         return super().show(indent, "Staff" + nstr)
 
     def deep_copy(self):
-        """Make a deep copy, omitting weak link to parent."""
+        """Make a deep copy, omitting parent."""
         s = self.copy()
         for event in self.content:
             s.insert(event.deep_copy())
@@ -1349,7 +1343,7 @@ class Staff(Sequence):
         measure = note.parent
         # if note was in chord we need the note's grandparent:
         if isinstance(measure, Chord):
-            measure = measure.parent()
+            measure = measure.parent
         if m_index is None:  # get measure index
             m_index = self.content.index(measure)
         n_index = measure.content.index(note) + 1  # get note index
