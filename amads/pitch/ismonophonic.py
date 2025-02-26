@@ -22,7 +22,7 @@ def _ismonophonic(notes: list[Note]):
     for note in notes:
         if prev:
             # 0.01 is to prevent precision errors when comparing floats
-            if note.start - prev.end < -0.01:
+            if note.onset - prev.offset < -0.01:
                 return False
         prev = note
     return True

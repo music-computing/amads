@@ -52,7 +52,7 @@ class Timepoint:
         float
             The end time
         """
-        return max(n.end for n in self.sounding_notes)
+        return max(n.offset for n in self.sounding_notes)
 
     @classmethod
     def from_notes(
@@ -76,8 +76,8 @@ class Timepoint:
         note_offs = defaultdict(list)
 
         for note in notes:
-            note_on = note.start
-            note_off = note.end
+            note_on = note.onset
+            note_off = note.offset
 
             if time_n_digits is not None:
                 note_on = round(note_on, time_n_digits)

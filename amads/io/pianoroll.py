@@ -81,7 +81,7 @@ def pianoroll(
     min_note, max_note = 127.0, 0.0
     max_time = 0
     for note in score.flatten(collapse=True).find_all(Note):
-        start_time = note.start
+        start_time = note.onset
         pitch = note.keynum - 0.5
         duration = note.duration
 
