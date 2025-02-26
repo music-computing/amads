@@ -1,8 +1,11 @@
+import warnings
+
 import pytest
 
 from amads.algorithms.mtype_tokenizer import FantasticTokenizer, MType
 from amads.algorithms.ngrams import NGramCounter
 from amads.core.basics import Score
+from amads.melody.segment import fantastic_segmenter
 
 
 def test_mtype_tokenizer():
@@ -24,7 +27,7 @@ def test_mtype_tokenizer():
     ngrams = NGramCounter()
 
     # Tokenize melody and count n-grams
-    tokenizer.tokenize_melody(melody_1)
+    tokenizer.tokenize(melody_1)
     bigram_counts = ngrams.count_ngrams(tokenizer.tokens, n=2)
     for ngram in bigram_counts:
         assert len(ngram) == 2
@@ -53,7 +56,7 @@ def test_mtype_tokenizer():
             assert n_gram_counts[ngram] == all_counts[ngram]
 
     # Test with a second melody using a different phrase gap
-    tokenizer = FantasticTokenizer(phrase_gap=0.75)
+    tokenizer = FantasticTokenizer()
     ngrams = NGramCounter()
 
     # Create a test melody which will be segmented into 2 phrases
@@ -79,17 +82,17 @@ def test_mtype_tokenizer():
     )
 
     # Test that the melody is segmented into 2 phrases
-    tokenizer.tokenize_melody(melody_2)
-    ngrams.count_ngrams(tokenizer.tokens, n=2)
+    segments = fantastic_segmenter(melody_2, phrase_gap=0.75, units="quarters")
+    ngrams.count_ngrams(segments, n=2)
     # The first phrase has 7 notes in so the maximum length n-gram is 7
-    assert len(tokenizer.phrases[0]) == 7
+    assert len(segments[0]) == 7
     with pytest.raises(ValueError):
-        ngrams.count_ngrams(tokenizer.phrases[0], n=8)
+        ngrams.count_ngrams(segments[0], n=8)
 
     # This is true of the second phrase as well
-    assert len(tokenizer.phrases[1]) == 7
+    assert len(segments[1]) == 7
     with pytest.raises(ValueError):
-        ngrams.count_ngrams(tokenizer.phrases[1], n=8)
+        ngrams.count_ngrams(segments[1], n=8)
 
 
 def test_mtype_encodings():
@@ -157,7 +160,8 @@ def test_ngram_counts():
 
     # Honore's H is incalculable for complex_list,
     # as the number of hapax legomena is equal to the number of total types
-    with pytest.raises(ValueError):
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=UserWarning)
         _ = complex_ngrams.honores_h
 
     # Normalized entropy should be lower for more repetitive sequences

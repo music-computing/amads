@@ -3,7 +3,6 @@ from collections.abc import Hashable
 from typing import List, Optional
 
 from amads.core.basics import Note, Score
-from amads.melody.segment import fantastic_segmenter
 
 
 class MelodyTokenizer:
@@ -11,17 +10,14 @@ class MelodyTokenizer:
 
     Attributes
     ----------
-    precision : int
-        Number of decimal places to round IOI values to
     phrases : list
         List of melody phrases after segmentation
     """
 
-    def __init__(self, precision: int = 6):
-        self.precision = precision
+    def __init__(self):
         self.phrases = []
 
-    def tokenize_melody(self, score: Score) -> List[List]:
+    def tokenize(self, score: Score) -> List[List]:
         """Tokenize a melody into phrases.
 
         Parameters
@@ -34,9 +30,7 @@ class MelodyTokenizer:
         list[list]
             List of tokenized phrases
         """
-        notes = self.get_notes(score)
-        self.phrases = self.segment_melody(notes)
-        return [self.tokenize_phrase(phrase) for phrase in self.phrases]
+        raise NotImplementedError
 
     def get_notes(self, score: Score) -> List[Note]:
         """Extract notes from score and calculate IOI values.
@@ -56,9 +50,10 @@ class MelodyTokenizer:
 
         # Calculate IOIs and IOI ratios
         # n.b. when #68 is merged, this should be revised
+        # Calculate IOIs
         for i, note in enumerate(notes):
-            if i < len(notes) - 1:
-                note.ioi = round(notes[i + 1].start - note.start, self.precision)
+            if i > 1:
+                note.ioi = note.onset - notes[i - 1].onset
             else:
                 note.ioi = None
 
@@ -70,39 +65,9 @@ class MelodyTokenizer:
                 if ioi is None or prev_ioi is None:
                     note.ioi_ratio = None
                 else:
-                    note.ioi_ratio = round(ioi / prev_ioi, self.precision)
+                    note.ioi_ratio = ioi / prev_ioi
 
         return notes
-
-    def segment_melody(self, notes: List[Note]) -> List:
-        """Segment melody into phrases.
-
-        Parameters
-        ----------
-        notes : list[Note]
-            List of notes to segment
-
-        Returns
-        -------
-        list[list]
-            List of note phrases
-        """
-        raise NotImplementedError
-
-    def tokenize_phrase(self, phrase: List[Note]) -> List:
-        """Tokenize a phrase into a list of tokens.
-
-        Parameters
-        ----------
-        phrase : list[Note]
-            Phrase to tokenize
-
-        Returns
-        -------
-        list
-            List of tokens
-        """
-        raise NotImplementedError
 
 
 class FantasticTokenizer(MelodyTokenizer):
@@ -120,8 +85,10 @@ class FantasticTokenizer(MelodyTokenizer):
 
     Parameters
     ----------
-    phrase_gap : float, optional
-        Time gap in seconds that defines phrase boundaries, by default 1.0
+    phrase_gap : float
+        Time gap in seconds that defines phrase boundaries
+    units : str
+        The units of the phrase gap, either "seconds" or "quarters"
 
     Attributes
     ----------
@@ -136,51 +103,42 @@ class FantasticTokenizer(MelodyTokenizer):
         STatistics (In a Corpus): Technical Report v1.5
     """
 
-    def __init__(self, phrase_gap: float = 1.0):
+    def __init__(self):
+        """Initialize the tokenizer.
+
+        Parameters
+        ----------
+        phrase_gap : float, optional
+            Time gap that defines phrase boundaries, by default 1.0
+        units : str, optional
+            The units of the phrase gap, either "seconds" or "quarters", by default "quarters"
+        """
         super().__init__()
-        self.phrase_gap = phrase_gap
+
         self.tokens = []
 
-    def tokenize_melody(self, score: Score) -> List[List]:
-        """Tokenize melody into M-Types.
+    def tokenize(self, score: Score) -> List:
+        """Tokenize a melody into M-Types.
 
         Parameters
         ----------
         score : Score
-            Score object to tokenize
-
-        Returns
-        -------
-        list[list]
-            List of tokenized phrases
-        """
-
-        self.phrases = fantastic_segmenter(score, self.phrase_gap)
-        self.tokens = []
-        for phrase in self.phrases:
-            self.tokens.extend(self.tokenize_phrase(phrase))
-
-        return self.tokens
-
-    def tokenize_phrase(self, phrase: List[Note]) -> List:
-        """Tokenize a phrase into M-Types.
-
-        Parameters
-        ----------
-        phrase : Score
-            Score object containing phrase to tokenize
+            Score object containing melody to tokenize
 
         Returns
         -------
         list
             List of M-Type tokens
         """
+        # Extract notes and calculate IOIs using get_notes
+        notes = self.get_notes(score)
         tokens = []
+
         # Skip if phrase is too short
-        if len(phrase) < 2:
+        if len(notes) < 2:
             return tokens
 
-        for prev_note, current_note in zip(phrase[:-1], phrase[1:]):
+        for prev_note, current_note in zip(notes[:-1], notes[1:]):
             pitch_interval = current_note.keynum - prev_note.keynum
             if prev_note.ioi is None or current_note.ioi is None:
                 ioi_ratio = None
@@ -193,6 +151,7 @@ class FantasticTokenizer(MelodyTokenizer):
             token = MType(pitch_interval_class, ioi_ratio_class)
             tokens.append(token)
 
+        self.tokens = tokens
         return tokens
 
     def classify_pitch_interval(self, pitch_interval: Optional[int]) -> Hashable:

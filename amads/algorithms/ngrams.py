@@ -238,9 +238,12 @@ class NGramCounter:
 
         # Handle edge cases
         if total_types == 0 or hapax_count == 0 or hapax_count == total_types:
-            raise ValueError(
+            import warnings
+
+            warnings.warn(
                 "Cannot calculate Honore's H for this sequence, insufficient variation in inputs"
             )
+            return float("nan")
 
         # Calculate H value
         h = 100.0 * (np.log(n) / (1.01 - (float(hapax_count) / total_types)))
@@ -255,6 +258,7 @@ class NGramCounter:
         over these relative entropy values across all lengths.
 
         This is defined as:
+
         :math: `H = -sum_{i=1}^{N}(p(x_i) * log2(p(x_i)))`
         where:
         - :math:`H` is the Shannon entropy

@@ -1,6 +1,7 @@
 from amads.algorithms.mtype_tokenizer import FantasticTokenizer
 from amads.algorithms.ngrams import NGramCounter
 from amads.core.basics import Score
+from amads.melody.segment import fantastic_segmenter
 
 
 def example_usage():
@@ -11,6 +12,7 @@ def example_usage():
     """
 
     # Create a simple melody
+    # This melody does not need segmentation because it is a single phrase
     melody = Score.from_melody(
         pitches=[60, 62, 64, 67, 72],  # C4, D4, E4, G4, C5
         durations=[
@@ -27,7 +29,7 @@ def example_usage():
     ngrams = NGramCounter()
 
     # Tokenize melody and count n-grams
-    tokenizer.tokenize_melody(melody)
+    tokenizer.tokenize(melody)
 
     # Count only bigrams (n=2)
     bigram_counts = ngrams.count_ngrams(tokenizer.tokens, n=2)
@@ -98,9 +100,19 @@ def example_usage():
             2.0,
         ],
     )
+    # Segment the melody into phrases
+    segments = fantastic_segmenter(happy_birthday, phrase_gap=0.75, units="quarters")
+    # Tokenize each segment and collect all tokens
+    tokenizer = FantasticTokenizer()
+    all_tokens = []
+    for segment in segments:
+        segment_tokens = tokenizer.tokenize(segment)
+        all_tokens.extend(segment_tokens)
 
-    tokenizer.tokenize_melody(happy_birthday)
-    ngrams.count_ngrams(tokenizer.tokens, n=None)
+    # Initialize NGramCounter
+    ngrams = NGramCounter()
+    # Count all n-grams
+    all_counts = ngrams.count_ngrams(all_tokens, n=None)
     # These are the complexity measures computed from the n-grams of all lengths
     print("All n-grams:")
     print(f"Yule's K: {ngrams.yules_k}")
@@ -111,7 +123,7 @@ def example_usage():
     print(f"Mean Productivity: {ngrams.mean_productivity}\n")
 
     # If we instead count only bigrams, we get a different set of results
-    bigram_counts = ngrams.count_ngrams(tokenizer.tokens, n=2)
+    bigram_counts = ngrams.count_ngrams(all_tokens, n=2)
     print("Bigrams:")
     print(f"Yule's K: {ngrams.yules_k}")
     print(f"Simpson's D: {ngrams.simpsons_d}")
