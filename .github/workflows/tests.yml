@@ -1,6 +1,7 @@
 name: Tests
 
 env:
+  # This is needed for R's install_github scripts
   GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
 on:
@@ -57,19 +58,8 @@ jobs:
       with:
         python-version: "3.11"
 
-    - name: Setup r2u
-      uses: eddelbuettel/github-actions/r2u-setup@master
-
-    - name: Install system dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y \
-          libdeflate-dev \
-          liblzma-dev \
-          libbz2-dev \
-          libtirpc-dev \
-          libblas-dev \
-          liblapack-dev
+    - name: Setup R dependencies
+      uses: ./.github/actions/setup-r
 
     - name: Install Python packages
       run: |

@@ -49,6 +49,8 @@ General algorithms
    amads.algorithms.entropy
    amads.algorithms.nnotes
    amads.algorithms.scale
+   amads.algorithms.slice.salami
+   amads.algorithms.slice.window
 
 Pitch
 -----
@@ -79,6 +81,9 @@ Time
 
    amads.time.durdist1
    amads.time.durdist2
+   amads.time.npvi
+   amads.time.swing
+   amads.time.tempo
    amads.time.meter.break_it_up
 
 Harmony
@@ -99,6 +104,9 @@ Melody
 
    amads.melody.boundary
    amads.melody.segment_gestalt
+   amads.melody.contour.interpolation_contour
+   amads.melody.contour.step_contour
+   amads.melody.similarity.melsim
 
 Polyphony
 ---------

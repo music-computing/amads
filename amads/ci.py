@@ -10,7 +10,7 @@ ci_groups = {
     "tests_melsim": [
         "tests/test_melsim.py",
         "amads/melody/similarity/melsim.py",
-        "demos/melsim.py",
+        "examples/plot_melsim.py",
     ]
 }
 
