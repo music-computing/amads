@@ -79,9 +79,7 @@ class FantasticTokenizer(MelodyTokenizer):
     n-grams can be of different lengths (bigrams, trigrams, etc.)
 
     The tokenizer takes a score as the input, and returns a dictionary of unique
-    M-Type (n-gram) counts. The top level function `get_mtype_counts()` is best for
-    most users, though the other functions defined in the class are available for
-    more specific use cases.
+    M-Type (n-gram) counts.
 
     Parameters
     ----------
