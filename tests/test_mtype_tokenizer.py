@@ -4,7 +4,7 @@ import pytest
 
 from amads.algorithms.mtype_tokenizer import FantasticTokenizer, MType
 from amads.algorithms.ngrams import NGramCounter
-from amads.core.basics import Score
+from amads.core.basics import Note, Score
 from amads.melody.segment import fantastic_segmenter
 
 
@@ -83,16 +83,19 @@ def test_mtype_tokenizer():
 
     # Test that the melody is segmented into 2 phrases
     segments = fantastic_segmenter(melody_2, phrase_gap=0.75, units="quarters")
-    ngrams.count_ngrams(segments, n=2)
+    # Extract notes from each segment for counting
+    segment_notes = [list(segment.find_all(Note)) for segment in segments]
+    ngrams.count_ngrams(segment_notes, n=2)
+
     # The first phrase has 7 notes in so the maximum length n-gram is 7
-    assert len(segments[0]) == 7
+    assert len(segment_notes[0]) == 7
     with pytest.raises(ValueError):
-        ngrams.count_ngrams(segments[0], n=8)
+        ngrams.count_ngrams(segment_notes[0], n=8)
 
     # This is true of the second phrase as well
-    assert len(segments[1]) == 7
+    assert len(segment_notes[1]) == 7
     with pytest.raises(ValueError):
-        ngrams.count_ngrams(segments[1], n=8)
+        ngrams.count_ngrams(segment_notes[1], n=8)
 
 
 def test_mtype_encodings():
