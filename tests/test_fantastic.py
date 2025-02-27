@@ -1,18 +1,18 @@
 from amads.core.basics import Score
 from amads.melody.fantastic import (
-    fantastic_count_mytypes,
+    fantastic_count_mtypes,
     fantastic_interpolation_contour_features,
     fantastic_step_contour_features,
 )
 
 
-def test_fantastic_count_mytypes():
+def test_fantastic_count_mtypes():
     melody = Score.from_melody(
         pitches=[56, 58, 61, 58, 64, 64, 63],
         durations=[0.25, 0.25, 0.25, 0.25, 0.75, 0.75, 0.5],
     )
 
-    types = fantastic_count_mytypes(
+    types = fantastic_count_mtypes(
         melody, segment=False, phrase_gap=1.0, units="quarters"
     )
     # FANTASTIC supports n-grams of lengths 1-5, so we check that we have n-grams of lengths 1-5

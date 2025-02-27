@@ -8,7 +8,7 @@ from amads.melody.contour.step_contour import StepContour
 from amads.melody.segment import fantastic_segmenter
 
 
-def fantastic_count_mytypes(
+def fantastic_count_mtypes(
     score: Score, segment: bool, phrase_gap: float, units: str
 ) -> Dict:
     """Count M-Types in a melody.
