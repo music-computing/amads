@@ -24,7 +24,7 @@ def test_fantastic_count_mtypes():
     )
     # FANTASTIC supports n-grams of lengths 1-5, so we check that we have n-grams of lengths 1-5
     for i in range(1, 6):
-        assert any(len(ngram) == i for ngram in types.keys())
+        assert any(len(ngram) == i for ngram in types.ngram_counts.keys())
 
 
 def test_fantastic_interpolation_contour_features():

@@ -163,6 +163,10 @@ def fantastic_step_contour_features(score: Score) -> Dict:
     -------
     Dict
         A dictionary of step contour features.
+        Dictionary keys:
+            - global_variation: The global variation of the step contour.
+            - global_direction: The global direction of the step contour.
+            - local_variation: The local variation of the step contour.
     """
     flattened_score = score.flatten(collapse=True)
     notes = list(flattened_score.find_all(Note))
@@ -192,6 +196,12 @@ def fantastic_interpolation_contour_features(score: Score) -> Dict:
     -------
     Dict
         A dictionary of interpolation contour features.
+        Dictionary keys:
+            - global_direction: The global direction of the interpolation contour.
+            - mean_gradient: The mean gradient of the interpolation contour.
+            - gradient_std: The standard deviation of the gradient of the interpolation contour.
+            - direction_changes: The number of direction changes in the interpolation contour.
+            - class_label: The class label of the interpolation contour.
     """
     flattened_score = score.flatten(collapse=True)
     notes = list(flattened_score.find_all(Note))
@@ -215,7 +225,7 @@ def fantastic_interpolation_contour_features(score: Score) -> Dict:
 
 def fantastic_count_mtypes(
     score: Score, segment: bool, phrase_gap: float, units: str
-) -> Dict:
+) -> NGramCounter:
     """Count M-Types in a melody.
 
     Parameters
@@ -231,8 +241,11 @@ def fantastic_count_mtypes(
 
     Returns
     -------
-    Dict
-        A dictionary of M-Type counts.
+    NGramCounter
+        An NGramCounter object containing the counts of M-Types.
+        This allows for the computation of the complexity measures, either
+        by accessing the properties of the NGramCounter object or by using
+        the `fantastic_mtype_summary_features` function.
     """
     if segment:
         segments = fantastic_segmenter(score, phrase_gap, units)
@@ -249,13 +262,15 @@ def fantastic_count_mtypes(
 
     counter.count_ngrams(all_tokens, n=[1, 2, 3, 4, 5])
 
-    return counter.ngram_counts
+    return counter
 
 
 def fantastic_mtype_summary_features(
     score: Score, segment: bool, phrase_gap: float, units: str
 ) -> Dict:
-    """Count M-Types in a melody.
+    """Count M-Types in a melody and compute summary features.
+    This function provides an easy way to get all the complexity measures
+    at once.
 
     Parameters
     ----------
@@ -272,21 +287,15 @@ def fantastic_mtype_summary_features(
     -------
     Dict
         A dictionary of summary features.
+        Dictionary keys:
+            - mean_entropy: The mean entropy of the M-Types.
+            - mean_productivity: The mean productivity of the M-Types.
+            - yules_k: The mean Yules K statistic.
+            - simpsons_d: The mean Simpson's D statistic.
+            - sichels_s: The mean Sichels S statistic.
+            - honores_h: The mean Honores H statistic.
     """
-    if segment:
-        segments = fantastic_segmenter(score, phrase_gap, units)
-    else:
-        segments = [score]
-
-    mtype_counts = NGramCounter()
-    tokenizer = FantasticTokenizer()
-
-    all_tokens = []
-    for phrase in segments:
-        tokenizer.tokenize(phrase)
-        all_tokens.extend(tokenizer.tokens)
-
-    mtype_counts.count_ngrams(all_tokens, n=[1, 2, 3, 4, 5])
+    mtype_counts = fantastic_count_mtypes(score, segment, phrase_gap, units)
 
     return {
         "mean_entropy": mtype_counts.mean_entropy,
