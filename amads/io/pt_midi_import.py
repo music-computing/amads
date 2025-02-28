@@ -1,4 +1,5 @@
 import partitura as pt
+from pathlib import Path
 
 from ..core.basics import Score
 from .pt_xml_import import partitura_convert_part
@@ -14,7 +15,28 @@ from .pt_xml_import import partitura_convert_part
 
 
 def partitura_midi_import(filename, ptprint=False):
-    """User Partitura to import a MIDI file."""
+    """Use Partitura to import a MIDI file.
+    
+    Parameters
+    ----------
+    filename : str or Path
+        Path to the MIDI file to import
+    ptprint : bool, optional
+        If True, print the Partitura score representation, by default False
+        
+    Returns
+    -------
+    Score
+        The imported score
+        
+    Raises
+    ------
+    FileNotFoundError
+        If the MIDI file does not exist
+    """
+    if not Path(filename).exists():
+        raise FileNotFoundError(f"MIDI file not found: {filename}")
+        
     ptscore = pt.load_score_midi(filename)
     if ptprint:
         for ptpart in ptscore:
