@@ -1,0 +1,1943 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Duration distributions (II) &#8212; amads  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'auto_examples/plot_durdist2';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Boundary detection" href="plot_boundary.html" />
+    <link rel="prev" title="Duration distributions (I)" href="plot_durdist1.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">amads  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">User guide:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/installation.html">Installation</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Developer notes:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../developer_notes/contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_notes/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_notes/design.html">Design considerations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_notes/modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_notes/music21.html">Music21</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_notes/testing.html">Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_notes/style.html">Style</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_notes/making_a_release.html">Making a release</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Examples:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="plot_durdist1.html">Duration distributions (I)</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Duration distributions (II)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot_boundary.html">Boundary detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot_sliding_window.html">Sliding window analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot_melsim.html">Melodic similarity</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">General algorithms:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.algorithms.entropy.html">amads.algorithms.entropy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.algorithms.nnotes.html">amads.algorithms.nnotes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.algorithms.scale.html">amads.algorithms.scale</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.algorithms.slice.salami.html">amads.algorithms.slice.salami</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.algorithms.slice.window.html">amads.algorithms.slice.window</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Pitch:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.hz2midi.html">amads.pitch.hz2midi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.ismonophonic.html">amads.pitch.ismonophonic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.ivdirdist1.html">amads.pitch.ivdirdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.ivdist1.html">amads.pitch.ivdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.ivdist2.html">amads.pitch.ivdist2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.ivsizedist1.html">amads.pitch.ivsizedist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.key.profiles.html">amads.pitch.key.profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.pcdist1.html">amads.pitch.pcdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.pcdist2.html">amads.pitch.pcdist2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.pitch_mean.html">amads.pitch.pitch_mean</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.transformations.html">amads.pitch.transformations</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Time:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.time.durdist1.html">amads.time.durdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.time.durdist2.html">amads.time.durdist2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.time.npvi.html">amads.time.npvi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.time.swing.html">amads.time.swing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.time.tempo.html">amads.time.tempo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.time.meter.break_it_up.html">amads.time.meter.break_it_up</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Harmony:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.harmony.root_finding.parncutt_1988.html">amads.harmony.root_finding.parncutt_1988</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Melody:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.melody.boundary.html">amads.melody.boundary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.melody.segment_gestalt.html">amads.melody.segment_gestalt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.melody.contour.interpolation_contour.html">amads.melody.contour.interpolation_contour</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.melody.contour.step_contour.html">amads.melody.contour.step_contour</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.melody.similarity.melsim.html">amads.melody.similarity.melsim</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Polyphony:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.polyphony.skyline.html">amads.polyphony.skyline</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Core:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.core.basics.html">amads.core.basics</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">IO:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.io.pianoroll.html">amads.io.pianoroll</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/auto_examples/plot_durdist2.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Duration distributions (II)</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-auto-examples-plot-durdist2-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
+</div>
+<section class="sphx-glr-example-title" id="duration-distributions-ii">
+<span id="sphx-glr-auto-examples-plot-durdist2-py"></span><h1>Duration distributions (II)<a class="headerlink" href="#duration-distributions-ii" title="Link to this heading">#</a></h1>
+<p>This example demonstrates how to calculate and visualize the duration distribution
+of notes in a MIDI file.</p>
+<img src="../_images/sphx_glr_plot_durdist2_001.png" srcset="../_images/sphx_glr_plot_durdist2_001.png" alt="Duration Pairs Distribution" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/opt/hostedtoolcache/Python/3.10.16/x64/lib/python3.10/site-packages/partitura/io/importmidi.py:575: UserWarning: pitch spelling
+  warnings.warn(&quot;pitch spelling&quot;)
+/opt/hostedtoolcache/Python/3.10.16/x64/lib/python3.10/site-packages/partitura/io/importmidi.py:658: UserWarning: create_part
+  part = create_part(
+/opt/hostedtoolcache/Python/3.10.16/x64/lib/python3.10/site-packages/partitura/io/importmidi.py:658: UserWarning: add notes
+  part = create_part(
+/opt/hostedtoolcache/Python/3.10.16/x64/lib/python3.10/site-packages/partitura/io/importmidi.py:658: UserWarning: add time sigs and measures
+  part = create_part(
+/opt/hostedtoolcache/Python/3.10.16/x64/lib/python3.10/site-packages/partitura/io/importmidi.py:658: UserWarning: tie notes
+  part = create_part(
+/opt/hostedtoolcache/Python/3.10.16/x64/lib/python3.10/site-packages/partitura/io/importmidi.py:658: UserWarning: find tuplets
+  part = create_part(
+/opt/hostedtoolcache/Python/3.10.16/x64/lib/python3.10/site-packages/partitura/io/importmidi.py:658: UserWarning: done create_part
+  part = create_part(
+staff_numbers {None}
+measures [(1, 0, 1440), (&#39;timesig&#39;, 3, 4), (&#39;keysig&#39;, 0), (2, 1440, 2880), (3, 2880, 4320), (4, 4320, 5760), (5, 5760, 7200), (6, 7200, 8640), (7, 8640, 10080), (8, 10080, 11520), (9, 11520, 12960), (10, 12960, 14400), (11, 14400, 15840), (12, 15840, 17280), (13, 17280, 18720), (14, 18720, 20160), (15, 20160, 21600), (16, 21600, 23040), (17, 23040, 24480), (18, 24480, 25920), (19, 25920, 27360), (20, 27360, 28800), (21, 28800, 30240), (22, 30240, 31680), (23, 31680, 33120), (24, 33120, 34560), (25, 34560, 36000), (26, 36000, 37440), (27, 37440, 38880), (28, 38880, 40320), (29, 40320, 41760), (30, 41760, 43200), (31, 43200, 44640), (32, 44640, 46080), (33, 46080, 47520), (34, 47520, 48960), (35, 48960, 50400), (36, 50400, 51840), (37, 51840, 53280), (38, 53280, 54720), (39, 54720, 56160), (40, 56160, 57600), (41, 57600, 59040), (42, 59040, 60480), (43, 60480, 61920), (44, 61920, 63360), (45, 63360, 64800), (46, 64800, 66240)]
+div_to_quarter: div 1440 qtrs 3.0
+div_to_quarter: div 0 qtrs 0.0
+div_to_quarter: div 2880 qtrs 6.0
+div_to_quarter: div 1440 qtrs 3.0
+div_to_quarter: div 4320 qtrs 9.0
+div_to_quarter: div 2880 qtrs 6.0
+div_to_quarter: div 5760 qtrs 12.0
+div_to_quarter: div 4320 qtrs 9.0
+div_to_quarter: div 7200 qtrs 15.0
+div_to_quarter: div 5760 qtrs 12.0
+div_to_quarter: div 8640 qtrs 18.0
+div_to_quarter: div 7200 qtrs 15.0
+div_to_quarter: div 10080 qtrs 21.0
+div_to_quarter: div 8640 qtrs 18.0
+div_to_quarter: div 11520 qtrs 24.0
+div_to_quarter: div 10080 qtrs 21.0
+div_to_quarter: div 12960 qtrs 27.0
+div_to_quarter: div 11520 qtrs 24.0
+div_to_quarter: div 14400 qtrs 30.0
+div_to_quarter: div 12960 qtrs 27.0
+div_to_quarter: div 15840 qtrs 33.0
+div_to_quarter: div 14400 qtrs 30.0
+div_to_quarter: div 17280 qtrs 36.0
+div_to_quarter: div 15840 qtrs 33.0
+div_to_quarter: div 18720 qtrs 39.0
+div_to_quarter: div 17280 qtrs 36.0
+div_to_quarter: div 20160 qtrs 42.0
+div_to_quarter: div 18720 qtrs 39.0
+div_to_quarter: div 21600 qtrs 45.0
+div_to_quarter: div 20160 qtrs 42.0
+div_to_quarter: div 23040 qtrs 48.0
+div_to_quarter: div 21600 qtrs 45.0
+div_to_quarter: div 24480 qtrs 51.0
+div_to_quarter: div 23040 qtrs 48.0
+div_to_quarter: div 25920 qtrs 54.0
+div_to_quarter: div 24480 qtrs 51.0
+div_to_quarter: div 27360 qtrs 57.0
+div_to_quarter: div 25920 qtrs 54.0
+div_to_quarter: div 28800 qtrs 60.0
+div_to_quarter: div 27360 qtrs 57.0
+div_to_quarter: div 30240 qtrs 63.0
+div_to_quarter: div 28800 qtrs 60.0
+div_to_quarter: div 31680 qtrs 66.0
+div_to_quarter: div 30240 qtrs 63.0
+div_to_quarter: div 33120 qtrs 69.0
+div_to_quarter: div 31680 qtrs 66.0
+div_to_quarter: div 34560 qtrs 72.0
+div_to_quarter: div 33120 qtrs 69.0
+div_to_quarter: div 36000 qtrs 75.0
+div_to_quarter: div 34560 qtrs 72.0
+div_to_quarter: div 37440 qtrs 78.0
+div_to_quarter: div 36000 qtrs 75.0
+div_to_quarter: div 38880 qtrs 81.0
+div_to_quarter: div 37440 qtrs 78.0
+div_to_quarter: div 40320 qtrs 84.0
+div_to_quarter: div 38880 qtrs 81.0
+div_to_quarter: div 41760 qtrs 87.0
+div_to_quarter: div 40320 qtrs 84.0
+div_to_quarter: div 43200 qtrs 90.0
+div_to_quarter: div 41760 qtrs 87.0
+div_to_quarter: div 44640 qtrs 93.0
+div_to_quarter: div 43200 qtrs 90.0
+div_to_quarter: div 46080 qtrs 96.0
+div_to_quarter: div 44640 qtrs 93.0
+div_to_quarter: div 47520 qtrs 99.0
+div_to_quarter: div 46080 qtrs 96.0
+div_to_quarter: div 48960 qtrs 102.0
+div_to_quarter: div 47520 qtrs 99.0
+div_to_quarter: div 50400 qtrs 105.0
+div_to_quarter: div 48960 qtrs 102.0
+div_to_quarter: div 51840 qtrs 108.0
+div_to_quarter: div 50400 qtrs 105.0
+div_to_quarter: div 53280 qtrs 111.0
+div_to_quarter: div 51840 qtrs 108.0
+div_to_quarter: div 54720 qtrs 114.0
+div_to_quarter: div 53280 qtrs 111.0
+div_to_quarter: div 56160 qtrs 117.0
+div_to_quarter: div 54720 qtrs 114.0
+div_to_quarter: div 57600 qtrs 120.0
+div_to_quarter: div 56160 qtrs 117.0
+div_to_quarter: div 59040 qtrs 123.0
+div_to_quarter: div 57600 qtrs 120.0
+div_to_quarter: div 60480 qtrs 126.0
+div_to_quarter: div 59040 qtrs 123.0
+div_to_quarter: div 61920 qtrs 129.0
+div_to_quarter: div 60480 qtrs 126.0
+div_to_quarter: div 63360 qtrs 132.0
+div_to_quarter: div 61920 qtrs 129.0
+div_to_quarter: div 64800 qtrs 135.0
+div_to_quarter: div 63360 qtrs 132.0
+div_to_quarter: div 66240 qtrs 138.0
+div_to_quarter: div 64800 qtrs 135.0
+added measures to staff:
+Staff at 0.000 delta 0.000 duration 138.000
+    Measure at 0.000 delta 0.000 duration 3.000
+        TimeSignature at 0.000 delta 0.000: 3/4
+        KeySignature at 3.000 delta 3.0000 flats
+    Measure at 3.000 delta 3.000 duration 3.000
+    Measure at 6.000 delta 6.000 duration 3.000
+    Measure at 9.000 delta 9.000 duration 3.000
+    Measure at 12.000 delta 12.000 duration 3.000
+    Measure at 15.000 delta 15.000 duration 3.000
+    Measure at 18.000 delta 18.000 duration 3.000
+    Measure at 21.000 delta 21.000 duration 3.000
+    Measure at 24.000 delta 24.000 duration 3.000
+    Measure at 27.000 delta 27.000 duration 3.000
+    Measure at 30.000 delta 30.000 duration 3.000
+    Measure at 33.000 delta 33.000 duration 3.000
+    Measure at 36.000 delta 36.000 duration 3.000
+    Measure at 39.000 delta 39.000 duration 3.000
+    Measure at 42.000 delta 42.000 duration 3.000
+    Measure at 45.000 delta 45.000 duration 3.000
+    Measure at 48.000 delta 48.000 duration 3.000
+    Measure at 51.000 delta 51.000 duration 3.000
+    Measure at 54.000 delta 54.000 duration 3.000
+    Measure at 57.000 delta 57.000 duration 3.000
+    Measure at 60.000 delta 60.000 duration 3.000
+    Measure at 63.000 delta 63.000 duration 3.000
+    Measure at 66.000 delta 66.000 duration 3.000
+    Measure at 69.000 delta 69.000 duration 3.000
+    Measure at 72.000 delta 72.000 duration 3.000
+    Measure at 75.000 delta 75.000 duration 3.000
+    Measure at 78.000 delta 78.000 duration 3.000
+    Measure at 81.000 delta 81.000 duration 3.000
+    Measure at 84.000 delta 84.000 duration 3.000
+    Measure at 87.000 delta 87.000 duration 3.000
+    Measure at 90.000 delta 90.000 duration 3.000
+    Measure at 93.000 delta 93.000 duration 3.000
+    Measure at 96.000 delta 96.000 duration 3.000
+    Measure at 99.000 delta 99.000 duration 3.000
+    Measure at 102.000 delta 102.000 duration 3.000
+    Measure at 105.000 delta 105.000 duration 3.000
+    Measure at 108.000 delta 108.000 duration 3.000
+    Measure at 111.000 delta 111.000 duration 3.000
+    Measure at 114.000 delta 114.000 duration 3.000
+    Measure at 117.000 delta 117.000 duration 3.000
+    Measure at 120.000 delta 120.000 duration 3.000
+    Measure at 123.000 delta 123.000 duration 3.000
+    Measure at 126.000 delta 126.000 duration 3.000
+    Measure at 129.000 delta 129.000 duration 3.000
+    Measure at 132.000 delta 132.000 duration 3.000
+    Measure at 135.000 delta 135.000 duration 3.000
+div=0 -&gt; qtr 0.0
+measure_map(0) [   0 1440]
+measure_number_map(0) 1
+div_to_quarter: div 0 qtrs 0.0
+Note or Rest start 0.0 item.start.t 0
+ignoring 0-- Clef sign=G line=2 number=1
+ignoring 0--1440 Measure number=1 name=1
+ignoring 0-- TimeSignature 3/4
+div_to_quarter: div 0 qtrs 0.0
+Tempo start 0.0 tempo 1.1666664722222546
+append_beat_tempo 1.1666664722222546 &lt;amads.core.time_map.MapBeat object at 0x7fc4d2a51090&gt;
+ignoring 0-- KeySignature fifths=0, mode=major (C)
+div_to_quarter: div 240 qtrs 0.5
+Note or Rest start 0.5 item.start.t 240
+div_to_quarter: div 480 qtrs 1.0
+Note or Rest start 1.0 item.start.t 480
+div_to_quarter: div 720 qtrs 1.5
+Note or Rest start 1.5 item.start.t 720
+div_to_quarter: div 960 qtrs 2.0
+Note or Rest start 2.0 item.start.t 960
+div_to_quarter: div 1200 qtrs 2.5
+Note or Rest start 2.5 item.start.t 1200
+div_to_quarter: div 1440 qtrs 3.0
+Note or Rest start 3.0 item.start.t 1440
+ignoring 1440--2880 Measure number=2 name=2
+div_to_quarter: div 2400 qtrs 5.0
+Note or Rest start 5.0 item.start.t 2400
+div_to_quarter: div 2640 qtrs 5.5
+Note or Rest start 5.5 item.start.t 2640
+div_to_quarter: div 2880 qtrs 6.0
+Note or Rest start 6.0 item.start.t 2880
+ignoring 2880--4320 Measure number=3 name=3
+div_to_quarter: div 3120 qtrs 6.5
+Note or Rest start 6.5 item.start.t 3120
+div_to_quarter: div 3360 qtrs 7.0
+Note or Rest start 7.0 item.start.t 3360
+div_to_quarter: div 3600 qtrs 7.5
+Note or Rest start 7.5 item.start.t 3600
+div_to_quarter: div 3840 qtrs 8.0
+Note or Rest start 8.0 item.start.t 3840
+div_to_quarter: div 4080 qtrs 8.5
+Note or Rest start 8.5 item.start.t 4080
+div_to_quarter: div 4320 qtrs 9.0
+Note or Rest start 9.0 item.start.t 4320
+ignoring 4320--5760 Measure number=4 name=4
+div_to_quarter: div 4560 qtrs 9.5
+Note or Rest start 9.5 item.start.t 4560
+div_to_quarter: div 4800 qtrs 10.0
+Note or Rest start 10.0 item.start.t 4800
+div_to_quarter: div 5040 qtrs 10.5
+Note or Rest start 10.5 item.start.t 5040
+div_to_quarter: div 5280 qtrs 11.0
+Note or Rest start 11.0 item.start.t 5280
+div_to_quarter: div 5760 qtrs 12.0
+Note or Rest start 12.0 item.start.t 5760
+ignoring 5760--7200 Measure number=5 name=5
+div_to_quarter: div 6000 qtrs 12.5
+Note or Rest start 12.5 item.start.t 6000
+div_to_quarter: div 6240 qtrs 13.0
+Note or Rest start 13.0 item.start.t 6240
+div_to_quarter: div 6480 qtrs 13.5
+Note or Rest start 13.5 item.start.t 6480
+div_to_quarter: div 6720 qtrs 14.0
+Note or Rest start 14.0 item.start.t 6720
+div_to_quarter: div 6960 qtrs 14.5
+Note or Rest start 14.5 item.start.t 6960
+div_to_quarter: div 7200 qtrs 15.0
+Note or Rest start 15.0 item.start.t 7200
+ignoring 7200--8640 Measure number=6 name=6
+div_to_quarter: div 7680 qtrs 16.0
+Note or Rest start 16.0 item.start.t 7680
+div_to_quarter: div 8160 qtrs 17.0
+Note or Rest start 17.0 item.start.t 8160
+div_to_quarter: div 8640 qtrs 18.0
+Note or Rest start 18.0 item.start.t 8640
+ignoring 8640--10080 Measure number=7 name=7
+div_to_quarter: div 8880 qtrs 18.5
+Note or Rest start 18.5 item.start.t 8880
+div_to_quarter: div 9120 qtrs 19.0
+Note or Rest start 19.0 item.start.t 9120
+div_to_quarter: div 9360 qtrs 19.5
+Note or Rest start 19.5 item.start.t 9360
+div_to_quarter: div 9600 qtrs 20.0
+Note or Rest start 20.0 item.start.t 9600
+div_to_quarter: div 9840 qtrs 20.5
+Note or Rest start 20.5 item.start.t 9840
+div_to_quarter: div 10080 qtrs 21.0
+Note or Rest start 21.0 item.start.t 10080
+ignoring 10080--11520 Measure number=8 name=8
+div_to_quarter: div 10560 qtrs 22.0
+Note or Rest start 22.0 item.start.t 10560
+div_to_quarter: div 11040 qtrs 23.0
+Note or Rest start 23.0 item.start.t 11040
+div_to_quarter: div 11280 qtrs 23.5
+Note or Rest start 23.5 item.start.t 11280
+div_to_quarter: div 11520 qtrs 24.0
+Note or Rest start 24.0 item.start.t 11520
+ignoring 11520--12960 Measure number=9 name=9
+div_to_quarter: div 11760 qtrs 24.5
+Note or Rest start 24.5 item.start.t 11760
+div_to_quarter: div 12000 qtrs 25.0
+Note or Rest start 25.0 item.start.t 12000
+div_to_quarter: div 12240 qtrs 25.5
+Note or Rest start 25.5 item.start.t 12240
+div_to_quarter: div 12480 qtrs 26.0
+Note or Rest start 26.0 item.start.t 12480
+div_to_quarter: div 12720 qtrs 26.5
+Note or Rest start 26.5 item.start.t 12720
+div_to_quarter: div 12960 qtrs 27.0
+Note or Rest start 27.0 item.start.t 12960
+ignoring 12960--14400 Measure number=10 name=10
+div_to_quarter: div 13680 qtrs 28.5
+Note or Rest start 28.5 item.start.t 13680
+div_to_quarter: div 13800 qtrs 28.75
+Note or Rest start 28.75 item.start.t 13800
+div_to_quarter: div 13920 qtrs 29.0
+Note or Rest start 29.0 item.start.t 13920
+div_to_quarter: div 14040 qtrs 29.25
+Note or Rest start 29.25 item.start.t 14040
+div_to_quarter: div 14160 qtrs 29.5
+Note or Rest start 29.5 item.start.t 14160
+div_to_quarter: div 14280 qtrs 29.75
+Note or Rest start 29.75 item.start.t 14280
+div_to_quarter: div 14400 qtrs 30.0
+Note or Rest start 30.0 item.start.t 14400
+ignoring 14400--15840 Measure number=11 name=11
+div_to_quarter: div 14520 qtrs 30.25
+Note or Rest start 30.25 item.start.t 14520
+div_to_quarter: div 14640 qtrs 30.5
+Note or Rest start 30.5 item.start.t 14640
+div_to_quarter: div 14760 qtrs 30.75
+Note or Rest start 30.75 item.start.t 14760
+div_to_quarter: div 14880 qtrs 31.0
+Note or Rest start 31.0 item.start.t 14880
+div_to_quarter: div 15000 qtrs 31.25
+Note or Rest start 31.25 item.start.t 15000
+div_to_quarter: div 15120 qtrs 31.5
+Note or Rest start 31.5 item.start.t 15120
+div_to_quarter: div 15240 qtrs 31.75
+Note or Rest start 31.75 item.start.t 15240
+div_to_quarter: div 15360 qtrs 32.0
+Note or Rest start 32.0 item.start.t 15360
+div_to_quarter: div 15480 qtrs 32.25
+Note or Rest start 32.25 item.start.t 15480
+div_to_quarter: div 15600 qtrs 32.5
+Note or Rest start 32.5 item.start.t 15600
+div_to_quarter: div 15720 qtrs 32.75
+Note or Rest start 32.75 item.start.t 15720
+div_to_quarter: div 15840 qtrs 33.0
+Note or Rest start 33.0 item.start.t 15840
+ignoring 15840--17280 Measure number=12 name=12
+div_to_quarter: div 16560 qtrs 34.5
+Note or Rest start 34.5 item.start.t 16560
+div_to_quarter: div 16680 qtrs 34.75
+Note or Rest start 34.75 item.start.t 16680
+div_to_quarter: div 16800 qtrs 35.0
+Note or Rest start 35.0 item.start.t 16800
+div_to_quarter: div 16920 qtrs 35.25
+Note or Rest start 35.25 item.start.t 16920
+div_to_quarter: div 17040 qtrs 35.5
+Note or Rest start 35.5 item.start.t 17040
+div_to_quarter: div 17160 qtrs 35.75
+Note or Rest start 35.75 item.start.t 17160
+div_to_quarter: div 17280 qtrs 36.0
+Note or Rest start 36.0 item.start.t 17280
+ignoring 17280--18720 Measure number=13 name=13
+div_to_quarter: div 17400 qtrs 36.25
+Note or Rest start 36.25 item.start.t 17400
+div_to_quarter: div 17520 qtrs 36.5
+Note or Rest start 36.5 item.start.t 17520
+div_to_quarter: div 17640 qtrs 36.75
+Note or Rest start 36.75 item.start.t 17640
+div_to_quarter: div 17760 qtrs 37.0
+Note or Rest start 37.0 item.start.t 17760
+div_to_quarter: div 17880 qtrs 37.25
+Note or Rest start 37.25 item.start.t 17880
+div_to_quarter: div 18000 qtrs 37.5
+Note or Rest start 37.5 item.start.t 18000
+div_to_quarter: div 18120 qtrs 37.75
+Note or Rest start 37.75 item.start.t 18120
+div_to_quarter: div 18240 qtrs 38.0
+Note or Rest start 38.0 item.start.t 18240
+div_to_quarter: div 18360 qtrs 38.25
+Note or Rest start 38.25 item.start.t 18360
+div_to_quarter: div 18480 qtrs 38.5
+Note or Rest start 38.5 item.start.t 18480
+div_to_quarter: div 18600 qtrs 38.75
+Note or Rest start 38.75 item.start.t 18600
+div_to_quarter: div 18720 qtrs 39.0
+Note or Rest start 39.0 item.start.t 18720
+ignoring 18720--20160 Measure number=14 name=14
+div_to_quarter: div 18960 qtrs 39.5
+Note or Rest start 39.5 item.start.t 18960
+div_to_quarter: div 19080 qtrs 39.75
+Note or Rest start 39.75 item.start.t 19080
+div_to_quarter: div 19200 qtrs 40.0
+Note or Rest start 40.0 item.start.t 19200
+div_to_quarter: div 19320 qtrs 40.25
+Note or Rest start 40.25 item.start.t 19320
+div_to_quarter: div 19440 qtrs 40.5
+Note or Rest start 40.5 item.start.t 19440
+div_to_quarter: div 19560 qtrs 40.75
+Note or Rest start 40.75 item.start.t 19560
+div_to_quarter: div 19680 qtrs 41.0
+Note or Rest start 41.0 item.start.t 19680
+div_to_quarter: div 19800 qtrs 41.25
+Note or Rest start 41.25 item.start.t 19800
+div_to_quarter: div 19920 qtrs 41.5
+Note or Rest start 41.5 item.start.t 19920
+div_to_quarter: div 20040 qtrs 41.75
+Note or Rest start 41.75 item.start.t 20040
+div_to_quarter: div 20160 qtrs 42.0
+Note or Rest start 42.0 item.start.t 20160
+ignoring 20160--21600 Measure number=15 name=15
+div_to_quarter: div 20400 qtrs 42.5
+Note or Rest start 42.5 item.start.t 20400
+div_to_quarter: div 20520 qtrs 42.75
+Note or Rest start 42.75 item.start.t 20520
+div_to_quarter: div 20640 qtrs 43.0
+Note or Rest start 43.0 item.start.t 20640
+div_to_quarter: div 20880 qtrs 43.5
+Note or Rest start 43.5 item.start.t 20880
+div_to_quarter: div 21120 qtrs 44.0
+Note or Rest start 44.0 item.start.t 21120
+div_to_quarter: div 21360 qtrs 44.5
+Note or Rest start 44.5 item.start.t 21360
+div_to_quarter: div 21480 qtrs 44.75
+Note or Rest start 44.75 item.start.t 21480
+div_to_quarter: div 21600 qtrs 45.0
+Note or Rest start 45.0 item.start.t 21600
+ignoring 21600--23040 Measure number=16 name=16
+div_to_quarter: div 23040 qtrs 48.0
+Note or Rest start 48.0 item.start.t 23040
+ignoring 23040--24480 Measure number=17 name=17
+div_to_quarter: div 23280 qtrs 48.5
+Note or Rest start 48.5 item.start.t 23280
+div_to_quarter: div 23520 qtrs 49.0
+Note or Rest start 49.0 item.start.t 23520
+div_to_quarter: div 23760 qtrs 49.5
+Note or Rest start 49.5 item.start.t 23760
+div_to_quarter: div 24000 qtrs 50.0
+Note or Rest start 50.0 item.start.t 24000
+div_to_quarter: div 24240 qtrs 50.5
+Note or Rest start 50.5 item.start.t 24240
+div_to_quarter: div 24480 qtrs 51.0
+Note or Rest start 51.0 item.start.t 24480
+ignoring 24480--25920 Measure number=18 name=18
+div_to_quarter: div 25440 qtrs 53.0
+Note or Rest start 53.0 item.start.t 25440
+div_to_quarter: div 25680 qtrs 53.5
+Note or Rest start 53.5 item.start.t 25680
+div_to_quarter: div 25920 qtrs 54.0
+Note or Rest start 54.0 item.start.t 25920
+ignoring 25920--27360 Measure number=19 name=19
+div_to_quarter: div 26160 qtrs 54.5
+Note or Rest start 54.5 item.start.t 26160
+div_to_quarter: div 26400 qtrs 55.0
+Note or Rest start 55.0 item.start.t 26400
+div_to_quarter: div 26640 qtrs 55.5
+Note or Rest start 55.5 item.start.t 26640
+div_to_quarter: div 26880 qtrs 56.0
+Note or Rest start 56.0 item.start.t 26880
+div_to_quarter: div 27120 qtrs 56.5
+Note or Rest start 56.5 item.start.t 27120
+div_to_quarter: div 27360 qtrs 57.0
+Note or Rest start 57.0 item.start.t 27360
+ignoring 27360--28800 Measure number=20 name=20
+div_to_quarter: div 27840 qtrs 58.0
+Note or Rest start 58.0 item.start.t 27840
+div_to_quarter: div 28080 qtrs 58.5
+Note or Rest start 58.5 item.start.t 28080
+div_to_quarter: div 28320 qtrs 59.0
+Note or Rest start 59.0 item.start.t 28320
+div_to_quarter: div 28800 qtrs 60.0
+Note or Rest start 60.0 item.start.t 28800
+ignoring 28800--30240 Measure number=21 name=21
+div_to_quarter: div 29040 qtrs 60.5
+Note or Rest start 60.5 item.start.t 29040
+div_to_quarter: div 29160 qtrs 60.75
+Note or Rest start 60.75 item.start.t 29160
+div_to_quarter: div 29280 qtrs 61.0
+Note or Rest start 61.0 item.start.t 29280
+div_to_quarter: div 29520 qtrs 61.5
+Note or Rest start 61.5 item.start.t 29520
+div_to_quarter: div 29760 qtrs 62.0
+Note or Rest start 62.0 item.start.t 29760
+div_to_quarter: div 30000 qtrs 62.5
+Note or Rest start 62.5 item.start.t 30000
+div_to_quarter: div 30240 qtrs 63.0
+Note or Rest start 63.0 item.start.t 30240
+ignoring 30240--31680 Measure number=22 name=22
+div_to_quarter: div 30480 qtrs 63.5
+Note or Rest start 63.5 item.start.t 30480
+div_to_quarter: div 30600 qtrs 63.75
+Note or Rest start 63.75 item.start.t 30600
+div_to_quarter: div 30720 qtrs 64.0
+Note or Rest start 64.0 item.start.t 30720
+div_to_quarter: div 30960 qtrs 64.5
+Note or Rest start 64.5 item.start.t 30960
+div_to_quarter: div 31200 qtrs 65.0
+Note or Rest start 65.0 item.start.t 31200
+div_to_quarter: div 31440 qtrs 65.5
+Note or Rest start 65.5 item.start.t 31440
+div_to_quarter: div 31680 qtrs 66.0
+Note or Rest start 66.0 item.start.t 31680
+ignoring 31680--33120 Measure number=23 name=23
+div_to_quarter: div 31800 qtrs 66.25
+Note or Rest start 66.25 item.start.t 31800
+div_to_quarter: div 31920 qtrs 66.5
+Note or Rest start 66.5 item.start.t 31920
+div_to_quarter: div 32040 qtrs 66.75
+Note or Rest start 66.75 item.start.t 32040
+div_to_quarter: div 32160 qtrs 67.0
+Note or Rest start 67.0 item.start.t 32160
+div_to_quarter: div 32400 qtrs 67.5
+Note or Rest start 67.5 item.start.t 32400
+div_to_quarter: div 32640 qtrs 68.0
+Note or Rest start 68.0 item.start.t 32640
+div_to_quarter: div 32880 qtrs 68.5
+Note or Rest start 68.5 item.start.t 32880
+div_to_quarter: div 33120 qtrs 69.0
+Note or Rest start 69.0 item.start.t 33120
+ignoring 33120--34560 Measure number=24 name=24
+div_to_quarter: div 33360 qtrs 69.5
+Note or Rest start 69.5 item.start.t 33360
+div_to_quarter: div 33480 qtrs 69.75
+Note or Rest start 69.75 item.start.t 33480
+div_to_quarter: div 33600 qtrs 70.0
+Note or Rest start 70.0 item.start.t 33600
+div_to_quarter: div 33840 qtrs 70.5
+Note or Rest start 70.5 item.start.t 33840
+div_to_quarter: div 33960 qtrs 70.75
+Note or Rest start 70.75 item.start.t 33960
+div_to_quarter: div 34080 qtrs 71.0
+Note or Rest start 71.0 item.start.t 34080
+div_to_quarter: div 34320 qtrs 71.5
+Note or Rest start 71.5 item.start.t 34320
+div_to_quarter: div 34440 qtrs 71.75
+Note or Rest start 71.75 item.start.t 34440
+div_to_quarter: div 34560 qtrs 72.0
+Note or Rest start 72.0 item.start.t 34560
+ignoring 34560--36000 Measure number=25 name=25
+div_to_quarter: div 34800 qtrs 72.5
+Note or Rest start 72.5 item.start.t 34800
+div_to_quarter: div 34920 qtrs 72.75
+Note or Rest start 72.75 item.start.t 34920
+div_to_quarter: div 35040 qtrs 73.0
+Note or Rest start 73.0 item.start.t 35040
+div_to_quarter: div 35280 qtrs 73.5
+Note or Rest start 73.5 item.start.t 35280
+div_to_quarter: div 35520 qtrs 74.0
+Note or Rest start 74.0 item.start.t 35520
+div_to_quarter: div 35640 qtrs 74.25
+Note or Rest start 74.25 item.start.t 35640
+div_to_quarter: div 35760 qtrs 74.5
+Note or Rest start 74.5 item.start.t 35760
+div_to_quarter: div 35880 qtrs 74.75
+Note or Rest start 74.75 item.start.t 35880
+div_to_quarter: div 36000 qtrs 75.0
+Note or Rest start 75.0 item.start.t 36000
+ignoring 36000--37440 Measure number=26 name=26
+div_to_quarter: div 36240 qtrs 75.5
+Note or Rest start 75.5 item.start.t 36240
+div_to_quarter: div 36480 qtrs 76.0
+Note or Rest start 76.0 item.start.t 36480
+div_to_quarter: div 36720 qtrs 76.5
+Note or Rest start 76.5 item.start.t 36720
+div_to_quarter: div 36960 qtrs 77.0
+Note or Rest start 77.0 item.start.t 36960
+div_to_quarter: div 37200 qtrs 77.5
+Note or Rest start 77.5 item.start.t 37200
+div_to_quarter: div 37440 qtrs 78.0
+Note or Rest start 78.0 item.start.t 37440
+ignoring 37440--38880 Measure number=27 name=27
+div_to_quarter: div 37680 qtrs 78.5
+Note or Rest start 78.5 item.start.t 37680
+div_to_quarter: div 37920 qtrs 79.0
+Note or Rest start 79.0 item.start.t 37920
+div_to_quarter: div 38160 qtrs 79.5
+Note or Rest start 79.5 item.start.t 38160
+div_to_quarter: div 38400 qtrs 80.0
+Note or Rest start 80.0 item.start.t 38400
+div_to_quarter: div 38640 qtrs 80.5
+Note or Rest start 80.5 item.start.t 38640
+div_to_quarter: div 38880 qtrs 81.0
+Note or Rest start 81.0 item.start.t 38880
+ignoring 38880--40320 Measure number=28 name=28
+div_to_quarter: div 39120 qtrs 81.5
+Note or Rest start 81.5 item.start.t 39120
+div_to_quarter: div 39360 qtrs 82.0
+Note or Rest start 82.0 item.start.t 39360
+div_to_quarter: div 39600 qtrs 82.5
+Note or Rest start 82.5 item.start.t 39600
+div_to_quarter: div 39840 qtrs 83.0
+Note or Rest start 83.0 item.start.t 39840
+div_to_quarter: div 40080 qtrs 83.5
+Note or Rest start 83.5 item.start.t 40080
+div_to_quarter: div 40320 qtrs 84.0
+Note or Rest start 84.0 item.start.t 40320
+ignoring 40320--41760 Measure number=29 name=29
+div_to_quarter: div 40560 qtrs 84.5
+Note or Rest start 84.5 item.start.t 40560
+div_to_quarter: div 40800 qtrs 85.0
+Note or Rest start 85.0 item.start.t 40800
+div_to_quarter: div 41040 qtrs 85.5
+Note or Rest start 85.5 item.start.t 41040
+div_to_quarter: div 41280 qtrs 86.0
+Note or Rest start 86.0 item.start.t 41280
+div_to_quarter: div 41520 qtrs 86.5
+Note or Rest start 86.5 item.start.t 41520
+div_to_quarter: div 41760 qtrs 87.0
+Note or Rest start 87.0 item.start.t 41760
+ignoring 41760--43200 Measure number=30 name=30
+div_to_quarter: div 42000 qtrs 87.5
+Note or Rest start 87.5 item.start.t 42000
+div_to_quarter: div 42240 qtrs 88.0
+Note or Rest start 88.0 item.start.t 42240
+div_to_quarter: div 42480 qtrs 88.5
+Note or Rest start 88.5 item.start.t 42480
+div_to_quarter: div 42720 qtrs 89.0
+Note or Rest start 89.0 item.start.t 42720
+div_to_quarter: div 42960 qtrs 89.5
+Note or Rest start 89.5 item.start.t 42960
+div_to_quarter: div 43200 qtrs 90.0
+Note or Rest start 90.0 item.start.t 43200
+ignoring 43200--44640 Measure number=31 name=31
+div_to_quarter: div 43440 qtrs 90.5
+Note or Rest start 90.5 item.start.t 43440
+div_to_quarter: div 43680 qtrs 91.0
+Note or Rest start 91.0 item.start.t 43680
+div_to_quarter: div 43920 qtrs 91.5
+Note or Rest start 91.5 item.start.t 43920
+div_to_quarter: div 44160 qtrs 92.0
+Note or Rest start 92.0 item.start.t 44160
+div_to_quarter: div 44400 qtrs 92.5
+Note or Rest start 92.5 item.start.t 44400
+div_to_quarter: div 44640 qtrs 93.0
+Note or Rest start 93.0 item.start.t 44640
+ignoring 44640--46080 Measure number=32 name=32
+div_to_quarter: div 44880 qtrs 93.5
+Note or Rest start 93.5 item.start.t 44880
+div_to_quarter: div 45120 qtrs 94.0
+Note or Rest start 94.0 item.start.t 45120
+div_to_quarter: div 45360 qtrs 94.5
+Note or Rest start 94.5 item.start.t 45360
+div_to_quarter: div 45600 qtrs 95.0
+Note or Rest start 95.0 item.start.t 45600
+div_to_quarter: div 45840 qtrs 95.5
+Note or Rest start 95.5 item.start.t 45840
+div_to_quarter: div 46080 qtrs 96.0
+Note or Rest start 96.0 item.start.t 46080
+ignoring 46080--47520 Measure number=33 name=33
+div_to_quarter: div 46320 qtrs 96.5
+Note or Rest start 96.5 item.start.t 46320
+div_to_quarter: div 46440 qtrs 96.75
+Note or Rest start 96.75 item.start.t 46440
+div_to_quarter: div 46560 qtrs 97.0
+Note or Rest start 97.0 item.start.t 46560
+div_to_quarter: div 46800 qtrs 97.5
+Note or Rest start 97.5 item.start.t 46800
+div_to_quarter: div 47040 qtrs 98.0
+Note or Rest start 98.0 item.start.t 47040
+div_to_quarter: div 47280 qtrs 98.5
+Note or Rest start 98.5 item.start.t 47280
+div_to_quarter: div 47400 qtrs 98.75
+Note or Rest start 98.75 item.start.t 47400
+div_to_quarter: div 47520 qtrs 99.0
+Note or Rest start 99.0 item.start.t 47520
+ignoring 47520--48960 Measure number=34 name=34
+div_to_quarter: div 48240 qtrs 100.5
+Note or Rest start 100.5 item.start.t 48240
+div_to_quarter: div 48480 qtrs 101.0
+Note or Rest start 101.0 item.start.t 48480
+div_to_quarter: div 48960 qtrs 102.0
+Note or Rest start 102.0 item.start.t 48960
+ignoring 48960--50400 Measure number=35 name=35
+div_to_quarter: div 49200 qtrs 102.5
+Note or Rest start 102.5 item.start.t 49200
+div_to_quarter: div 49440 qtrs 103.0
+Note or Rest start 103.0 item.start.t 49440
+div_to_quarter: div 49680 qtrs 103.5
+Note or Rest start 103.5 item.start.t 49680
+div_to_quarter: div 49920 qtrs 104.0
+Note or Rest start 104.0 item.start.t 49920
+div_to_quarter: div 50160 qtrs 104.5
+Note or Rest start 104.5 item.start.t 50160
+div_to_quarter: div 50400 qtrs 105.0
+Note or Rest start 105.0 item.start.t 50400
+ignoring 50400--51840 Measure number=36 name=36
+div_to_quarter: div 50880 qtrs 106.0
+Note or Rest start 106.0 item.start.t 50880
+div_to_quarter: div 51360 qtrs 107.0
+Note or Rest start 107.0 item.start.t 51360
+div_to_quarter: div 51840 qtrs 108.0
+Note or Rest start 108.0 item.start.t 51840
+ignoring 51840--53280 Measure number=37 name=37
+div_to_quarter: div 52080 qtrs 108.5
+Note or Rest start 108.5 item.start.t 52080
+div_to_quarter: div 52320 qtrs 109.0
+Note or Rest start 109.0 item.start.t 52320
+div_to_quarter: div 52560 qtrs 109.5
+Note or Rest start 109.5 item.start.t 52560
+div_to_quarter: div 52800 qtrs 110.0
+Note or Rest start 110.0 item.start.t 52800
+div_to_quarter: div 53040 qtrs 110.5
+Note or Rest start 110.5 item.start.t 53040
+div_to_quarter: div 53280 qtrs 111.0
+Note or Rest start 111.0 item.start.t 53280
+ignoring 53280--54720 Measure number=38 name=38
+div_to_quarter: div 53520 qtrs 111.5
+Note or Rest start 111.5 item.start.t 53520
+div_to_quarter: div 53760 qtrs 112.0
+Note or Rest start 112.0 item.start.t 53760
+div_to_quarter: div 54000 qtrs 112.5
+Note or Rest start 112.5 item.start.t 54000
+div_to_quarter: div 54240 qtrs 113.0
+Note or Rest start 113.0 item.start.t 54240
+div_to_quarter: div 54480 qtrs 113.5
+Note or Rest start 113.5 item.start.t 54480
+div_to_quarter: div 54720 qtrs 114.0
+Note or Rest start 114.0 item.start.t 54720
+ignoring 54720--56160 Measure number=39 name=39
+div_to_quarter: div 54960 qtrs 114.5
+Note or Rest start 114.5 item.start.t 54960
+div_to_quarter: div 55200 qtrs 115.0
+Note or Rest start 115.0 item.start.t 55200
+div_to_quarter: div 55440 qtrs 115.5
+Note or Rest start 115.5 item.start.t 55440
+div_to_quarter: div 55680 qtrs 116.0
+Note or Rest start 116.0 item.start.t 55680
+div_to_quarter: div 55920 qtrs 116.5
+Note or Rest start 116.5 item.start.t 55920
+div_to_quarter: div 56160 qtrs 117.0
+Note or Rest start 117.0 item.start.t 56160
+ignoring 56160--57600 Measure number=40 name=40
+div_to_quarter: div 56880 qtrs 118.5
+Note or Rest start 118.5 item.start.t 56880
+div_to_quarter: div 57000 qtrs 118.75
+Note or Rest start 118.75 item.start.t 57000
+div_to_quarter: div 57120 qtrs 119.0
+Note or Rest start 119.0 item.start.t 57120
+div_to_quarter: div 57240 qtrs 119.25
+Note or Rest start 119.25 item.start.t 57240
+div_to_quarter: div 57360 qtrs 119.5
+Note or Rest start 119.5 item.start.t 57360
+div_to_quarter: div 57480 qtrs 119.75
+Note or Rest start 119.75 item.start.t 57480
+div_to_quarter: div 57600 qtrs 120.0
+Note or Rest start 120.0 item.start.t 57600
+ignoring 57600--59040 Measure number=41 name=41
+div_to_quarter: div 57720 qtrs 120.25
+Note or Rest start 120.25 item.start.t 57720
+div_to_quarter: div 57840 qtrs 120.5
+Note or Rest start 120.5 item.start.t 57840
+div_to_quarter: div 57960 qtrs 120.75
+Note or Rest start 120.75 item.start.t 57960
+div_to_quarter: div 58080 qtrs 121.0
+Note or Rest start 121.0 item.start.t 58080
+div_to_quarter: div 58200 qtrs 121.25
+Note or Rest start 121.25 item.start.t 58200
+div_to_quarter: div 58320 qtrs 121.5
+Note or Rest start 121.5 item.start.t 58320
+div_to_quarter: div 58440 qtrs 121.75
+Note or Rest start 121.75 item.start.t 58440
+div_to_quarter: div 58560 qtrs 122.0
+Note or Rest start 122.0 item.start.t 58560
+div_to_quarter: div 58680 qtrs 122.25
+Note or Rest start 122.25 item.start.t 58680
+div_to_quarter: div 58800 qtrs 122.5
+Note or Rest start 122.5 item.start.t 58800
+div_to_quarter: div 58920 qtrs 122.75
+Note or Rest start 122.75 item.start.t 58920
+div_to_quarter: div 59040 qtrs 123.0
+Note or Rest start 123.0 item.start.t 59040
+ignoring 59040--60480 Measure number=42 name=42
+div_to_quarter: div 59760 qtrs 124.5
+Note or Rest start 124.5 item.start.t 59760
+div_to_quarter: div 59880 qtrs 124.75
+Note or Rest start 124.75 item.start.t 59880
+div_to_quarter: div 60000 qtrs 125.0
+Note or Rest start 125.0 item.start.t 60000
+div_to_quarter: div 60120 qtrs 125.25
+Note or Rest start 125.25 item.start.t 60120
+div_to_quarter: div 60240 qtrs 125.5
+Note or Rest start 125.5 item.start.t 60240
+div_to_quarter: div 60360 qtrs 125.75
+Note or Rest start 125.75 item.start.t 60360
+div_to_quarter: div 60480 qtrs 126.0
+Note or Rest start 126.0 item.start.t 60480
+ignoring 60480--61920 Measure number=43 name=43
+div_to_quarter: div 60600 qtrs 126.25
+Note or Rest start 126.25 item.start.t 60600
+div_to_quarter: div 60720 qtrs 126.5
+Note or Rest start 126.5 item.start.t 60720
+div_to_quarter: div 60840 qtrs 126.75
+Note or Rest start 126.75 item.start.t 60840
+div_to_quarter: div 60960 qtrs 127.0
+Note or Rest start 127.0 item.start.t 60960
+div_to_quarter: div 61080 qtrs 127.25
+Note or Rest start 127.25 item.start.t 61080
+div_to_quarter: div 61200 qtrs 127.5
+Note or Rest start 127.5 item.start.t 61200
+div_to_quarter: div 61320 qtrs 127.75
+Note or Rest start 127.75 item.start.t 61320
+div_to_quarter: div 61440 qtrs 128.0
+Note or Rest start 128.0 item.start.t 61440
+div_to_quarter: div 61560 qtrs 128.25
+Note or Rest start 128.25 item.start.t 61560
+div_to_quarter: div 61680 qtrs 128.5
+Note or Rest start 128.5 item.start.t 61680
+div_to_quarter: div 61800 qtrs 128.75
+Note or Rest start 128.75 item.start.t 61800
+div_to_quarter: div 61920 qtrs 129.0
+Note or Rest start 129.0 item.start.t 61920
+ignoring 61920--63360 Measure number=44 name=44
+div_to_quarter: div 62160 qtrs 129.5
+Note or Rest start 129.5 item.start.t 62160
+div_to_quarter: div 62280 qtrs 129.75
+Note or Rest start 129.75 item.start.t 62280
+div_to_quarter: div 62400 qtrs 130.0
+Note or Rest start 130.0 item.start.t 62400
+div_to_quarter: div 62520 qtrs 130.25
+Note or Rest start 130.25 item.start.t 62520
+div_to_quarter: div 62640 qtrs 130.5
+Note or Rest start 130.5 item.start.t 62640
+div_to_quarter: div 62760 qtrs 130.75
+Note or Rest start 130.75 item.start.t 62760
+div_to_quarter: div 62880 qtrs 131.0
+Note or Rest start 131.0 item.start.t 62880
+div_to_quarter: div 63000 qtrs 131.25
+Note or Rest start 131.25 item.start.t 63000
+div_to_quarter: div 63120 qtrs 131.5
+Note or Rest start 131.5 item.start.t 63120
+div_to_quarter: div 63240 qtrs 131.75
+Note or Rest start 131.75 item.start.t 63240
+div_to_quarter: div 63360 qtrs 132.0
+Note or Rest start 132.0 item.start.t 63360
+ignoring 63360--64800 Measure number=45 name=45
+div_to_quarter: div 63480 qtrs 132.25
+Note or Rest start 132.25 item.start.t 63480
+div_to_quarter: div 63600 qtrs 132.5
+Note or Rest start 132.5 item.start.t 63600
+div_to_quarter: div 63720 qtrs 132.75
+Note or Rest start 132.75 item.start.t 63720
+div_to_quarter: div 63840 qtrs 133.0
+Note or Rest start 133.0 item.start.t 63840
+div_to_quarter: div 64080 qtrs 133.5
+Note or Rest start 133.5 item.start.t 64080
+div_to_quarter: div 64320 qtrs 134.0
+Note or Rest start 134.0 item.start.t 64320
+div_to_quarter: div 64560 qtrs 134.5
+Note or Rest start 134.5 item.start.t 64560
+div_to_quarter: div 64680 qtrs 134.75
+Note or Rest start 134.75 item.start.t 64680
+div_to_quarter: div 64800 qtrs 135.0
+Note or Rest start 135.0 item.start.t 64800
+ignoring 64800--66240 Measure number=46 name=46
+events [[&#39;Note&#39;, 0.0, 0.5, None, 69, &#39;n0&#39;, None], [&#39;Note&#39;, 0.5, 0.5, None, 71, &#39;n1&#39;, None], [&#39;Note&#39;, 1.0, 0.5, None, 72, &#39;n2&#39;, None], [&#39;Note&#39;, 1.5, 0.5, None, 76, &#39;n3&#39;, None], [&#39;Note&#39;, 2.0, 0.5, None, 68, &#39;n4&#39;, None], [&#39;Note&#39;, 2.5, 0.5, None, 69, &#39;n5&#39;, None], [&#39;Note&#39;, 3.0, 2.0, None, 65, &#39;n6&#39;, None], [&#39;Note&#39;, 5.0, 0.5, None, 64, &#39;n7&#39;, None], [&#39;Note&#39;, 5.5, 0.5, None, 66, &#39;n8&#39;, None], [&#39;Note&#39;, 6.0, 0.5, None, 68, &#39;n9&#39;, None], [&#39;Note&#39;, 6.5, 0.5, None, 69, &#39;n10&#39;, None], [&#39;Note&#39;, 7.0, 0.5, None, 71, &#39;n11&#39;, None], [&#39;Note&#39;, 7.5, 0.5, None, 74, &#39;n12&#39;, None], [&#39;Note&#39;, 8.0, 0.5, None, 77, &#39;n13&#39;, None], [&#39;Note&#39;, 8.5, 0.5, None, 76, &#39;n14&#39;, None], [&#39;Note&#39;, 9.0, 0.5, None, 74, &#39;n15&#39;, None], [&#39;Note&#39;, 9.5, 0.5, None, 71, &#39;n16&#39;, None], [&#39;Note&#39;, 10.0, 0.5, None, 72, &#39;n17&#39;, None], [&#39;Note&#39;, 10.5, 0.5, None, 69, &#39;n18&#39;, None], [&#39;Note&#39;, 11.0, 1.0, None, 71, &#39;n19&#39;, None], [&#39;Note&#39;, 12.0, 0.5, None, 69, &#39;n20&#39;, None], [&#39;Note&#39;, 12.5, 0.5, None, 71, &#39;n21&#39;, None], [&#39;Note&#39;, 13.0, 0.5, None, 72, &#39;n22&#39;, None], [&#39;Note&#39;, 13.5, 0.5, None, 76, &#39;n23&#39;, None], [&#39;Note&#39;, 14.0, 0.5, None, 68, &#39;n24&#39;, None], [&#39;Note&#39;, 14.5, 0.5, None, 69, &#39;n25&#39;, None], [&#39;Note&#39;, 15.0, 1.0, None, 77, &#39;n26&#39;, None], [&#39;Note&#39;, 16.0, 1.0, None, 76, &#39;n27&#39;, None], [&#39;Note&#39;, 17.0, 1.0, None, 74, &#39;n28&#39;, None], [&#39;Note&#39;, 18.0, 0.5, None, 67, &#39;n29&#39;, None], [&#39;Note&#39;, 18.5, 0.5, None, 69, &#39;n30&#39;, None], [&#39;Note&#39;, 19.0, 0.5, None, 71, &#39;n31&#39;, None], [&#39;Note&#39;, 19.5, 0.5, None, 74, &#39;n32&#39;, None], [&#39;Note&#39;, 20.0, 0.5, None, 66, &#39;n33&#39;, None], [&#39;Note&#39;, 20.5, 0.5, None, 67, &#39;n34&#39;, None], [&#39;Note&#39;, 21.0, 1.0, None, 76, &#39;n35&#39;, None], [&#39;Note&#39;, 22.0, 1.0, None, 74, &#39;n36&#39;, None], [&#39;Note&#39;, 23.0, 0.5, None, 72, &#39;n37&#39;, None], [&#39;Note&#39;, 23.5, 0.5, None, 76, &#39;n38&#39;, None], [&#39;Note&#39;, 24.0, 0.5, None, 79, &#39;n39&#39;, None], [&#39;Note&#39;, 24.5, 0.5, None, 76, &#39;n40&#39;, None], [&#39;Note&#39;, 25.0, 0.5, None, 74, &#39;n41&#39;, None], [&#39;Note&#39;, 25.5, 0.5, None, 72, &#39;n42&#39;, None], [&#39;Note&#39;, 26.0, 0.5, None, 71, &#39;n43&#39;, None], [&#39;Note&#39;, 26.5, 0.5, None, 72, &#39;n44&#39;, None], [&#39;Note&#39;, 27.0, 1.5, None, 67, &#39;n45&#39;, None], [&#39;Note&#39;, 28.5, 0.25, None, 69, &#39;n46&#39;, None], [&#39;Note&#39;, 28.75, 0.25, None, 71, &#39;n47&#39;, None], [&#39;Note&#39;, 29.0, 0.25, None, 72, &#39;n48&#39;, None], [&#39;Note&#39;, 29.25, 0.25, None, 74, &#39;n49&#39;, None], [&#39;Note&#39;, 29.5, 0.25, None, 76, &#39;n50&#39;, None], [&#39;Note&#39;, 29.75, 0.25, None, 77, &#39;n51&#39;, None], [&#39;Note&#39;, 30.0, 0.25, None, 79, &#39;n52&#39;, None], [&#39;Note&#39;, 30.25, 0.25, None, 77, &#39;n53&#39;, None], [&#39;Note&#39;, 30.5, 0.25, None, 76, &#39;n54&#39;, None], [&#39;Note&#39;, 30.75, 0.25, None, 79, &#39;n55&#39;, None], [&#39;Note&#39;, 31.0, 0.25, None, 77, &#39;n56&#39;, None], [&#39;Note&#39;, 31.25, 0.25, None, 76, &#39;n57&#39;, None], [&#39;Note&#39;, 31.5, 0.25, None, 74, &#39;n58&#39;, None], [&#39;Note&#39;, 31.75, 0.25, None, 77, &#39;n59&#39;, None], [&#39;Note&#39;, 32.0, 0.25, None, 76, &#39;n60&#39;, None], [&#39;Note&#39;, 32.25, 0.25, None, 74, &#39;n61&#39;, None], [&#39;Note&#39;, 32.5, 0.25, None, 72, &#39;n62&#39;, None], [&#39;Note&#39;, 32.75, 0.25, None, 76, &#39;n63&#39;, None], [&#39;Note&#39;, 33.0, 1.5, None, 69, &#39;n64&#39;, None], [&#39;Note&#39;, 34.5, 0.25, None, 71, &#39;n65&#39;, None], [&#39;Note&#39;, 34.75, 0.25, None, 72, &#39;n66&#39;, None], [&#39;Note&#39;, 35.0, 0.25, None, 74, &#39;n67&#39;, None], [&#39;Note&#39;, 35.25, 0.25, None, 76, &#39;n68&#39;, None], [&#39;Note&#39;, 35.5, 0.25, None, 77, &#39;n69&#39;, None], [&#39;Note&#39;, 35.75, 0.25, None, 79, &#39;n70&#39;, None], [&#39;Note&#39;, 36.0, 0.25, None, 81, &#39;n71&#39;, None], [&#39;Note&#39;, 36.25, 0.25, None, 79, &#39;n72&#39;, None], [&#39;Note&#39;, 36.5, 0.25, None, 77, &#39;n73&#39;, None], [&#39;Note&#39;, 36.75, 0.25, None, 81, &#39;n74&#39;, None], [&#39;Note&#39;, 37.0, 0.25, None, 79, &#39;n75&#39;, None], [&#39;Note&#39;, 37.25, 0.25, None, 77, &#39;n76&#39;, None], [&#39;Note&#39;, 37.5, 0.25, None, 76, &#39;n77&#39;, None], [&#39;Note&#39;, 37.75, 0.25, None, 79, &#39;n78&#39;, None], [&#39;Note&#39;, 38.0, 0.25, None, 77, &#39;n79&#39;, None], [&#39;Note&#39;, 38.25, 0.25, None, 76, &#39;n80&#39;, None], [&#39;Note&#39;, 38.5, 0.25, None, 74, &#39;n81&#39;, None], [&#39;Note&#39;, 38.75, 0.25, None, 77, &#39;n82&#39;, None], [&#39;Note&#39;, 39.0, 0.5, None, 83, &#39;n83&#39;, None], [&#39;Note&#39;, 39.5, 0.25, None, 84, &#39;n84&#39;, None], [&#39;Note&#39;, 39.75, 0.25, None, 86, &#39;n85&#39;, None], [&#39;Note&#39;, 40.0, 0.25, None, 84, &#39;n86&#39;, None], [&#39;Note&#39;, 40.25, 0.25, None, 83, &#39;n87&#39;, None], [&#39;Note&#39;, 40.5, 0.25, None, 81, &#39;n88&#39;, None], [&#39;Note&#39;, 40.75, 0.25, None, 79, &#39;n89&#39;, None], [&#39;Note&#39;, 41.0, 0.25, None, 77, &#39;n90&#39;, None], [&#39;Note&#39;, 41.25, 0.25, None, 76, &#39;n91&#39;, None], [&#39;Note&#39;, 41.5, 0.25, None, 77, &#39;n92&#39;, None], [&#39;Note&#39;, 41.75, 0.25, None, 71, &#39;n93&#39;, None], [&#39;Note&#39;, 42.0, 0.5, None, 76, &#39;n94&#39;, None], [&#39;Note&#39;, 42.5, 0.25, None, 74, &#39;n95&#39;, None], [&#39;Note&#39;, 42.75, 0.25, None, 72, &#39;n96&#39;, None], [&#39;Note&#39;, 43.0, 0.5, None, 79, &#39;n97&#39;, None], [&#39;Note&#39;, 43.5, 0.5, None, 81, &#39;n98&#39;, None], [&#39;Note&#39;, 44.0, 0.5, None, 76, &#39;n99&#39;, None], [&#39;Note&#39;, 44.5, 0.25, None, 74, &#39;n100&#39;, None], [&#39;Note&#39;, 44.75, 0.25, None, 72, &#39;n101&#39;, None], [&#39;Note&#39;, 45.0, 2.0, None, 72, &#39;n102&#39;, None], [&#39;Note&#39;, 48.0, 0.5, None, 76, &#39;n103&#39;, None], [&#39;Note&#39;, 48.5, 0.5, None, 72, &#39;n104&#39;, None], [&#39;Note&#39;, 49.0, 0.5, None, 71, &#39;n105&#39;, None], [&#39;Note&#39;, 49.5, 0.5, None, 72, &#39;n106&#39;, None], [&#39;Note&#39;, 50.0, 0.5, None, 81, &#39;n107&#39;, None], [&#39;Note&#39;, 50.5, 0.5, None, 79, &#39;n108&#39;, None], [&#39;Note&#39;, 51.0, 2.0, None, 76, &#39;n109&#39;, None], [&#39;Note&#39;, 53.0, 0.5, None, 74, &#39;n110&#39;, None], [&#39;Note&#39;, 53.5, 0.5, None, 76, &#39;n111&#39;, None], [&#39;Note&#39;, 54.0, 0.5, None, 77, &#39;n112&#39;, None], [&#39;Note&#39;, 54.5, 0.5, None, 74, &#39;n113&#39;, None], [&#39;Note&#39;, 55.0, 0.5, None, 68, &#39;n114&#39;, None], [&#39;Note&#39;, 55.5, 0.5, None, 76, &#39;n115&#39;, None], [&#39;Note&#39;, 56.0, 0.5, None, 83, &#39;n116&#39;, None], [&#39;Note&#39;, 56.5, 0.5, None, 74, &#39;n117&#39;, None], [&#39;Note&#39;, 57.0, 1.0, None, 72, &#39;n118&#39;, None], [&#39;Note&#39;, 58.0, 0.5, None, 71, &#39;n119&#39;, None], [&#39;Note&#39;, 58.5, 0.5, None, 72, &#39;n120&#39;, None], [&#39;Note&#39;, 59.0, 1.0, None, 69, &#39;n121&#39;, None], [&#39;Note&#39;, 60.0, 0.5, None, 81, &#39;n122&#39;, None], [&#39;Note&#39;, 60.5, 0.25, None, 79, &#39;n123&#39;, None], [&#39;Note&#39;, 60.75, 0.25, None, 77, &#39;n124&#39;, None], [&#39;Note&#39;, 61.0, 0.5, None, 76, &#39;n125&#39;, None], [&#39;Note&#39;, 61.5, 0.5, None, 74, &#39;n126&#39;, None], [&#39;Note&#39;, 62.0, 0.5, None, 73, &#39;n127&#39;, None], [&#39;Note&#39;, 62.5, 0.5, None, 74, &#39;n128&#39;, None], [&#39;Note&#39;, 63.0, 0.5, None, 82, &#39;n129&#39;, None], [&#39;Note&#39;, 63.5, 0.25, None, 81, &#39;n130&#39;, None], [&#39;Note&#39;, 63.75, 0.25, None, 79, &#39;n131&#39;, None], [&#39;Note&#39;, 64.0, 0.5, None, 77, &#39;n132&#39;, None], [&#39;Note&#39;, 64.5, 0.5, None, 76, &#39;n133&#39;, None], [&#39;Note&#39;, 65.0, 0.5, None, 81, &#39;n134&#39;, None], [&#39;Note&#39;, 65.5, 0.5, None, 69, &#39;n135&#39;, None], [&#39;Note&#39;, 66.0, 0.25, None, 65, &#39;n136&#39;, None], [&#39;Note&#39;, 66.25, 0.25, None, 81, &#39;n137&#39;, None], [&#39;Note&#39;, 66.5, 0.25, None, 79, &#39;n138&#39;, None], [&#39;Note&#39;, 66.75, 0.25, None, 77, &#39;n139&#39;, None], [&#39;Note&#39;, 67.0, 0.5, None, 76, &#39;n140&#39;, None], [&#39;Note&#39;, 67.5, 0.5, None, 74, &#39;n141&#39;, None], [&#39;Note&#39;, 68.0, 0.5, None, 73, &#39;n142&#39;, None], [&#39;Note&#39;, 68.5, 0.5, None, 74, &#39;n143&#39;, None], [&#39;Note&#39;, 69.0, 0.5, None, 67, &#39;n144&#39;, None], [&#39;Note&#39;, 69.5, 0.25, None, 82, &#39;n145&#39;, None], [&#39;Note&#39;, 69.75, 0.25, None, 81, &#39;n146&#39;, None], [&#39;Note&#39;, 70.0, 0.5, None, 79, &#39;n147&#39;, None], [&#39;Note&#39;, 70.5, 0.25, None, 77, &#39;n148&#39;, None], [&#39;Note&#39;, 70.75, 0.25, None, 76, &#39;n149&#39;, None], [&#39;Note&#39;, 71.0, 0.5, None, 85, &#39;n150&#39;, None], [&#39;Note&#39;, 71.5, 0.25, None, 83, &#39;n151&#39;, None], [&#39;Note&#39;, 71.75, 0.25, None, 85, &#39;n152&#39;, None], [&#39;Note&#39;, 72.0, 0.5, None, 86, &#39;n153&#39;, None], [&#39;Note&#39;, 72.5, 0.25, None, 74, &#39;n154&#39;, None], [&#39;Note&#39;, 72.75, 0.25, None, 76, &#39;n155&#39;, None], [&#39;Note&#39;, 73.0, 0.5, None, 77, &#39;n156&#39;, None], [&#39;Note&#39;, 73.5, 0.5, None, 81, &#39;n157&#39;, None], [&#39;Note&#39;, 74.0, 0.25, None, 79, &#39;n158&#39;, None], [&#39;Note&#39;, 74.25, 0.25, None, 77, &#39;n159&#39;, None], [&#39;Note&#39;, 74.5, 0.25, None, 76, &#39;n160&#39;, None], [&#39;Note&#39;, 74.75, 0.25, None, 77, &#39;n161&#39;, None], [&#39;Note&#39;, 75.0, 0.5, None, 74, &#39;n162&#39;, None], [&#39;Note&#39;, 75.5, 0.5, None, 69, &#39;n163&#39;, None], [&#39;Note&#39;, 76.0, 0.5, None, 65, &#39;n164&#39;, None], [&#39;Note&#39;, 76.5, 0.5, None, 62, &#39;n165&#39;, None], [&#39;Note&#39;, 77.0, 0.5, None, 65, &#39;n166&#39;, None], [&#39;Note&#39;, 77.5, 0.5, None, 69, &#39;n167&#39;, None], [&#39;Note&#39;, 78.0, 0.5, None, 71, &#39;n168&#39;, None], [&#39;Note&#39;, 78.5, 0.5, None, 72, &#39;n169&#39;, None], [&#39;Note&#39;, 79.0, 0.5, None, 74, &#39;n170&#39;, None], [&#39;Note&#39;, 79.5, 0.5, None, 77, &#39;n171&#39;, None], [&#39;Note&#39;, 80.0, 0.5, None, 81, &#39;n172&#39;, None], [&#39;Note&#39;, 80.5, 0.5, None, 79, &#39;n173&#39;, None], [&#39;Note&#39;, 81.0, 0.5, None, 77, &#39;n174&#39;, None], [&#39;Note&#39;, 81.5, 0.5, None, 76, &#39;n175&#39;, None], [&#39;Note&#39;, 82.0, 0.5, None, 74, &#39;n176&#39;, None], [&#39;Note&#39;, 82.5, 0.5, None, 72, &#39;n177&#39;, None], [&#39;Note&#39;, 83.0, 0.5, None, 80, &#39;n178&#39;, None], [&#39;Note&#39;, 83.5, 0.5, None, 81, &#39;n179&#39;, None], [&#39;Note&#39;, 84.0, 0.5, None, 68, &#39;n180&#39;, None], [&#39;Note&#39;, 84.5, 0.5, None, 69, &#39;n181&#39;, None], [&#39;Note&#39;, 85.0, 0.5, None, 71, &#39;n182&#39;, None], [&#39;Note&#39;, 85.5, 0.5, None, 72, &#39;n183&#39;, None], [&#39;Note&#39;, 86.0, 0.5, None, 77, &#39;n184&#39;, None], [&#39;Note&#39;, 86.5, 0.5, None, 76, &#39;n185&#39;, None], [&#39;Note&#39;, 87.0, 0.5, None, 74, &#39;n186&#39;, None], [&#39;Note&#39;, 87.5, 0.5, None, 72, &#39;n187&#39;, None], [&#39;Note&#39;, 88.0, 0.5, None, 71, &#39;n188&#39;, None], [&#39;Note&#39;, 88.5, 0.5, None, 69, &#39;n189&#39;, None], [&#39;Note&#39;, 89.0, 0.5, None, 81, &#39;n190&#39;, None], [&#39;Note&#39;, 89.5, 0.5, None, 84, &#39;n191&#39;, None], [&#39;Note&#39;, 90.0, 0.5, None, 74, &#39;n192&#39;, None], [&#39;Note&#39;, 90.5, 0.5, None, 84, &#39;n193&#39;, None], [&#39;Note&#39;, 91.0, 0.5, None, 83, &#39;n194&#39;, None], [&#39;Note&#39;, 91.5, 0.5, None, 86, &#39;n195&#39;, None], [&#39;Note&#39;, 92.0, 0.5, None, 80, &#39;n196&#39;, None], [&#39;Note&#39;, 92.5, 0.5, None, 81, &#39;n197&#39;, None], [&#39;Note&#39;, 93.0, 0.5, None, 74, &#39;n198&#39;, None], [&#39;Note&#39;, 93.5, 0.5, None, 84, &#39;n199&#39;, None], [&#39;Note&#39;, 94.0, 0.5, None, 83, &#39;n200&#39;, None], [&#39;Note&#39;, 94.5, 0.5, None, 86, &#39;n201&#39;, None], [&#39;Note&#39;, 95.0, 0.5, None, 80, &#39;n202&#39;, None], [&#39;Note&#39;, 95.5, 0.5, None, 81, &#39;n203&#39;, None], [&#39;Note&#39;, 96.0, 0.5, None, 71, &#39;n204&#39;, None], [&#39;Note&#39;, 96.5, 0.25, None, 77, &#39;n205&#39;, None], [&#39;Note&#39;, 96.75, 0.25, None, 76, &#39;n206&#39;, None], [&#39;Note&#39;, 97.0, 0.5, None, 74, &#39;n207&#39;, None], [&#39;Note&#39;, 97.5, 0.5, None, 72, &#39;n208&#39;, None], [&#39;Note&#39;, 98.0, 0.5, None, 71, &#39;n209&#39;, None], [&#39;Note&#39;, 98.5, 0.25, None, 72, &#39;n210&#39;, None], [&#39;Note&#39;, 98.75, 0.25, None, 74, &#39;n211&#39;, None], [&#39;Note&#39;, 99.0, 1.5, None, 68, &#39;n212&#39;, None], [&#39;Note&#39;, 100.5, 0.5, None, 66, &#39;n213&#39;, None], [&#39;Note&#39;, 101.0, 1.0, None, 64, &#39;n214&#39;, None], [&#39;Note&#39;, 102.0, 0.5, None, 69, &#39;n215&#39;, None], [&#39;Note&#39;, 102.5, 0.5, None, 71, &#39;n216&#39;, None], [&#39;Note&#39;, 103.0, 0.5, None, 72, &#39;n217&#39;, None], [&#39;Note&#39;, 103.5, 0.5, None, 76, &#39;n218&#39;, None], [&#39;Note&#39;, 104.0, 0.5, None, 68, &#39;n219&#39;, None], [&#39;Note&#39;, 104.5, 0.5, None, 69, &#39;n220&#39;, None], [&#39;Note&#39;, 105.0, 1.0, None, 77, &#39;n221&#39;, None], [&#39;Note&#39;, 106.0, 1.0, None, 76, &#39;n222&#39;, None], [&#39;Note&#39;, 107.0, 1.0, None, 74, &#39;n223&#39;, None], [&#39;Note&#39;, 108.0, 0.5, None, 71, &#39;n224&#39;, None], [&#39;Note&#39;, 108.5, 0.5, None, 72, &#39;n225&#39;, None], [&#39;Note&#39;, 109.0, 0.5, None, 74, &#39;n226&#39;, None], [&#39;Note&#39;, 109.5, 0.5, None, 77, &#39;n227&#39;, None], [&#39;Note&#39;, 110.0, 0.5, None, 76, &#39;n228&#39;, None], [&#39;Note&#39;, 110.5, 0.5, None, 74, &#39;n229&#39;, None], [&#39;Note&#39;, 111.0, 0.5, None, 83, &#39;n230&#39;, None], [&#39;Note&#39;, 111.5, 0.5, None, 80, &#39;n231&#39;, None], [&#39;Note&#39;, 112.0, 0.5, None, 81, &#39;n232&#39;, None], [&#39;Note&#39;, 112.5, 0.5, None, 78, &#39;n233&#39;, None], [&#39;Note&#39;, 113.0, 0.5, None, 80, &#39;n234&#39;, None], [&#39;Note&#39;, 113.5, 0.5, None, 83, &#39;n235&#39;, None], [&#39;Note&#39;, 114.0, 0.5, None, 88, &#39;n236&#39;, None], [&#39;Note&#39;, 114.5, 0.5, None, 84, &#39;n237&#39;, None], [&#39;Note&#39;, 115.0, 0.5, None, 83, &#39;n238&#39;, None], [&#39;Note&#39;, 115.5, 0.5, None, 81, &#39;n239&#39;, None], [&#39;Note&#39;, 116.0, 0.5, None, 80, &#39;n240&#39;, None], [&#39;Note&#39;, 116.5, 0.5, None, 81, &#39;n241&#39;, None], [&#39;Note&#39;, 117.0, 1.5, None, 76, &#39;n242&#39;, None], [&#39;Note&#39;, 118.5, 0.25, None, 78, &#39;n243&#39;, None], [&#39;Note&#39;, 118.75, 0.25, None, 80, &#39;n244&#39;, None], [&#39;Note&#39;, 119.0, 0.25, None, 81, &#39;n245&#39;, None], [&#39;Note&#39;, 119.25, 0.25, None, 83, &#39;n246&#39;, None], [&#39;Note&#39;, 119.5, 0.25, None, 84, &#39;n247&#39;, None], [&#39;Note&#39;, 119.75, 0.25, None, 86, &#39;n248&#39;, None], [&#39;Note&#39;, 120.0, 0.25, None, 88, &#39;n249&#39;, None], [&#39;Note&#39;, 120.25, 0.25, None, 86, &#39;n250&#39;, None], [&#39;Note&#39;, 120.5, 0.25, None, 84, &#39;n251&#39;, None], [&#39;Note&#39;, 120.75, 0.25, None, 88, &#39;n252&#39;, None], [&#39;Note&#39;, 121.0, 0.25, None, 86, &#39;n253&#39;, None], [&#39;Note&#39;, 121.25, 0.25, None, 84, &#39;n254&#39;, None], [&#39;Note&#39;, 121.5, 0.25, None, 83, &#39;n255&#39;, None], [&#39;Note&#39;, 121.75, 0.25, None, 86, &#39;n256&#39;, None], [&#39;Note&#39;, 122.0, 0.25, None, 84, &#39;n257&#39;, None], [&#39;Note&#39;, 122.25, 0.25, None, 83, &#39;n258&#39;, None], [&#39;Note&#39;, 122.5, 0.25, None, 81, &#39;n259&#39;, None], [&#39;Note&#39;, 122.75, 0.25, None, 84, &#39;n260&#39;, None], [&#39;Note&#39;, 123.0, 1.5, None, 78, &#39;n261&#39;, None], [&#39;Note&#39;, 124.5, 0.25, None, 80, &#39;n262&#39;, None], [&#39;Note&#39;, 124.75, 0.25, None, 81, &#39;n263&#39;, None], [&#39;Note&#39;, 125.0, 0.25, None, 83, &#39;n264&#39;, None], [&#39;Note&#39;, 125.25, 0.25, None, 84, &#39;n265&#39;, None], [&#39;Note&#39;, 125.5, 0.25, None, 86, &#39;n266&#39;, None], [&#39;Note&#39;, 125.75, 0.25, None, 88, &#39;n267&#39;, None], [&#39;Note&#39;, 126.0, 0.25, None, 89, &#39;n268&#39;, None], [&#39;Note&#39;, 126.25, 0.25, None, 88, &#39;n269&#39;, None], [&#39;Note&#39;, 126.5, 0.25, None, 86, &#39;n270&#39;, None], [&#39;Note&#39;, 126.75, 0.25, None, 89, &#39;n271&#39;, None], [&#39;Note&#39;, 127.0, 0.25, None, 88, &#39;n272&#39;, None], [&#39;Note&#39;, 127.25, 0.25, None, 86, &#39;n273&#39;, None], [&#39;Note&#39;, 127.5, 0.25, None, 84, &#39;n274&#39;, None], [&#39;Note&#39;, 127.75, 0.25, None, 88, &#39;n275&#39;, None], [&#39;Note&#39;, 128.0, 0.25, None, 86, &#39;n276&#39;, None], [&#39;Note&#39;, 128.25, 0.25, None, 84, &#39;n277&#39;, None], [&#39;Note&#39;, 128.5, 0.25, None, 83, &#39;n278&#39;, None], [&#39;Note&#39;, 128.75, 0.25, None, 86, &#39;n279&#39;, None], [&#39;Note&#39;, 129.0, 0.5, None, 92, &#39;n280&#39;, None], [&#39;Note&#39;, 129.5, 0.25, None, 81, &#39;n281&#39;, None], [&#39;Note&#39;, 129.75, 0.25, None, 83, &#39;n282&#39;, None], [&#39;Note&#39;, 130.0, 0.25, None, 81, &#39;n283&#39;, None], [&#39;Note&#39;, 130.25, 0.25, None, 79, &#39;n284&#39;, None], [&#39;Note&#39;, 130.5, 0.25, None, 78, &#39;n285&#39;, None], [&#39;Note&#39;, 130.75, 0.25, None, 76, &#39;n286&#39;, None], [&#39;Note&#39;, 131.0, 0.25, None, 86, &#39;n287&#39;, None], [&#39;Note&#39;, 131.25, 0.25, None, 84, &#39;n288&#39;, None], [&#39;Note&#39;, 131.5, 0.25, None, 86, &#39;n289&#39;, None], [&#39;Note&#39;, 131.75, 0.25, None, 83, &#39;n290&#39;, None], [&#39;Note&#39;, 132.0, 0.25, None, 84, &#39;n291&#39;, None], [&#39;Note&#39;, 132.25, 0.25, None, 83, &#39;n292&#39;, None], [&#39;Note&#39;, 132.5, 0.25, None, 81, &#39;n293&#39;, None], [&#39;Note&#39;, 132.75, 0.25, None, 80, &#39;n294&#39;, None], [&#39;Note&#39;, 133.0, 0.5, None, 81, &#39;n295&#39;, None], [&#39;Note&#39;, 133.5, 0.5, None, 76, &#39;n296&#39;, None], [&#39;Note&#39;, 134.0, 0.5, None, 72, &#39;n297&#39;, None], [&#39;Note&#39;, 134.5, 0.25, None, 71, &#39;n298&#39;, None], [&#39;Note&#39;, 134.75, 0.25, None, 69, &#39;n299&#39;, None], [&#39;Note&#39;, 135.0, 3.0, None, 69, &#39;n300&#39;, None]]
+after re-tie notes, events:
+[[&#39;Note&#39;, 0.0, 0.5, None, 69, &#39;n0&#39;, None], [&#39;Note&#39;, 0.5, 0.5, None, 71, &#39;n1&#39;, None], [&#39;Note&#39;, 1.0, 0.5, None, 72, &#39;n2&#39;, None], [&#39;Note&#39;, 1.5, 0.5, None, 76, &#39;n3&#39;, None], [&#39;Note&#39;, 2.0, 0.5, None, 68, &#39;n4&#39;, None], [&#39;Note&#39;, 2.5, 0.5, None, 69, &#39;n5&#39;, None], [&#39;Note&#39;, 3.0, 2.0, None, 65, &#39;n6&#39;, None], [&#39;Note&#39;, 5.0, 0.5, None, 64, &#39;n7&#39;, None], [&#39;Note&#39;, 5.5, 0.5, None, 66, &#39;n8&#39;, None], [&#39;Note&#39;, 6.0, 0.5, None, 68, &#39;n9&#39;, None], [&#39;Note&#39;, 6.5, 0.5, None, 69, &#39;n10&#39;, None], [&#39;Note&#39;, 7.0, 0.5, None, 71, &#39;n11&#39;, None], [&#39;Note&#39;, 7.5, 0.5, None, 74, &#39;n12&#39;, None], [&#39;Note&#39;, 8.0, 0.5, None, 77, &#39;n13&#39;, None], [&#39;Note&#39;, 8.5, 0.5, None, 76, &#39;n14&#39;, None], [&#39;Note&#39;, 9.0, 0.5, None, 74, &#39;n15&#39;, None], [&#39;Note&#39;, 9.5, 0.5, None, 71, &#39;n16&#39;, None], [&#39;Note&#39;, 10.0, 0.5, None, 72, &#39;n17&#39;, None], [&#39;Note&#39;, 10.5, 0.5, None, 69, &#39;n18&#39;, None], [&#39;Note&#39;, 11.0, 1.0, None, 71, &#39;n19&#39;, None], [&#39;Note&#39;, 12.0, 0.5, None, 69, &#39;n20&#39;, None], [&#39;Note&#39;, 12.5, 0.5, None, 71, &#39;n21&#39;, None], [&#39;Note&#39;, 13.0, 0.5, None, 72, &#39;n22&#39;, None], [&#39;Note&#39;, 13.5, 0.5, None, 76, &#39;n23&#39;, None], [&#39;Note&#39;, 14.0, 0.5, None, 68, &#39;n24&#39;, None], [&#39;Note&#39;, 14.5, 0.5, None, 69, &#39;n25&#39;, None], [&#39;Note&#39;, 15.0, 1.0, None, 77, &#39;n26&#39;, None], [&#39;Note&#39;, 16.0, 1.0, None, 76, &#39;n27&#39;, None], [&#39;Note&#39;, 17.0, 1.0, None, 74, &#39;n28&#39;, None], [&#39;Note&#39;, 18.0, 0.5, None, 67, &#39;n29&#39;, None], [&#39;Note&#39;, 18.5, 0.5, None, 69, &#39;n30&#39;, None], [&#39;Note&#39;, 19.0, 0.5, None, 71, &#39;n31&#39;, None], [&#39;Note&#39;, 19.5, 0.5, None, 74, &#39;n32&#39;, None], [&#39;Note&#39;, 20.0, 0.5, None, 66, &#39;n33&#39;, None], [&#39;Note&#39;, 20.5, 0.5, None, 67, &#39;n34&#39;, None], [&#39;Note&#39;, 21.0, 1.0, None, 76, &#39;n35&#39;, None], [&#39;Note&#39;, 22.0, 1.0, None, 74, &#39;n36&#39;, None], [&#39;Note&#39;, 23.0, 0.5, None, 72, &#39;n37&#39;, None], [&#39;Note&#39;, 23.5, 0.5, None, 76, &#39;n38&#39;, None], [&#39;Note&#39;, 24.0, 0.5, None, 79, &#39;n39&#39;, None], [&#39;Note&#39;, 24.5, 0.5, None, 76, &#39;n40&#39;, None], [&#39;Note&#39;, 25.0, 0.5, None, 74, &#39;n41&#39;, None], [&#39;Note&#39;, 25.5, 0.5, None, 72, &#39;n42&#39;, None], [&#39;Note&#39;, 26.0, 0.5, None, 71, &#39;n43&#39;, None], [&#39;Note&#39;, 26.5, 0.5, None, 72, &#39;n44&#39;, None], [&#39;Note&#39;, 27.0, 1.5, None, 67, &#39;n45&#39;, None], [&#39;Note&#39;, 28.5, 0.25, None, 69, &#39;n46&#39;, None], [&#39;Note&#39;, 28.75, 0.25, None, 71, &#39;n47&#39;, None], [&#39;Note&#39;, 29.0, 0.25, None, 72, &#39;n48&#39;, None], [&#39;Note&#39;, 29.25, 0.25, None, 74, &#39;n49&#39;, None], [&#39;Note&#39;, 29.5, 0.25, None, 76, &#39;n50&#39;, None], [&#39;Note&#39;, 29.75, 0.25, None, 77, &#39;n51&#39;, None], [&#39;Note&#39;, 30.0, 0.25, None, 79, &#39;n52&#39;, None], [&#39;Note&#39;, 30.25, 0.25, None, 77, &#39;n53&#39;, None], [&#39;Note&#39;, 30.5, 0.25, None, 76, &#39;n54&#39;, None], [&#39;Note&#39;, 30.75, 0.25, None, 79, &#39;n55&#39;, None], [&#39;Note&#39;, 31.0, 0.25, None, 77, &#39;n56&#39;, None], [&#39;Note&#39;, 31.25, 0.25, None, 76, &#39;n57&#39;, None], [&#39;Note&#39;, 31.5, 0.25, None, 74, &#39;n58&#39;, None], [&#39;Note&#39;, 31.75, 0.25, None, 77, &#39;n59&#39;, None], [&#39;Note&#39;, 32.0, 0.25, None, 76, &#39;n60&#39;, None], [&#39;Note&#39;, 32.25, 0.25, None, 74, &#39;n61&#39;, None], [&#39;Note&#39;, 32.5, 0.25, None, 72, &#39;n62&#39;, None], [&#39;Note&#39;, 32.75, 0.25, None, 76, &#39;n63&#39;, None], [&#39;Note&#39;, 33.0, 1.5, None, 69, &#39;n64&#39;, None], [&#39;Note&#39;, 34.5, 0.25, None, 71, &#39;n65&#39;, None], [&#39;Note&#39;, 34.75, 0.25, None, 72, &#39;n66&#39;, None], [&#39;Note&#39;, 35.0, 0.25, None, 74, &#39;n67&#39;, None], [&#39;Note&#39;, 35.25, 0.25, None, 76, &#39;n68&#39;, None], [&#39;Note&#39;, 35.5, 0.25, None, 77, &#39;n69&#39;, None], [&#39;Note&#39;, 35.75, 0.25, None, 79, &#39;n70&#39;, None], [&#39;Note&#39;, 36.0, 0.25, None, 81, &#39;n71&#39;, None], [&#39;Note&#39;, 36.25, 0.25, None, 79, &#39;n72&#39;, None], [&#39;Note&#39;, 36.5, 0.25, None, 77, &#39;n73&#39;, None], [&#39;Note&#39;, 36.75, 0.25, None, 81, &#39;n74&#39;, None], [&#39;Note&#39;, 37.0, 0.25, None, 79, &#39;n75&#39;, None], [&#39;Note&#39;, 37.25, 0.25, None, 77, &#39;n76&#39;, None], [&#39;Note&#39;, 37.5, 0.25, None, 76, &#39;n77&#39;, None], [&#39;Note&#39;, 37.75, 0.25, None, 79, &#39;n78&#39;, None], [&#39;Note&#39;, 38.0, 0.25, None, 77, &#39;n79&#39;, None], [&#39;Note&#39;, 38.25, 0.25, None, 76, &#39;n80&#39;, None], [&#39;Note&#39;, 38.5, 0.25, None, 74, &#39;n81&#39;, None], [&#39;Note&#39;, 38.75, 0.25, None, 77, &#39;n82&#39;, None], [&#39;Note&#39;, 39.0, 0.5, None, 83, &#39;n83&#39;, None], [&#39;Note&#39;, 39.5, 0.25, None, 84, &#39;n84&#39;, None], [&#39;Note&#39;, 39.75, 0.25, None, 86, &#39;n85&#39;, None], [&#39;Note&#39;, 40.0, 0.25, None, 84, &#39;n86&#39;, None], [&#39;Note&#39;, 40.25, 0.25, None, 83, &#39;n87&#39;, None], [&#39;Note&#39;, 40.5, 0.25, None, 81, &#39;n88&#39;, None], [&#39;Note&#39;, 40.75, 0.25, None, 79, &#39;n89&#39;, None], [&#39;Note&#39;, 41.0, 0.25, None, 77, &#39;n90&#39;, None], [&#39;Note&#39;, 41.25, 0.25, None, 76, &#39;n91&#39;, None], [&#39;Note&#39;, 41.5, 0.25, None, 77, &#39;n92&#39;, None], [&#39;Note&#39;, 41.75, 0.25, None, 71, &#39;n93&#39;, None], [&#39;Note&#39;, 42.0, 0.5, None, 76, &#39;n94&#39;, None], [&#39;Note&#39;, 42.5, 0.25, None, 74, &#39;n95&#39;, None], [&#39;Note&#39;, 42.75, 0.25, None, 72, &#39;n96&#39;, None], [&#39;Note&#39;, 43.0, 0.5, None, 79, &#39;n97&#39;, None], [&#39;Note&#39;, 43.5, 0.5, None, 81, &#39;n98&#39;, None], [&#39;Note&#39;, 44.0, 0.5, None, 76, &#39;n99&#39;, None], [&#39;Note&#39;, 44.5, 0.25, None, 74, &#39;n100&#39;, None], [&#39;Note&#39;, 44.75, 0.25, None, 72, &#39;n101&#39;, None], [&#39;Note&#39;, 45.0, 2.0, None, 72, &#39;n102&#39;, None], [&#39;Note&#39;, 48.0, 0.5, None, 76, &#39;n103&#39;, None], [&#39;Note&#39;, 48.5, 0.5, None, 72, &#39;n104&#39;, None], [&#39;Note&#39;, 49.0, 0.5, None, 71, &#39;n105&#39;, None], [&#39;Note&#39;, 49.5, 0.5, None, 72, &#39;n106&#39;, None], [&#39;Note&#39;, 50.0, 0.5, None, 81, &#39;n107&#39;, None], [&#39;Note&#39;, 50.5, 0.5, None, 79, &#39;n108&#39;, None], [&#39;Note&#39;, 51.0, 2.0, None, 76, &#39;n109&#39;, None], [&#39;Note&#39;, 53.0, 0.5, None, 74, &#39;n110&#39;, None], [&#39;Note&#39;, 53.5, 0.5, None, 76, &#39;n111&#39;, None], [&#39;Note&#39;, 54.0, 0.5, None, 77, &#39;n112&#39;, None], [&#39;Note&#39;, 54.5, 0.5, None, 74, &#39;n113&#39;, None], [&#39;Note&#39;, 55.0, 0.5, None, 68, &#39;n114&#39;, None], [&#39;Note&#39;, 55.5, 0.5, None, 76, &#39;n115&#39;, None], [&#39;Note&#39;, 56.0, 0.5, None, 83, &#39;n116&#39;, None], [&#39;Note&#39;, 56.5, 0.5, None, 74, &#39;n117&#39;, None], [&#39;Note&#39;, 57.0, 1.0, None, 72, &#39;n118&#39;, None], [&#39;Note&#39;, 58.0, 0.5, None, 71, &#39;n119&#39;, None], [&#39;Note&#39;, 58.5, 0.5, None, 72, &#39;n120&#39;, None], [&#39;Note&#39;, 59.0, 1.0, None, 69, &#39;n121&#39;, None], [&#39;Note&#39;, 60.0, 0.5, None, 81, &#39;n122&#39;, None], [&#39;Note&#39;, 60.5, 0.25, None, 79, &#39;n123&#39;, None], [&#39;Note&#39;, 60.75, 0.25, None, 77, &#39;n124&#39;, None], [&#39;Note&#39;, 61.0, 0.5, None, 76, &#39;n125&#39;, None], [&#39;Note&#39;, 61.5, 0.5, None, 74, &#39;n126&#39;, None], [&#39;Note&#39;, 62.0, 0.5, None, 73, &#39;n127&#39;, None], [&#39;Note&#39;, 62.5, 0.5, None, 74, &#39;n128&#39;, None], [&#39;Note&#39;, 63.0, 0.5, None, 82, &#39;n129&#39;, None], [&#39;Note&#39;, 63.5, 0.25, None, 81, &#39;n130&#39;, None], [&#39;Note&#39;, 63.75, 0.25, None, 79, &#39;n131&#39;, None], [&#39;Note&#39;, 64.0, 0.5, None, 77, &#39;n132&#39;, None], [&#39;Note&#39;, 64.5, 0.5, None, 76, &#39;n133&#39;, None], [&#39;Note&#39;, 65.0, 0.5, None, 81, &#39;n134&#39;, None], [&#39;Note&#39;, 65.5, 0.5, None, 69, &#39;n135&#39;, None], [&#39;Note&#39;, 66.0, 0.25, None, 65, &#39;n136&#39;, None], [&#39;Note&#39;, 66.25, 0.25, None, 81, &#39;n137&#39;, None], [&#39;Note&#39;, 66.5, 0.25, None, 79, &#39;n138&#39;, None], [&#39;Note&#39;, 66.75, 0.25, None, 77, &#39;n139&#39;, None], [&#39;Note&#39;, 67.0, 0.5, None, 76, &#39;n140&#39;, None], [&#39;Note&#39;, 67.5, 0.5, None, 74, &#39;n141&#39;, None], [&#39;Note&#39;, 68.0, 0.5, None, 73, &#39;n142&#39;, None], [&#39;Note&#39;, 68.5, 0.5, None, 74, &#39;n143&#39;, None], [&#39;Note&#39;, 69.0, 0.5, None, 67, &#39;n144&#39;, None], [&#39;Note&#39;, 69.5, 0.25, None, 82, &#39;n145&#39;, None], [&#39;Note&#39;, 69.75, 0.25, None, 81, &#39;n146&#39;, None], [&#39;Note&#39;, 70.0, 0.5, None, 79, &#39;n147&#39;, None], [&#39;Note&#39;, 70.5, 0.25, None, 77, &#39;n148&#39;, None], [&#39;Note&#39;, 70.75, 0.25, None, 76, &#39;n149&#39;, None], [&#39;Note&#39;, 71.0, 0.5, None, 85, &#39;n150&#39;, None], [&#39;Note&#39;, 71.5, 0.25, None, 83, &#39;n151&#39;, None], [&#39;Note&#39;, 71.75, 0.25, None, 85, &#39;n152&#39;, None], [&#39;Note&#39;, 72.0, 0.5, None, 86, &#39;n153&#39;, None], [&#39;Note&#39;, 72.5, 0.25, None, 74, &#39;n154&#39;, None], [&#39;Note&#39;, 72.75, 0.25, None, 76, &#39;n155&#39;, None], [&#39;Note&#39;, 73.0, 0.5, None, 77, &#39;n156&#39;, None], [&#39;Note&#39;, 73.5, 0.5, None, 81, &#39;n157&#39;, None], [&#39;Note&#39;, 74.0, 0.25, None, 79, &#39;n158&#39;, None], [&#39;Note&#39;, 74.25, 0.25, None, 77, &#39;n159&#39;, None], [&#39;Note&#39;, 74.5, 0.25, None, 76, &#39;n160&#39;, None], [&#39;Note&#39;, 74.75, 0.25, None, 77, &#39;n161&#39;, None], [&#39;Note&#39;, 75.0, 0.5, None, 74, &#39;n162&#39;, None], [&#39;Note&#39;, 75.5, 0.5, None, 69, &#39;n163&#39;, None], [&#39;Note&#39;, 76.0, 0.5, None, 65, &#39;n164&#39;, None], [&#39;Note&#39;, 76.5, 0.5, None, 62, &#39;n165&#39;, None], [&#39;Note&#39;, 77.0, 0.5, None, 65, &#39;n166&#39;, None], [&#39;Note&#39;, 77.5, 0.5, None, 69, &#39;n167&#39;, None], [&#39;Note&#39;, 78.0, 0.5, None, 71, &#39;n168&#39;, None], [&#39;Note&#39;, 78.5, 0.5, None, 72, &#39;n169&#39;, None], [&#39;Note&#39;, 79.0, 0.5, None, 74, &#39;n170&#39;, None], [&#39;Note&#39;, 79.5, 0.5, None, 77, &#39;n171&#39;, None], [&#39;Note&#39;, 80.0, 0.5, None, 81, &#39;n172&#39;, None], [&#39;Note&#39;, 80.5, 0.5, None, 79, &#39;n173&#39;, None], [&#39;Note&#39;, 81.0, 0.5, None, 77, &#39;n174&#39;, None], [&#39;Note&#39;, 81.5, 0.5, None, 76, &#39;n175&#39;, None], [&#39;Note&#39;, 82.0, 0.5, None, 74, &#39;n176&#39;, None], [&#39;Note&#39;, 82.5, 0.5, None, 72, &#39;n177&#39;, None], [&#39;Note&#39;, 83.0, 0.5, None, 80, &#39;n178&#39;, None], [&#39;Note&#39;, 83.5, 0.5, None, 81, &#39;n179&#39;, None], [&#39;Note&#39;, 84.0, 0.5, None, 68, &#39;n180&#39;, None], [&#39;Note&#39;, 84.5, 0.5, None, 69, &#39;n181&#39;, None], [&#39;Note&#39;, 85.0, 0.5, None, 71, &#39;n182&#39;, None], [&#39;Note&#39;, 85.5, 0.5, None, 72, &#39;n183&#39;, None], [&#39;Note&#39;, 86.0, 0.5, None, 77, &#39;n184&#39;, None], [&#39;Note&#39;, 86.5, 0.5, None, 76, &#39;n185&#39;, None], [&#39;Note&#39;, 87.0, 0.5, None, 74, &#39;n186&#39;, None], [&#39;Note&#39;, 87.5, 0.5, None, 72, &#39;n187&#39;, None], [&#39;Note&#39;, 88.0, 0.5, None, 71, &#39;n188&#39;, None], [&#39;Note&#39;, 88.5, 0.5, None, 69, &#39;n189&#39;, None], [&#39;Note&#39;, 89.0, 0.5, None, 81, &#39;n190&#39;, None], [&#39;Note&#39;, 89.5, 0.5, None, 84, &#39;n191&#39;, None], [&#39;Note&#39;, 90.0, 0.5, None, 74, &#39;n192&#39;, None], [&#39;Note&#39;, 90.5, 0.5, None, 84, &#39;n193&#39;, None], [&#39;Note&#39;, 91.0, 0.5, None, 83, &#39;n194&#39;, None], [&#39;Note&#39;, 91.5, 0.5, None, 86, &#39;n195&#39;, None], [&#39;Note&#39;, 92.0, 0.5, None, 80, &#39;n196&#39;, None], [&#39;Note&#39;, 92.5, 0.5, None, 81, &#39;n197&#39;, None], [&#39;Note&#39;, 93.0, 0.5, None, 74, &#39;n198&#39;, None], [&#39;Note&#39;, 93.5, 0.5, None, 84, &#39;n199&#39;, None], [&#39;Note&#39;, 94.0, 0.5, None, 83, &#39;n200&#39;, None], [&#39;Note&#39;, 94.5, 0.5, None, 86, &#39;n201&#39;, None], [&#39;Note&#39;, 95.0, 0.5, None, 80, &#39;n202&#39;, None], [&#39;Note&#39;, 95.5, 0.5, None, 81, &#39;n203&#39;, None], [&#39;Note&#39;, 96.0, 0.5, None, 71, &#39;n204&#39;, None], [&#39;Note&#39;, 96.5, 0.25, None, 77, &#39;n205&#39;, None], [&#39;Note&#39;, 96.75, 0.25, None, 76, &#39;n206&#39;, None], [&#39;Note&#39;, 97.0, 0.5, None, 74, &#39;n207&#39;, None], [&#39;Note&#39;, 97.5, 0.5, None, 72, &#39;n208&#39;, None], [&#39;Note&#39;, 98.0, 0.5, None, 71, &#39;n209&#39;, None], [&#39;Note&#39;, 98.5, 0.25, None, 72, &#39;n210&#39;, None], [&#39;Note&#39;, 98.75, 0.25, None, 74, &#39;n211&#39;, None], [&#39;Note&#39;, 99.0, 1.5, None, 68, &#39;n212&#39;, None], [&#39;Note&#39;, 100.5, 0.5, None, 66, &#39;n213&#39;, None], [&#39;Note&#39;, 101.0, 1.0, None, 64, &#39;n214&#39;, None], [&#39;Note&#39;, 102.0, 0.5, None, 69, &#39;n215&#39;, None], [&#39;Note&#39;, 102.5, 0.5, None, 71, &#39;n216&#39;, None], [&#39;Note&#39;, 103.0, 0.5, None, 72, &#39;n217&#39;, None], [&#39;Note&#39;, 103.5, 0.5, None, 76, &#39;n218&#39;, None], [&#39;Note&#39;, 104.0, 0.5, None, 68, &#39;n219&#39;, None], [&#39;Note&#39;, 104.5, 0.5, None, 69, &#39;n220&#39;, None], [&#39;Note&#39;, 105.0, 1.0, None, 77, &#39;n221&#39;, None], [&#39;Note&#39;, 106.0, 1.0, None, 76, &#39;n222&#39;, None], [&#39;Note&#39;, 107.0, 1.0, None, 74, &#39;n223&#39;, None], [&#39;Note&#39;, 108.0, 0.5, None, 71, &#39;n224&#39;, None], [&#39;Note&#39;, 108.5, 0.5, None, 72, &#39;n225&#39;, None], [&#39;Note&#39;, 109.0, 0.5, None, 74, &#39;n226&#39;, None], [&#39;Note&#39;, 109.5, 0.5, None, 77, &#39;n227&#39;, None], [&#39;Note&#39;, 110.0, 0.5, None, 76, &#39;n228&#39;, None], [&#39;Note&#39;, 110.5, 0.5, None, 74, &#39;n229&#39;, None], [&#39;Note&#39;, 111.0, 0.5, None, 83, &#39;n230&#39;, None], [&#39;Note&#39;, 111.5, 0.5, None, 80, &#39;n231&#39;, None], [&#39;Note&#39;, 112.0, 0.5, None, 81, &#39;n232&#39;, None], [&#39;Note&#39;, 112.5, 0.5, None, 78, &#39;n233&#39;, None], [&#39;Note&#39;, 113.0, 0.5, None, 80, &#39;n234&#39;, None], [&#39;Note&#39;, 113.5, 0.5, None, 83, &#39;n235&#39;, None], [&#39;Note&#39;, 114.0, 0.5, None, 88, &#39;n236&#39;, None], [&#39;Note&#39;, 114.5, 0.5, None, 84, &#39;n237&#39;, None], [&#39;Note&#39;, 115.0, 0.5, None, 83, &#39;n238&#39;, None], [&#39;Note&#39;, 115.5, 0.5, None, 81, &#39;n239&#39;, None], [&#39;Note&#39;, 116.0, 0.5, None, 80, &#39;n240&#39;, None], [&#39;Note&#39;, 116.5, 0.5, None, 81, &#39;n241&#39;, None], [&#39;Note&#39;, 117.0, 1.5, None, 76, &#39;n242&#39;, None], [&#39;Note&#39;, 118.5, 0.25, None, 78, &#39;n243&#39;, None], [&#39;Note&#39;, 118.75, 0.25, None, 80, &#39;n244&#39;, None], [&#39;Note&#39;, 119.0, 0.25, None, 81, &#39;n245&#39;, None], [&#39;Note&#39;, 119.25, 0.25, None, 83, &#39;n246&#39;, None], [&#39;Note&#39;, 119.5, 0.25, None, 84, &#39;n247&#39;, None], [&#39;Note&#39;, 119.75, 0.25, None, 86, &#39;n248&#39;, None], [&#39;Note&#39;, 120.0, 0.25, None, 88, &#39;n249&#39;, None], [&#39;Note&#39;, 120.25, 0.25, None, 86, &#39;n250&#39;, None], [&#39;Note&#39;, 120.5, 0.25, None, 84, &#39;n251&#39;, None], [&#39;Note&#39;, 120.75, 0.25, None, 88, &#39;n252&#39;, None], [&#39;Note&#39;, 121.0, 0.25, None, 86, &#39;n253&#39;, None], [&#39;Note&#39;, 121.25, 0.25, None, 84, &#39;n254&#39;, None], [&#39;Note&#39;, 121.5, 0.25, None, 83, &#39;n255&#39;, None], [&#39;Note&#39;, 121.75, 0.25, None, 86, &#39;n256&#39;, None], [&#39;Note&#39;, 122.0, 0.25, None, 84, &#39;n257&#39;, None], [&#39;Note&#39;, 122.25, 0.25, None, 83, &#39;n258&#39;, None], [&#39;Note&#39;, 122.5, 0.25, None, 81, &#39;n259&#39;, None], [&#39;Note&#39;, 122.75, 0.25, None, 84, &#39;n260&#39;, None], [&#39;Note&#39;, 123.0, 1.5, None, 78, &#39;n261&#39;, None], [&#39;Note&#39;, 124.5, 0.25, None, 80, &#39;n262&#39;, None], [&#39;Note&#39;, 124.75, 0.25, None, 81, &#39;n263&#39;, None], [&#39;Note&#39;, 125.0, 0.25, None, 83, &#39;n264&#39;, None], [&#39;Note&#39;, 125.25, 0.25, None, 84, &#39;n265&#39;, None], [&#39;Note&#39;, 125.5, 0.25, None, 86, &#39;n266&#39;, None], [&#39;Note&#39;, 125.75, 0.25, None, 88, &#39;n267&#39;, None], [&#39;Note&#39;, 126.0, 0.25, None, 89, &#39;n268&#39;, None], [&#39;Note&#39;, 126.25, 0.25, None, 88, &#39;n269&#39;, None], [&#39;Note&#39;, 126.5, 0.25, None, 86, &#39;n270&#39;, None], [&#39;Note&#39;, 126.75, 0.25, None, 89, &#39;n271&#39;, None], [&#39;Note&#39;, 127.0, 0.25, None, 88, &#39;n272&#39;, None], [&#39;Note&#39;, 127.25, 0.25, None, 86, &#39;n273&#39;, None], [&#39;Note&#39;, 127.5, 0.25, None, 84, &#39;n274&#39;, None], [&#39;Note&#39;, 127.75, 0.25, None, 88, &#39;n275&#39;, None], [&#39;Note&#39;, 128.0, 0.25, None, 86, &#39;n276&#39;, None], [&#39;Note&#39;, 128.25, 0.25, None, 84, &#39;n277&#39;, None], [&#39;Note&#39;, 128.5, 0.25, None, 83, &#39;n278&#39;, None], [&#39;Note&#39;, 128.75, 0.25, None, 86, &#39;n279&#39;, None], [&#39;Note&#39;, 129.0, 0.5, None, 92, &#39;n280&#39;, None], [&#39;Note&#39;, 129.5, 0.25, None, 81, &#39;n281&#39;, None], [&#39;Note&#39;, 129.75, 0.25, None, 83, &#39;n282&#39;, None], [&#39;Note&#39;, 130.0, 0.25, None, 81, &#39;n283&#39;, None], [&#39;Note&#39;, 130.25, 0.25, None, 79, &#39;n284&#39;, None], [&#39;Note&#39;, 130.5, 0.25, None, 78, &#39;n285&#39;, None], [&#39;Note&#39;, 130.75, 0.25, None, 76, &#39;n286&#39;, None], [&#39;Note&#39;, 131.0, 0.25, None, 86, &#39;n287&#39;, None], [&#39;Note&#39;, 131.25, 0.25, None, 84, &#39;n288&#39;, None], [&#39;Note&#39;, 131.5, 0.25, None, 86, &#39;n289&#39;, None], [&#39;Note&#39;, 131.75, 0.25, None, 83, &#39;n290&#39;, None], [&#39;Note&#39;, 132.0, 0.25, None, 84, &#39;n291&#39;, None], [&#39;Note&#39;, 132.25, 0.25, None, 83, &#39;n292&#39;, None], [&#39;Note&#39;, 132.5, 0.25, None, 81, &#39;n293&#39;, None], [&#39;Note&#39;, 132.75, 0.25, None, 80, &#39;n294&#39;, None], [&#39;Note&#39;, 133.0, 0.5, None, 81, &#39;n295&#39;, None], [&#39;Note&#39;, 133.5, 0.5, None, 76, &#39;n296&#39;, None], [&#39;Note&#39;, 134.0, 0.5, None, 72, &#39;n297&#39;, None], [&#39;Note&#39;, 134.5, 0.25, None, 71, &#39;n298&#39;, None], [&#39;Note&#39;, 134.75, 0.25, None, 69, &#39;n299&#39;, None], [&#39;Note&#39;, 135.0, 3.0, None, 69, &#39;n300&#39;, None]]
+Before inserting note:
+Note at 0.000 delta 0.000 duration 0.500 pitch A4
+Before inserting note:
+Note at 0.500 delta 0.500 duration 0.500 pitch B4
+Before inserting note:
+Note at 1.000 delta 1.000 duration 0.500 pitch C5
+Before inserting note:
+Note at 1.500 delta 1.500 duration 0.500 pitch E5
+Before inserting note:
+Note at 2.000 delta 2.000 duration 0.500 pitch Ab4
+Before inserting note:
+Note at 2.500 delta 2.500 duration 0.500 pitch A4
+Before inserting note:
+Note at 0.000 delta 0.000 duration 2.000 pitch F4
+Before inserting note:
+Note at 2.000 delta 2.000 duration 0.500 pitch E4
+Before inserting note:
+Note at 2.500 delta 2.500 duration 0.500 pitch F#4
+Before inserting note:
+Note at 0.000 delta 0.000 duration 0.500 pitch Ab4
+Before inserting note:
+Note at 0.500 delta 0.500 duration 0.500 pitch A4
+Before inserting note:
+Note at 1.000 delta 1.000 duration 0.500 pitch B4
+Before inserting note:
+Note at 1.500 delta 1.500 duration 0.500 pitch D5
+Before inserting note:
+Note at 2.000 delta 2.000 duration 0.500 pitch F5
+Before inserting note:
+Note at 2.500 delta 2.500 duration 0.500 pitch E5
+Before inserting note:
+Note at 0.000 delta 0.000 duration 0.500 pitch D5
+Before inserting note:
+Note at 0.500 delta 0.500 duration 0.500 pitch B4
+Before inserting note:
+Note at 1.000 delta 1.000 duration 0.500 pitch C5
+Before inserting note:
+Note at 1.500 delta 1.500 duration 0.500 pitch A4
+Before inserting note:
+Note at 2.000 delta 2.000 duration 1.000 pitch B4
+Before inserting note:
+Note at 0.000 delta 0.000 duration 0.500 pitch A4
+Before inserting note:
+Note at 0.500 delta 0.500 duration 0.500 pitch B4
+Before inserting note:
+Note at 1.000 delta 1.000 duration 0.500 pitch C5
+Before inserting note:
+Note at 1.500 delta 1.500 duration 0.500 pitch E5
+Before inserting note:
+Note at 2.000 delta 2.000 duration 0.500 pitch Ab4
+Before inserting note:
+Note at 2.500 delta 2.500 duration 0.500 pitch A4
+Before inserting note:
+Note at 0.000 delta 0.000 duration 1.000 pitch F5
+Before inserting note:
+Note at 1.000 delta 1.000 duration 1.000 pitch E5
+Before inserting note:
+Note at 2.000 delta 2.000 duration 1.000 pitch D5
+Before inserting note:
+Note at 0.000 delta 0.000 duration 0.500 pitch G4
+Before inserting note:
+Note at 0.500 delta 0.500 duration 0.500 pitch A4
+Before inserting note:
+Note at 1.000 delta 1.000 duration 0.500 pitch B4
+Before inserting note:
+Note at 1.500 delta 1.500 duration 0.500 pitch D5
+Before inserting note:
+Note at 2.000 delta 2.000 duration 0.500 pitch F#4
+Before inserting note:
+Note at 2.500 delta 2.500 duration 0.500 pitch G4
+Before inserting note:
+Note at 0.000 delta 0.000 duration 1.000 pitch E5
+Before inserting note:
+Note at 1.000 delta 1.000 duration 1.000 pitch D5
+Before inserting note:
+Note at 2.000 delta 2.000 duration 0.500 pitch C5
+Before inserting note:
+Note at 2.500 delta 2.500 duration 0.500 pitch E5
+Before inserting note:
+Note at 0.000 delta 0.000 duration 0.500 pitch G5
+Before inserting note:
+Note at 0.500 delta 0.500 duration 0.500 pitch E5
+Before inserting note:
+Note at 1.000 delta 1.000 duration 0.500 pitch D5
+Before inserting note:
+Note at 1.500 delta 1.500 duration 0.500 pitch C5
+Before inserting note:
+Note at 2.000 delta 2.000 duration 0.500 pitch B4
+Before inserting note:
+Note at 2.500 delta 2.500 duration 0.500 pitch C5
+Before inserting note:
+Note at 0.000 delta 0.000 duration 1.500 pitch G4
+Before inserting note:
+Note at 1.500 delta 1.500 duration 0.250 pitch A4
+Before inserting note:
+Note at 1.750 delta 1.750 duration 0.250 pitch B4
+Before inserting note:
+Note at 2.000 delta 2.000 duration 0.250 pitch C5
+Before inserting note:
+Note at 2.250 delta 2.250 duration 0.250 pitch D5
+Before inserting note:
+Note at 2.500 delta 2.500 duration 0.250 pitch E5
+Before inserting note:
+Note at 2.750 delta 2.750 duration 0.250 pitch F5
+Before inserting note:
+Note at 0.000 delta 0.000 duration 0.250 pitch G5
+Before inserting note:
+Note at 0.250 delta 0.250 duration 0.250 pitch F5
+Before inserting note:
+Note at 0.500 delta 0.500 duration 0.250 pitch E5
+Before inserting note:
+Note at 0.750 delta 0.750 duration 0.250 pitch G5
+Before inserting note:
+Note at 1.000 delta 1.000 duration 0.250 pitch F5
+Before inserting note:
+Note at 1.250 delta 1.250 duration 0.250 pitch E5
+Before inserting note:
+Note at 1.500 delta 1.500 duration 0.250 pitch D5
+Before inserting note:
+Note at 1.750 delta 1.750 duration 0.250 pitch F5
+Before inserting note:
+Note at 2.000 delta 2.000 duration 0.250 pitch E5
+Before inserting note:
+Note at 2.250 delta 2.250 duration 0.250 pitch D5
+Before inserting note:
+Note at 2.500 delta 2.500 duration 0.250 pitch C5
+Before inserting note:
+Note at 2.750 delta 2.750 duration 0.250 pitch E5
+Before inserting note:
+Note at 0.000 delta 0.000 duration 1.500 pitch A4
+Before inserting note:
+Note at 1.500 delta 1.500 duration 0.250 pitch B4
+Before inserting note:
+Note at 1.750 delta 1.750 duration 0.250 pitch C5
+Before inserting note:
+Note at 2.000 delta 2.000 duration 0.250 pitch D5
+Before inserting note:
+Note at 2.250 delta 2.250 duration 0.250 pitch E5
+Before inserting note:
+Note at 2.500 delta 2.500 duration 0.250 pitch F5
+Before inserting note:
+Note at 2.750 delta 2.750 duration 0.250 pitch G5
+Before inserting note:
+Note at 0.000 delta 0.000 duration 0.250 pitch A5
+Before inserting note:
+Note at 0.250 delta 0.250 duration 0.250 pitch G5
+Before inserting note:
+Note at 0.500 delta 0.500 duration 0.250 pitch F5
+Before inserting note:
+Note at 0.750 delta 0.750 duration 0.250 pitch A5
+Before inserting note:
+Note at 1.000 delta 1.000 duration 0.250 pitch G5
+Before inserting note:
+Note at 1.250 delta 1.250 duration 0.250 pitch F5
+Before inserting note:
+Note at 1.500 delta 1.500 duration 0.250 pitch E5
+Before inserting note:
+Note at 1.750 delta 1.750 duration 0.250 pitch G5
+Before inserting note:
+Note at 2.000 delta 2.000 duration 0.250 pitch F5
+Before inserting note:
+Note at 2.250 delta 2.250 duration 0.250 pitch E5
+Before inserting note:
+Note at 2.500 delta 2.500 duration 0.250 pitch D5
+Before inserting note:
+Note at 2.750 delta 2.750 duration 0.250 pitch F5
+Before inserting note:
+Note at 0.000 delta 0.000 duration 0.500 pitch B5
+Before inserting note:
+Note at 0.500 delta 0.500 duration 0.250 pitch C6
+Before inserting note:
+Note at 0.750 delta 0.750 duration 0.250 pitch D6
+Before inserting note:
+Note at 1.000 delta 1.000 duration 0.250 pitch C6
+Before inserting note:
+Note at 1.250 delta 1.250 duration 0.250 pitch B5
+Before inserting note:
+Note at 1.500 delta 1.500 duration 0.250 pitch A5
+Before inserting note:
+Note at 1.750 delta 1.750 duration 0.250 pitch G5
+Before inserting note:
+Note at 2.000 delta 2.000 duration 0.250 pitch F5
+Before inserting note:
+Note at 2.250 delta 2.250 duration 0.250 pitch E5
+Before inserting note:
+Note at 2.500 delta 2.500 duration 0.250 pitch F5
+Before inserting note:
+Note at 2.750 delta 2.750 duration 0.250 pitch B4
+Before inserting note:
+Note at 0.000 delta 0.000 duration 0.500 pitch E5
+Before inserting note:
+Note at 0.500 delta 0.500 duration 0.250 pitch D5
+Before inserting note:
+Note at 0.750 delta 0.750 duration 0.250 pitch C5
+Before inserting note:
+Note at 1.000 delta 1.000 duration 0.500 pitch G5
+Before inserting note:
+Note at 1.500 delta 1.500 duration 0.500 pitch A5
+Before inserting note:
+Note at 2.000 delta 2.000 duration 0.500 pitch E5
+Before inserting note:
+Note at 2.500 delta 2.500 duration 0.250 pitch D5
+Before inserting note:
+Note at 2.750 delta 2.750 duration 0.250 pitch C5
+Before inserting note:
+Note at 0.000 delta 0.000 duration 2.000 pitch C5
+Before inserting note:
+Note at 0.000 delta 0.000 duration 0.500 pitch E5
+Before inserting note:
+Note at 0.500 delta 0.500 duration 0.500 pitch C5
+Before inserting note:
+Note at 1.000 delta 1.000 duration 0.500 pitch B4
+Before inserting note:
+Note at 1.500 delta 1.500 duration 0.500 pitch C5
+Before inserting note:
+Note at 2.000 delta 2.000 duration 0.500 pitch A5
+Before inserting note:
+Note at 2.500 delta 2.500 duration 0.500 pitch G5
+Before inserting note:
+Note at 0.000 delta 0.000 duration 2.000 pitch E5
+Before inserting note:
+Note at 2.000 delta 2.000 duration 0.500 pitch D5
+Before inserting note:
+Note at 2.500 delta 2.500 duration 0.500 pitch E5
+Before inserting note:
+Note at 0.000 delta 0.000 duration 0.500 pitch F5
+Before inserting note:
+Note at 0.500 delta 0.500 duration 0.500 pitch D5
+Before inserting note:
+Note at 1.000 delta 1.000 duration 0.500 pitch Ab4
+Before inserting note:
+Note at 1.500 delta 1.500 duration 0.500 pitch E5
+Before inserting note:
+Note at 2.000 delta 2.000 duration 0.500 pitch B5
+Before inserting note:
+Note at 2.500 delta 2.500 duration 0.500 pitch D5
+Before inserting note:
+Note at 0.000 delta 0.000 duration 1.000 pitch C5
+Before inserting note:
+Note at 1.000 delta 1.000 duration 0.500 pitch B4
+Before inserting note:
+Note at 1.500 delta 1.500 duration 0.500 pitch C5
+Before inserting note:
+Note at 2.000 delta 2.000 duration 1.000 pitch A4
+Before inserting note:
+Note at 0.000 delta 0.000 duration 0.500 pitch A5
+Before inserting note:
+Note at 0.500 delta 0.500 duration 0.250 pitch G5
+Before inserting note:
+Note at 0.750 delta 0.750 duration 0.250 pitch F5
+Before inserting note:
+Note at 1.000 delta 1.000 duration 0.500 pitch E5
+Before inserting note:
+Note at 1.500 delta 1.500 duration 0.500 pitch D5
+Before inserting note:
+Note at 2.000 delta 2.000 duration 0.500 pitch C#5
+Before inserting note:
+Note at 2.500 delta 2.500 duration 0.500 pitch D5
+Before inserting note:
+Note at 0.000 delta 0.000 duration 0.500 pitch Bb5
+Before inserting note:
+Note at 0.500 delta 0.500 duration 0.250 pitch A5
+Before inserting note:
+Note at 0.750 delta 0.750 duration 0.250 pitch G5
+Before inserting note:
+Note at 1.000 delta 1.000 duration 0.500 pitch F5
+Before inserting note:
+Note at 1.500 delta 1.500 duration 0.500 pitch E5
+Before inserting note:
+Note at 2.000 delta 2.000 duration 0.500 pitch A5
+Before inserting note:
+Note at 2.500 delta 2.500 duration 0.500 pitch A4
+Before inserting note:
+Note at 0.000 delta 0.000 duration 0.250 pitch F4
+Before inserting note:
+Note at 0.250 delta 0.250 duration 0.250 pitch A5
+Before inserting note:
+Note at 0.500 delta 0.500 duration 0.250 pitch G5
+Before inserting note:
+Note at 0.750 delta 0.750 duration 0.250 pitch F5
+Before inserting note:
+Note at 1.000 delta 1.000 duration 0.500 pitch E5
+Before inserting note:
+Note at 1.500 delta 1.500 duration 0.500 pitch D5
+Before inserting note:
+Note at 2.000 delta 2.000 duration 0.500 pitch C#5
+Before inserting note:
+Note at 2.500 delta 2.500 duration 0.500 pitch D5
+Before inserting note:
+Note at 0.000 delta 0.000 duration 0.500 pitch G4
+Before inserting note:
+Note at 0.500 delta 0.500 duration 0.250 pitch Bb5
+Before inserting note:
+Note at 0.750 delta 0.750 duration 0.250 pitch A5
+Before inserting note:
+Note at 1.000 delta 1.000 duration 0.500 pitch G5
+Before inserting note:
+Note at 1.500 delta 1.500 duration 0.250 pitch F5
+Before inserting note:
+Note at 1.750 delta 1.750 duration 0.250 pitch E5
+Before inserting note:
+Note at 2.000 delta 2.000 duration 0.500 pitch C#6
+Before inserting note:
+Note at 2.500 delta 2.500 duration 0.250 pitch B5
+Before inserting note:
+Note at 2.750 delta 2.750 duration 0.250 pitch C#6
+Before inserting note:
+Note at 0.000 delta 0.000 duration 0.500 pitch D6
+Before inserting note:
+Note at 0.500 delta 0.500 duration 0.250 pitch D5
+Before inserting note:
+Note at 0.750 delta 0.750 duration 0.250 pitch E5
+Before inserting note:
+Note at 1.000 delta 1.000 duration 0.500 pitch F5
+Before inserting note:
+Note at 1.500 delta 1.500 duration 0.500 pitch A5
+Before inserting note:
+Note at 2.000 delta 2.000 duration 0.250 pitch G5
+Before inserting note:
+Note at 2.250 delta 2.250 duration 0.250 pitch F5
+Before inserting note:
+Note at 2.500 delta 2.500 duration 0.250 pitch E5
+Before inserting note:
+Note at 2.750 delta 2.750 duration 0.250 pitch F5
+Before inserting note:
+Note at 0.000 delta 0.000 duration 0.500 pitch D5
+Before inserting note:
+Note at 0.500 delta 0.500 duration 0.500 pitch A4
+Before inserting note:
+Note at 1.000 delta 1.000 duration 0.500 pitch F4
+Before inserting note:
+Note at 1.500 delta 1.500 duration 0.500 pitch D4
+Before inserting note:
+Note at 2.000 delta 2.000 duration 0.500 pitch F4
+Before inserting note:
+Note at 2.500 delta 2.500 duration 0.500 pitch A4
+Before inserting note:
+Note at 0.000 delta 0.000 duration 0.500 pitch B4
+Before inserting note:
+Note at 0.500 delta 0.500 duration 0.500 pitch C5
+Before inserting note:
+Note at 1.000 delta 1.000 duration 0.500 pitch D5
+Before inserting note:
+Note at 1.500 delta 1.500 duration 0.500 pitch F5
+Before inserting note:
+Note at 2.000 delta 2.000 duration 0.500 pitch A5
+Before inserting note:
+Note at 2.500 delta 2.500 duration 0.500 pitch G5
+Before inserting note:
+Note at 0.000 delta 0.000 duration 0.500 pitch F5
+Before inserting note:
+Note at 0.500 delta 0.500 duration 0.500 pitch E5
+Before inserting note:
+Note at 1.000 delta 1.000 duration 0.500 pitch D5
+Before inserting note:
+Note at 1.500 delta 1.500 duration 0.500 pitch C5
+Before inserting note:
+Note at 2.000 delta 2.000 duration 0.500 pitch Ab5
+Before inserting note:
+Note at 2.500 delta 2.500 duration 0.500 pitch A5
+Before inserting note:
+Note at 0.000 delta 0.000 duration 0.500 pitch Ab4
+Before inserting note:
+Note at 0.500 delta 0.500 duration 0.500 pitch A4
+Before inserting note:
+Note at 1.000 delta 1.000 duration 0.500 pitch B4
+Before inserting note:
+Note at 1.500 delta 1.500 duration 0.500 pitch C5
+Before inserting note:
+Note at 2.000 delta 2.000 duration 0.500 pitch F5
+Before inserting note:
+Note at 2.500 delta 2.500 duration 0.500 pitch E5
+Before inserting note:
+Note at 0.000 delta 0.000 duration 0.500 pitch D5
+Before inserting note:
+Note at 0.500 delta 0.500 duration 0.500 pitch C5
+Before inserting note:
+Note at 1.000 delta 1.000 duration 0.500 pitch B4
+Before inserting note:
+Note at 1.500 delta 1.500 duration 0.500 pitch A4
+Before inserting note:
+Note at 2.000 delta 2.000 duration 0.500 pitch A5
+Before inserting note:
+Note at 2.500 delta 2.500 duration 0.500 pitch C6
+Before inserting note:
+Note at 0.000 delta 0.000 duration 0.500 pitch D5
+Before inserting note:
+Note at 0.500 delta 0.500 duration 0.500 pitch C6
+Before inserting note:
+Note at 1.000 delta 1.000 duration 0.500 pitch B5
+Before inserting note:
+Note at 1.500 delta 1.500 duration 0.500 pitch D6
+Before inserting note:
+Note at 2.000 delta 2.000 duration 0.500 pitch Ab5
+Before inserting note:
+Note at 2.500 delta 2.500 duration 0.500 pitch A5
+Before inserting note:
+Note at 0.000 delta 0.000 duration 0.500 pitch D5
+Before inserting note:
+Note at 0.500 delta 0.500 duration 0.500 pitch C6
+Before inserting note:
+Note at 1.000 delta 1.000 duration 0.500 pitch B5
+Before inserting note:
+Note at 1.500 delta 1.500 duration 0.500 pitch D6
+Before inserting note:
+Note at 2.000 delta 2.000 duration 0.500 pitch Ab5
+Before inserting note:
+Note at 2.500 delta 2.500 duration 0.500 pitch A5
+Before inserting note:
+Note at 0.000 delta 0.000 duration 0.500 pitch B4
+Before inserting note:
+Note at 0.500 delta 0.500 duration 0.250 pitch F5
+Before inserting note:
+Note at 0.750 delta 0.750 duration 0.250 pitch E5
+Before inserting note:
+Note at 1.000 delta 1.000 duration 0.500 pitch D5
+Before inserting note:
+Note at 1.500 delta 1.500 duration 0.500 pitch C5
+Before inserting note:
+Note at 2.000 delta 2.000 duration 0.500 pitch B4
+Before inserting note:
+Note at 2.500 delta 2.500 duration 0.250 pitch C5
+Before inserting note:
+Note at 2.750 delta 2.750 duration 0.250 pitch D5
+Before inserting note:
+Note at 0.000 delta 0.000 duration 1.500 pitch Ab4
+Before inserting note:
+Note at 1.500 delta 1.500 duration 0.500 pitch F#4
+Before inserting note:
+Note at 2.000 delta 2.000 duration 1.000 pitch E4
+Before inserting note:
+Note at 0.000 delta 0.000 duration 0.500 pitch A4
+Before inserting note:
+Note at 0.500 delta 0.500 duration 0.500 pitch B4
+Before inserting note:
+Note at 1.000 delta 1.000 duration 0.500 pitch C5
+Before inserting note:
+Note at 1.500 delta 1.500 duration 0.500 pitch E5
+Before inserting note:
+Note at 2.000 delta 2.000 duration 0.500 pitch Ab4
+Before inserting note:
+Note at 2.500 delta 2.500 duration 0.500 pitch A4
+Before inserting note:
+Note at 0.000 delta 0.000 duration 1.000 pitch F5
+Before inserting note:
+Note at 1.000 delta 1.000 duration 1.000 pitch E5
+Before inserting note:
+Note at 2.000 delta 2.000 duration 1.000 pitch D5
+Before inserting note:
+Note at 0.000 delta 0.000 duration 0.500 pitch B4
+Before inserting note:
+Note at 0.500 delta 0.500 duration 0.500 pitch C5
+Before inserting note:
+Note at 1.000 delta 1.000 duration 0.500 pitch D5
+Before inserting note:
+Note at 1.500 delta 1.500 duration 0.500 pitch F5
+Before inserting note:
+Note at 2.000 delta 2.000 duration 0.500 pitch E5
+Before inserting note:
+Note at 2.500 delta 2.500 duration 0.500 pitch D5
+Before inserting note:
+Note at 0.000 delta 0.000 duration 0.500 pitch B5
+Before inserting note:
+Note at 0.500 delta 0.500 duration 0.500 pitch Ab5
+Before inserting note:
+Note at 1.000 delta 1.000 duration 0.500 pitch A5
+Before inserting note:
+Note at 1.500 delta 1.500 duration 0.500 pitch F#5
+Before inserting note:
+Note at 2.000 delta 2.000 duration 0.500 pitch Ab5
+Before inserting note:
+Note at 2.500 delta 2.500 duration 0.500 pitch B5
+Before inserting note:
+Note at 0.000 delta 0.000 duration 0.500 pitch E6
+Before inserting note:
+Note at 0.500 delta 0.500 duration 0.500 pitch C6
+Before inserting note:
+Note at 1.000 delta 1.000 duration 0.500 pitch B5
+Before inserting note:
+Note at 1.500 delta 1.500 duration 0.500 pitch A5
+Before inserting note:
+Note at 2.000 delta 2.000 duration 0.500 pitch Ab5
+Before inserting note:
+Note at 2.500 delta 2.500 duration 0.500 pitch A5
+Before inserting note:
+Note at 0.000 delta 0.000 duration 1.500 pitch E5
+Before inserting note:
+Note at 1.500 delta 1.500 duration 0.250 pitch F#5
+Before inserting note:
+Note at 1.750 delta 1.750 duration 0.250 pitch Ab5
+Before inserting note:
+Note at 2.000 delta 2.000 duration 0.250 pitch A5
+Before inserting note:
+Note at 2.250 delta 2.250 duration 0.250 pitch B5
+Before inserting note:
+Note at 2.500 delta 2.500 duration 0.250 pitch C6
+Before inserting note:
+Note at 2.750 delta 2.750 duration 0.250 pitch D6
+Before inserting note:
+Note at 0.000 delta 0.000 duration 0.250 pitch E6
+Before inserting note:
+Note at 0.250 delta 0.250 duration 0.250 pitch D6
+Before inserting note:
+Note at 0.500 delta 0.500 duration 0.250 pitch C6
+Before inserting note:
+Note at 0.750 delta 0.750 duration 0.250 pitch E6
+Before inserting note:
+Note at 1.000 delta 1.000 duration 0.250 pitch D6
+Before inserting note:
+Note at 1.250 delta 1.250 duration 0.250 pitch C6
+Before inserting note:
+Note at 1.500 delta 1.500 duration 0.250 pitch B5
+Before inserting note:
+Note at 1.750 delta 1.750 duration 0.250 pitch D6
+Before inserting note:
+Note at 2.000 delta 2.000 duration 0.250 pitch C6
+Before inserting note:
+Note at 2.250 delta 2.250 duration 0.250 pitch B5
+Before inserting note:
+Note at 2.500 delta 2.500 duration 0.250 pitch A5
+Before inserting note:
+Note at 2.750 delta 2.750 duration 0.250 pitch C6
+Before inserting note:
+Note at 0.000 delta 0.000 duration 1.500 pitch F#5
+Before inserting note:
+Note at 1.500 delta 1.500 duration 0.250 pitch Ab5
+Before inserting note:
+Note at 1.750 delta 1.750 duration 0.250 pitch A5
+Before inserting note:
+Note at 2.000 delta 2.000 duration 0.250 pitch B5
+Before inserting note:
+Note at 2.250 delta 2.250 duration 0.250 pitch C6
+Before inserting note:
+Note at 2.500 delta 2.500 duration 0.250 pitch D6
+Before inserting note:
+Note at 2.750 delta 2.750 duration 0.250 pitch E6
+Before inserting note:
+Note at 0.000 delta 0.000 duration 0.250 pitch F6
+Before inserting note:
+Note at 0.250 delta 0.250 duration 0.250 pitch E6
+Before inserting note:
+Note at 0.500 delta 0.500 duration 0.250 pitch D6
+Before inserting note:
+Note at 0.750 delta 0.750 duration 0.250 pitch F6
+Before inserting note:
+Note at 1.000 delta 1.000 duration 0.250 pitch E6
+Before inserting note:
+Note at 1.250 delta 1.250 duration 0.250 pitch D6
+Before inserting note:
+Note at 1.500 delta 1.500 duration 0.250 pitch C6
+Before inserting note:
+Note at 1.750 delta 1.750 duration 0.250 pitch E6
+Before inserting note:
+Note at 2.000 delta 2.000 duration 0.250 pitch D6
+Before inserting note:
+Note at 2.250 delta 2.250 duration 0.250 pitch C6
+Before inserting note:
+Note at 2.500 delta 2.500 duration 0.250 pitch B5
+Before inserting note:
+Note at 2.750 delta 2.750 duration 0.250 pitch D6
+Before inserting note:
+Note at 0.000 delta 0.000 duration 0.500 pitch Ab6
+Before inserting note:
+Note at 0.500 delta 0.500 duration 0.250 pitch A5
+Before inserting note:
+Note at 0.750 delta 0.750 duration 0.250 pitch B5
+Before inserting note:
+Note at 1.000 delta 1.000 duration 0.250 pitch A5
+Before inserting note:
+Note at 1.250 delta 1.250 duration 0.250 pitch G5
+Before inserting note:
+Note at 1.500 delta 1.500 duration 0.250 pitch F#5
+Before inserting note:
+Note at 1.750 delta 1.750 duration 0.250 pitch E5
+Before inserting note:
+Note at 2.000 delta 2.000 duration 0.250 pitch D6
+Before inserting note:
+Note at 2.250 delta 2.250 duration 0.250 pitch C6
+Before inserting note:
+Note at 2.500 delta 2.500 duration 0.250 pitch D6
+Before inserting note:
+Note at 2.750 delta 2.750 duration 0.250 pitch B5
+Before inserting note:
+Note at 0.000 delta 0.000 duration 0.250 pitch C6
+Before inserting note:
+Note at 0.250 delta 0.250 duration 0.250 pitch B5
+Before inserting note:
+Note at 0.500 delta 0.500 duration 0.250 pitch A5
+Before inserting note:
+Note at 0.750 delta 0.750 duration 0.250 pitch Ab5
+Before inserting note:
+Note at 1.000 delta 1.000 duration 0.500 pitch A5
+Before inserting note:
+Note at 1.500 delta 1.500 duration 0.500 pitch E5
+Before inserting note:
+Note at 2.000 delta 2.000 duration 0.500 pitch C5
+Before inserting note:
+Note at 2.500 delta 2.500 duration 0.250 pitch B4
+Before inserting note:
+Note at 2.750 delta 2.750 duration 0.250 pitch A4
+Before inserting note:
+Note at 0.000 delta 0.000 duration 3.000 pitch A4
+Duration pair distribution: [[0.3566666666666667, 0.0, 0.04666666666666667, 0.0, 0.0, 0.01, 0.0033333333333333335, 0.0033333333333333335, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.05, 0.0, 0.4266666666666667, 0.0, 0.023333333333333334, 0.006666666666666667, 0.006666666666666667, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.023333333333333334, 0.0, 0.016666666666666666, 0.0, 0.0, 0.0, 0.0], [0.013333333333333334, 0.0, 0.0033333333333333335, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]] [&#39;sixteenth&#39;, &#39;0.35&#39;, &#39;eighth&#39;, &#39;0.71&#39;, &#39;quarter&#39;, &#39;1.41&#39;, &#39;half&#39;, &#39;2.83&#39;, &#39;whole&#39;] [&#39;sixteenth&#39;, &#39;0.35&#39;, &#39;eighth&#39;, &#39;0.71&#39;, &#39;quarter&#39;, &#39;1.41&#39;, &#39;half&#39;, &#39;2.83&#39;, &#39;whole&#39;] Duration (to) Duration (from)
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">amads.algorithms</span><span class="w"> </span><span class="kn">import</span> <span class="n">duration_distribution_2</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">amads.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">partitura_midi_import</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">amads.music</span><span class="w"> </span><span class="kn">import</span> <span class="n">example</span>
+
+<span class="c1"># Load example MIDI file</span>
+<span class="n">my_midi_file</span> <span class="o">=</span> <span class="n">example</span><span class="o">.</span><span class="n">fullpath</span><span class="p">(</span><span class="s2">&quot;midi/sarabande.mid&quot;</span><span class="p">)</span>
+
+<span class="c1"># Import MIDI using partitura</span>
+<span class="n">myscore</span> <span class="o">=</span> <span class="n">partitura_midi_import</span><span class="p">(</span><span class="n">my_midi_file</span><span class="p">,</span> <span class="n">ptprint</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="c1"># myscore.show()</span>
+
+<span class="c1"># Calculate duration distribution</span>
+<span class="n">dd</span> <span class="o">=</span> <span class="n">duration_distribution_2</span><span class="p">(</span><span class="n">myscore</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">,</span> <span class="n">fig</span> <span class="o">=</span> <span class="n">dd</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span>
+    <span class="s2">&quot;Duration pair distribution:&quot;</span><span class="p">,</span>
+    <span class="n">dd</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+    <span class="n">dd</span><span class="o">.</span><span class="n">x_categories</span><span class="p">,</span>
+    <span class="n">dd</span><span class="o">.</span><span class="n">y_categories</span><span class="p">,</span>
+    <span class="n">dd</span><span class="o">.</span><span class="n">x_label</span><span class="p">,</span>
+    <span class="n">dd</span><span class="o">.</span><span class="n">y_label</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 6.911 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-plot-durdist2-py">
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/8d59d88e2eaa8de892cae2094457f7ca/plot_durdist2.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_durdist2.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/5bdcd03636d85eb3d094d22b5b82a4b0/plot_durdist2.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_durdist2.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/f95eb6dfe3f6a8d6d99d9394bb667345/plot_durdist2.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">plot_durdist2.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="plot_durdist1.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Duration distributions (I)</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="plot_boundary.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Boundary detection</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The AMADS team
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, The AMADS team.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
