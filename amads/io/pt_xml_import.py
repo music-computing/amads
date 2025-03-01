@@ -119,25 +119,25 @@ def retie_notes(event, events, i, measure, staff, mindex, part):
         # does ev end near a measure boundary? If so assume it's a tie across
         # the bar:
         end = ev[1] + ev[2]
-        while end > (measure.delta_end + 1 / DIV_TO_QUARTER_ROUNDING) and (
+        while end > (measure.delta_offset + 1 / DIV_TO_QUARTER_ROUNDING) and (
             mindex < len(staff.content) - 1
         ):
             mindex += 1
             measure = staff.content[mindex]
         # now we know end > previous bar end + 1/DIV and
         #     end < this bar end + 1/DIV (unless we ran out of measures), so
-        #     this bar end (measure.delta_end) is the time we are looking for
+        #     this bar end (measure.delta_offset) is the time we are looking for
         print(
             "found bar at",
-            measure.delta_end,
+            measure.delta_offset,
             "absdiff",
-            abs(end - measure.delta_end),
+            abs(end - measure.delta_offset),
         )
-        if abs(end - measure.delta_end) < 0.5 / DIV_TO_QUARTER_ROUNDING:
+        if abs(end - measure.delta_offset) < 0.5 / DIV_TO_QUARTER_ROUNDING:
             # end of note rounds to the time of the end of measure
-            extend = measure.delta_end - end  # could be >0 or <0
-            ev[2] = measure.delta_end - ev[1]
-            group[i + 1][1] = measure.delta_end
+            extend = measure.delta_offset - end  # could be >0 or <0
+            ev[2] = measure.delta_offset - ev[1]
+            group[i + 1][1] = measure.delta_offset
             # if we extend ev==group[i], we need to shorten group[i+1]
             group[i + 1][2] -= extend
             # now if group[i+1] duration rounds to zero, we eliminate it
@@ -167,7 +167,7 @@ def staff_for_note(part, event):
 
 def partitura_convert_part(ppart, score):
     # note ppart.quarter_map(x) maps divs to quarters
-    part = Part(instrument=ppart.part_name)
+    part = Part(score, instrument=ppart.part_name)
     durs = ppart.quarter_durations()
     staff_numbers = set()
     measures = []
@@ -183,17 +183,18 @@ def partitura_convert_part(ppart, score):
             measures.append(("keysig", item.fifths))
     print("staff_numbers", staff_numbers)
     print("measures", measures)
-    for _ in range(0, len(staff_numbers)):
-        staff = Staff()
+    for staff_num in range(0, len(staff_numbers)):
+        staff = Staff(part, staff_num + 1)
+        measure_delta = 0
         for m in measures:
             if m[0] == "timesig":
                 # assume timesig is inside a measure, which would be the last
                 # measure (so far) in this staff, and assume we are at the
                 # beginning of the measure; delta=0 overrides putting this
                 # at the end of the measure which already has a duration
-                staff.last.append(TimeSignature(m[1], m[2]), delta=0)
+                TimeSignature(staff.last, m[1], m[2])
             elif m[0] == "keysig":
-                staff.last.append(KeySignature(m[1], delta=0))
+                KeySignature(staff.last, m[1])
             else:
                 # convert divs duration to quarters
                 duration = div_to_quarter(durs, m[2], rnd=True) - div_to_quarter(
@@ -201,10 +202,11 @@ def partitura_convert_part(ppart, score):
                 )
                 if duration > 0:  # do not append zero-length measures that arise
                     # from rounding errors in Partitura:
-                    staff.append(Measure(duration=duration))
+                    Measure(staff, None, measure_delta, duration=duration)
+                    measure_delta += duration
+        staff.inherit_duration()
         print("added measures to staff:")
         staff.show()
-        part.append(staff)
 
     # pass 2: gather notes and rests
     events = []
@@ -249,7 +251,7 @@ def partitura_convert_part(ppart, score):
     for i, event in enumerate(events):
         staff = staff_for_note(part, event)
         measure = staff.content[mindex]
-        while event[1] >= measure.delta_end and mindex < len(staff.content) - 1:
+        while event[1] >= measure.delta_offset and mindex < len(staff.content) - 1:
             mindex += 1
             measure = staff.content[mindex]
         if event[6] == "start":
@@ -262,7 +264,7 @@ def partitura_convert_part(ppart, score):
     for event in events:
         staff = staff_for_note(part, event)
         measure = staff.content[mindex]
-        while event[1] >= measure.delta_end:
+        while event[1] >= measure.delta_offset:
             mindex += 1
             if mindex == len(staff.content):
                 print("Something is wrong; could not find measure for", event)
@@ -271,14 +273,13 @@ def partitura_convert_part(ppart, score):
         delta = event[1] - measure.onset
         if event[0] == "Note":
             if event[2] > 0:  # zero duration means skip note
-                note = Note(duration=event[2], pitch=event[4], delta=delta)
+                note = Note(measure, duration=event[2], pitch=event[4], delta=delta)
                 note.tie = event[6]
                 print("Before inserting note:")
                 note.show()
                 # id_to_event[event[5]] = note  # build temporary map in dictionary
-                measure.insert(note)
         elif event[0] == "Rest":
-            measure.insert(Rest(event[2]), delta=measure.delta)
+            Rest(measure, duration=event[2], delta=measure.delta)
         else:
             assert False
     return part
@@ -294,5 +295,6 @@ def partitura_xml_import(filename, ptprint=False):
             print(ptpart.pretty())
     score = Score()
     for ptpart in ptscore.parts:
-        score.append(partitura_convert_part(ptpart, score))
+        partitura_convert_part(ptpart, score)
+    score.inherit_duration()
     return score

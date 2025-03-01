@@ -4,7 +4,41 @@ Contributing
 We welcome contributions to the project! Whether you want to fix bugs, improve documentation, or add new features, here's how you can contribute:
 
 GitHub contribution workflow
----------------------------
+----------------------------
+
+You should have a local clone of AMADS from Github installed. These
+instructions will continue from that starting point.
+
+0. (Un)Install the package
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To work on AMADS, you should be using the package represented by your
+Github clone of AMADS. To be safe, in case you have AMADS installed
+already, uninstall AMADS using pip::
+
+    pip uninstall amads
+
+Then, install your local repository as the AMADS package::
+
+    cd <path-to-root-of-amads-repo>
+    pip install -e .
+
+This pip command will tell Python to use the local repo, so that
+any changes to the code will be incorporated into the package whenever
+you restart Python (e.g. start the next debugging session).
+
+0. Use pre-commit
+~~~~~~~~~~~~~~~~~
+1. Install pre-commit hooks::
+
+   pip install pre-commit && pre-commit install
+   
+2. Run pre-commit::
+
+   pre-commit run --all-files
+
+(You only need to do this once after you have installed pre-commit.)
+
 
 1. Submit a pull request
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -17,11 +51,12 @@ For team members
     git checkout -b feature-name
 
 2. Make your changes and commit them
-3. Push the branch::
+3. See "Before you push, there might be new changes ..." below.
+4. Push the branch::
 
     git push origin feature-name
 
-4. Open a pull request from your branch to main
+5. Open a pull request from your branch to main
 
 For external contributors
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -41,6 +76,26 @@ For external contributors
     git push origin feature-name
 
 6. Open a pull request from your fork to our main branch
+
+7. Before you push, there might be new changes in the repo to
+   integrate. To merge the changes::
+   
+    git fetch origin
+    git checkout feature-name  --does nothing if it's your branch already
+    git merge origin/main
+
+8  If there are conflicts, edit/fix the files with conflicts and::
+
+    git add path/to/resolved/file
+
+9. Recommit::
+
+    git commit
+
+10. Push to your fork (again)::
+
+    git push origin feature-name
+
 
 
 2. Continuous Integration

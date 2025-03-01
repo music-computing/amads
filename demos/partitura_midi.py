@@ -13,27 +13,27 @@ myscore.show()
 
 
 print("------- result of score copy")
-scorecopy = myscore.deep_copy()
+scorecopy = myscore.deepcopy()
 scorecopy.show()
 
 
-print("------- result from strip_chords")
-nochords = scorecopy.strip_chords()
+print("------- result from expand_chords")
+nochords = scorecopy.expand_chords()
 nochords.show()
 
-print("------- result from strip_ties")
-noties = scorecopy.strip_ties()
+print("------- result from merge_tied_notes")
+noties = scorecopy.merge_tied_notes()
 noties.show()
 
 print("------- result from flatten")
 flatscore = scorecopy.flatten()
 flatscore.show()
 
-print("------- result from keynum_list")
-print(myscore.collapse_parts().content[0].content)
+print("------- result from collapse_parts()")
+myscore.collapse_parts().show()
 
-print("------- result from keynum_list(part=(0))")
-print(myscore.collapse_parts(part=[0]).content[0].content)
+print("------- result from collapse_parts(part=[0])")
+myscore.collapse_parts(part=[0]).show()
 
 print("------- result from pitch_mean(myscore)")
 print(pitch_mean(myscore))

@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-from amads.all import ivdist1, partitura_midi_import
+from amads.all import Part, ivdist1, partitura_midi_import
 from amads.music import example
 
 my_midi_file = example.fullpath("midi/twochan.mid")
@@ -9,9 +9,14 @@ print("------- input from partitura")
 myscore = partitura_midi_import(my_midi_file, ptprint=False)
 print("------- finished input from partitura")
 myscore.show()
-
+print("------- Removing all but the first part")
+mono_score = myscore.emptycopy()
+first_part = next(myscore.find_all(Part))  # Get the first part
+first_part.copy_into(mono_score)
+print("------- finished removing all but the first part")
+mono_score.show()
 print("------- Calculate pitch-class distribution")
-id = ivdist1(myscore, weighted=True)
+id = ivdist1(mono_score, weighted=True)
 
 print(id)
 

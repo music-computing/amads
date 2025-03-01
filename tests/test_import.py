@@ -31,19 +31,17 @@ def test_import_midi(midi_filename):
     score = partitura_midi_import(midi_file, ptprint=False)
     assert isinstance(score, Score)
 
-    score_notes = list(score.find_all(Note))
+    score_notes = score.list_all(Note)
 
     pm = pretty_midi.PrettyMIDI(str(midi_file))
     pm_notes = [note for instrument in pm.instruments for note in instrument.notes]
 
     assert len(score_notes) == len(pm_notes)
 
-    flattened_score = score.flatten()
-    flattened_notes = list(flattened_score.find_all(Note))
+    flattened_notes = score.sorted_notes()
 
     assert len(flattened_notes) == len(pm_notes)
 
-    flattened_notes.sort(key=lambda x: (x.delta, x.pitch.keynum))
     pm_notes.sort(key=lambda x: (x.start, x.pitch))
 
     quarter_note_duration = pm_notes[1].start / flattened_notes[1].delta

@@ -51,6 +51,7 @@ def pcdist2(score: Score, weighted=True) -> list[list[float]]:
     """
     pcd = [[0] * 12 for _ in range(12)]
 
+    score = score.merge_tied_notes()
     for container in score.note_containers():
         notes = container.find_all(Note)
         update_pcd(pcd, notes, weighted)

@@ -14,16 +14,16 @@ myscore = partitura_xml_import(my_xml_file, ptprint=True)
 myscore.show()
 
 print("------- result of score copy")
-scorecopy = myscore.deep_copy()
+scorecopy = myscore.deepcopy()
 scorecopy.show()
 
 
-print("------- result from strip_chords")
-nochords = scorecopy.strip_chords()
+print("------- result from expand_chords")
+nochords = scorecopy.expand_chords()
 nochords.show()
 
-print("------- result from strip_ties")
-noties = scorecopy.strip_ties()
+print("------- result from merge_tied_notes")
+noties = scorecopy.merge_tied_notes()
 noties.show()
 
 print("------- result from flatten")

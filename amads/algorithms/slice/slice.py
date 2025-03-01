@@ -13,9 +13,6 @@ class Slice(Sequence):
 
     Parameters
     ----------
-    content : List[Note]
-        The notes in this slice, with durations truncated to fit within the slice
-        boundaries if necessary
     original_notes : List[Note]
         The original unmodified notes from which the slice notes were derived
     delta : float
@@ -26,10 +23,9 @@ class Slice(Sequence):
 
     def __init__(
         self,
-        content: List[Note],
         original_notes: List[Note],
         delta: float = 0,
         duration: float = 0,
     ):
-        super().__init__(delta=delta, duration=duration, content=content)
+        super().__init__(parent=None, delta=delta, duration=duration)
         self.original_notes = original_notes
