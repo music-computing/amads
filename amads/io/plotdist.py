@@ -33,23 +33,23 @@ def plotdist(dist, *, ivdir=False) -> figure.Figure:
     dist_array = np.array(dist)
 
     match dist_array.shape:
-        case (12,):
+        case [12]:
             if ivdir:
                 return interval_direction(dist_array)
             return pitch_class(dist_array)
-        case (25,):
+        case [25]:
             return interval(dist_array)
-        case (9,):
+        case [9]:
             return duration(dist_array)
-        case (12, 12):
+        case [12, 12]:
             return pitch_class_transition(dist_array)
-        case (25, 25):
+        case [25, 25]:
             return interval_transition(dist_array)
-        case (9, 9):
+        case [9, 9]:
             return duration_transition(dist_array)
-        case (24,):
+        case [24]:
             return key_correlation(dist_array)
-        case (13,):
+        case [13]:
             return interval_size(dist_array)
         case _:
             raise ValueError("Invalid input data-structure")

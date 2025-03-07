@@ -76,13 +76,18 @@ class Distribution:
         self.y_categories = y_categories
         self.y_label = y_label
 
-    def plot(self, color=DEFAULT_BAR_COLOR):
+    def plot(self, color=DEFAULT_BAR_COLOR, display: bool = False):
         if len(self.dimensions) == 1:
-            return (plt, self.plot_1d(color))
+            fig = self.plot_1d(color)
         elif len(self.dimensions) == 2:
-            return (plt, self.plot_2d(color))
+            fig = self.plot_2d(color)
         else:
             raise ValueError("Unsupported number of dimensions")
+        if display:
+            plt.show()
+            return None
+        else:
+            return fig
 
     def plot_1d(self, color=DEFAULT_BAR_COLOR) -> figure.Figure:
         """Create a 1D plot of the distribution.
@@ -117,3 +122,12 @@ class Distribution:
 
         ax.invert_yaxis()
         return fig
+
+    def show(self) -> None:
+        """Print information about the distribution"""
+        plural = "" if len(self.dimensions) == 1 else "s"
+        print(
+            f'Distribution: "{self.name}" has dimension{plural}',
+            f'{self.dimensions}, x_label: "{self.x_label}",',
+            f'y_label: "{self.y_label}"',
+        )

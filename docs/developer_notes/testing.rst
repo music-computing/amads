@@ -26,7 +26,31 @@ To run tests in a specific file::
 
 To run a specific test function::
 
-    pytest tests/test_pitch_list_transformations.py::test_function_name
+    pytest
+    tests/test_pitch_list_transformations.py::test_function_name
+
+Testing with VSCode
+-------------------
+
+Install pytest-cov::
+
+    pip install pytest-cov
+
+Install anyio::
+
+    pip install anyio
+
+
+In VSCode, type Command Shift P and from the (large) command menu,
+find "Python: Configure Tests". Select "pytest" and then ". (Root
+directory)". Then all tests appear in the Test Explorer. 
+
+To get to Test Explorer, select the Erlenmeyer (conical) flask icon in
+the far left column (pop-up description is "Testing". 
+
+Select a test or set of tests. In the selected test, there are small
+icons to run, run with debugger, or run with coverage, so pick one.
+
 
 Writing tests
 ------------

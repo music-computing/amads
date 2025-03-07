@@ -10,8 +10,14 @@ def pitch_mean(score, weighted=False):
     """
     sum = 0
     count = 0
-    for note in score.find_all(Note):
-        w = note.duration if weighted else 1
-        sum += note.keynum * w
-        count += w
+    if weighted:  # no need to merge tied notes
+        for note in score.find_all(Note):
+            sum += note.keynum * note.duration
+            count += note.duration
+    else:
+        for note in score.find_all(Note):
+            # count only the first of any tied-note group
+            if note.tie not in ["continue", "stop"]:
+                sum += note.keynum
+            count += 1
     return (sum / count) if sum > 0 else 0

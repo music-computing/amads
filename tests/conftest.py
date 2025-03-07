@@ -14,7 +14,7 @@ def twochan_score():
 
 @fixture
 def twochan_notes(twochan_score):
-    return list(twochan_score.flatten(collapse=True).find_all(Note))
+    return twochan_score.flatten(collapse=True).list_all(Note)
 
 
 # Stop matplotlib plot.show() from blocking the tests
