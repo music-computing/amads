@@ -27,29 +27,37 @@ def test_mtype_tokenizer():
     ngrams = NGramCounter()
 
     # Tokenize melody and count n-grams
-    tokenizer.tokenize(melody_1)
-    bigram_counts = ngrams.count_ngrams(tokenizer.tokens, n=2)
-    for ngram in bigram_counts:
+    tokens = tokenizer.tokenize(melody_1)
+
+    # Count bigrams
+    ngrams.count_ngrams(tokens, n=2)
+    for ngram in ngrams.get_counts():
         assert len(ngram) == 2
 
-    trigram_counts = ngrams.count_ngrams(tokenizer.tokens, n=3)
-    for ngram in trigram_counts:
+    # Reset counter, count trigrams
+    ngrams.reset()
+    ngrams.count_ngrams(tokens, n=3)
+    for ngram in ngrams.get_counts():
         assert len(ngram) == 3
 
     # Test that n-grams cannot be counted if method is larger than sequence length
     with pytest.raises(ValueError):
-        ngrams.count_ngrams(tokenizer.tokens, n=10)
+        ngrams.count_ngrams(tokens, n=10)
 
     # Test that n-grams cannot be counted if method n = 0
     with pytest.raises(ValueError):
-        ngrams.count_ngrams(tokenizer.tokens, n=0)
+        ngrams.count_ngrams(tokens, n=0)
 
-    # Test that method="all" returns all n-grams
-    all_counts = ngrams.count_ngrams(tokenizer.tokens, n=None)
+    # Test that n=None returns all n-grams
+    ngrams.reset()
+    ngrams.count_ngrams(tokens, n=None)
+    all_counts = ngrams.get_counts()
     # Test each n-gram length by comparing to individual n-gram counts
     max_length = max(len(ngram) for ngram in all_counts)
     for n in range(1, max_length + 1):
-        n_gram_counts = ngrams.count_ngrams(tokenizer.tokens, n=n)
+        ngrams.reset()
+        ngrams.count_ngrams(tokens, n=n)
+        n_gram_counts = ngrams.get_counts()
         # Check that all n-grams of length n in n_gram_counts are also in all_counts
         for ngram in n_gram_counts:
             assert ngram in all_counts
@@ -143,7 +151,7 @@ def test_ngram_counts():
 
     # Count the ngrams
     simple_ngrams.count_ngrams(simple_list, n=2)
-    assert simple_ngrams.ngram_counts == {("0", "1"): 2, ("1", "1"): 1, ("1", "0"): 1}
+    assert simple_ngrams.get_counts() == {("0", "1"): 2, ("1", "1"): 1, ("1", "0"): 1}
 
     # Now the features are available
     assert simple_ngrams.yules_k is not None

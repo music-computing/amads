@@ -19,12 +19,12 @@ def fantastic_segmenter(score: Score, phrase_gap: float, units: str) -> List[Sco
     list[Score]
         List of Score objects representing phrases
     """
+    assert units in ["seconds", "quarters"]
     if units == "seconds":
         raise NotImplementedError(
             "Seconds are not yet implemented, see issue #75: "
             "https://github.com/music-computing/amads/issues/75"
         )
-
     if units == "quarters":
         # Extract notes from score
         flattened_score = score.flatten(collapse=True)

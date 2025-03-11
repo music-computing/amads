@@ -257,8 +257,8 @@ def fantastic_count_mtypes(
 
     all_tokens = []
     for phrase in segments:
-        tokenizer.tokenize(phrase)
-        all_tokens.extend(tokenizer.tokens)
+        tokens = tokenizer.tokenize(phrase)
+        all_tokens.extend(tokens)
 
     counter.count_ngrams(all_tokens, n=[1, 2, 3, 4, 5])
 

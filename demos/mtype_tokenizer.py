@@ -10,9 +10,7 @@ def example_usage():
     This shows how to tokenize a melody into MTypes
     and count n-grams of the resulting tokens.
     """
-
     # Create a simple melody
-    # This melody does not need segmentation because it is a single phrase
     melody = Score.from_melody(
         pitches=[60, 62, 64, 67, 72],  # C4, D4, E4, G4, C5
         durations=[
@@ -29,19 +27,27 @@ def example_usage():
     ngrams = NGramCounter()
 
     # Tokenize melody and count n-grams
-    tokenizer.tokenize(melody)
+    tokens = tokenizer.tokenize(melody)
 
     # Count only bigrams (n=2)
-    bigram_counts = ngrams.count_ngrams(tokenizer.tokens, n=2)
-    print(f"Dictionary of bigram counts: {bigram_counts}\n")
+    ngrams.count_ngrams(tokens, n=2)
+    print(f"Dictionary of bigram counts: {ngrams.get_counts()}\n")
+
+    # Reset counter before counting trigrams
+    ngrams.reset()
 
     # Count only trigrams (n=3)
-    trigram_counts = ngrams.count_ngrams(tokenizer.tokens, n=3)
-    print(f"Dictionary of trigram counts: {trigram_counts}\n")
+    ngrams.count_ngrams(tokens, n=3)
+    print(f"Dictionary of trigram counts: {ngrams.get_counts()}\n")
+
+    # Reset counter before counting all n-grams
+    ngrams.reset()
 
     # Count all n-grams
-    all_counts = ngrams.count_ngrams(tokenizer.tokens, n=None)
-    print(f"Dictionary of all n-gram counts: {all_counts}\n")
+    ngrams.count_ngrams(tokens, n=None)
+    print(f"Dictionary of all n-gram counts: {ngrams.get_counts()}\n")
+
+    # Happy Birthday example
     happy_birthday = Score.from_melody(
         pitches=[
             60,
@@ -100,20 +106,15 @@ def example_usage():
             2.0,
         ],
     )
+
     # Segment the melody into phrases
-    segments = fantastic_segmenter(happy_birthday, phrase_gap=0.75, units="quarters")
-    # Tokenize each segment and collect all tokens
-    tokenizer = FantasticTokenizer()
-    all_tokens = []
+    segments = fantastic_segmenter(happy_birthday, phrase_gap=2.0, units="quarters")
+    # Count all n-grams
+    ngrams.reset()
     for segment in segments:
         segment_tokens = tokenizer.tokenize(segment)
-        all_tokens.extend(segment_tokens)
+        ngrams.count_ngrams(segment_tokens, n=None)
 
-    # Initialize NGramCounter
-    ngrams = NGramCounter()
-    # Count all n-grams
-    all_counts = ngrams.count_ngrams(all_tokens, n=None)
-    # These are the complexity measures computed from the n-grams of all lengths
     print("All n-grams:")
     print(f"Yule's K: {ngrams.yules_k}")
     print(f"Simpson's D: {ngrams.simpsons_d}")
@@ -122,8 +123,10 @@ def example_usage():
     print(f"Normalized Entropy: {ngrams.mean_entropy}")
     print(f"Mean Productivity: {ngrams.mean_productivity}\n")
 
-    # If we instead count only bigrams, we get a different set of results
-    bigram_counts = ngrams.count_ngrams(all_tokens, n=2)
+    ngrams.reset()
+    # Count bigrams only
+    ngrams.count_ngrams(segment_tokens, n=2)
+
     print("Bigrams:")
     print(f"Yule's K: {ngrams.yules_k}")
     print(f"Simpson's D: {ngrams.simpsons_d}")

@@ -149,7 +149,6 @@ class FantasticTokenizer(MelodyTokenizer):
             token = MType(pitch_interval_class, ioi_ratio_class)
             tokens.append(token)
 
-        self.tokens = tokens
         return tokens
 
     def classify_pitch_interval(self, pitch_interval: Optional[int]) -> Hashable:
