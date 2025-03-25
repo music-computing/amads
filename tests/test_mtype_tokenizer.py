@@ -4,7 +4,7 @@ import pytest
 
 from amads.algorithms.mtype_tokenizer import FantasticTokenizer, MType
 from amads.algorithms.ngrams import NGramCounter
-from amads.core.basics import Note, Score
+from amads.core.basics import Score
 from amads.melody.segment import fantastic_segmenter
 
 
@@ -89,21 +89,25 @@ def test_mtype_tokenizer():
         ],
     )
 
-    # Test that the melody is segmented into 2 phrases
+    # Test that the melody is segmented into phrases
     segments = fantastic_segmenter(melody_2, phrase_gap=0.75, units="quarters")
-    # Extract notes from each segment for counting
-    segment_notes = [list(segment.find_all(Note)) for segment in segments]
-    ngrams.count_ngrams(segment_notes, n=2)
 
-    # The first phrase has 7 notes in so the maximum length n-gram is 7
-    assert len(segment_notes[0]) == 7
-    with pytest.raises(ValueError):
-        ngrams.count_ngrams(segment_notes[0], n=8)
+    # Test counting all n-grams across segments
+    ngrams.reset()
+    for segment in segments:
+        segment_tokens = tokenizer.tokenize(segment)
+        ngrams.count_ngrams(segment_tokens, n=None)
 
-    # This is true of the second phrase as well
-    assert len(segment_notes[1]) == 7
+    # Get all n-gram counts
+    all_counts = ngrams.get_counts()
+
+    # Test that we can't count n-grams longer than sequence
+    max_length = max(len(ngram) for ngram in all_counts)
+
+    # As the phrase length is 7 notes, the maximum length n-gram is 6
+    assert max_length == 6
     with pytest.raises(ValueError):
-        ngrams.count_ngrams(segment_notes[1], n=8)
+        ngrams.count_ngrams(segment_tokens, n=max_length + 1)
 
 
 def test_mtype_encodings():

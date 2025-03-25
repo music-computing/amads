@@ -222,7 +222,7 @@ class NGramCounter:
         occuring exactly once is logarithmically related to the total number
         of tokens in the sequence.
         It is defined as:
-        :math:`H = 100 * (log(N) / (1.01 - (V1/V)))`
+        :math:`H = 100 * (log(N) / (1.01 - (V1/V(N))))`
         where:
         - :math:`N` is the total number of tokens in the sequence
         - :math:`V1` is the number of types that occur exactly once

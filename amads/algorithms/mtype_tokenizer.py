@@ -3,19 +3,11 @@ from collections.abc import Hashable
 from typing import List, Optional
 
 from amads.core.basics import Note, Score
+from amads.pitch.ismonophonic import ismonophonic
 
 
 class MelodyTokenizer:
-    """Base class for tokenizing melodies into n-grams.
-
-    Attributes
-    ----------
-    phrases : list
-        List of melody phrases after segmentation
-    """
-
-    def __init__(self):
-        self.phrases = []
+    """Base class for tokenizing melodies into n-grams."""
 
     def tokenize(self, score: Score) -> List[List]:
         """Tokenize a melody into phrases.
@@ -45,6 +37,10 @@ class MelodyTokenizer:
         list[Note]
             List of notes with IOI and IOI ratio values calculated
         """
+        # First check if score is monophonic
+        if not ismonophonic(score):
+            raise ValueError("Score must be monophonic")
+
         flattened_score = score.flatten(collapse=True)
         notes = list(flattened_score.find_all(Note))
 
@@ -81,13 +77,6 @@ class FantasticTokenizer(MelodyTokenizer):
     The tokenizer takes a score as the input, and returns a dictionary of unique
     M-Type (n-gram) counts.
 
-    Parameters
-    ----------
-    phrase_gap : float
-        Time gap in seconds that defines phrase boundaries
-    units : str
-        The units of the phrase gap, either "seconds" or "quarters"
-
     Attributes
     ----------
     phrase_gap : float
@@ -102,17 +91,6 @@ class FantasticTokenizer(MelodyTokenizer):
     """
 
     def __init__(self):
-        """Initialize the tokenizer.
-
-        Parameters
-        ----------
-        phrase_gap : float, optional
-            Time gap that defines phrase boundaries, by default 1.0
-        units : str, optional
-            The units of the phrase gap, either "seconds" or "quarters", by default "quarters"
-        """
-        super().__init__()
-
         self.tokens = []
 
     def tokenize(self, score: Score) -> List:
