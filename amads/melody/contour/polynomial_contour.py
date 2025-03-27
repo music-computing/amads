@@ -28,6 +28,12 @@ class PolynomialContour:
     >>> pc = PolynomialContour(the_lick)
     >>> pc.coefficients  # this value is confirmed by the FANTASTIC toolbox
     [-1.5014826, -0.2661533, 0.1220570]
+
+    >>> twinkle_twinkle = Score.from_melody([60, 60, 67, 67, 69, 69, 67, 65, 65, 64, 64, 62, 62, 60],
+    ... [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.0])
+    >>> pc2 = PolynomialContour(twinkle_twinkle)
+    >>> pc2.coefficients # there is a small mismatch with the FANTASTIC toolbox - TODO: investigate
+    [-0.9535562, 0.2120971, 0.0000000]
     """
 
     def __init__(self, score: Score):
