@@ -1,6 +1,9 @@
 Design considerations
 ====================
 
+Basic Representation and Simplifications
+----------------------------------------
+
 I think this is an area where the API and method names need to be
 thought about carefully and possibly changed. Here are the issues that
 I see...
@@ -88,7 +91,7 @@ we can have properties for the more subtle differences and operations
 to remove structure:
 
 Measured Scores
---------------
+~~~~~~~~~~~~~~~
 ``.is_measured()``
     Test if this is a measured score. A measured score has a strict 
     hierarchy described by: Score-Part-Staff-Measure-(Note or Chord-Note).
@@ -126,7 +129,7 @@ Measured Scores
     or collapsed based on an optional parameter.
 
 Flattened Scores
----------------
+~~~~~~~~~~~~~~~~
 ``.is_flattened()``
     Test if this is a flattened score. A flattened score has a strict
     hierarchy described by: Score-Part-Note. There are no other object
@@ -143,8 +146,49 @@ Flattened Scores
     for selecting only certain Parts and/or Staff objects.
 
 Other Scores
------------
-Scores which are neither Measured nor Flattened are at possible
+~~~~~~~~~~~~~
+Scores which are neither Measured nor Flattened are at least possible
 to construct. E.g. a Score-Part-Note hierarchy with tied notes
-or a Score with a mix of measured and flattened Parts. How these
-are handled in algorithms is not yet determined.
+or a Score with a mix of measured and flattened Parts. We've also 
+considered "chordified" scores consisting of a sequence of Chord
+objects that are possibly empty or single notes.
+
+How all of these possibilities are handled in algorithms is not yet
+determined. Ideally, algorithms should detect violations in
+assumptions and report them as errors: We do not want users to call
+functions with an intuitive idea of what they *should* do, only to get
+some non-intuitive result that the user does not notice. It's better
+to raise an error to say "you can't do this, or I don't support it"
+than to silently return something possibly wrong.
+
+Distributions
+-------------
+
+The Distribution class models statistical distributions or
+histograms. Attributes describe the data with enough detail to produce
+reasonably labeled plots:
+
+``distribution_type`` - a str; one of "pitch_class", "interval",
+    "pitch_class_interval", "duration", "interval_size",
+    "interval_direction", "duration", "pitch_class_transition",
+    "interval_transition", "duration_transition", "key_correlation"
+
+``dimensions`` - a List of dimensions, e.g. [12] for a pitch class
+    distribution or [25, 25] for an interval_transition (intervals are
+    from -12 to +12 and include 0 for unison, intervals larger than
+    one octave are ignored.
+
+``name`` - a str name for this distribution that is used for plot title.
+
+``x_categories`` - a List of str with labels for x-axis categories;
+    inferred from distribution_type if needed.
+
+``x_label`` - x-axis label; inferred from distribution_type if not
+    present
+
+``y_categories`` - a List of str with labels for y-axis categories;
+    inferred from bin_centers and then distribution_type if needed
+
+``y_label`` - y-axis label; inferred from distribution_type if not
+    present
+

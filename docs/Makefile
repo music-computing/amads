@@ -14,6 +14,10 @@ help:
 
 .PHONY: help Makefile
 
+# Live documentation server with auto-rebuild
+preview:
+	sphinx-autobuild $(SOURCEDIR) $(BUILDDIR)/html $(ALLSPHINXOPTS) --open-browser --ignore "auto_examples/*" --ignore "_build/*"
+
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: Makefile

@@ -3,15 +3,16 @@ requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "musmart"
-version = "0.1.0"
+name = "amads"
+version = "0.1.0dev0"
 description = "A toolkit for symbolic music analysis"
 readme = "README.md"
-authors = [
-    { name = "The AMADS team", email = "email@example.com" }
+maintainers = [
+    { name = "Peter Harrison", email = "pmch2@cam.ac.uk"},
+    { name = "Roger Dannenberg"},
+    { name = "Mark Gotham"}
 ]
-license = { text = "TODO" }  # Update with your actual license
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
@@ -21,6 +22,7 @@ dependencies = [
     "numpy",
     "pandas",
     "matplotlib",
+    "scipy<1.12.0",
     "partitura",
     "setuptools",  # required for partitura
     "music21",
@@ -33,14 +35,22 @@ dev = [
     "sphinx",
     "sphinx-book-theme",
     "sphinx-autodoc-typehints",
-    "myst-parser"
+    "myst-parser",
+    "pre-commit",
 ]
 test = [
+    "pretty_midi",
     "pytest>=7.0.0",
+    "pytest-cov",
+]
+melsim = [
+    "pandas",
+    "rpy2"
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/music-computing/toolkit"  # Update with your repo URL
+"GitHub" = "https://github.com/music-computing/amads"  # Update with your repo URL
+"Documentation website" = "https://music-computing.github.io/amads/"
 
-[tool.setuptools]
-packages = ["musmart"]
+[tool.setuptools.packages.find]
+include = ["amads", "amads.*"]

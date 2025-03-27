@@ -1,8 +1,7 @@
 # partitura_midi_test.py - some tests for partitura_midi_import.py
 
-from musmart.pt_midi_import import partitura_midi_import
-from musmart.pitch_mean import pitch_mean
-from musmart import example
+from amads.all import partitura_midi_import, pitch_mean
+from amads.music import example
 
 # "midi/tones.mid"
 my_midi_file = example.fullpath("midi/twochan.mid")
@@ -41,4 +40,3 @@ print(pitch_mean(myscore))
 
 print("------- result from pitch_mean(myscore, weighted=True)")
 print(pitch_mean(myscore, weighted=True))
-

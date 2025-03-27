@@ -1,0 +1,8 @@
+Pre-commit checks failed! If you are seeing this message, you probably forgot to install the pre-commit hooks on your local machine. To fix this, run the following in your terminal:
+
+pip install pre-commit && pre-commit install
+
+Next time you commit, pre-commit will run automatically, and will fix or flag any issues.
+To see all issues without committing, you can run:
+
+pre-commit run --all-files

@@ -1,0 +1,18 @@
+repos:
+  - repo: https://github.com/psf/black
+    rev: 24.4.2
+    hooks:
+      - id: black
+        args: [--target-version, py310]
+        language_version: python3
+        types: [python]
+        files: ^(tests|amads|examples|demos|docs)/
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: ["--profile", "black", "--filter-files"]
+  - repo: https://github.com/PyCQA/flake8
+    rev: 7.0.0
+    hooks:
+    - id: flake8

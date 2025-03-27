@@ -1,5 +1,9 @@
 name: Tests
 
+env:
+  # This is needed for R's install_github scripts
+  GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
 on:
   push:
     branches: [ main ]
@@ -7,25 +11,68 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
+  tests_main:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.9", "3.10", "3.11"]
+        python-version: ["3.10", "3.11"]
 
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
-        
+
+    - name: Run pre-commit checks
+      run: |
+        pip install pre-commit
+        pre-commit run --all-files || (cat .github/pre-commit-error-message.txt && exit 1)
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -e .[test]
-        
-    - name: Run tests
+
+    - name: Run tests with coverage
       run: |
-        pytest tests/
+        python -c "from amads.ci import run_main_tests; run_main_tests()"
+
+    - name: Upload coverage to Codecov
+      if: always() && matrix.python-version == '3.11'
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        fail_ci_if_error: true
+        flags: python-tests
+
+  tests_melsim:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+
+    - name: Setup R dependencies
+      uses: ./.github/actions/setup-r
+
+    - name: Install Python packages
+      run: |
+        pip install -e .[test,melsim]
+
+    - name: Run melsim tests with coverage
+      run: |
+        python -c "from amads.ci import run_ci_group_tests; run_ci_group_tests('tests_melsim')"
+
+    - name: Upload coverage to Codecov
+      if: always()
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        fail_ci_if_error: true
+        flags: melsim-tests

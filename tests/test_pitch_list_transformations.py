@@ -16,14 +16,12 @@ Source: Gotham and Yust, Serial Analyser, DLfM 2021
 https://github.com/MarkGotham/Serial_Analyser
 """
 
-import pytest
-from musmart.algorithm.pitch_list_transformations import (
+from amads.pitch.serial import pair_swap_krenek, rotate_hexachords
+from amads.pitch.transformations import (
     invert,
-    pair_swap_krenek,
     pitches_to_intervals,
     retrograde,
     rotate,
-    rotate_hexachords,
     transpose_by,
     transpose_to,
 )
@@ -53,9 +51,9 @@ def test_invert():
 
 def test_pitches_to_intervals():
     test_row_up = [x for x in range(12)]
-    assert pitches_to_intervals(test_row_up) == [1]*11
+    assert pitches_to_intervals(test_row_up) == [1] * 11
     test_row_down = test_row_up[::-1]
-    assert pitches_to_intervals(test_row_down) == [11]*11
+    assert pitches_to_intervals(test_row_down) == [11] * 11
 
 
 def test_rotate_hexachords():

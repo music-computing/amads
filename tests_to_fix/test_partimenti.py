@@ -10,7 +10,7 @@ https://creativecommons.org/licenses/by-sa/4.0/
 
 import pytest
 
-from musmart.resources.partimenti import *
+from amads.schemata.partimenti import *
 
 
 @pytest.mark.parametrize("partimento", [
@@ -39,7 +39,7 @@ from musmart.resources.partimenti import *
 ], ids=lambda x: x["name"])  # Use the partimento name as the test ID
 def test_partimenti_length(partimento):
     """Test that partimento sections have consistent lengths.
-    
+
     Each partimento should have melody, bass, and figures sections
     of equal length.
     """

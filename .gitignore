@@ -170,3 +170,6 @@ conda_notes.md
 
 # Sphinx gallery files
 docs/auto_examples
+
+/.vscode/
+docs/sg_execution_times.rst

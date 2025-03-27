@@ -1,0 +1,27 @@
+[flake8]
+builtins = _
+ignore = E203, E501, W503
+max-line-length = 88
+exclude =
+    bin,
+    build,
+    .cache,
+    dist,
+    *.egg-info,
+    .eggs,
+    .git,
+    lib,
+    *.pyc,
+    __pycache__,
+    src,
+    .tox,
+    tests_to_fix/*
+per-file-ignores =
+    */__init__.py: F401, F403
+    amads/all.py: F401, F403
+    ; amads/algorithms/__init__.py: F401, F403
+    ; amads/all.py: F401, F403
+    ; amads/core/__init__.py: F401, F403
+    ; amads/harmony/__init__.py: F401, F403
+    ; amads/io/__init__.py: F401, F403
+

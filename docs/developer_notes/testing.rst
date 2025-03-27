@@ -37,7 +37,7 @@ Example test::
 
     def test_my_function():
         result = my_function()
-        assert result == expected_value 
+        assert result == expected_value
 
 Doctests
 --------
@@ -63,15 +63,20 @@ Example doctest::
 
         Examples
         --------
-        >>> round(entropy([0.5, 0.5]), 6)
+        >>> entropy([0.5, 0.5])
         1.0
         """
 
 These doctests are automatically run when you run ``pytest``.
 
 Continuous Integration
---------------------
+----------------------
 
-Tests are automatically run via GitHub Actions CI on pushes to main and pull requests. The CI runs tests against Python versions 3.9, 3.10, and 3.11 on Ubuntu.
+Tests are automatically run via GitHub Actions CI on pushes to main and pull requests.
 
-You can view the CI configuration in ``.github/workflows/tests.yml`` and check test results in the "Actions" tab of the GitHub repository.
+You can view the CI configuration in ``.github/workflows/tests.yml``
+and check test results in the "Actions" tab of the GitHub repository.
+
+By default tests are run in the tests_main CI job.
+However, some tests that require bespoke dependencies are run in separate CI jobs
+(e.g. ``tests_melsim``).

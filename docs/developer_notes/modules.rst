@@ -13,8 +13,8 @@ module is a single python script (file).
 
 Problems
 --------
-- Want to control the naming (somewhat) independently of the file 
-  system organization. 
+- Want to control the naming (somewhat) independently of the file
+  system organization.
 - Want to load modules incrementally, e.g. we want to load only
   analysis algorithms that we intend to use.
 - Want to load modules conditionally, such as deciding to use
@@ -26,22 +26,22 @@ What should our namespace look like?
 ----------------------------------
 
 There should be one top level module name. "smart" is too generic, so
-possibly musmart.
+possibly amads.
 
 Controlling naming
 ----------------
 
-Within musmart, we should have algorithms, e.g.
+Within amads, we should have algorithms, e.g.
 
 ::
 
-    musmart.durdist1.durdist1(score)
+    amads.durdist1.durdist1(score)
 
 is the durdist1 function. It is not (according to the file system)
 
 ::
 
-    musmart.src.algorithms.durdist1.durdist1
+    amads.src.algorithms.durdist1.durdist1
 
 Putting this in ``__init__.py`` should accomplish this goal (need to
 test)::
@@ -54,7 +54,7 @@ import ``durdist1.py``, which can be imported by
 
 ::
 
-    from musmart.durdist1 import durdist1
+    from amads.durdist1 import durdist1
 
 Incremental loading
 -----------------
@@ -69,7 +69,7 @@ Conditional loading
 Maybe it's better to simply load what you want. In particular, users
 can write the following for Partitura IO::
 
-    from musmart.ptio import pt_midi_import
+    from amads.ptio import pt_midi_import
 
 (Need to test this.)
 
@@ -81,6 +81,6 @@ Running test code with the debugger
 --------------------------------
 
 In VScode, you can set PYTHONPATH to include the parent directory, but
-I think we need there to be a directory actually named musmart (or
+I think we need there to be a directory actually named amads (or
 whatever it's called) in order to import it that way into test
 modules.

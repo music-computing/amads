@@ -1,8 +1,11 @@
-musmart documentation
+amads documentation
 =====================
 
 This package collects together a variety of algorithms for symbolic music analysis.
-Here's an overview:
+
+**The package is its very early stages. The API is subject to change, and many algorithms are not yet implemented, tested, or documented!**
+
+For the source code, visit the `GitHub repository <https://github.com/music-computing/amads>`_.
 
 .. We add the :hidden: directive to each toctree so that the toctree is not displayed
 .. in the main page itself, but only in the sidebar.
@@ -19,11 +22,14 @@ Here's an overview:
    :caption: Developer notes:
    :hidden:
 
-   developer_notes/building_docs
+   developer_notes/contributing
+   developer_notes/documentation
    developer_notes/design
    developer_notes/modules
    developer_notes/music21
    developer_notes/testing
+   developer_notes/style
+   developer_notes/making_a_release
 
 .. toctree::
    :maxdepth: 2
@@ -32,43 +38,100 @@ Here's an overview:
 
    auto_examples/index
 
-Algorithms
-----------
+
+
+General algorithms
+------------------
 
 .. autosummary::
    :toctree: _autosummary
-   :caption: Algorithms API:
+   :caption: General algorithms:
 
-   musmart.algorithm.entropy
-   musmart.algorithm.pcdist1
-   musmart.algorithm.pcdist2
+   amads.algorithms.entropy
+   amads.algorithms.nnotes
+   amads.algorithms.scale
+   amads.algorithms.slice.salami
+   amads.algorithms.slice.window
 
+Pitch
+-----
+
+.. autosummary::
+   :toctree: _autosummary
+   :caption: Pitch:
+
+
+   amads.pitch.hz2midi
+   amads.pitch.ismonophonic
+   amads.pitch.ivdirdist1
+   amads.pitch.ivdist1
+   amads.pitch.ivdist2
+   amads.pitch.ivsizedist1
+   amads.pitch.key.profiles
+   amads.pitch.pcdist1
+   amads.pitch.pcdist2
+   amads.pitch.pitch_mean
+   amads.pitch.transformations
+
+Time
+----
+
+.. autosummary::
+   :toctree: _autosummary
+   :caption: Time:
+
+   amads.time.durdist1
+   amads.time.durdist2
+   amads.time.npvi
+   amads.time.swing
+   amads.time.tempo
+   amads.time.meter.break_it_up
+
+Harmony
+-------
+
+.. autosummary::
+   :toctree: _autosummary
+   :caption: Harmony:
+
+   amads.harmony.root_finding.parncutt_1988
+
+Melody
+------
+
+.. autosummary::
+   :toctree: _autosummary
+   :caption: Melody:
+
+   amads.melody.boundary
+   amads.melody.segment_gestalt
+   amads.melody.contour.interpolation_contour
+   amads.melody.contour.step_contour
+   amads.melody.similarity.melsim
+
+Polyphony
+---------
+
+.. autosummary::
+   :toctree: _autosummary
+   :caption: Polyphony:
+
+   amads.polyphony.skyline
 
 Core
 ----
 
 .. autosummary::
-   :toctree: _autosummary 
-   :caption: Core API:
+   :toctree: _autosummary
+   :caption: Core:
 
-   musmart.core.basics
-
+   amads.core.basics
 
 IO
 --
 
 .. autosummary::
    :toctree: _autosummary
-   :caption: IO API:
+   :caption: IO:
 
-   musmart.io.pianoroll
-
-
-Resources
----------
-
-.. autosummary::
-   :toctree: _autosummary
-   :caption: Resources API:
-
-   musmart.resources.key_profiles_literature
+   amads.io.pianoroll

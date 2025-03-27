@@ -1,12 +1,12 @@
 Introduction
 ============
 
-Welcome to the musmart documentation!
+Welcome to the amads documentation!
 
 Overview
 --------
 
-musmart is a project designed to ...
+amads is a project designed to ...
 
 Features
 --------
@@ -18,12 +18,12 @@ Features
 Getting Started
 ---------------
 
-To get started with musmart, you need to ...
+To get started with amads, you need to ...
 
 Installation
 ------------
 
-To install musmart, follow these steps:
+To install amads, follow these steps:
 
 1. Step 1: ...
 2. Step 2: ...
@@ -32,7 +32,7 @@ To install musmart, follow these steps:
 Usage
 -----
 
-Once installed, you can use musmart to ...
+Once installed, you can use amads to ...
 
 Contributing
 ------------
