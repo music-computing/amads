@@ -79,7 +79,7 @@ class _KeyProfile:
         Examples:
             >>> kp = KrumhanslKessler()
             >>> kp["name"]
-            'KrumhanslKessl'
+            'KrumhanslKessler'
         """
         try:
             return getattr(self, key)
@@ -95,7 +95,7 @@ class _KeyProfile:
 
 @dataclass
 class KrumhanslKessler(_KeyProfile):
-    name: str = "KrumhanslKessl"
+    name: str = "KrumhanslKessler"
     literature: str = (
         "Krumhansl and Kessler (1982). See also Krumhansl and Shepard (1979)"
     )
@@ -544,7 +544,7 @@ class Vuvan(_KeyProfile):
 
 @dataclass
 class DeClerqTemperley(_KeyProfile):
-    name: str = "deClerqTemperley"
+    name: str = "DeClerqTemperley"
     literature: str = "deClerq and Temperley (Popular Music, 2011)"
     about: str = "Chord roots (specifically) in rock harmony."
     roots: tuple[float] = (

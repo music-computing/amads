@@ -14,6 +14,8 @@ class KeyProfileTest(unittest.TestCase):
             self.assertTrue(
                 str(profile()) == profile().__str__() == getattr(profile, "name")
             )
+            # Test that the name of the class is the same as its .name attribute
+            self.assertTrue(profile().__class__.__name__ == getattr(profile, "name"))
             for attr in expected_attrs:
                 # The class should have the attribute
                 self.assertTrue(hasattr(profile, attr))
