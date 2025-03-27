@@ -51,6 +51,8 @@ class KeyProfileTest(unittest.TestCase):
                     summed = sum(getattr(profile, attr))
                     self.assertAlmostEquals(summed, 1.0, places=2)
 
-
-if __name__ == "__main__":
-    unittest.main()
+    def test_missing_attributes(self):
+        """Test that we raise errors properly when trying to access missing attributes"""
+        for profile in source_list:
+            with self.assertRaises(AttributeError):
+                _ = profile().__getitem__("missing")
