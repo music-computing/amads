@@ -79,7 +79,7 @@ class _KeyProfile:
         Examples:
             >>> kp = KrumhanslKessler()
             >>> kp["name"]
-            "KrumhanslKessl"
+            'KrumhanslKessl'
         """
         try:
             return getattr(self, key)
