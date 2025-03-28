@@ -1,6 +1,6 @@
 import pytest
 
-from amads.core.basics import Score
+from amads.core.basics import Note, Part, Score
 
 
 def test_from_melody_overlapping_notes():
@@ -23,3 +23,33 @@ def test_from_melody_empty_pitches():
     assert score.duration == 0.0
     assert len(score.content) == 1  # should have one empty part
     assert len(score.content[0].content) == 0  # part should have no notes
+
+
+def test_copy_score():
+    score = Score.from_melody(pitches=[60, 62, 64], durations=1.0)
+    copied_score = score.copy()
+
+    copied_note = copied_score.content[0].content[0]
+    assert isinstance(copied_note, Note)
+
+    copied_part = copied_score.content[0]
+    assert isinstance(copied_part, Part)
+
+    assert copied_note.parent == copied_part
+    assert copied_part.parent == copied_score
+
+    assert copied_part.parent != score
+
+
+def test_parent():
+    score = Score.from_melody(pitches=[60, 62, 64], durations=1.0)
+
+    part = score.content[0]
+    assert isinstance(part, Part)
+    assert part.part is None
+    assert part.parent == part.score == score
+
+    note = part.content[0]
+    assert isinstance(note, Note)
+    assert note.part == part
+    assert note.score == score

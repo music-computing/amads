@@ -30,7 +30,7 @@ class Window(Slice):
         - "center": reference time is at window center
         - "right": window ends at reference time
     candidate_notes : Iterable[Note]
-        Notes to consider for inclusion in this window, sorted by start time and pitch
+        Notes to consider for inclusion in this window, sorted by onset time and pitch
     skip : int, default=0
         Index to start searching from in candidate_notes. This is used to optimize
         performance when iterating through multiple windows - each window can tell
@@ -58,12 +58,14 @@ class Window(Slice):
 
         offset = onset + size
 
-        self.time = time
-        self.size = size
-        self.align = align
+        super().__init__(
+            original_notes=[],
+            onset=onset,
+            duration=size,
+        )
 
-        original_notes = []
-        notes = []
+        self.time = time
+        self.align = align
 
         candidate_notes = list(candidate_notes)
 
@@ -79,30 +81,21 @@ class Window(Slice):
 
             if note.onset > offset:
                 # The note starts after the window finishes.
-                # All the remaining notes in candidate_notes will have even later starts,
+                # All the remaining notes in candidate_notes will have even later onsets,
                 # so we don't need to check them for this window.
                 # They might be caught by future windows though.
                 break
 
-            original_notes.append(note)
+            self.original_notes.append(note)
 
-            # We use copy instead of creating a new Note because we want to
+            # We use deepcopy_into instead of creating a new Note because we want to
             # preserve any other attributes that might be useful in downstream tasks.
-            note = note.copy()
+            note = note.copy(parent=self)
             note.onset = max(note.onset, onset)
             note.offset = min(note.offset, offset)
 
-            notes.append(note)
-
         # The next window can look at this attribute to know which candidates can be skipped.
         self.skip = skip
-
-        super().__init__(
-            content=notes,
-            original_notes=original_notes,
-            delta=onset,
-            duration=size,
-        )
 
 
 def sliding_window(
@@ -110,8 +103,8 @@ def sliding_window(
     size: float,
     step: float = 1.0,
     align: str = "right",
-    start: float = 0.0,
-    end: Optional[float] = None,
+    onset: float = 0.0,
+    offset: Optional[float] = None,
     times: Optional[Iterable[float]] = None,
 ) -> Iterator[Window]:
     """Slice a score into (possibly overlapping) windows of a given size.
@@ -121,7 +114,7 @@ def sliding_window(
     passage : Score or Iterable[Note]
         The musical passage to be windowed
     size : float
-        The size of each window (time units)
+        The size (duration) of each window (time units)
     step : float, default=1.0
         The step size to take between windows (time units).
         For example, if step is 0.1, then a given slice will start 0.1 time units
@@ -134,16 +127,16 @@ def sliding_window(
         - "left": the window starts at ``window.time``
         - "center": ``window.time`` corresponds to the midpoint of the window
         - "right": the window finishes at ``window.time``
-    start : float, default=0.0
+    onset : float, default=0.0
         The desired time of the first window
-    end : float, optional
-        If set, the windowing will stop once the end time is reached.
+    offset : float, optional
+        If set, the windowing will stop once the offset time is reached.
         Following the behaviour of Python's built-in range function,
-        ``end`` is not treated inclusively, i.e. the last window will
-        not include ``end``
+        ``offset`` is not treated inclusively, i.e. the last window will
+        not include ``offset``
     times : Iterable[float], optional
         Optional iterable of times to generate windows for. If provided,
-        `start` and `end` are ignored
+        `onset` and `offset` are ignored
 
     Returns
     -------
@@ -151,7 +144,7 @@ def sliding_window(
         Iterator over the windows
     """
     if isinstance(passage, Score):
-        if not passage.is_flattened_and_collapsed():
+        if not passage.is_flat_and_collapsed():
             raise NotImplementedError(
                 "Currently this function only supports flattened and collapsed scores. "
                 "You can flatten a score using `score.flatten(collapse=True)`."
@@ -164,9 +157,9 @@ def sliding_window(
     notes.sort(key=lambda n: (n.onset, n.pitch))
 
     if times is None:
-        window_times = float_range(start, end, step)
+        window_times = float_range(onset, offset, step)
     else:
-        for par, default in [("start", 0.0), ("end", None), ("step", 1.0)]:
+        for par, default in [("onset", 0.0), ("offset", None), ("step", 1.0)]:
             provided = globals()[par]
             if provided != default:
                 raise ValueError(
