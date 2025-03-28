@@ -1,0 +1,845 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Melodic similarity &#8212; amads  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'auto_examples/plot_melsim';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="amads.algorithms.entropy" href="../_autosummary/amads.algorithms.entropy.html" />
+    <link rel="prev" title="Sliding window analysis" href="plot_sliding_window.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">amads  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">User guide:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/installation.html">Installation</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Developer notes:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../developer_notes/contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_notes/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_notes/design.html">Design considerations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_notes/modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_notes/music21.html">Music21</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_notes/testing.html">Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_notes/style.html">Style</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_notes/making_a_release.html">Making a release</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Examples:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="plot_durdist1.html">Duration distributions (I)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot_durdist2.html">Duration distributions (II)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot_boundary.html">Boundary detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot_sliding_window.html">Sliding window analysis</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Melodic similarity</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">General algorithms:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.algorithms.entropy.html">amads.algorithms.entropy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.algorithms.nnotes.html">amads.algorithms.nnotes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.algorithms.scale.html">amads.algorithms.scale</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.algorithms.slice.salami.html">amads.algorithms.slice.salami</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.algorithms.slice.window.html">amads.algorithms.slice.window</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Pitch:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.hz2midi.html">amads.pitch.hz2midi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.ismonophonic.html">amads.pitch.ismonophonic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.ivdirdist1.html">amads.pitch.ivdirdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.ivdist1.html">amads.pitch.ivdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.ivdist2.html">amads.pitch.ivdist2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.ivsizedist1.html">amads.pitch.ivsizedist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.key.profiles.html">amads.pitch.key.profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.pcdist1.html">amads.pitch.pcdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.pcdist2.html">amads.pitch.pcdist2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.pitch_mean.html">amads.pitch.pitch_mean</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.transformations.html">amads.pitch.transformations</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Time:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.time.durdist1.html">amads.time.durdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.time.durdist2.html">amads.time.durdist2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.time.npvi.html">amads.time.npvi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.time.swing.html">amads.time.swing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.time.tempo.html">amads.time.tempo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.time.meter.break_it_up.html">amads.time.meter.break_it_up</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Harmony:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.harmony.root_finding.parncutt_1988.html">amads.harmony.root_finding.parncutt_1988</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Melody:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.melody.boundary.html">amads.melody.boundary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.melody.segment_gestalt.html">amads.melody.segment_gestalt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.melody.contour.interpolation_contour.html">amads.melody.contour.interpolation_contour</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.melody.contour.step_contour.html">amads.melody.contour.step_contour</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.melody.similarity.melsim.html">amads.melody.similarity.melsim</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Polyphony:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.polyphony.skyline.html">amads.polyphony.skyline</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Core:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.core.basics.html">amads.core.basics</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">IO:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.io.pianoroll.html">amads.io.pianoroll</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/auto_examples/plot_melsim.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Melodic similarity</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-auto-examples-plot-melsim-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
+</div>
+<section class="sphx-glr-example-title" id="melodic-similarity">
+<span id="sphx-glr-auto-examples-plot-melsim-py"></span><h1>Melodic similarity<a class="headerlink" href="#melodic-similarity" title="Link to this heading">#</a></h1>
+<p>This example demonstrates how we can calculate the similarity between two
+melodies using the <cite>melsim</cite> module, which is a Python wrapper for the <cite>melsim</cite>
+R package (<a class="github reference external" href="https://github.com/sebsilas/melsim">sebsilas/melsim</a>).</p>
+<p>First, we’ll import the required modules.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">amads.core.basics</span><span class="w"> </span><span class="kn">import</span> <span class="n">Score</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">amads.melody.similarity.melsim</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">check_r_packages_installed</span><span class="p">,</span>
+    <span class="n">get_similarity</span><span class="p">,</span>
+    <span class="n">r_get_similarity</span><span class="p">,</span>
+    <span class="n">r_load_melody</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">amads.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_python_package_installed</span>
+</pre></div>
+</div>
+<p>Check if all required dependencies are installed.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">test_check_dependencies</span><span class="p">():</span>
+    <span class="n">check_python_package_installed</span><span class="p">(</span><span class="s2">&quot;rpy2&quot;</span><span class="p">)</span>
+    <span class="n">check_r_packages_installed</span><span class="p">(</span><span class="n">install_missing</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<span class="n">test_check_dependencies</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Installing CRAN package &#39;tibble&#39;...
+
+
+Installing CRAN package &#39;R6&#39;...
+
+
+Installing CRAN package &#39;remotes&#39;...
+
+
+Installing GitHub package &#39;melsim&#39;...
+R[write to console]: Using github PAT from envvar GITHUB_PAT. Use `gitcreds::gitcreds_set()` and unset GITHUB_PAT in .Renviron (or elsewhere) if you want to use the more secure git credential store instead.
+
+R[write to console]: Downloading GitHub repo sebsilas/melsim@HEAD
+
+itembankr    (NA -&gt; cce29a3ef...) [GitHub]
+colorspace   (NA -&gt; 2.1-1       ) [CRAN]
+viridisLite  (NA -&gt; 0.4.2       ) [CRAN]
+RColorBrewer (NA -&gt; 1.1-3       ) [CRAN]
+munsell      (NA -&gt; 0.5.1       ) [CRAN]
+labeling     (NA -&gt; 0.4.3       ) [CRAN]
+farver       (NA -&gt; 2.1.2       ) [CRAN]
+lattice      (NA -&gt; 0.22-6      ) [CRAN]
+Matrix       (NA -&gt; 1.7-3       ) [CRAN]
+nlme         (NA -&gt; 3.1-167     ) [CRAN]
+withr        (NA -&gt; 3.0.2       ) [CRAN]
+stringi      (NA -&gt; 1.8.7       ) [CRAN]
+tidyselect   (NA -&gt; 1.2.1       ) [CRAN]
+generics     (NA -&gt; 0.1.3       ) [CRAN]
+proxy        (NA -&gt; 0.4-27      ) [CRAN]
+scales       (NA -&gt; 1.3.0       ) [CRAN]
+mgcv         (NA -&gt; 1.9-1       ) [CRAN]
+MASS         (NA -&gt; 7.3-65      ) [CRAN]
+isoband      (NA -&gt; 0.2.7       ) [CRAN]
+gtable       (NA -&gt; 0.3.6       ) [CRAN]
+cpp11        (NA -&gt; 0.5.2       ) [CRAN]
+stringr      (NA -&gt; 1.5.1       ) [CRAN]
+purrr        (NA -&gt; 1.0.4       ) [CRAN]
+dplyr        (NA -&gt; 1.1.4       ) [CRAN]
+Rcpp         (NA -&gt; 1.0.14      ) [CRAN]
+cba          (NA -&gt; 0.2-25      ) [CRAN]
+ggplot2      (NA -&gt; 3.5.1       ) [CRAN]
+assertthat   (NA -&gt; 0.2.1       ) [CRAN]
+dtw          (NA -&gt; 1.23-1      ) [CRAN]
+emdist       (NA -&gt; 0.3-3       ) [CRAN]
+tictoc       (NA -&gt; 1.2.1       ) [CRAN]
+yaml         (NA -&gt; 2.3.10      ) [CRAN]
+logging      (NA -&gt; 0.10-108    ) [CRAN]
+tidyr        (NA -&gt; 1.3.1       ) [CRAN]
+purrrlyr     (NA -&gt; 0.0.8       ) [CRAN]
+R[write to console]: Downloading GitHub repo sebsilas/itembankr@HEAD
+
+hrep         (NA -&gt; 461f98d03...) [GitHub]
+withr        (NA -&gt; 3.0.2       ) [CRAN]
+stringi      (NA -&gt; 1.8.7       ) [CRAN]
+generics     (NA -&gt; 0.1.3       ) [CRAN]
+cpp11        (NA -&gt; 0.5.2       ) [CRAN]
+tidyselect   (NA -&gt; 1.2.1       ) [CRAN]
+stringr      (NA -&gt; 1.5.1       ) [CRAN]
+purrr        (NA -&gt; 1.0.4       ) [CRAN]
+dplyr        (NA -&gt; 1.1.4       ) [CRAN]
+timechange   (NA -&gt; 0.3.0       ) [CRAN]
+Rcpp         (NA -&gt; 1.0.14      ) [CRAN]
+later        (NA -&gt; 1.4.1       ) [CRAN]
+fastmap      (NA -&gt; 1.2.0       ) [CRAN]
+digest       (NA -&gt; 0.6.37      ) [CRAN]
+base64enc    (NA -&gt; 0.1-3       ) [CRAN]
+htmltools    (NA -&gt; 0.5.8.1     ) [CRAN]
+lazyeval     (NA -&gt; 0.2.2       ) [CRAN]
+jsonlite     (NA -&gt; 2.0.0       ) [CRAN]
+promises     (NA -&gt; 1.3.2       ) [CRAN]
+rappdirs     (NA -&gt; 0.3.3       ) [CRAN]
+fs           (NA -&gt; 1.6.5       ) [CRAN]
+sass         (NA -&gt; 0.4.9       ) [CRAN]
+mime         (NA -&gt; 0.13        ) [CRAN]
+memoise      (NA -&gt; 2.0.1       ) [CRAN]
+cachem       (NA -&gt; 1.1.0       ) [CRAN]
+tinytex      (NA -&gt; 0.56        ) [CRAN]
+jquerylib    (NA -&gt; 0.1.4       ) [CRAN]
+fontawesome  (NA -&gt; 0.5.3       ) [CRAN]
+bslib        (NA -&gt; 0.9.0       ) [CRAN]
+xfun         (NA -&gt; 0.51        ) [CRAN]
+highr        (NA -&gt; 0.11        ) [CRAN]
+evaluate     (NA -&gt; 1.0.3       ) [CRAN]
+yaml         (NA -&gt; 2.3.10      ) [CRAN]
+rmarkdown    (NA -&gt; 2.29        ) [CRAN]
+knitr        (NA -&gt; 1.50        ) [CRAN]
+lattice      (NA -&gt; 0.22-6      ) [CRAN]
+colorspace   (NA -&gt; 2.1-1       ) [CRAN]
+viridisLite  (NA -&gt; 0.4.2       ) [CRAN]
+RColorBrewer (NA -&gt; 1.1-3       ) [CRAN]
+munsell      (NA -&gt; 0.5.1       ) [CRAN]
+labeling     (NA -&gt; 0.4.3       ) [CRAN]
+farver       (NA -&gt; 2.1.2       ) [CRAN]
+Matrix       (NA -&gt; 1.7-3       ) [CRAN]
+nlme         (NA -&gt; 3.1-167     ) [CRAN]
+MASS         (NA -&gt; 7.3-65      ) [CRAN]
+tidyr        (NA -&gt; 1.3.1       ) [CRAN]
+snakecase    (NA -&gt; 0.11.1      ) [CRAN]
+lubridate    (NA -&gt; 1.9.4       ) [CRAN]
+hms          (NA -&gt; 1.1.3       ) [CRAN]
+crosstalk    (NA -&gt; 1.2.1       ) [CRAN]
+httpuv       (NA -&gt; 1.6.15      ) [CRAN]
+htmlwidgets  (NA -&gt; 1.6.4       ) [CRAN]
+GPArotation  (NA -&gt; 2024.3-1    ) [CRAN]
+mnormt       (NA -&gt; 2.1.1       ) [CRAN]
+scales       (NA -&gt; 1.3.0       ) [CRAN]
+mgcv         (NA -&gt; 1.9-1       ) [CRAN]
+isoband      (NA -&gt; 0.2.7       ) [CRAN]
+gtable       (NA -&gt; 0.3.6       ) [CRAN]
+signal       (NA -&gt; 1.8-1       ) [CRAN]
+logging      (NA -&gt; 0.10-108    ) [CRAN]
+assertthat   (NA -&gt; 0.2.1       ) [CRAN]
+janitor      (NA -&gt; 2.2.1       ) [CRAN]
+DT           (NA -&gt; 0.33        ) [CRAN]
+psych        (NA -&gt; 2.5.3       ) [CRAN]
+ggplot2      (NA -&gt; 3.5.1       ) [CRAN]
+tuneR        (NA -&gt; 1.4.7       ) [CRAN]
+XML          (NA -&gt; 3.99-0.18   ) [CRAN]
+R[write to console]: Downloading GitHub repo pmcharrison/hrep@HEAD
+
+abcR        (NA -&gt; ddb23ba8e...) [GitHub]
+cpp11       (NA -&gt; 0.5.2       ) [CRAN]
+prettyunits (NA -&gt; 1.2.0       ) [CRAN]
+bit         (NA -&gt; 4.6.0       ) [CRAN]
+progress    (NA -&gt; 1.2.3       ) [CRAN]
+withr       (NA -&gt; 3.0.2       ) [CRAN]
+tzdb        (NA -&gt; 0.5.0       ) [CRAN]
+tidyselect  (NA -&gt; 1.2.1       ) [CRAN]
+hms         (NA -&gt; 1.1.3       ) [CRAN]
+crayon      (NA -&gt; 1.5.3       ) [CRAN]
+bit64       (NA -&gt; 4.6.0-1     ) [CRAN]
+fastmap     (NA -&gt; 1.2.0       ) [CRAN]
+vroom       (NA -&gt; 1.6.5       ) [CRAN]
+clipr       (NA -&gt; 0.8.0       ) [CRAN]
+cachem      (NA -&gt; 1.1.0       ) [CRAN]
+backports   (NA -&gt; 1.5.0       ) [CRAN]
+rbibutils   (NA -&gt; 2.3         ) [CRAN]
+Rcpp        (NA -&gt; 1.0.14      ) [CRAN]
+readr       (NA -&gt; 2.1.5       ) [CRAN]
+data.table  (NA -&gt; 1.17.0      ) [CRAN]
+memoise     (NA -&gt; 2.0.1       ) [CRAN]
+purrr       (NA -&gt; 1.0.4       ) [CRAN]
+checkmate   (NA -&gt; 2.3.2       ) [CRAN]
+Rdpack      (NA -&gt; 2.6.3       ) [CRAN]
+plyr        (NA -&gt; 1.8.9       ) [CRAN]
+R[write to console]: Downloading GitHub repo pmcharrison/abcR@HEAD
+
+withr      (NA -&gt; 3.0.2  ) [CRAN]
+tidyselect (NA -&gt; 1.2.1  ) [CRAN]
+generics   (NA -&gt; 0.1.3  ) [CRAN]
+fastmap    (NA -&gt; 1.2.0  ) [CRAN]
+digest     (NA -&gt; 0.6.37 ) [CRAN]
+base64enc  (NA -&gt; 0.1-3  ) [CRAN]
+backports  (NA -&gt; 1.5.0  ) [CRAN]
+purrr      (NA -&gt; 1.0.4  ) [CRAN]
+dplyr      (NA -&gt; 1.1.4  ) [CRAN]
+htmltools  (NA -&gt; 0.5.8.1) [CRAN]
+checkmate  (NA -&gt; 2.3.2  ) [CRAN]
+R[write to console]: Installing 11 packages: withr, tidyselect, generics, fastmap, digest, base64enc, backports, purrr, dplyr, htmltools, checkmate
+
+
+
+R[write to console]: Running `R CMD build`...
+
+* checking for file ‘/tmp/RtmphVck3N/remotes173b4f31cd66/pmcharrison-abcR-ddb23ba/DESCRIPTION’ ... OK
+* preparing ‘abcR’:
+* checking DESCRIPTION meta-information ... OK
+* checking for LF line-endings in source and make files and shell scripts
+* checking for empty or unneeded directories
+Omitted ‘LazyData’ from DESCRIPTION
+* building ‘abcR_0.0.0.9007.tar.gz’
+R[write to console]: Installing package into ‘/usr/local/lib/R/site-library’
+(as ‘lib’ is unspecified)
+
+R[write to console]: Installing 24 packages: cpp11, prettyunits, bit, progress, withr, tzdb, tidyselect, hms, crayon, bit64, fastmap, vroom, clipr, cachem, backports, rbibutils, Rcpp, readr, data.table, memoise, purrr, checkmate, Rdpack, plyr
+
+
+
+R[write to console]: Skipping install of &#39;abcR&#39; from a github remote, the SHA1 (ddb23ba8) has not changed since last install.
+  Use `force = TRUE` to force installation
+
+R[write to console]: Running `R CMD build`...
+
+* checking for file ‘/tmp/RtmphVck3N/remotes173b4f30b57d/pmcharrison-hrep-461f98d/DESCRIPTION’ ... OK
+* preparing ‘hrep’:
+* checking DESCRIPTION meta-information ... OK
+* installing the package to process help pages
+* saving partial Rd database
+* checking for LF line-endings in source and make files and shell scripts
+* checking for empty or unneeded directories
+  NB: this package now depends on R (&gt;= 3.5.0)
+  WARNING: Added dependency on R &gt;= 3.5.0 because serialized objects in
+  serialize/load version 3 cannot be read in older versions of R.
+  File(s) containing such objects:
+    ‘hrep/inst/stability-tests/pc-chord-alphabet.rds’
+    ‘hrep/inst/stability-tests/pc-chord-type-alphabet.rds’
+    ‘hrep/inst/stability-tests/pc-set-alphabet.rds’
+* building ‘hrep_0.16.1.tar.gz’
+R[write to console]: Installing package into ‘/usr/local/lib/R/site-library’
+(as ‘lib’ is unspecified)
+
+R[write to console]: Installing 66 packages: withr, stringi, generics, cpp11, tidyselect, stringr, purrr, dplyr, timechange, Rcpp, later, fastmap, digest, base64enc, htmltools, lazyeval, jsonlite, promises, rappdirs, fs, sass, mime, memoise, cachem, tinytex, jquerylib, fontawesome, bslib, xfun, highr, evaluate, yaml, rmarkdown, knitr, lattice, colorspace, viridisLite, RColorBrewer, munsell, labeling, farver, Matrix, nlme, MASS, tidyr, snakecase, lubridate, hms, crosstalk, httpuv, htmlwidgets, GPArotation, mnormt, scales, mgcv, isoband, gtable, signal, logging, assertthat, janitor, DT, psych, ggplot2, tuneR, XML
+
+
+
+R[write to console]: Skipping install of &#39;hrep&#39; from a github remote, the SHA1 (461f98d0) has not changed since last install.
+  Use `force = TRUE` to force installation
+
+R[write to console]: Running `R CMD build`...
+
+* checking for file ‘/tmp/RtmphVck3N/remotes173b2e00932/sebsilas-itembankr-cce29a3/DESCRIPTION’ ... OK
+* preparing ‘itembankr’:
+* checking DESCRIPTION meta-information ... OK
+* checking for LF line-endings in source and make files and shell scripts
+* checking for empty or unneeded directories
+* building ‘itembankr_0.5.2.tar.gz’
+R[write to console]: Installing package into ‘/usr/local/lib/R/site-library’
+(as ‘lib’ is unspecified)
+
+R[write to console]: Installing 34 packages: colorspace, viridisLite, RColorBrewer, munsell, labeling, farver, lattice, Matrix, nlme, withr, stringi, tidyselect, generics, proxy, scales, mgcv, MASS, isoband, gtable, cpp11, stringr, purrr, dplyr, Rcpp, cba, ggplot2, assertthat, dtw, emdist, tictoc, yaml, logging, tidyr, purrrlyr
+
+
+
+R[write to console]: Skipping install of &#39;itembankr&#39; from a github remote, the SHA1 (cce29a3e) has not changed since last install.
+  Use `force = TRUE` to force installation
+
+R[write to console]: Running `R CMD build`...
+
+* checking for file ‘/tmp/RtmphVck3N/remotes173b98f59f2/sebsilas-melsim-74a8b0d/DESCRIPTION’ ... OK
+* preparing ‘melsim’:
+* checking DESCRIPTION meta-information ... OK
+* checking for LF line-endings in source and make files and shell scripts
+* checking for empty or unneeded directories
+* building ‘melsim_0.9.0.tar.gz’
+R[write to console]: Installing package into ‘/usr/local/lib/R/site-library’
+(as ‘lib’ is unspecified)
+</pre></div>
+</div>
+<p>Create example melodies for comparison. We’ll start with a C major scale and
+create variations by altering different notes.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a C major scale melody (C4 to C5) with quarter note durations</span>
+<span class="n">c_major_scale</span> <span class="o">=</span> <span class="n">Score</span><span class="o">.</span><span class="n">from_melody</span><span class="p">(</span>
+    <span class="n">pitches</span><span class="o">=</span><span class="p">[</span><span class="mi">60</span><span class="p">,</span> <span class="mi">62</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">65</span><span class="p">,</span> <span class="mi">67</span><span class="p">,</span> <span class="mi">69</span><span class="p">,</span> <span class="mi">71</span><span class="p">,</span> <span class="mi">72</span><span class="p">],</span> <span class="n">durations</span><span class="o">=</span><span class="mf">1.0</span>
+<span class="p">)</span>
+
+<span class="c1"># Create variations by altering different notes</span>
+<span class="n">modified_scale</span> <span class="o">=</span> <span class="n">Score</span><span class="o">.</span><span class="n">from_melody</span><span class="p">(</span>
+    <span class="n">pitches</span><span class="o">=</span><span class="p">[</span><span class="mi">60</span><span class="p">,</span> <span class="mi">62</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">66</span><span class="p">,</span> <span class="mi">67</span><span class="p">,</span> <span class="mi">71</span><span class="p">,</span> <span class="mi">72</span><span class="p">],</span> <span class="n">durations</span><span class="o">=</span><span class="mf">1.0</span>  <span class="c1"># F4-&gt;F#4</span>
+<span class="p">)</span>
+
+<span class="n">third_scale</span> <span class="o">=</span> <span class="n">Score</span><span class="o">.</span><span class="n">from_melody</span><span class="p">(</span>
+    <span class="n">pitches</span><span class="o">=</span><span class="p">[</span><span class="mi">60</span><span class="p">,</span> <span class="mi">62</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">66</span><span class="p">,</span> <span class="mi">67</span><span class="p">,</span> <span class="mi">68</span><span class="p">,</span> <span class="mi">71</span><span class="p">,</span> <span class="mi">72</span><span class="p">],</span> <span class="n">durations</span><span class="o">=</span><span class="mf">1.0</span>  <span class="c1"># F4-&gt;F#4, A4-&gt;Ab4</span>
+<span class="p">)</span>
+
+<span class="n">fourth_scale</span> <span class="o">=</span> <span class="n">Score</span><span class="o">.</span><span class="n">from_melody</span><span class="p">(</span>
+    <span class="n">pitches</span><span class="o">=</span><span class="p">[</span><span class="mi">60</span><span class="p">,</span> <span class="mi">62</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">66</span><span class="p">,</span> <span class="mi">67</span><span class="p">,</span> <span class="mi">68</span><span class="p">,</span> <span class="mi">70</span><span class="p">,</span> <span class="mi">72</span><span class="p">],</span> <span class="n">durations</span><span class="o">=</span><span class="mf">1.0</span>  <span class="c1"># F4-&gt;F#4, A4-&gt;Ab4, B4-&gt;Bb4</span>
+<span class="p">)</span>
+
+<span class="n">melodies</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_major_scale</span><span class="p">,</span> <span class="n">modified_scale</span><span class="p">,</span> <span class="n">third_scale</span><span class="p">,</span> <span class="n">fourth_scale</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Perform a simple similarity comparison between two melodies using Jaccard similarity.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">get_similarity</span><span class="p">(</span><span class="n">c_major_scale</span><span class="p">,</span> <span class="n">modified_scale</span><span class="p">,</span> <span class="s2">&quot;Jaccard&quot;</span><span class="p">,</span> <span class="s2">&quot;pitch&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>0.6666666666666667
+</pre></div>
+</div>
+<p>Now perform pairwise comparisons across all melodies using different similarity measures.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load melodies into R</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">melody</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">melodies</span><span class="p">):</span>
+    <span class="n">r_load_melody</span><span class="p">(</span><span class="n">melody</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;melody_</span><span class="si">{</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">similarity_measures</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;cosine&quot;</span><span class="p">,</span> <span class="s2">&quot;Simpson&quot;</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">similarity_measures</span><span class="p">:</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">melodies</span><span class="p">)</span>
+    <span class="n">sim_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+    <span class="n">melody_names</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;melody_</span><span class="si">{</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+            <span class="n">similarity</span> <span class="o">=</span> <span class="n">r_get_similarity</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;melody_</span><span class="si">{</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;melody_</span><span class="si">{</span><span class="n">j</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="s2">&quot;pitch&quot;</span>
+            <span class="p">)</span>
+            <span class="n">sim_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">similarity</span>
+            <span class="n">sim_matrix</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">similarity</span>
+        <span class="n">sim_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="n">sim_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">sim_matrix</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">melody_names</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">melody_names</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Pairwise </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2"> similarities:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">sim_df</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>2025-03-28 16:30:41.359985 INFO::Sliding on...
+2025-03-28 16:30:41.389365 INFO::Sliding on...
+2025-03-28 16:30:41.483594 INFO::Sliding on...
+
+Pairwise cosine similarities:
+          melody_1  melody_2  melody_3  melody_4
+melody_1  1.000000  0.999943  0.999972  0.999960
+melody_2  0.999943  1.000000  0.999910  0.999860
+melody_3  0.999972  0.999910  1.000000  0.999988
+melody_4  0.999960  0.999860  0.999988  1.000000
+
+Pairwise Simpson similarities:
+          melody_1  melody_2  melody_3  melody_4
+melody_1  1.000000  0.857143     0.750  0.625000
+melody_2  0.857143  1.000000     1.000  0.857143
+melody_3  0.750000  1.000000     1.000  0.875000
+melody_4  0.625000  0.857143     0.875  1.000000
+</pre></div>
+</div>
+<p>Finally, explore other types of melodic similarity measures.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Compare intervallic similarity</span>
+<span class="n">get_similarity</span><span class="p">(</span><span class="n">c_major_scale</span><span class="p">,</span> <span class="n">modified_scale</span><span class="p">,</span> <span class="s2">&quot;Euclidean&quot;</span><span class="p">,</span> <span class="s2">&quot;int&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>2025-03-28 16:30:41.538281 INFO::Sliding on...
+
+0.28989794855663564
+</pre></div>
+</div>
+<p>Compare IOI class similarity (expected to be 1 as IOIs are identical)</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">get_similarity</span><span class="p">(</span><span class="n">c_major_scale</span><span class="p">,</span> <span class="n">modified_scale</span><span class="p">,</span> <span class="s2">&quot;Canberra&quot;</span><span class="p">,</span> <span class="s2">&quot;ioi_class&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>2025-03-28 16:30:41.55281 INFO::Sliding on...
+
+1.0
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (1 minutes 39.299 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-plot-melsim-py">
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/f60b6261bb96f3b45b0b03de9ea6afbc/plot_melsim.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_melsim.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/c3461d354dae99e6f969aab837c22bf2/plot_melsim.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_melsim.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/8e53f5edd25b87e2a3af22cec4d76d9e/plot_melsim.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">plot_melsim.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="plot_sliding_window.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Sliding window analysis</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../_autosummary/amads.algorithms.entropy.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">amads.algorithms.entropy</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The AMADS team
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, The AMADS team.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

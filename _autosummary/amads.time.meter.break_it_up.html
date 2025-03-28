@@ -1,0 +1,837 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>amads.time.meter.break_it_up &#8212; amads  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/amads.time.meter.break_it_up';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="amads.harmony.root_finding.parncutt_1988" href="amads.harmony.root_finding.parncutt_1988.html" />
+    <link rel="prev" title="amads.time.tempo" href="amads.time.tempo.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">amads  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">User guide:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/installation.html">Installation</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Developer notes:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../developer_notes/contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_notes/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_notes/design.html">Design considerations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_notes/modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_notes/music21.html">Music21</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_notes/testing.html">Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_notes/style.html">Style</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_notes/making_a_release.html">Making a release</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Examples:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../auto_examples/plot_durdist1.html">Duration distributions (I)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_examples/plot_durdist2.html">Duration distributions (II)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_examples/plot_boundary.html">Boundary detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_examples/plot_sliding_window.html">Sliding window analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_examples/plot_melsim.html">Melodic similarity</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">General algorithms:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="amads.algorithms.entropy.html">amads.algorithms.entropy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amads.algorithms.nnotes.html">amads.algorithms.nnotes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amads.algorithms.scale.html">amads.algorithms.scale</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amads.algorithms.slice.salami.html">amads.algorithms.slice.salami</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amads.algorithms.slice.window.html">amads.algorithms.slice.window</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Pitch:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="amads.pitch.hz2midi.html">amads.pitch.hz2midi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amads.pitch.ismonophonic.html">amads.pitch.ismonophonic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amads.pitch.ivdirdist1.html">amads.pitch.ivdirdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amads.pitch.ivdist1.html">amads.pitch.ivdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amads.pitch.ivdist2.html">amads.pitch.ivdist2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amads.pitch.ivsizedist1.html">amads.pitch.ivsizedist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amads.pitch.key.profiles.html">amads.pitch.key.profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amads.pitch.pcdist1.html">amads.pitch.pcdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amads.pitch.pcdist2.html">amads.pitch.pcdist2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amads.pitch.pitch_mean.html">amads.pitch.pitch_mean</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amads.pitch.transformations.html">amads.pitch.transformations</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Time:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="amads.time.durdist1.html">amads.time.durdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amads.time.durdist2.html">amads.time.durdist2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amads.time.npvi.html">amads.time.npvi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amads.time.swing.html">amads.time.swing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amads.time.tempo.html">amads.time.tempo</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">amads.time.meter.break_it_up</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Harmony:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="amads.harmony.root_finding.parncutt_1988.html">amads.harmony.root_finding.parncutt_1988</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Melody:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="amads.melody.boundary.html">amads.melody.boundary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amads.melody.segment_gestalt.html">amads.melody.segment_gestalt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amads.melody.contour.interpolation_contour.html">amads.melody.contour.interpolation_contour</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amads.melody.contour.step_contour.html">amads.melody.contour.step_contour</a></li>
+<li class="toctree-l1"><a class="reference internal" href="amads.melody.similarity.melsim.html">amads.melody.similarity.melsim</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Polyphony:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="amads.polyphony.skyline.html">amads.polyphony.skyline</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Core:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="amads.core.basics.html">amads.core.basics</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">IO:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="amads.io.pianoroll.html">amads.io.pianoroll</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/_autosummary/amads.time.meter.break_it_up.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>amads.time.meter.break_it_up</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.time.meter.break_it_up.ReGrouper"><code class="docutils literal notranslate"><span class="pre">ReGrouper</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.time.meter.break_it_up.ReGrouper.advance_step"><code class="docutils literal notranslate"><span class="pre">ReGrouper.advance_step()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.time.meter.break_it_up.ReGrouper.level_pass"><code class="docutils literal notranslate"><span class="pre">ReGrouper.level_pass()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.time.meter.break_it_up.start_hierarchy_from_ts"><code class="docutils literal notranslate"><span class="pre">start_hierarchy_from_ts()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.time.meter.break_it_up.start_list_from_pulse_lengths"><code class="docutils literal notranslate"><span class="pre">start_list_from_pulse_lengths()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.time.meter.break_it_up.starts_from_beat_pattern"><code class="docutils literal notranslate"><span class="pre">starts_from_beat_pattern()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.time.meter.break_it_up.starts_from_lengths"><code class="docutils literal notranslate"><span class="pre">starts_from_lengths()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.time.meter.break_it_up.starts_from_ts_and_levels"><code class="docutils literal notranslate"><span class="pre">starts_from_ts_and_levels()</span></code></a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-amads.time.meter.break_it_up">
+<span id="amads-time-meter-break-it-up"></span><h1>amads.time.meter.break_it_up<a class="headerlink" href="#module-amads.time.meter.break_it_up" title="Link to this heading">#</a></h1>
+<p>Make sense of the relationship between
+the notes in
+and
+the hierarchy of
+a metrical cycle.</p>
+<p>Uses include identifying notes that traverse metrical levels,
+for anaylsis (e.g., as a measure of syncopation)
+and notation (e.g., re-notating to reflect the
+within-measure notational conventions).</p>
+<p>This delivers functionality promised in previous discussions on the music21
+list (<a class="reference external" href="https://groups.google.com/g/music21list/c/5G-UafJeW94/m/YcEBE0PFAQAJ">https://groups.google.com/g/music21list/c/5G-UafJeW94/m/YcEBE0PFAQAJ</a>)
+and repo (issue 992, <a class="github reference external" href="https://github.com/cuthbertLab/music21/issues/992">cuthbertLab/music21#992</a>)</p>
+<p>Basically, the idea is that
+a single note can only cross metrical boundaries
+for levels lower than the one it starts on.
+If it traverses a metrical boundaries at a higher level, then
+it is split at that position into two note-heads to be connected by a tie.</p>
+<p>TODO:
+- Connect up to scores (work with note and time signature by context).
+- Divide the metrical structure logic from the operations</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="amads.time.meter.break_it_up.ReGrouper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">amads.time.meter.break_it_up.</span></span><span class="sig-name descname"><span class="pre">ReGrouper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">note_start_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">note_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_signature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">levels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_lengths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_hierarchy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_same_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/time/meter/break_it_up.html#ReGrouper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.time.meter.break_it_up.ReGrouper" title="Link to this definition">#</a></dt>
+<dd><p>Split up notes and rests to reflect the
+within-measure notational conventions
+of metrical hierarchies in Western classical music.</p>
+<p>This class
+takes in a representation of a note in terms of the start position and duration,
+and metrical context (the overall structure, and which part to use), and
+returns a list of start-duration pairs for the broken-up note value.</p>
+<p>The basic premise here is that a single note can only traverse metrical boundaries
+for levels lower than the one it starts on.
+If it traverses the metrical boundary of a higher level, then
+it is split at that position into two note-heads to be connected by a tie.</p>
+<p>There are many variants on this basic set up.
+This class aims to support almost any such variant, while providing easy defaults
+for simple, standard practice.</p>
+<p>The flexibility comes from the definition of a metrical structure.
+Here, everything ultimately runs through a single representation
+of metrical levels in terms of starts expressed by quarter length
+from the start of the measure,
+e.g., levels 0-3 of a time signature like 4/4 would be represented as:
+[[0.0, 4.0],
+[0.0, 2.0, 4.0],
+[0.0, 1.0, 2.0, 3.0, 4.0],
+[0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0]]</p>
+<p>Each split of the note duration serves to move up one metrical level.
+For instance, for the 4/4 example above, a note of duration 2.0 starting at start
+0.25 connects to 0.5 in level 3 (duration = 0.25), then
+0.5 connects to 1.0 in level 2 (duration = 0.5), then
+1.0 connects to 2.0 in level 1 (duration = 1.0), and
+this leaves a duration of 0.25 to start on start 2.0.
+The data is returned as a list of (position, duration) tuples.
+The values for the example would be:
+[(0.25, 0.25),
+(0.5, 0.5),
+(1.0, 1.0),
+(1.0, 0.25)].</p>
+<p>There are three main user options (for advanced use cases only):
+tweak a metrical hierarchy to only consider certain levels (see the <cite>levels</cite> parameter);
+define a metrical structure completely from scratch (<cite>start_hierarchy</cite>);
+determine the handling of splits within a level for metres like 6/8 (<cite>split_same_level</cite>).</p>
+<p>The input parameters are:</p>
+<p>note_start_start:
+the note or rest in question”s starting start.</p>
+<p>note_length:
+the note or rest”s length.</p>
+<p>time_signature (optional):
+the time signature (currently expressed as a string).
+to be converted into a start_hierarchy.</p>
+<p>levels (optional):
+the default arrangement is to use all levels of a time signature”s metrical hierarchy.
+Alternatively, this parameter allows users to select certain levels for in-/exclusion.
+See the starts_from_ts_and_levels function for further explanation.</p>
+<p>pulse_lengths (optional):
+this provides an alternative way of expressing the metrical hierarchy
+in terms of pulse lengths (by quarter length), again
+to be converted into a start_hierarchy.
+See start_list_from_pulse_lengths for further explanation.</p>
+<p>start_hierarchy (optional):
+a final alternative way of expressing the metrical hierarchy
+completely from scratch (ignoring all other parameters and defaults).
+Use this for advanced cases requiring non-standard metrical structures
+including those without 2-/3- grouping, or even nested hierarchies.</p>
+<p>split_same_level:
+in cases of metrical structures with a 3-grouping
+(i.e., two “weak” events between a “strong” in compound signatures like 6/8)
+some conventions chose to split notes within-level as well as between them.
+For instance, with a quarter note starting on the second eighth note (start 0.5) of 6/8,
+some will want to split that into two 1/8th notes, divided on the third eighth note position,
+while others will want to leave this intact.
+The split_same_level option accommodates this:
+it effects the within-level split when set to True and not otherwise (default).</p>
+<p>At least one of
+time_signature,
+levels (with a time_signature),
+pulse_lengths, or
+start_hierarchy
+must be specified.</p>
+<p>These are listed in order from the most standard to the most specialised.
+The time_signature defaults will serve most use cases, and the
+“levels” parameter should be enough for a particular editorial style.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>note_start_start</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span>)</p></li>
+<li><p><strong>note_length</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span>)</p></li>
+<li><p><strong>time_signature</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>)</p></li>
+<li><p><strong>levels</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>]</span>)</p></li>
+<li><p><strong>pulse_lengths</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>]</span>)</p></li>
+<li><p><strong>start_hierarchy</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>]</span>)</p></li>
+<li><p><strong>split_same_level</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.time.meter.break_it_up.ReGrouper.advance_step">
+<span class="sig-name descname"><span class="pre">advance_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">positions_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/time/meter/break_it_up.html#ReGrouper.advance_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.time.meter.break_it_up.ReGrouper.advance_step" title="Link to this definition">#</a></dt>
+<dd><p>For a start position, and a metrical level expressed as a list of starts,
+finds the next higher value from those levels.
+Used for determining iterative divisions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>positions_list</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></span>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="amads.time.meter.break_it_up.ReGrouper.level_pass">
+<span class="sig-name descname"><span class="pre">level_pass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/time/meter/break_it_up.html#ReGrouper.level_pass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.time.meter.break_it_up.ReGrouper.level_pass" title="Link to this definition">#</a></dt>
+<dd><p>Having established the structure of the start_hierarchy,
+this method iterates across the levels of that hierarchy to find
+the current start position, and (through advance_step) the start position to map to.</p>
+<p>This method runs once for each such mapping,
+typically advancing up one (or more) layer of the metrical hierarchy with each call.
+“Typically” because split_same_level is supported where relevant.</p>
+<p>Each iteration creates a new start-duration pair
+stored in the start_duration_pairs list
+that records the constituent parts of the split note.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="amads.time.meter.break_it_up.start_hierarchy_from_ts">
+<span class="sig-prename descclassname"><span class="pre">amads.time.meter.break_it_up.</span></span><span class="sig-name descname"><span class="pre">start_hierarchy_from_ts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ts_str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minimum_pulse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">64</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/time/meter/break_it_up.html#start_hierarchy_from_ts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.time.meter.break_it_up.start_hierarchy_from_ts" title="Link to this definition">#</a></dt>
+<dd><p>Create a start hierarchy for almost any time signature
+directly from a string (e.g., “4/4”) without dependencies.
+Returns a list of lists with start positions by level.</p>
+<p>The following examples index the most interesting level:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">start_hierarchy_from_ts</span><span class="p">(</span><span class="s2">&quot;4/4&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># note the half cycle division</span>
+<span class="go">[0.0, 2.0, 4.0]</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">start_hierarchy_from_ts</span><span class="p">(</span><span class="s2">&quot;6/8&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># note the macro-beat division</span>
+<span class="go">[0.0, 1.5, 3.0]</span>
+</pre></div>
+</div>
+<p>Numerators like 5 and 7 are supported.
+Use the total value only to avoid segmentation about the denominator level:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">start_hierarchy_from_ts</span><span class="p">(</span><span class="s2">&quot;5/4&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># note no 2+3 or 3+2 level division</span>
+<span class="go">[0.0, 1.0, 2.0, 3.0, 4.0, 5.0]</span>
+</pre></div>
+</div>
+<p>Or use numerator addition in the form “X+Y/Z” to clarify this level …</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">start_hierarchy_from_ts</span><span class="p">(</span><span class="s2">&quot;2+3/4&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># note the 2+3 division</span>
+<span class="go">[0.0, 2.0, 5.0]</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">start_hierarchy_from_ts</span><span class="p">(</span><span class="s2">&quot;2+2+3/8&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># note the 2+2+3 division</span>
+<span class="go">[0.0, 1.0, 2.0, 3.5]</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">start_hierarchy_from_ts</span><span class="p">(</span><span class="s2">&quot;2+2+2+3/8&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># note the 2+2+2+3 division</span>
+<span class="go">[0.0, 1.0, 2.0, 3.0, 4.5]</span>
+</pre></div>
+</div>
+<p>Only standard denominators are supported:
+i.e., time signatures in the form X/ one of
+1, 2, 4, 8, 16, 32, or 64.
+No so-called “irrational” meters yet (e.g., 2/3), sorry!</p>
+<p>Likewise the minimum_pulse must be set to one of these values
+(default = 64 for 64th note) and not be longer than the meter.</p>
+<p>TODO:
+Whole signatures added together in the form “P/Q+R/S”
+(split by “+” before “/”).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ts_str</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>)</p></li>
+<li><p><strong>minimum_pulse</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="amads.time.meter.break_it_up.start_list_from_pulse_lengths">
+<span class="sig-prename descclassname"><span class="pre">amads.time.meter.break_it_up.</span></span><span class="sig-name descname"><span class="pre">start_list_from_pulse_lengths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pulse_lengths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measure_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">require_2_or_3_between_levels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/time/meter/break_it_up.html#start_list_from_pulse_lengths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.time.meter.break_it_up.start_list_from_pulse_lengths" title="Link to this definition">#</a></dt>
+<dd><p>Convert a list of pulse lengths into a corresponding list of lists
+with start positions per metrical level.
+All values (pulse lengths, start positions, and measure_length)
+are all expressed in terms of quarter length.</p>
+<p>The measure_length is not required - if not provided it’s taken to be the longest pulse length.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">qsl</span> <span class="o">=</span> <span class="n">start_list_from_pulse_lengths</span><span class="p">(</span><span class="n">pulse_lengths</span><span class="o">=</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">])</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">qsl</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="go">[0.0, 4.0]</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">qsl</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="go">[0.0, 2.0, 4.0]</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">qsl</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+<span class="go">[0.0, 1.0, 2.0, 3.0, 4.0]</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">qsl</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+<span class="go">[0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0]</span>
+</pre></div>
+</div>
+<p>This does not work for (“nonisochronous”) pulse streams of varying duration
+in time signatures like 5/x, 7/x
+(e.g., the level of 5/4 with dotted/undotted 1/2 notes).</p>
+<p>It is still perfectly fine to use this for the pulse streams
+within those meters that are regular, equally spaced (“isochronous”)
+(e.g., the 1/4 note level of 5/4).</p>
+<p>The list of pulse lengths is set in decreasing order.</p>
+<p>If <cite>require_2_or_3_between_levels</cite> is True (default), this functions checks that
+each level is either a 2 or 3 multiple of the next.</p>
+<p>By default, the measure_length is taken by the longest pulse length.
+Alternatively, this can be user-defined to anything as long as it is
+1) longer than the longest pulse and
+2) if <cite>require_2_or_3_between_levels</cite> is True then exactly 2x or 3x longer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pulse_lengths</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></span>)</p></li>
+<li><p><strong>measure_length</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]</span>)</p></li>
+<li><p><strong>require_2_or_3_between_levels</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="amads.time.meter.break_it_up.starts_from_beat_pattern">
+<span class="sig-prename descclassname"><span class="pre">amads.time.meter.break_it_up.</span></span><span class="sig-name descname"><span class="pre">starts_from_beat_pattern</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">beat_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">denominator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_measure_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/time/meter/break_it_up.html#starts_from_beat_pattern"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.time.meter.break_it_up.starts_from_beat_pattern" title="Link to this definition">#</a></dt>
+<dd><p>Converts a list of beats
+like [2, 2, 2]
+or [3, 3]
+or indeed
+[6, 9]
+into a list of starts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>beat_list</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></span>)</p></li>
+<li><p><strong>denominator</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>)</p></li>
+<li><p><strong>include_measure_length</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="amads.time.meter.break_it_up.starts_from_lengths">
+<span class="sig-prename descclassname"><span class="pre">amads.time.meter.break_it_up.</span></span><span class="sig-name descname"><span class="pre">starts_from_lengths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">measure_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_measure_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_numpy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/time/meter/break_it_up.html#starts_from_lengths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.time.meter.break_it_up.starts_from_lengths" title="Link to this definition">#</a></dt>
+<dd><p>Convert a pulse length and measure length into a list of starts.
+All expressed in quarter length.
+If <cite>include_measure_length</cite> is True (default) then each level ends with the full cycle length
+(i.e., the start of the start of the next cycle).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>measure_length</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>)</p></li>
+<li><p><strong>pulse_length</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>)</p></li>
+<li><p><strong>include_measure_length</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>)</p></li>
+<li><p><strong>use_numpy</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="amads.time.meter.break_it_up.starts_from_ts_and_levels">
+<span class="sig-prename descclassname"><span class="pre">amads.time.meter.break_it_up.</span></span><span class="sig-name descname"><span class="pre">starts_from_ts_and_levels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ts_str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">levels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_music21</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/amads/time/meter/break_it_up.html#starts_from_ts_and_levels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#amads.time.meter.break_it_up.starts_from_ts_and_levels" title="Link to this definition">#</a></dt>
+<dd><p>Gets starts from a time signature and a list of levels.
+Records the starts associated with each level as a list,
+and return a list of those lists.</p>
+<p>Levels are defined by the hierarchies recorded in the time signature.
+The 0th level for the full cycle (start 0.0 and full measure length) is always included.
+“1” stands for the 1st level below that of the full metrical cycle
+(e.g., a half cycle of 4/4 and similar time signtures like 2/2).
+“2” is the next level down, (quarter cycle) and so on.</p>
+<p>The function arranges a list of levels in increasing order:
+level 0 is always included, and
+the maximum permitted level (depth) is 6.</p>
+<p>Level choices do not need to be successive:
+e.g., in 4/4 a user could choose [1, 3],
+with 1 standing for the half note level,
+3 for the eight note level,
+and skipping in intervening level 2 (quarter note).</p>
+<p>This function provides a hard-coded workaround that”s called when use_music21=False (default).
+Note also the inclusion of the full cycle length here (useful in ReGrouper).
+&gt;&gt;&gt; starts_from_ts_and_levels(“6/8”, [1, 2], use_music21=False)
+[[0.0, 3.0], [0.0, 1.5, 3.0], [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0]]</p>
+<p>The music21 beamSequence method may also be useful here (i.e., integrating the two).
+See discussion on music21, issue 992.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ts_str</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>)</p></li>
+<li><p><strong>levels</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>]</span>)</p></li>
+<li><p><strong>use_music21</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="amads.time.tempo.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">amads.time.tempo</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="amads.harmony.root_finding.parncutt_1988.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">amads.harmony.root_finding.parncutt_1988</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.time.meter.break_it_up.ReGrouper"><code class="docutils literal notranslate"><span class="pre">ReGrouper</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.time.meter.break_it_up.ReGrouper.advance_step"><code class="docutils literal notranslate"><span class="pre">ReGrouper.advance_step()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.time.meter.break_it_up.ReGrouper.level_pass"><code class="docutils literal notranslate"><span class="pre">ReGrouper.level_pass()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.time.meter.break_it_up.start_hierarchy_from_ts"><code class="docutils literal notranslate"><span class="pre">start_hierarchy_from_ts()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.time.meter.break_it_up.start_list_from_pulse_lengths"><code class="docutils literal notranslate"><span class="pre">start_list_from_pulse_lengths()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.time.meter.break_it_up.starts_from_beat_pattern"><code class="docutils literal notranslate"><span class="pre">starts_from_beat_pattern()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.time.meter.break_it_up.starts_from_lengths"><code class="docutils literal notranslate"><span class="pre">starts_from_lengths()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#amads.time.meter.break_it_up.starts_from_ts_and_levels"><code class="docutils literal notranslate"><span class="pre">starts_from_ts_and_levels()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The AMADS team
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, The AMADS team.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
