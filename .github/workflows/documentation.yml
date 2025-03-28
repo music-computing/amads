@@ -5,8 +5,10 @@ env:
   GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
 on:
-  - push
-  - pull_request
+  push:
+    branches:
+      - main
+  pull_request:
 
 permissions:
   contents: write
