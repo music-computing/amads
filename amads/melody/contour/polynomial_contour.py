@@ -36,6 +36,13 @@ class PolynomialContour:
 
     Examples
     --------
+    Check that single note melodies return [0.0, 0.0, 0.0]
+    >>> single_note = Score.from_melody([60], [1.0])
+    >>> pc3 = PolynomialContour(single_note)
+    >>> pc3.coefficients  # For single notes, all coefficients are 0 as there is no contour
+    [0.0, 0.0, 0.0]
+
+    Use some real example melodies
     >>> the_lick = Score.from_melody([62, 64, 65, 67, 64, 60, 62], [1.0, 1.0, 1.0, 1.0, 2.0, 1.0, 1.0])
     >>> pc = PolynomialContour(the_lick)
     >>> pc.coefficients  # this value is confirmed by the FANTASTIC toolbox
@@ -47,10 +54,6 @@ class PolynomialContour:
     >>> pc2.coefficients # there is a small mismatch with the FANTASTIC toolbox - TODO: investigate
     [-0.9535562, 0.2120971, 0.0000000]
 
-    >>> single_note = Score.from_melody([60], [1.0])
-    >>> pc3 = PolynomialContour(single_note)
-    >>> pc3.coefficients  # For single notes, all coefficients are 0 as there is no contour
-    [0.0000000, 0.0000000, 0.0000000]
     """
 
     def __init__(self, score: Score):
@@ -272,21 +275,3 @@ class PolynomialContour:
         n = len(y)
         n_params = sum(1 for c in coeffs if c != 0)
         return n * np.log(rss / n) + n_params * np.log(n)
-
-    def predict(self, centered_onsets: list[float]) -> list[float]:
-        """Evaluate the polynomial at given centered onset times.
-
-        Parameters
-        ----------
-        centered_onsets : list[float]
-            List of centered onset times to evaluate at
-
-        Returns
-        -------
-        list[float]
-            Predicted pitch values
-        """
-        return [
-            sum(c * (t**i) for i, c in enumerate(self.coefficients))
-            for t in centered_onsets
-        ]
