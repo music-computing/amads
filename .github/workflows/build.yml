@@ -1,8 +1,12 @@
 # Workflow based on https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/
 
-name: Publish Python distribution to PyPI
+name: Build distribution
 
-on: push
+on:
+  push:
+    branches:
+      - main
+  pull_request:
 
 jobs:
   build:
