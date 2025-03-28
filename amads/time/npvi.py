@@ -1,25 +1,32 @@
 """
-Normalized pairwise variability index for notes in a Score.
+Normalized Pairwise Variability Index (nPVI).
 
-Author: Huw Cheston
-Date: 2025
+This module provides functions for calculating the normalized pairwise variability
+index (nPVI), a measure used in the analysis of rhythmic variability in music.
 
-Citation: Daniele, J. R., & Patel, A. D. (2013). An Empirical Study of Historical Patterns in Musical Rhythm.
-          Music Perception, 31/1 (pp. 10-18). https://doi.org/10.1525/mp.2013.31.1.10
-          Condit-Schultz, N. (2019). Deconstructing the nPVI: A Methodological Critique of the Normalized
-          Pairwise Variability Index as Applied to Music. Music Perception, 36/3 (pp. 300–313).
-          https://doi.org/10.1525/mp.2019.36.3.300
+References:
+    - Daniele, J. R., & Patel, A. D. (2013). An Empirical Study of Historical Patterns
+      in Musical Rhythm. Music Perception, 31(1), 10-18.
+      https://doi.org/10.1525/mp.2013.31.1.10
 
+    - Condit-Schultz, N. (2019). Deconstructing the nPVI: A Methodological Critique of
+      the Normalized Pairwise Variability Index as Applied to Music. Music Perception,
+      36(3), 300–313. https://doi.org/10.1525/mp.2019.36.3.300
+
+Author:
+    Huw Cheston (2025)
 """
 
 from typing import Iterable
+
+__author__ = "Huw Cheston"
 
 
 # flake8: noqa: W605
 def normalized_pairwise_variability_index(
     durations: Iterable[float],
 ) -> float:
-    """
+    r"""
     Extracts the normalised pairwise variability index (nPVI).
 
     The nPVI is a measure of variability between successive elements in a sequence, commonly used
