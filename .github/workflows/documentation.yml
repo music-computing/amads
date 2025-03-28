@@ -5,8 +5,7 @@ env:
   GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
 on:
-  push:
-  workflow_dispatch:
+  push
 
 permissions:
   contents: write
