@@ -91,6 +91,8 @@ Num:        Name:
 from functools import cache, wraps
 from types import SimpleNamespace
 
+from tenacity import RetryError, Retrying, stop_after_attempt
+
 from amads.core.basics import Note, Score
 from amads.pitch.ismonophonic import ismonophonic
 from amads.utils import check_python_package_installed
@@ -128,13 +130,23 @@ def requires_melsim(func):
     return wrapper
 
 
-def check_r_packages_installed(install_missing: bool = False):
+def check_r_packages_installed(install_missing: bool = False, n_retries: int = 3):
     from rpy2.robjects.packages import isinstalled
 
     for package in r_cran_packages + r_github_packages:
         if not isinstalled(package):
             if install_missing:
-                install_r_package(package)
+                try:
+                    for attempt in Retrying(
+                        stop=stop_after_attempt(n_retries),
+                    ):
+                        with attempt:
+                            install_r_package(package)
+                except RetryError as e:
+                    raise RuntimeError(
+                        f"Failed to install R package '{package}' after {n_retries} attempts. "
+                        "See above for the traceback."
+                    ) from e
             else:
                 raise ImportError(
                     f"Package '{package}' is required but not installed. "
@@ -149,7 +161,7 @@ def install_r_package(package: str):
     if package in r_cran_packages:
         print(f"Installing CRAN package '{package}'...")
         utils = importr("utils")
-        utils.install_packages(package)
+        utils.install_packages(package, repos="https://cloud.r-project.org")
     elif package in r_github_packages:
         print(f"Installing GitHub package '{package}'...")
         remotes = importr("remotes")
