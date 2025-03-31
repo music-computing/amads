@@ -23,3 +23,18 @@ def test_from_melody_empty_pitches():
     assert score.duration == 0.0
     assert len(score.content) == 1  # should have one empty part
     assert len(score.content[0].content) == 0  # part should have no notes
+
+
+def test_flatten():
+    """
+    Test that calling score.flatten() does not change the part's parent.
+    """
+    score = Score.from_melody(pitches=[60, 62, 64], durations=1.0)
+
+    part = score.content[0]
+    assert part.parent == score
+
+    score.flatten()
+
+    part = score.content[0]
+    assert part.parent == score
