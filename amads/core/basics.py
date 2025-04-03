@@ -247,20 +247,35 @@ class Note(Event):
 
 
 class TimeSignature(Event):
-    """TimeSignature is a zero-duration Event with timesig info."""
+    """
+    TimeSignature is a zero-duration Event with timesig info.
 
-    # delta -- start time in quarters as an delta from parent's start time
-    # duration -- duration in quarters
-    # _parent -- weak reference to containing object if any
-    # beat -- the "numerator" of the key signature: beats per measure, a
-    #         number, which may be a fraction.
-    # beat_type -- the "numerator" of the key signature: a whole number
-    #         power of 2, e.g. 1, 2, 4, 8, 16, 32, 64.
+    Parameters
+    ----------
+    delta
+        start time in quarters as an delta from parent's start time
+    # duration  # TODO
+    #     duration in quarters
+    # _parent  # TODO
+    #     weak reference to containing object if any
+    beat
+        the so-called "numerator" of the time signature: beats per measure, a number, which may be a fraction.
+    beat_type
+        the so-called "denominator" of the time signature: a whole number power of 2, e.g. 1, 2, 4, 8, 16, 32, 64.
+    """
 
     def __init__(self, beat=4, beat_type=4, delta=0):
         super().__init__(0, delta)
         self.beat = beat
         self.beat_type = beat_type
+        self.check_valid()
+
+    def check_valid(self):
+        def is_power_of_two(n):
+            return n > 0 and (n & (n - 1)) == 0
+
+        if not is_power_of_two(self.beat_type):
+            raise ValueError(f"Beat type set as {self.beat_type} must be a power of 2.")
 
     def copy(self):
         """Make a copy of just this object with no parent."""
