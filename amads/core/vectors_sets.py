@@ -236,6 +236,43 @@ def is_indicator_vector(indicator_vector: list | tuple) -> bool:
     return False
 
 
+def weighted_to_indicator(weighted_vector: list | tuple, threshold=0.0):
+    """
+    Converts a weighted vector to an indicator vector.
+
+    Parameters
+    ----------
+    weighted_vector: A NumPy array representing the weighted vector. TODO consider use of numpy
+    threshold:  Values below this threshold will be set to 0.  This handles
+    cases where weights might be very small but not exactly zero.
+
+    Returns
+    -------
+    A NumPy array representing the indicator vector (0s and 1s).
+
+    Examples
+    --------
+    >>> weighted_vector1 = [0.0, 0.0, 2.0, 0.0]
+    >>> weighted_to_indicator(weighted_vector1)
+    [0, 0, 1, 0]
+
+    >>> weighted_vector2 = [0.2, 0.0, 1.5, 0.0, 0.01]
+    >>> weighted_to_indicator(weighted_vector2)
+    [1, 0, 1, 0, 1]
+
+    >>> weighted_to_indicator(weighted_vector2, threshold=0.1)
+    [1, 0, 1, 0, 0]
+    """
+    indicator_vector = []
+    for weight in weighted_vector:
+        if weight > threshold:
+            indicator_vector.append(1)
+        else:
+            indicator_vector.append(0)
+    return indicator_vector
+    # TODO consider np.where(weighted_vector > threshold, 1, 0)
+
+
 def complement(indicator_vector: list) -> list:
     """
     Provide the complement of an indicator vector.
