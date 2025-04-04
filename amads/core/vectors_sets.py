@@ -236,7 +236,7 @@ def is_indicator_vector(indicator_vector: list | tuple) -> bool:
     return False
 
 
-def weighted_to_indicator(weighted_vector: list | tuple, threshold=0.0):
+def weighted_to_indicator(weighted_vector: list | tuple, threshold=0.0) -> tuple:
     """
     Converts a weighted vector to an indicator vector.
 
@@ -254,14 +254,14 @@ def weighted_to_indicator(weighted_vector: list | tuple, threshold=0.0):
     --------
     >>> weighted_vector1 = [0.0, 0.0, 2.0, 0.0]
     >>> weighted_to_indicator(weighted_vector1)
-    [0, 0, 1, 0]
+    (0, 0, 1, 0)
 
     >>> weighted_vector2 = [0.2, 0.0, 1.5, 0.0, 0.01]
     >>> weighted_to_indicator(weighted_vector2)
-    [1, 0, 1, 0, 1]
+    (1, 0, 1, 0, 1)
 
     >>> weighted_to_indicator(weighted_vector2, threshold=0.1)
-    [1, 0, 1, 0, 0]
+    (1, 0, 1, 0, 0)
     """
     indicator_vector = []
     for weight in weighted_vector:
@@ -269,7 +269,7 @@ def weighted_to_indicator(weighted_vector: list | tuple, threshold=0.0):
             indicator_vector.append(1)
         else:
             indicator_vector.append(0)
-    return indicator_vector
+    return tuple(indicator_vector)
     # TODO consider np.where(weighted_vector > threshold, 1, 0)
 
 
