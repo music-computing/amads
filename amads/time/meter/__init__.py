@@ -222,8 +222,12 @@ class TimeSignature:
         """
         Create an unordered set for the regular pulses present in this time signature.
         This will include the full cycle and beat type ("denominator") value,
-        and any other regular levels between the two.
-        The splitting of 4 into 2+2 is user choice. See `convert_to_2s_3s`.
+        e.g., in "3/4" the pulse lengths are 3.0 (full cycle) and 1.0 (beat type).
+        If there are other regular levels between the two, they will be added too.
+        For instance, the splitting of 4 into 2+2 is user choice (see `convert_to_2s_3s`)
+        With this split, this "4/4" has pulse lengths of 4.0 (full cycle)
+        and 1.0 (beat type) as well as 2.0 given that the two twos are of one kind.
+        In "2+3/4" there is no such 2.0 (or 3.0) regularity, and so no pulse is created for that level.
 
         Examples
         --------
