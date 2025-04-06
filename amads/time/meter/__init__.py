@@ -42,7 +42,7 @@ def is_non_negative_integer_power_of_two(n: float) -> bool:
     >>> is_non_negative_integer_power_of_two(4)
     True
     """
-    if n <= 0:  # also type error if non-numeric
+    if n <= 0:  # also catches type error if non-numeric
         return False
     if not isinstance(n, int):
         if int(n) == n:
@@ -127,7 +127,7 @@ class StartTimeHierarchy:
         Examples
         --------
 
-        You can currently set the `granular_pulse` value to anything (this behaviour may change).
+        You can currently set the `granular_pulse` value to anything (this may change).
         For instance, in the pair of examples below,
         first we have a `granular_pulse` that's present in the input,
         and then a case using a faster level that's not present (this simply pads the data out):
@@ -159,7 +159,7 @@ class StartTimeHierarchy:
 
         return coincidences
 
-    def to_pulse_lengths(self) -> list:
+    def to_pulse_lengths(self):
         """
         Check if levels have a regular pulse and if so, return the pulse length value.
 
@@ -233,8 +233,11 @@ class StartTimeHierarchy:
         >>> hierarchy.start_hierarchy[-1]
         [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0]
 
+        >>> len(hierarchy.start_hierarchy)
+        4
+
         >>> hierarchy.pulse_lengths
-        [4.0, 2.0, 1.0, 2.0, 1.0, 0.5]
+        [4.0, 2.0, 1.0, 0.5]
 
         """
         self.to_pulse_lengths()
@@ -252,16 +255,24 @@ class StartTimeHierarchy:
                 f"The `minimum_beat_type` ({minimum_beat_type}) is not a power of 2. Use case unsupported."
             )
 
-        fastest_exponent = int(math.log2(fastest))
+        fastest_beat_type = switch_pulse_length_beat_type(fastest)  # TODO
+        fastest_beat_type_exponent = int(math.log2(fastest_beat_type))
         minimum_beat_type_exponent = int(math.log2(minimum_beat_type))
 
-        beat_types = [
-            2**x for x in range(fastest_exponent + 1, minimum_beat_type_exponent + 1)
+        new_beat_types = [
+            2**x
+            for x in range(
+                fastest_beat_type_exponent + 1, minimum_beat_type_exponent + 1
+            )
         ]
         new_pulses = [
-            switch_pulse_length_beat_type(beat_type) for beat_type in beat_types
+            switch_pulse_length_beat_type(beat_type) for beat_type in new_beat_types
         ]
         self.pulse_lengths += new_pulses
+        self.pulse_lengths = [x for x in self.pulse_lengths if x is not None]
+        self.pulse_lengths = sorted(
+            list(set(self.pulse_lengths)), key=abs, reverse=True
+        )
         fake_meter = PulseLengths(
             pulse_lengths=new_pulses, cycle_length=self.cycle_length
         )
@@ -292,12 +303,13 @@ class TimeSignature:
 
     def __init__(
         self,
-        beats: Optional[Union[list[int]]] = None,
+        beats: Optional[Union[tuple[int]]] = None,
         beat_type: Optional[int] = None,
         # delta: Optional[float] = 0,  # TODO if merging with basics
         as_string: Optional[str] = None,
     ):
         self.beats = beats
+        self.one_beat_value = None
         self.beat_type = beat_type
         self.as_string = as_string
         if (self.beats is None) and (self.beat_type is None):
@@ -320,7 +332,7 @@ class TimeSignature:
         For example, when encoding "5/4",
         use the total value only to avoid segmentation above the denominator level ("5/4")
         or the X+Y form to explicitly distinguish between "2+3" and "3+2".
-        I.e., "5/" has no 3+2 or 2+3 division by default.
+        I.e., "5/" time signatures have no 3+2 or 2+3 division by default.
         See examples on `TimeSignature.to_starts_hierarchy`.
 
         Finally, although we support and provide defaults for time signatures in the form "2+3/8",
@@ -332,7 +344,7 @@ class TimeSignature:
         --------
 
         >>> ts_4_4 = TimeSignature(as_string="4/4")
-        >>> ts_4_4.beats  # Tuple of one element
+        >>> ts_4_4.beats # Tuple of one element
         (4,)
 
         >>> ts_4_4.beat_type
@@ -351,18 +363,15 @@ class TimeSignature:
         .beat_type must be a single integer power of two.
         """
         # beats  # TODO this check may be overdoing it
-        if isinstance(self.beats, tuple):
+        if self.beats:
+            assert isinstance(self.beats, tuple)
             for b in self.beats:
                 assert isinstance(b, int)
-        elif isinstance(self.beats, int):
-            pass
-        else:
-            raise ValueError("The `.beats` attribute type is invalid.")
 
         # beat_type  # TODO this is the part we want to actively check
         if not is_non_negative_integer_power_of_two(self.beat_type):
             raise ValueError(
-                f"Beat type set as {self.beat_type} is invalid: must be a power of 2."
+                f"Beat type set as {self.beat_type} is invalid: must be a non-negative integer power of 2."
             )
 
     def get_pulses(self):
@@ -370,8 +379,9 @@ class TimeSignature:
         Create an unordered set for the regular pulses present in this time signature.
         This will include the full cycle and beat type ("denominator") value,
         e.g., in "3/4" the pulse lengths are 3.0 (full cycle) and 1.0 (beat type).
-        If there are other regular levels between the two, they will be added too.
-        For instance, the splitting of 4 into 2+2 is user choice (see `convert_to_2s_3s`)
+        If there are other regular levels between the two, they will be added
+        only if the user has first called `fill_2s_3s` (it does not run by default).
+        For instance, the splitting of 4 into 2+2 is user choice (see `fill_2s_3s`)
         With this split, this "4/4" has pulse lengths of 4.0 (full cycle)
         and 1.0 (beat type) as well as 2.0 given that the two twos are of one kind.
         In "2+3/4" there is no such 2.0 (or 3.0) regularity, and so no pulse is created for that level.
@@ -382,7 +392,7 @@ class TimeSignature:
         >>> ts_4_4.pulses
         [4.0, 1.0]
 
-        >>> ts_4_4.convert_to_2s_3s()
+        >>> ts_4_4.fill_2s_3s()
         >>> ts_4_4.pulses
         [4.0, 2.0, 1.0]
 
@@ -390,75 +400,77 @@ class TimeSignature:
         >>> ts_6_8.pulses
         [3.0, 0.5]
 
-        >>> ts_6_8.convert_to_2s_3s()
+        >>> ts_6_8.fill_2s_3s()
         >>> ts_6_8.pulses
         [3.0, 1.5, 0.5]
 
         """
         pulses = [float(self.cycle_length), 4 / self.beat_type]
 
-        first_beat_duration = self.beats[0] * 4 / self.beat_type
+        first_beat_to_pulse = self.beats[0] * 4 / self.beat_type
 
         if len(self.beats) == 1:  # one beat type
-            pulses.append(first_beat_duration)
+            pulses.append(first_beat_to_pulse)
+            self.one_beat_value = self.beats[0]
         elif len(self.beats) > 1:  # 2+ beats
             if (
                 len(set(self.beats)) == 1
             ):  # duplicate of the same e.g., (2, 2), so still one consistent pulse.
-                pulses.append(first_beat_duration)
+                self.one_beat_value = self.beats[0]
+                pulses.append(first_beat_to_pulse)
 
         self.pulses = sorted(list(set(pulses)), key=abs, reverse=True)
 
-    def convert_to_2s_3s(self):
+    def fill_2s_3s(self):
         """
-        Optionally convert the "numerator" beat values to follow the conventions of the time signatures,
-        enforcing grouping by 2s and 3s.
-        For instance, this maps 4 to 2+2 and 6 to 3+3.
+        Optionally, add pulse values to follow the conventions of the time signatures,
+        enforcing 2- and 3-grouping.
+        This only applies to cases with a single beat in the "numerator".
+        For instance,
+        given a "4/4" signature, this method will add the half-cycle (pulse value 2.0),
+        given a "6/8", it will again add the half-cycle (pulse value 1.5),
+        and given a "12/8", it will add both the half- and quarter-cycle (pulse values 3.0 and 1.5),
+
         This functionality is factored out and does not run by default.
-        Even if this runs, the original time signature string is unchanged.
+        Even if this runs, the original time signature string is unchanged,
+        as is the `beats` attribute.
 
         Examples
         --------
         >>> ts_4_4 = TimeSignature(as_string="4/4")
-        >>> ts_4_4.beats
-        (4,)
+        >>> ts_4_4.pulses
+        [4.0, 1.0]
 
-        >>> ts_4_4.convert_to_2s_3s()
-        >>> ts_4_4.beats
-        (2, 2)
+        >>> ts_4_4.fill_2s_3s()
+        >>> ts_4_4.pulses
+        [4.0, 2.0, 1.0]
 
         >>> ts_6_8 = TimeSignature(as_string="6/8")
-        >>> ts_6_8.beats
-        (6,)
+        >>> ts_6_8.pulses
+        [3.0, 0.5]
 
-        >>> ts_6_8.convert_to_2s_3s()
-        >>> ts_6_8.beats
-        (3, 3)
+        >>> ts_6_8.fill_2s_3s()
+        >>> ts_6_8.pulses
+        [3.0, 1.5, 0.5]
 
         """
-        metrical_mappings = {
-            4: [2, 2],
-            6: [3, 3],
-            9: [3, 3, 3],  # alternative groupings need to be set out, e.g., 2+2+2+3
-        }
-        revised_beats = []
+        metrical_mappings = {4: [2], 6: [3], 9: [3], 12: [6, 3]}
 
-        for i in range(len(self.beats)):
-            beat = self.beats[i]
-            if beat in metrical_mappings:
-                revised_beats += metrical_mappings[beat]  # list
-            else:
-                revised_beats.append(beat)
-
-        self.beats = tuple(revised_beats)
-        self.get_pulses()  # update for the new pattern
+        if self.one_beat_value is not None:
+            if self.one_beat_value in metrical_mappings:
+                self.pulses += [
+                    x * 4 / self.beat_type
+                    for x in metrical_mappings[self.one_beat_value]
+                ]
+        self.pulses = sorted(list(set(self.pulses)), key=abs, reverse=True)
 
     def to_start_hierarchy(self) -> list:
         """
         Create a start hierarchy for almost any time signature
         (with constraints as noted in the top level class description and in the `.from_string` method).
         See below for several examples of how this handles
-        specific time signatures and related assumptions.
+        specific time signatures and related assumptions,
+        and note the effect of running `fill_2s_3s()`.
 
         Returns
         -------
@@ -467,10 +479,6 @@ class TimeSignature:
 
         Examples
         --------
-        We begin with some common time signatures.
-
-        For "4/4", we do not assume the half-cycle division by default.
-        To include that level, run `convert_to_2s_3s()`.
 
         >>> ts_4_4 = TimeSignature(as_string="4/4")
         >>> ts_4_4.pulses
@@ -483,7 +491,7 @@ class TimeSignature:
         >>> test_1[1]
         [0.0, 1.0, 2.0, 3.0, 4.0]
 
-        >>> ts_4_4.convert_to_2s_3s()
+        >>> ts_4_4.fill_2s_3s()
         >>> ts_4_4.pulses
         [4.0, 2.0, 1.0]
 
@@ -497,8 +505,6 @@ class TimeSignature:
         >>> test_2[2]
         [0.0, 1.0, 2.0, 3.0, 4.0]
 
-        In the case of "2/2", the half-cycle division to be explicitly in the time signature.
-
         >>> ts_2_2 = TimeSignature(as_string="2/2")
         >>> ts_2_2.pulses
         [4.0, 2.0]
@@ -510,7 +516,7 @@ class TimeSignature:
         >>> test_3[1]
         [0.0, 2.0, 4.0]
 
-        >>> ts_2_2.convert_to_2s_3s()
+        >>> ts_2_2.fill_2s_3s() # no effect, unchanged
         >>> ts_2_2.pulses
         [4.0, 2.0]
 
@@ -520,10 +526,6 @@ class TimeSignature:
 
         >>> test_4[1]
         [0.0, 2.0, 4.0]
-
-        Turning to 'compound' time signatures,
-        the equivalent assumption sees `6` divide into `3+3`.
-        Note the macro-beat division in the following:
 
         >>> ts_6_8 = TimeSignature(as_string="6/8")
         >>> ts_6_8.pulses
@@ -536,7 +538,7 @@ class TimeSignature:
         >>> test_5[1]
         [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0]
 
-        >>> ts_6_8.convert_to_2s_3s()
+        >>> ts_6_8.fill_2s_3s()
         >>> ts_6_8.pulses
         [3.0, 1.5, 0.5]
 
@@ -549,7 +551,6 @@ class TimeSignature:
 
         >>> test_6[2]
         [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0]
-
 
         >>> ts_5_4 = TimeSignature(as_string="5/4")
         >>> ts_5_4.pulses
@@ -658,7 +659,7 @@ class PulseLengths:
         within those meters that are regular, equally spaced ("isochronous")
         (e.g., the 1/4 note level of 5/4).
 
-        The list of pulse lengths is handled internally in decreasing order, whatever the ordering in the arugment.
+        The list of pulse lengths is handled internally in decreasing order, whatever the ordering in the argument.
 
         If `require_2_or_3_between_levels` is True (default), this functions checks that
         each level is either a 2 or 3 multiple of the next.
@@ -672,7 +673,8 @@ class PulseLengths:
         Parameters
         ----------
         require_2_or_3_between_levels
-            Deafults to False. If True, raise a ValueError in the case of this condition not being met.
+            Defaults to False.
+            If True, raise a ValueError in the case of this condition not being met.
 
         Returns
         -------
@@ -733,7 +735,7 @@ class PulseLengths:
         A maximum of 4 decimal places is hardcoded.
         This is to avoid floating point errors or the need for one line of numpy (np.arange)
         in a module that doesn't otherwise use it.
-        4dp should be sufficient for all realistic use cases.
+        4d.p. should be sufficient for all realistic use cases.
 
         Parameters
         --------
@@ -781,7 +783,7 @@ class BeatPattern:
 
     def __init__(
         self,
-        beat_list: list[int],
+        beat_list: tuple[int],
         beat_type: int,
     ):
 
@@ -809,12 +811,12 @@ class BeatPattern:
         --------
         include_cycle_length
             If True (default) then each level ends with the full cycle length
-            (i.e., the start of the start of the next cycle).
+            (i.e., the start of the next cycle).
 
         Examples
         --------
 
-        >>> bp = BeatPattern([2, 2, 3], 4)
+        >>> bp = BeatPattern((2, 2, 3), 4)
         >>> bp.beat_pattern_to_start_hierarchy()
         [0.0, 2.0, 4.0, 7.0]
 
