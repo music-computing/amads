@@ -118,6 +118,38 @@ class StartTimeHierarchy:
 
         return coincidences
 
+    def to_pulse_lengths(self) -> list:
+        """
+        Check if levels have a regular pulse and if so, return the pulse length value.
+
+        Returns
+        -------
+        list
+            Returns a list of pulse values corresponding to the start hierarchy, of the same length.
+            If a level is not regular, the list is populated with None.
+
+        Examples
+        --------
+
+        >>> hierarchy = StartTimeHierarchy([[0.0, 4.0], [0.0, 2.0, 4.0], [0.0, 1.0, 2.0, 3.0, 4.0]])
+        >>> hierarchy.to_pulse_lengths()
+        [4.0, 2.0, 1.0]
+
+        >>> uneven = StartTimeHierarchy([[0.0, 4.0], [0.0, 3.0, 4.0], [0.0, 1.0, 2.0, 3.0, 4.0]])
+        >>> uneven.to_pulse_lengths()
+        [4.0, None, 1.0]
+
+        """
+
+        def test_one(level: list):
+            diffs = set([level[i + 1] - level[i] for i in range(len(level) - 1)])
+            if len(diffs) > 1:
+                return None
+            return float(list(diffs)[0])
+
+        self.pulse_lengths = [test_one(level) for level in self.start_hierarchy]
+        return self.pulse_lengths
+
 
 # ------------------------------------------------------------------------------
 
