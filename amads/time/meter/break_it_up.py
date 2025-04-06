@@ -103,7 +103,7 @@ class MetricalSplitter:
     >>> split.start_duration_pairs
     [(0.25, 0.75), (1.0, 1.0), (2.0, 0.25)]
 
-    >>> m.convert_to_2s_3s()
+    >>> m.fill_2s_3s()
     >>> start_hierarchy = m.to_start_hierarchy()
     >>> start_hierarchy
     [[0.0, 4.0], [0.0, 2.0, 4.0], [0.0, 1.0, 2.0, 3.0, 4.0]]
