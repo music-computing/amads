@@ -108,7 +108,7 @@ class MetricalSplitter:
     >>> start_hierarchy
     [[0.0, 4.0], [0.0, 2.0, 4.0], [0.0, 1.0, 2.0, 3.0, 4.0]]
 
-    >>> meter_from_pulses = PulseLengths([4, 2, 1, 0.5, 0.25], measure_length=4)
+    >>> meter_from_pulses = PulseLengths([4, 2, 1, 0.5, 0.25], cycle_length=4)
     >>> start_hierarchy = meter_from_pulses.to_start_hierarchy()
     >>> start_hierarchy[-1]
     [0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0, 3.25, 3.5, 3.75, 4.0]

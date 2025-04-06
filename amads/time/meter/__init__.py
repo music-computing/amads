@@ -14,15 +14,19 @@ within-measure notational conventions).
 
 __author__ = "Mark Gotham"
 
-
+import math
 from typing import Optional, Union
 
 # ------------------------------------------------------------------------------
 
 
+def is_power_of_two(n):
+    return n > 0 and (n & (n - 1)) == 0
+
+
 class StartTimeHierarchy:
     """
-    Encoding metrical structure in the form of a hierarchy of start times:
+    Encoding metrical structure as a hierarchy of start times:
     a representation of metrical levels in terms of starts expressed by quarter length
     from the start of the measure.
 
@@ -47,21 +51,18 @@ class StartTimeHierarchy:
 
     def __init__(
         self,
-        start_hierarchy: Optional[list] = None,
+        start_hierarchy: list[list],
         names: Optional[dict] = None,
     ):
         self.start_hierarchy = start_hierarchy
+        self.cycle_length = self.start_hierarchy[0][-1]
+        self.pulse_lengths = None
 
         if names:
             for key in names:
                 assert isinstance(key, float)
                 assert isinstance(names[key], str)
         self.names = names
-
-        if self.start_hierarchy:
-            self.cycle_length = self.start_hierarchy[0][-1]
-        else:
-            self.cycle_length = None
 
     def coincident_pulse_list(
         self,
@@ -100,12 +101,12 @@ class StartTimeHierarchy:
         [3, 0, 1, 0, 2, 0, 1, 0]
 
         """
-        measure_length = self.start_hierarchy[0][-1]
+        cycle_length = self.start_hierarchy[0][-1]
 
         for level in self.start_hierarchy:
-            assert level[-1] == measure_length
+            assert level[-1] == cycle_length
 
-        steps = int(measure_length / granular_pulse)
+        steps = int(cycle_length / granular_pulse)
         granular_level = [granular_pulse * count for count in range(steps)]
 
         def count_instances(nested_list, target):
@@ -154,7 +155,7 @@ class TimeSignature:
             self.from_string()
         self.check_valid()
 
-        self.measure_length = sum(self.beats) * 4 / self.beat_type
+        self.cycle_length = sum(self.beats) * 4 / self.beat_type
         self.pulses = None
         self.get_pulses()
 
@@ -210,9 +211,6 @@ class TimeSignature:
             raise ValueError("The `.beats` attribute type is invalid.")
 
         # beat_type  # TODO this is the part we want to actively check
-        def is_power_of_two(n):
-            return n > 0 and (n & (n - 1)) == 0
-
         if not is_power_of_two(self.beat_type):
             raise ValueError(
                 f"Beat type set as {self.beat_type} is invalid: must be a power of 2."
@@ -248,7 +246,7 @@ class TimeSignature:
         [3.0, 1.5, 0.5]
 
         """
-        pulses = [float(self.measure_length), 4 / self.beat_type]
+        pulses = [float(self.cycle_length), 4 / self.beat_type]
 
         first_beat_duration = self.beats[0] * 4 / self.beat_type
 
@@ -432,7 +430,7 @@ class TimeSignature:
         """
         # 1. Basic elements: all periodic cycles from the full cycle to the `beat_type` level.
         pulses = PulseLengths(  # TODO consistency wrt what is added to the class.
-            pulse_lengths=self.pulses, measure_length=self.measure_length
+            pulse_lengths=self.pulses, cycle_length=self.cycle_length
         )
         start_hierarchy = pulses.to_start_hierarchy()
 
@@ -458,8 +456,8 @@ class PulseLengths:
     def __init__(
         self,
         pulse_lengths: list[float],
-        measure_length: Optional[float] = None,
-        include_measure_length: bool = True,
+        cycle_length: Optional[float] = None,
+        include_cycle_length: bool = True,
     ):
         """
         Representation of fully periodic meter centred on the constituent pulse lengths.
@@ -468,16 +466,16 @@ class PulseLengths:
         ----------
         pulse_lengths
             Any valid list of pulse lengths, e.g., [4, 2, 1].
-        measure_length
+        cycle_length
             Optional. If not provided, the cycle length is taken to be given by the longest pulse length.
-        include_measure_length
+        include_cycle_length
             Defaults to True. If True, when converting to starts, include the full measure length in the list.
 
         """
         self.pulse_lengths = pulse_lengths
-        self.measure_length = measure_length
+        self.cycle_length = cycle_length
         self.start_hierarchy = None
-        self.include_measure_length = include_measure_length
+        self.include_cycle_length = include_cycle_length
 
     def to_start_hierarchy(
         self,
@@ -486,7 +484,7 @@ class PulseLengths:
         """
         Convert a list of pulse lengths into a corresponding list of lists
         with start positions per metrical level.
-        All values (pulse lengths, start positions, and measure_length)
+        All values (pulse lengths, start positions, and cycle_length)
         are all expressed in terms of quarter length.
 
         That is, the user provides pulse lengths for each level of a metrical hierarchy,
@@ -505,7 +503,7 @@ class PulseLengths:
         If `require_2_or_3_between_levels` is True (default), this functions checks that
         each level is either a 2 or 3 multiple of the next.
 
-        By default, the measure_length is taken by the longest pulse length.
+        By default, the cycle_length is taken by the longest pulse length.
         Alternatively, this can be user-defined to anything as long as it is
         1) longer than the longest pulse and
         2) if `require_2_or_3_between_levels` is True then exactly 2x or 3x longer.
@@ -546,13 +544,13 @@ class PulseLengths:
         pulse_lengths = self.pulse_lengths
         pulse_lengths.sort(reverse=True)  # largest number first
 
-        if not self.measure_length:
-            self.measure_length = float(pulse_lengths[0])
+        if not self.cycle_length:
+            self.cycle_length = float(pulse_lengths[0])
 
         else:
-            if pulse_lengths[0] > self.measure_length:
+            if pulse_lengths[0] > self.cycle_length:
                 raise ValueError(
-                    f"The `pulse_length` {pulse_lengths[0]} is longer than the `measure_length` ({self.measure_length})."
+                    f"The `pulse_length` {pulse_lengths[0]} is longer than the `cycle_length` ({self.cycle_length})."
                 )
 
         if require_2_or_3_between_levels:  # TODO consider refactor
@@ -589,30 +587,30 @@ class PulseLengths:
         Parameters
         --------
         pulse_length
-            The quarter length of the pulse (note: must be shorter than the `measure_length`).
+            The quarter length of the pulse (note: must be shorter than the `cycle_length`).
 
         Examples
         --------
 
-        >>> pls = PulseLengths(pulse_lengths=[4, 2, 1, 0.5], measure_length=4)
+        >>> pls = PulseLengths(pulse_lengths=[4, 2, 1, 0.5], cycle_length=4)
         >>> pls.pulse_lengths
         [4, 2, 1, 0.5]
 
         >>> pls.one_pulse_to_start_hierarchy_list(1)
         [0.0, 1.0, 2.0, 3.0, 4.0]
 
-        >>> pls = PulseLengths(pulse_lengths=[4, 2, 1, 0.5], measure_length=4, include_measure_length=False)
+        >>> pls = PulseLengths(pulse_lengths=[4, 2, 1, 0.5], cycle_length=4, include_cycle_length=False)
         >>> pls.one_pulse_to_start_hierarchy_list(1)
         [0.0, 1.0, 2.0, 3.0]
 
         """
         starts = []
         count = 0
-        while count < self.measure_length:
+        while count < self.cycle_length:
             starts.append(round(float(count), 4))
             count += pulse_length
 
-        if self.include_measure_length:
+        if self.include_cycle_length:
             starts.append(round(float(count), 4))
 
         return starts
@@ -641,7 +639,7 @@ class BeatPattern:
         self.start_time_hierarchy = self.beat_pattern_to_start_hierarchy()
 
     def beat_pattern_to_start_hierarchy(
-        self, include_measure_length: bool = True
+        self, include_cycle_length: bool = True
     ) -> list:
         """
         Converts a list of beats
@@ -658,7 +656,7 @@ class BeatPattern:
 
         Parameters
         --------
-        include_measure_length
+        include_cycle_length
             If True (default) then each level ends with the full cycle length
             (i.e., the start of the start of the next cycle).
 
@@ -669,7 +667,7 @@ class BeatPattern:
         >>> bp.beat_pattern_to_start_hierarchy()
         [0.0, 2.0, 4.0, 7.0]
 
-        >>> bp.beat_pattern_to_start_hierarchy(include_measure_length = False)
+        >>> bp.beat_pattern_to_start_hierarchy(include_cycle_length = False)
         [0.0, 2.0, 4.0]
 
         """
@@ -680,7 +678,7 @@ class BeatPattern:
             this_start = count * 4 / self.beat_type
             starts.append(this_start)
 
-        if include_measure_length:  # include last value
+        if include_cycle_length:  # include last value
             return starts
         else:
             return starts[:-1]
