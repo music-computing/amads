@@ -20,7 +20,32 @@ from typing import Optional, Union
 # ------------------------------------------------------------------------------
 
 
-def is_power_of_two(n):
+def is_non_negative_integer_power_of_two(n: int) -> bool:
+    """
+    Checks if a number is a power of 2.
+
+    >>> is_non_negative_integer_power_of_two(0)
+    False
+
+    >>> is_non_negative_integer_power_of_two(0.5)
+    False
+
+    >>> is_non_negative_integer_power_of_two(1)
+    True
+
+    >>> is_non_negative_integer_power_of_two(2)
+    True
+
+    >>> is_non_negative_integer_power_of_two(3)
+    False
+
+    >>> is_non_negative_integer_power_of_two(4)
+    True
+    """
+    if not isinstance(n, int):
+        return False
+    if n <= 0:
+        return False
     return n > 0 and (n & (n - 1)) == 0
 
 
@@ -243,7 +268,7 @@ class TimeSignature:
             raise ValueError("The `.beats` attribute type is invalid.")
 
         # beat_type  # TODO this is the part we want to actively check
-        if not is_power_of_two(self.beat_type):
+        if not is_non_negative_integer_power_of_two(self.beat_type):
             raise ValueError(
                 f"Beat type set as {self.beat_type} is invalid: must be a power of 2."
             )
