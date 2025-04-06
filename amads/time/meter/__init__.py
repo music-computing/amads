@@ -7,9 +7,9 @@ the hierarchy of
 a metrical cycle.
 
 Uses include identifying notes that traverse metrical levels,
-for analysis (e.g., as a measure of syncopation)
+for analysis (e.g., as a cycle of syncopation)
 and notation (e.g., re-notating to reflect the
-within-measure notational conventions).
+within-cycle notational conventions).
 """
 
 __author__ = "Mark Gotham"
@@ -69,7 +69,7 @@ class StartTimeHierarchy:
     """
     Encoding metrical structure as a hierarchy of start times:
     a representation of metrical levels in terms of starts expressed by quarter length
-    from the start of the measure.
+    from the start of the cycle.
 
     Parameters
     ----------
@@ -226,9 +226,6 @@ class StartTimeHierarchy:
         >>> hierarchy.start_hierarchy
         [[0.0, 4.0], [0.0, 2.0, 4.0], [0.0, 1.0, 2.0, 3.0, 4.0]]
 
-        >>> hierarchy.pulse_lengths
-        [4.0, 2.0, 1.0]
-
         """
         self.to_pulse_lengths()
         fastest = self.pulse_lengths[-1]
@@ -248,9 +245,11 @@ class StartTimeHierarchy:
         fastest_exponent = int(math.log2(fastest))
         minimum_beat_type_exponent = int(math.log2(minimum_beat_type))
 
+        beat_types = [
+            2**x for x in range(fastest_exponent + 1, minimum_beat_type_exponent + 1)
+        ]
         new_pulses = [
-            switch_pulse_length_beat_type(2 ** (4 / x))
-            for x in range(fastest_exponent + 1, minimum_beat_type_exponent + 1)
+            switch_pulse_length_beat_type(beat_type) for beat_type in beat_types
         ]
         self.pulse_lengths += new_pulses
         fake_meter = PulseLengths(
@@ -270,7 +269,7 @@ class TimeSignature:
     Parameters
     ----------
     beats
-        The "numerator" of the time signature: beats per measure, a number (int or fraction) or a lists thereof.
+        The "numerator" of the time signature: beats per cycle, a number (int or fraction) or a lists thereof.
     beat_type
         the so-called "denominator" of the time signature: a whole number power of 2
         (1, 2, 4, 8, 16, 32, 64, ...).
@@ -609,11 +608,22 @@ class PulseLengths:
         cycle_length
             Optional. If not provided, the cycle length is taken to be given by the longest pulse length.
         include_cycle_length
-            Defaults to True. If True, when converting to starts, include the full measure length in the list.
+            Defaults to True. If True, when converting to starts, include the full cycle length in the list.
 
         """
+
         self.pulse_lengths = pulse_lengths
+        self.pulse_lengths.sort(reverse=True)  # largest number first
+
         self.cycle_length = cycle_length
+        if self.cycle_length is not None:
+            if pulse_lengths[0] > self.cycle_length:
+                raise ValueError(
+                    f"The `pulse_length` {pulse_lengths[0]} is longer than the `cycle_length` ({self.cycle_length})."
+                )
+        else:
+            self.cycle_length = float(pulse_lengths[0])
+
         self.start_hierarchy = None
         self.include_cycle_length = include_cycle_length
 
@@ -681,24 +691,15 @@ class PulseLengths:
 
         """
 
-        pulse_lengths = self.pulse_lengths
-        pulse_lengths.sort(reverse=True)  # largest number first
-
-        if not self.cycle_length:
-            self.cycle_length = float(pulse_lengths[0])
-
-        else:
-            if pulse_lengths[0] > self.cycle_length:
-                raise ValueError(
-                    f"The `pulse_length` {pulse_lengths[0]} is longer than the `cycle_length` ({self.cycle_length})."
-                )
-
         if require_2_or_3_between_levels:  # TODO consider refactor
             for level in range(len(self.pulse_lengths) - 1):
-                if pulse_lengths[level] / pulse_lengths[level + 1] not in [2, 3]:
+                if self.pulse_lengths[level] / self.pulse_lengths[level + 1] not in [
+                    2,
+                    3,
+                ]:
                     raise ValueError(
                         "The proportion between consecutive levels is not 2 or 3 in "
-                        f"this case: {pulse_lengths[level]}:{pulse_lengths[level + 1]}."
+                        f"this case: {self.pulse_lengths[level]}:{self.pulse_lengths[level + 1]}."
                     )
 
         start_list = []
@@ -715,7 +716,7 @@ class PulseLengths:
         pulse_length: float,
     ):
         """
-        Convert a single pulse length and measure length into a list of starts.
+        Convert a single pulse length and cycle length into a list of starts.
         All expressed in quarter length.
 
         Note:
@@ -787,9 +788,9 @@ class BeatPattern:
         or [3, 3]
         or indeed
         [6, 9]
-        into a list of within-measure starting positions, as defined relative
-        to the start of the measure cycle.
-        Basically the list of beats functions like the time signature's so-called "numerator",
+        into a list of within-cycle starting positions, as defined relative
+        to the start of the cycle.
+        Basically, the list of beats functions like the time signature's so-called "numerator",
         so for instance, `[2, 2, 3]` with the denominator `4` is a kind of 7/4.
         This equates to starting positions of
         `[0.0, 2.0, 4.0, 7.0]`.
