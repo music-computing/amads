@@ -226,6 +226,16 @@ class StartTimeHierarchy:
         >>> hierarchy.start_hierarchy
         [[0.0, 4.0], [0.0, 2.0, 4.0], [0.0, 1.0, 2.0, 3.0, 4.0]]
 
+        >>> hierarchy.pulse_lengths
+        [4.0, 2.0, 1.0]
+
+        >>> hierarchy.add_faster_levels(minimum_beat_type=8)
+        >>> hierarchy.start_hierarchy[-1]
+        [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0]
+
+        >>> hierarchy.pulse_lengths
+        [4.0, 2.0, 1.0, 2.0, 1.0, 0.5]
+
         """
         self.to_pulse_lengths()
         fastest = self.pulse_lengths[-1]
