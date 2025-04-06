@@ -20,7 +20,7 @@ from typing import Optional, Union
 # ------------------------------------------------------------------------------
 
 
-def is_non_negative_integer_power_of_two(n: int) -> bool:
+def is_non_negative_integer_power_of_two(n: float) -> bool:
     """
     Checks if a number is a power of 2.
 
@@ -42,11 +42,27 @@ def is_non_negative_integer_power_of_two(n: int) -> bool:
     >>> is_non_negative_integer_power_of_two(4)
     True
     """
+    if n <= 0:  # also type error if non-numeric
+        return False
     if not isinstance(n, int):
-        return False
-    if n <= 0:
-        return False
+        if int(n) == n:
+            n = int(n)
+        else:
+            return False
     return n > 0 and (n & (n - 1)) == 0
+
+
+def switch_pulse_length_beat_type(pulse_length_or_beat_type: float):
+    """
+    Switch between a pulse length and beat type.
+
+    >>> switch_pulse_length_beat_type(0.5)
+    8.0
+
+    >>> switch_pulse_length_beat_type(8)
+    0.5
+    """
+    return 4 / pulse_length_or_beat_type
 
 
 class StartTimeHierarchy:
@@ -158,10 +174,12 @@ class StartTimeHierarchy:
 
         >>> hierarchy = StartTimeHierarchy([[0.0, 4.0], [0.0, 2.0, 4.0], [0.0, 1.0, 2.0, 3.0, 4.0]])
         >>> hierarchy.to_pulse_lengths()
+        >>> hierarchy.pulse_lengths
         [4.0, 2.0, 1.0]
 
         >>> uneven = StartTimeHierarchy([[0.0, 4.0], [0.0, 3.0, 4.0], [0.0, 1.0, 2.0, 3.0, 4.0]])
         >>> uneven.to_pulse_lengths()
+        >>> uneven.pulse_lengths
         [4.0, None, 1.0]
 
         """
@@ -173,7 +191,72 @@ class StartTimeHierarchy:
             return float(list(diffs)[0])
 
         self.pulse_lengths = [test_one(level) for level in self.start_hierarchy]
-        return self.pulse_lengths
+
+    def add_faster_levels(self, minimum_beat_type: int = 64):
+        """
+        Recursively add faster levels until the `minimum_beat_type` value
+        The `minimum_beat_type` is subject to the same constraints as the `beat_types` ("denominators")
+        i.e., powers of 2 (1, 2, 4, 8, 16, 32, 64, ...).
+        The default = 64 for 64th note.
+
+        Parameters
+        ----------
+        minimum_beat_type
+            Recursively create further levels down to this value.
+            Must be power of two.
+            Defaults to 64 for 64th notes.
+
+        Raises
+        ------
+        Errors raised if the currently fastest level of a `starts_hierarchy` is not periodic,
+        or if either of the fastest level or `minimum_beat_type` are not powers of 2.
+        Set the `starts_hierarchy` manually in these non-standard cases.
+
+        Examples
+        --------
+        >>> hierarchy = StartTimeHierarchy([[0.0, 4.0], [0.0, 2.0, 4.0]])
+        >>> hierarchy.start_hierarchy
+        [[0.0, 4.0], [0.0, 2.0, 4.0]]
+
+        >>> hierarchy.to_pulse_lengths()
+        >>> hierarchy.pulse_lengths
+        [4.0, 2.0]
+
+        >>> hierarchy.add_faster_levels(minimum_beat_type=4)
+        >>> hierarchy.start_hierarchy
+        [[0.0, 4.0], [0.0, 2.0, 4.0], [0.0, 1.0, 2.0, 3.0, 4.0]]
+
+        >>> hierarchy.pulse_lengths
+        [4.0, 2.0, 1.0]
+
+        """
+        self.to_pulse_lengths()
+        fastest = self.pulse_lengths[-1]
+        if fastest is None:
+            raise ValueError("Fastest level is not regular. Use case unsupported.")
+        if not is_non_negative_integer_power_of_two(
+            switch_pulse_length_beat_type(fastest)  # from pulse length to beat type
+        ):
+            raise ValueError(
+                f"Fastest level ({fastest}) is not a power of 2. Use case unsupported."
+            )
+        if not is_non_negative_integer_power_of_two(minimum_beat_type):
+            raise ValueError(
+                f"The `minimum_beat_type` ({minimum_beat_type}) is not a power of 2. Use case unsupported."
+            )
+
+        fastest_exponent = int(math.log2(fastest))
+        minimum_beat_type_exponent = int(math.log2(minimum_beat_type))
+
+        new_pulses = [
+            switch_pulse_length_beat_type(2 ** (4 / x))
+            for x in range(fastest_exponent + 1, minimum_beat_type_exponent + 1)
+        ]
+        self.pulse_lengths += new_pulses
+        fake_meter = PulseLengths(
+            pulse_lengths=new_pulses, cycle_length=self.cycle_length
+        )
+        self.start_hierarchy += fake_meter.to_start_hierarchy()
 
 
 # ------------------------------------------------------------------------------
