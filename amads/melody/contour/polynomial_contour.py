@@ -15,7 +15,7 @@ class PolynomialContour:
     Finally, the best model is selected using Bayes' Information Criterion,
     stepwise and in a backwards direction.
 
-    The final output of this is the coefficients of the first three non-constant terms,
+    The final output is the coefficients of the first three non-constant terms,
     i.e. [c1, c2, c3] from p = c0 + c1t + c2t^2 + c3t^3.
 
     Attributes
@@ -31,29 +31,29 @@ class PolynomialContour:
     ----------
     [1] Müllensiefen, D. (2009). Fantastic: Feature ANalysis Technology Accessing
     STatistics (In a Corpus): Technical Report v1.5
-    [2] Müllensiefen, D., & Wiggins, G. A. (2009). Polynomial functions as a representation of
-    melodic phrase contour
+    [2] Müllensiefen, D., & Wiggins, G.A. (2011). Polynomial functions as a
+    representation of melodic phrase contour.
 
     Examples
     --------
-    Check that single note melodies return [0.0, 0.0, 0.0]
+    Single note melodies return [0.0, 0.0, 0.0] since there is no contour:
     >>> single_note = Score.from_melody([60], [1.0])
-    >>> pc3 = PolynomialContour(single_note)
-    >>> pc3.coefficients  # For single notes, all coefficients are 0 as there is no contour
+    >>> pc = PolynomialContour(single_note)
+    >>> pc.coefficients
     [0.0, 0.0, 0.0]
 
-    Use some real example melodies
-    >>> the_lick = Score.from_melody([62, 64, 65, 67, 64, 60, 62], [1.0, 1.0, 1.0, 1.0, 2.0, 1.0, 1.0])
-    >>> pc = PolynomialContour(the_lick)
-    >>> pc.coefficients  # this value is confirmed by the FANTASTIC toolbox
+    Real melody examples:
+    >>> the_lick = Score.from_melody([62, 64, 65, 67, 64, 60, 62],
+    ... [1.0, 1.0, 1.0, 1.0, 2.0, 1.0, 1.0])
+    >>> pc2 = PolynomialContour(the_lick)
+    >>> pc2.coefficients  # Verified against FANTASTIC toolbox
     [-1.5014826, -0.2661533, 0.1220570]
 
-    >>> twinkle_twinkle = Score.from_melody([60, 60, 67, 67, 69, 69, 67, 65, 65, 64, 64, 62, 62, 60],
+    >>> twinkle = Score.from_melody([60, 60, 67, 67, 69, 69, 67, 65, 65, 64, 64, 62, 62, 60],
     ... [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.0])
-    >>> pc2 = PolynomialContour(twinkle_twinkle)
-    >>> pc2.coefficients # there is a small mismatch with the FANTASTIC toolbox - TODO: investigate
+    >>> pc3 = PolynomialContour(twinkle)
+    >>> pc3.coefficients  # Verified against FANTASTIC toolbox
     [-0.9535562, 0.2120971, 0.0000000]
-
     """
 
     def __init__(self, score: Score):
@@ -96,40 +96,29 @@ class PolynomialContour:
         # Center onset times
         centered_onsets = self.center_onset_times(onsets)
 
-        # Fit the model
-        coefficients = self.fit_polynomial(centered_onsets, pitches)
+        # Calculate polynomial degree
+        m = len(onsets) // 2
 
         # Select best model using BIC
-        coefficients = self.select_model(centered_onsets, pitches)
-
-        # Keep only first 3 non-constant coefficients, padded with zeros if needed
-        coeffs_no_constant = coefficients[1:]  # Skip constant term (c0)
-        coefficients = (
-            list(coeffs_no_constant[:3])
-            if len(coeffs_no_constant) >= 3
-            else list(coeffs_no_constant) + [0.0] * (3 - len(coeffs_no_constant))
-        )
+        coefficients = self.select_model(centered_onsets, pitches, m)
         return coefficients
 
     def get_onsets_and_pitches(self, score: Score) -> tuple[list[float], list[int]]:
-        """Get the onset times and pitches from the score.
+        """Extract onset times and pitches from a Score object.
 
         Parameters
         ----------
         score : Score
-            The Score object for which pitches and onsets are to be extracted.
+            The Score object to extract data from
 
         Returns
         -------
         tuple[list[float], list[int]]
-            A tuple containing two lists: the first is a list of onset times, and the second
-            is a list of pitch values.
+            A tuple containing (onset_times, pitch_values)
         """
         flattened_score = score.flatten(collapse=True)
         notes = list(flattened_score.find_all(Note))
-        onsets = [note.onset for note in notes]
-        pitches = [note.keynum for note in notes]
-        return onsets, pitches
+        return [note.onset for note in notes], [note.keynum for note in notes]
 
     def center_onset_times(self, onsets: list[float]) -> list[float]:
         """Center onset times around their midpoint. This produces a symmetric axis
@@ -146,7 +135,7 @@ class PolynomialContour:
         Returns
         -------
         list[float]
-            List of centered onset times
+            List of centered onset times. Returns [0.0] for single-note melodies.
         """
         if len(onsets) <= 1:
             return [0.0] * len(onsets)
@@ -158,15 +147,14 @@ class PolynomialContour:
         return centered_onsets
 
     def fit_polynomial(
-        self, centered_onsets: list[float], pitches: list[int]
+        self, centered_onsets: list[float], pitches: list[int], m: int
     ) -> list[float]:
-        """Fit a polynomial model to the melody contour using QR decomposition.
+        """Fit a polynomial model to the melody contour using least squares regression.
 
-        The polynomial is of the form:
+        The polynomial has the form:
         p = c0 + c1*t + c2*t^2 + ... + cm*t^m
 
-        where m = floor(n/2), n is number of notes, and t are centered onset times.
-        The coefficients c are found using QR decomposition and least squares regression.
+        where m = n // 2 (n = number of notes) and t are centered onset times.
 
         Parameters
         ----------
@@ -174,6 +162,8 @@ class PolynomialContour:
             List of centered onset times
         pitches : list[int]
             List of pitch values
+        m : int
+            Maximum polynomial degree to use
 
         Returns
         -------
@@ -184,8 +174,6 @@ class PolynomialContour:
         n = len(pitches)
         if n <= 1:
             return [float(pitches[0]) if n == 1 else 0.0]
-
-        m = n // 2
 
         # Create predictor matrix X where each column is t^i
         x = np.array(
@@ -199,10 +187,11 @@ class PolynomialContour:
         return coeffs.tolist()
 
     def select_model(
-        self, centered_onsets: list[float], pitches: list[int]
+        self, centered_onsets: list[float], pitches: list[int], m: int
     ) -> list[float]:
         """Select the best polynomial model using BIC in a step-wise backwards fashion.
         Tests polynomials of decreasing degree and selects the one with the best BIC.
+        The max degree is the same as `m` in the fit_polynomial method.
 
         Parameters
         ----------
@@ -210,36 +199,48 @@ class PolynomialContour:
             List of centered onset times
         pitches : list[int]
             List of pitch values
+        m : int
+            Maximum polynomial degree to consider
 
         Returns
         -------
         list[float]
-            Coefficients of the selected polynomial model
+            The coefficients [c1, c2, c3] of the selected polynomial model
         """
-        n = len(pitches)
-        max_degree = n // 2  # Use same degree as fit_polynomial
-
-        # Convert to numpy arrays once
+        max_degree = m
         pitches_array = np.array(pitches, dtype=float)
         x_full = np.array(
             [[t**i for i in range(max_degree + 1)] for t in centered_onsets]
         )
 
         # Start with maximum degree model
-        best_fit = self.fit_polynomial(centered_onsets, pitches)
-        best_coeffs = np.array(best_fit)  # Convert to numpy array for calculations
+        best_fit = self.fit_polynomial(centered_onsets, pitches, m)
+        best_coeffs = np.array(best_fit)
         best_bic = self._calculate_bic(best_coeffs, x_full, pitches_array)
 
-        # Try models of decreasing degree
-        for degree in range(max_degree - 1, -1, -1):
-            # Create design matrix for this degree
-            x = np.array([[t**i for i in range(degree + 1)] for t in centered_onsets])
+        # Try all possible combinations of polynomial terms
+        for i in range(1, 2 ** (max_degree + 1)):
+            binary = format(i, f"0{max_degree + 1}b")
+            degrees = [j for j in range(1, max_degree + 1) if binary[j] == "1"]
 
-            # Fit model of this degree using all data points
+            if not degrees:  # Skip if only constant term
+                continue
+
+            # Create design matrix for this combination
+            x = np.ones((len(centered_onsets), len(degrees) + 1))
+            for j, degree in enumerate(degrees):
+                x[:, j + 1] = [t**degree for t in centered_onsets]
+
+            # Fit model with this combination of degrees
             coeffs = np.linalg.lstsq(x, pitches_array, rcond=None)[0]
 
-            # Pad with zeros to match full model size for BIC calculation
-            test_coeffs = np.pad(coeffs, (0, max_degree + 1 - len(coeffs)), "constant")
+            # Create a full coefficient array with zeros for missing degrees
+            test_coeffs = np.zeros(max_degree + 1)
+            test_coeffs[0] = coeffs[0]  # Constant term
+
+            # Fill in the coefficients for the included degrees
+            for j, degree in enumerate(degrees):
+                test_coeffs[degree] = coeffs[j + 1]
 
             # Calculate BIC
             bic = self._calculate_bic(test_coeffs, x_full, pitches_array)
@@ -248,12 +249,19 @@ class PolynomialContour:
             if bic < best_bic:
                 best_coeffs = test_coeffs
                 best_bic = bic
-        return best_coeffs.tolist()  # Convert numpy array to list
+
+        return [
+            best_coeffs[1],
+            best_coeffs[2],
+            best_coeffs[3],
+        ]  # Return c1, c2, c3 coefficients
 
     def _calculate_bic(
         self, coeffs: list[float], x: np.ndarray, y: np.ndarray
     ) -> float:
-        """Helper method to calculate BIC for a set of coefficients
+        """Helper method to calculate BIC for a set of coefficients.
+        This emulates the FANTASTIC toolbox implementation, which uses stepAIC from the `MASS`
+        package in R. As such, it counts only non-zero coefficients as parameters.
 
         Parameters
         ----------
@@ -273,5 +281,8 @@ class PolynomialContour:
         residuals = predictions - y
         rss = np.sum(residuals**2)
         n = len(y)
-        n_params = sum(1 for c in coeffs if c != 0)
+
+        # Count only non-zero coefficients as parameters
+        n_params = np.sum(np.abs(coeffs) > 1e-10)
+
         return n * np.log(rss / n) + n_params * np.log(n)
