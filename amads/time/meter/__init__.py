@@ -17,6 +17,8 @@ __author__ = "Mark Gotham"
 import math
 from typing import Optional, Union
 
+import numpy as np
+
 # ------------------------------------------------------------------------------
 
 
@@ -52,15 +54,21 @@ def is_non_negative_integer_power_of_two(n: float) -> bool:
     return n > 0 and (n & (n - 1)) == 0
 
 
-def switch_pulse_length_beat_type(pulse_length_or_beat_type: float):
+def switch_pulse_length_beat_type(pulse_length_or_beat_type: Union[float, np.array]):
     """
     Switch between a pulse length and beat type.
+    Accepts numeric values or numpy arrays thereof.
+    Note that a float of vale 0 will raise a `ZeroDivisionError: division by zero`,
+    but a numpy array will map any 0s to `inf` without error.
 
     >>> switch_pulse_length_beat_type(0.5)
     8.0
 
     >>> switch_pulse_length_beat_type(8)
     0.5
+
+    >>> switch_pulse_length_beat_type(np.array([0.5, 8]))
+    array([8. , 0.5])
     """
     return 4 / pulse_length_or_beat_type
 
@@ -767,6 +775,43 @@ class PulseLengths:
             starts.append(round(float(count), 4))
 
         return starts
+
+    def to_array(self):
+        """
+        Create an array with the levels as rows,
+        and the entries as pulse length values,
+        where those pulse lengths start, and 0 otherwise.
+
+        Examples
+        --------
+
+        >>> pls = PulseLengths(pulse_lengths=[4, 2, 1, 0.5], cycle_length=4)
+        >>> pls.to_array()
+        array([[4. , 0. , 0. , 0. , 0. , 0. , 0. , 0. ],
+               [2. , 0. , 0. , 0. , 2. , 0. , 0. , 0. ],
+               [1. , 0. , 1. , 0. , 1. , 0. , 1. , 0. ],
+               [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]])
+
+        """
+        import numpy as np
+
+        tatum = self.pulse_lengths[-1]
+        linear_positions = int(self.cycle_length / tatum)
+        granular_row = np.full(
+            shape=(1, linear_positions), fill_value=tatum, dtype=np.float64
+        )
+        symbolic_pulse_length_array = np.array(granular_row)
+        for pulse in self.pulse_lengths[-2::-1]:  # TODO check len?
+            multiple_of_tatum = int(pulse / tatum)
+            divider_of_cycle = int(linear_positions / multiple_of_tatum)
+            proto_row = np.zeros((1, multiple_of_tatum))
+            proto_row[0, 0] = pulse
+            row = proto_row
+            for i in range(divider_of_cycle - 1):
+                row = np.append(row, proto_row)
+            symbolic_pulse_length_array = np.vstack((row, symbolic_pulse_length_array))
+
+        return symbolic_pulse_length_array
 
 
 class BeatPattern:
