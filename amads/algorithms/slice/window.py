@@ -48,15 +48,15 @@ class Window(Slice):
     ):
         match align:
             case "left":
-                start = time
+                onset = time
             case "center":
-                start = time - size / 2
+                onset = time - size / 2
             case "right":
-                start = time - size
+                onset = time - size
             case _:
                 raise ValueError(f"Invalid value passed to `align`: {align}")
 
-        end = start + size
+        offset = onset + size
 
         self.time = time
         self.size = size
@@ -70,14 +70,14 @@ class Window(Slice):
         for i in range(skip, len(candidate_notes)):
             note = candidate_notes[i]
 
-            if note.end < start:
+            if note.offset < onset:
                 # The note finished before the window started.
                 # It'll definitely finish before future windows start,
                 # because they'll be even later, so we can skip it then too.
                 skip = i
                 continue
 
-            if note.start > end:
+            if note.onset > offset:
                 # The note starts after the window finishes.
                 # All the remaining notes in candidate_notes will have even later starts,
                 # so we don't need to check them for this window.
@@ -89,8 +89,8 @@ class Window(Slice):
             # We use copy instead of creating a new Note because we want to
             # preserve any other attributes that might be useful in downstream tasks.
             note = note.copy()
-            note.start = max(note.start, start)
-            note.end = min(note.end, end)
+            note.onset = max(note.onset, onset)
+            note.offset = min(note.offset, offset)
 
             notes.append(note)
 
@@ -100,7 +100,7 @@ class Window(Slice):
         super().__init__(
             content=notes,
             original_notes=original_notes,
-            delta=start,
+            delta=onset,
             duration=size,
         )
 
@@ -161,7 +161,7 @@ def sliding_window(
         notes = passage
 
     notes = list(notes)
-    notes.sort(key=lambda n: (n.start, n.pitch))
+    notes.sort(key=lambda n: (n.onset, n.pitch))
 
     if times is None:
         window_times = float_range(start, end, step)

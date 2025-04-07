@@ -1,5 +1,5 @@
 """Calculates the Step Contour of a melody, along with related features, as implemented
-in the FANTASTIC toolbox of Müllensiefen (2009) [1].
+in the FANTASTIC toolbox of Müllensiefen (2009) [1] (features 20–22).
 Exemplified in Steinbeck (1982) [2], Juhász (2000) [3], Eerola and Toiviainen (2004) [4].
 """
 
@@ -48,7 +48,7 @@ class StepContour:
         Parameters
         ----------
         pitches : list[int]
-            List of pitch values
+            List of pitch values in any numeric format (e.g., MIDI numbers).
         durations : list[float]
             List of note durations measured in tatums
         step_contour_length : int, optional

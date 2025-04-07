@@ -29,6 +29,7 @@ For the source code, visit the `GitHub repository <https://github.com/music-comp
    developer_notes/music21
    developer_notes/testing
    developer_notes/style
+   developer_notes/making_a_release
 
 .. toctree::
    :maxdepth: 2

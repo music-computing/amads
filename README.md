@@ -16,7 +16,15 @@ For more on the ...
 - ... package in general, see the [documentation website](https://music-computing.github.io/amads)
 - ... motivation and background, please see [the draft paper](./paper.md)
 
-A brief, high-level introduction to the project follows below.
+## Installation
+
+To use AMADS we recommend cloning the repository and installing it in editable mode. So:
+
+```py
+cd ~/Documents  # or wherever you want to put the package
+git clone https://github.com/music-computing/amads.git
+pip install -e amads
+```
 
 ## Design principles
 
@@ -31,14 +39,6 @@ A brief, high-level introduction to the project follows below.
    - ... or other demonstrable take-up by the community.
    - implemented here as exactly as reference to the source allows (usually from scratch)
    - Open source, well documented, etc.
-4. Minimal dependencies / imports:
-   - typically `numpy`, `pandas`, `matplotlib`,
-   - packages like `partitura` and/or `music21` are typically for input/output of scores.
-     - Some _optional_ modules currently require these packages, and that dependency may change.
-5. Maximally modular and interoperable:
-     - Wherever possible, scripts are fully modular and can be used independently and recombined however needed.
-     - This enables users to "cherry-pick" the bits they need without wading through a thicket of dependencies.
-
 
 ## Uses
 

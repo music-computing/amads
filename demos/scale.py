@@ -18,7 +18,7 @@ print("------- scaled score")
 scaled_score.show()
 
 print("------- scaling delta by 2")
-scaled_score = scale(myscore.deep_copy(), 2, "delta")
+scaled_score = scale(myscore.deep_copy(), 2, "onset")
 
 print("------- scaled score")
 scaled_score.show()
