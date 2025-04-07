@@ -24,8 +24,8 @@ class PolynomialContour:
         The score object containing the melody to analyze.
     coefficients : list[float]
         The polynomial contour coefficients. Returns the first 3 non-constant coefficients
-        [c1, c2, c3] of the polynomial contour, with zeros padded if needed. The constant
-        term is not included as per the FANTASTIC toolbox specification.
+        [c1, c2, c3] of the final selected polynomial contour model.
+        The constant term is not included as per the FANTASTIC toolbox specification.
 
     References
     ----------
@@ -75,6 +75,7 @@ class PolynomialContour:
         self, onsets: list[float], pitches: list[int]
     ) -> list[float]:
         """Calculate polynomial contour coefficients for the melody.
+        Main method for the PolynomialContour class.
 
         Parameters
         ----------
@@ -170,7 +171,7 @@ class PolynomialContour:
         list[float]
             The coefficients [c0, c1, ..., cm] of the fitted polynomial
         """
-        # Calculate polynomial degree m = floor(n/2)
+
         n = len(pitches)
         if n <= 1:
             return [float(pitches[0]) if n == 1 else 0.0]
