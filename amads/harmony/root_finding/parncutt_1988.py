@@ -71,6 +71,13 @@ class ParncuttRootAnalysis:
     0
     >>> analysis.root_ambiguity
     2.1
+
+    References
+    ----------
+    [1] Parncutt, R. (1988). Revision of Terhardt’s psychoacoustical model of the root(s) of a musical chord.
+    Music Perception, 6(1), 65–93. https://doi.org/10.2307/40285416
+    [2] Parncutt, R. (2006). Commentary on Cook & Fujisawa's "The Psychophysics of Harmony Perception:
+    Harmony is a Three-Tone Phenomenon." Empirical Musicology Review, 1(4), 204–209.
     """
 
     available_root_support_weights = {
@@ -143,8 +150,8 @@ class ParncuttRootAnalysis:
         bars[self.root].set_color("red")
 
         # Add labels
-        plt.xlabel("Pitch Class")
-        plt.ylabel("Weight")
+        plt.xlabel("Pitch class")
+        plt.ylabel("Root strength")
 
         # Add pitch class names
         pitch_class_names = [
@@ -168,7 +175,7 @@ class ParncuttRootAnalysis:
             chord_str = ", ".join(
                 str(pc) for pc in sorted(set(p % 12 for p in self.chord))
             )
-            title = f"Root Support Weights for Chord [{chord_str}]"
+            title = f"Root strengths for chord [{chord_str}]"
         plt.title(title)
 
         # Add grid

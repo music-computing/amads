@@ -1,34 +1,19 @@
 import pytest
 
-from amads.harmony.root_finding.parncutt_1988 import (
-    ROOT_SUPPORT_WEIGHTS,
-    _encode_pc_set,
-    _get_pc_weight,
-    get_root,
-    get_root_ambiguity,
-    parn88,
-)
+from amads.harmony.root_finding.parncutt_1988 import ParncuttRootAnalysis
 
 
-def test_empty_chord():
-    with pytest.raises(ValueError):
-        get_root([])
+def test_get_root_strength():
+    """Test the get_root_strength method of ParncuttRootAnalysis."""
+    analysis = ParncuttRootAnalysis([0, 4, 7], root_support_weights="v2")
 
-
-def test__encode_pc_set():
-    assert _encode_pc_set([0, 4, 7]) == [1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0]
-    assert _encode_pc_set([0]) == [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    assert _encode_pc_set([]) == [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-
-
-def test__get_pc_weight():
-    weights = ROOT_SUPPORT_WEIGHTS["v2"]
-    pc_set = _encode_pc_set([0, 4, 7])
-
-    assert _get_pc_weight(0, pc_set, weights) == 10 + 3 + 5
-    assert _get_pc_weight(1, pc_set, weights) == 0
-    assert _get_pc_weight(2, pc_set, weights) == 2 + 1
-    assert _get_pc_weight(4, pc_set, weights) == 10
+    # Test with v2 weights
+    assert (
+        analysis.get_root_strength(0) == 10 + 3 + 5
+    )  # Root + perfect fifth + major third
+    assert analysis.get_root_strength(1) == 0  # No intervals from this pc
+    assert analysis.get_root_strength(2) == 2 + 1  # Minor third + major second
+    assert analysis.get_root_strength(4) == 10  # Root from perspective of this pc
 
 
 def test_parn88_regression():
@@ -36,8 +21,8 @@ def test_parn88_regression():
 
     # Helper function to test root ambiguity
     def test_ambiguity(expected, *chord, digits=1):
-        result = get_root_ambiguity(list(chord), root_support_weights="v1")
-        assert round(result, digits) == expected
+        analysis = ParncuttRootAnalysis(list(chord), root_support_weights="v1")
+        assert round(analysis.root_ambiguity, digits) == expected
 
     # Dyads
     test_ambiguity(2.2, 0, 1)
@@ -63,11 +48,17 @@ def test_parn88_regression():
 
 def test_sanity_checks():
     """Test sanity checks for get_root finding and ambiguity"""
-    assert get_root([0, 4, 7]) == 0
-    assert get_root([1, 4, 9]) == 9
+    # Test root finding
+    analysis1 = ParncuttRootAnalysis([0, 4, 7])
+    assert analysis1.root == 0
+
+    analysis2 = ParncuttRootAnalysis([1, 4, 9])
+    assert analysis2.root == 9
 
     # Test that diminished triad has higher ambiguity than major triad
-    assert get_root_ambiguity([0, 3, 6]) > get_root_ambiguity([0, 4, 7])
+    analysis3 = ParncuttRootAnalysis([0, 3, 6])
+    analysis4 = ParncuttRootAnalysis([0, 4, 7])
+    assert analysis3.root_ambiguity > analysis4.root_ambiguity
 
 
 def test_root_support_versions():
@@ -75,22 +66,40 @@ def test_root_support_versions():
     chord = [0, 4, 7, 10]  # Dominant seventh
 
     # Both should identify the same root
-    assert get_root(chord, root_support_weights="v1") == get_root(
-        chord, root_support_weights="v2"
-    )
+    analysis1 = ParncuttRootAnalysis(chord, root_support_weights="v1")
+    analysis2 = ParncuttRootAnalysis(chord, root_support_weights="v2")
+    assert analysis1.root == analysis2.root
 
     # But they should give different ambiguity values
-    assert get_root_ambiguity(chord, root_support_weights="v1") != get_root_ambiguity(
-        chord, root_support_weights="v2"
-    )
+    assert analysis1.root_ambiguity != analysis2.root_ambiguity
 
 
-def test_custom_root_support():
-    """Test with custom root support weights"""
-    custom_weights = {0: 1.0, 7: 0.5, 4: 0.3}
-    chord = [0, 4, 7]
+def test_available_root_support_weights():
+    """Test the available root support weights"""
+    # Test that both versions are available
+    assert "v1" in ParncuttRootAnalysis.available_root_support_weights
+    assert "v2" in ParncuttRootAnalysis.available_root_support_weights
 
-    result = parn88(chord, root_support_weights=custom_weights)
-    assert result["root"] == 0
-    assert result["root_ambiguity"] > 0
-    assert len(result["pc_weights"]) == 12
+    # Test that v1 has the expected values
+    v1_weights = ParncuttRootAnalysis.available_root_support_weights["v1"]
+    assert v1_weights[0] == 1.0
+    assert v1_weights[7] == 1 / 2
+    assert v1_weights[4] == 1 / 3
+
+    # Test that v2 has the expected values
+    v2_weights = ParncuttRootAnalysis.available_root_support_weights["v2"]
+    assert v2_weights[0] == 10
+    assert v2_weights[7] == 5
+    assert v2_weights[4] == 3
+
+
+def test_invalid_root_support_weights():
+    """Test that invalid root support weights raise an error"""
+    with pytest.raises(ValueError):
+        ParncuttRootAnalysis([0, 4, 7], root_support_weights="invalid")
+
+
+def test_empty_chord():
+    """Test that an empty chord raises an error"""
+    with pytest.raises(ValueError):
+        ParncuttRootAnalysis([])
