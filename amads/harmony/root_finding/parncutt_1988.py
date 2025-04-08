@@ -4,6 +4,7 @@ Parncutt's 1988 model for finding the root of a chord.
 This module implements the root-finding model of Parncutt (1988).
 """
 
+import os
 from typing import Dict, List, Optional, Union
 
 import matplotlib.pyplot as plt
@@ -72,9 +73,12 @@ class ParncuttRootAnalysis:
     >>> analysis.root_ambiguity
     2.1
 
+    >>> # Visualize the root strengths
+    >>> analysis.visualize()
+
     References
     ----------
-    [1] Parncutt, R. (1988). Revision of Terhardt’s psychoacoustical model of the root(s) of a musical chord.
+    [1] Parncutt, R. (1988). Revision of Terhardt's psychoacoustical model of the root(s) of a musical chord.
     Music Perception, 6(1), 65–93. https://doi.org/10.2307/40285416
     [2] Parncutt, R. (2006). Commentary on Cook & Fujisawa's "The Psychophysics of Harmony Perception:
     Harmony is a Three-Tone Phenomenon." Empirical Musicology Review, 1(4), 204–209.
@@ -181,6 +185,10 @@ class ParncuttRootAnalysis:
         # Add grid
         plt.grid(axis="y", linestyle="--", alpha=0.7)
 
-        # Show the plot
         plt.tight_layout()
-        plt.show()
+
+        # Check if we're in a Pytest environment
+        if os.environ.get("PYTEST_CURRENT_TEST"):
+            plt.close()  # Close the figure to prevent memory leaks
+        else:
+            plt.show()
