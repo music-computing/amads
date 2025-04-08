@@ -5,7 +5,7 @@ from amads.core.basics import Note, Score
 
 class PolynomialContour:
     """A class for computing polynomial contour, as described in the FANTASTIC toolbox [1].
-    This approach is discussed in detail in Müllensiefen and Wiggins (2009) [2].
+    This approach is discussed in detail in Müllensiefen and Wiggins (2011) [2].
 
     Polynomial Contour is constructed in 3 simple steps:
     First, the onsets are first centred around the origin of the time axis,
