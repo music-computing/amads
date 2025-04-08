@@ -132,7 +132,7 @@ class ParncuttRootAnalysis:
 
         Examples
         --------
-        >>> analysis = Parncutt1988Analysis([0, 4, 7])
+        >>> analysis = ParncuttRootAnalysis([0, 4, 7])
         >>> analysis.visualize()
         """
         # Create a bar chart
