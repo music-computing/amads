@@ -1,13 +1,9 @@
-"""
-Parncutt's 1988 model for finding the root of a chord.
-
-This module implements the root-finding model of Parncutt (1988).
-"""
-
 import os
 from typing import Dict, List, Optional, Union
 
 import matplotlib.pyplot as plt
+
+__author__ = "Peter Harrison"
 
 
 class ParncuttRootAnalysis:
