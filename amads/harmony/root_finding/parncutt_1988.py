@@ -15,92 +15,6 @@ ROOT_SUPPORT_WEIGHTS = {
 }
 
 
-def encode_pc_set(pc_set: List[int]) -> List[int]:
-    """
-    Encode a pitch class set as a binary vector.
-
-    Parameters
-    ----------
-    pc_set : List[int]
-        A list of pitch classes (integers from 0 to 11).
-
-    Returns
-    -------
-    List[int]
-        A binary vector of length 12, where 1 indicates the presence of a pitch class.
-
-    Examples
-    --------
-    >>> encode_pc_set([0, 4, 7])
-    [1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0]
-    >>> encode_pc_set([0])
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    >>> encode_pc_set([])
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    """
-    result = [0] * 12
-    for pc in pc_set:
-        result[pc] = 1
-    return result
-
-
-def pc_weight(pc: int, pc_set: List[int], root_support: Dict[int, float]) -> float:
-    """
-    Calculate the weight for a given pitch class.
-
-    Parameters
-    ----------
-    pc : int
-        The pitch class to calculate the weight for.
-    pc_set : List[int]
-        A binary vector representing a pitch class set.
-    root_support : Dict[int, float]
-        A dictionary mapping intervals to root support weights.
-
-    Returns
-    -------
-    float
-        The weight for the given pitch class.
-
-    Examples
-    --------
-    >>> v2_weights = {0: 10, 7: 5, 4: 3, 10: 2, 2: 1}
-    >>> pc_set = encode_pc_set([0, 4, 7])
-    >>> pc_weight(0, pc_set, v2_weights)
-    18.0
-    >>> pc_weight(1, pc_set, v2_weights)
-    0.0
-    """
-    weight = 0.0
-    for interval, support_weight in root_support.items():
-        target_pc = (pc + interval) % 12
-        if pc_set[target_pc] == 1:
-            weight += support_weight
-    return weight
-
-
-def get_root_ambiguity(pc_weights: List[float], exponent: float = 0.5) -> float:
-    """
-    Calculate the root ambiguity of a pitch class set.
-
-    Parameters
-    ----------
-    pc_weights : List[float]
-        A list of weights for each pitch class.
-    exponent : float, optional
-        The exponent to use when computing root ambiguities, by default 0.5.
-
-    Returns
-    -------
-    float
-        The root ambiguity.
-    """
-    max_weight = max(pc_weights)
-    if max_weight == 0:
-        return 0.0
-    return sum(w / max_weight for w in pc_weights) ** exponent
-
-
 def parn88(
     chord: List[int],
     root_support: Union[str, Dict[int, float]] = "v2",
@@ -175,6 +89,7 @@ def root(
 ) -> int:
     """
     Estimate the root of a chord using Parncutt's 1988 model.
+    Calls parn88 under the hood.
 
     Parameters
     ----------
@@ -211,6 +126,7 @@ def root_ambiguity(
 ) -> float:
     """
     Estimate the root ambiguity of a chord using Parncutt's 1988 model.
+    Calls parn88 under the hood.
 
     Parameters
     ----------
@@ -303,3 +219,89 @@ def visualize_root_weights(
     # Show the plot
     plt.tight_layout()
     plt.show()
+
+
+def encode_pc_set(pc_set: List[int]) -> List[int]:
+    """
+    Encode a pitch class set as a binary vector.
+
+    Parameters
+    ----------
+    pc_set : List[int]
+        A list of pitch classes (integers from 0 to 11).
+
+    Returns
+    -------
+    List[int]
+        A binary vector of length 12, where 1 indicates the presence of a pitch class.
+
+    Examples
+    --------
+    >>> encode_pc_set([0, 4, 7])
+    [1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0]
+    >>> encode_pc_set([0])
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    >>> encode_pc_set([])
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    """
+    result = [0] * 12
+    for pc in pc_set:
+        result[pc] = 1
+    return result
+
+
+def pc_weight(pc: int, pc_set: List[int], root_support: Dict[int, float]) -> float:
+    """
+    Calculate the weight for a given pitch class.
+
+    Parameters
+    ----------
+    pc : int
+        The pitch class to calculate the weight for.
+    pc_set : List[int]
+        A binary vector representing a pitch class set.
+    root_support : Dict[int, float]
+        A dictionary mapping intervals to root support weights.
+
+    Returns
+    -------
+    float
+        The weight for the given pitch class.
+
+    Examples
+    --------
+    >>> v2_weights = {0: 10, 7: 5, 4: 3, 10: 2, 2: 1}
+    >>> pc_set = encode_pc_set([0, 4, 7])
+    >>> pc_weight(0, pc_set, v2_weights)
+    18.0
+    >>> pc_weight(1, pc_set, v2_weights)
+    0.0
+    """
+    weight = 0.0
+    for interval, support_weight in root_support.items():
+        target_pc = (pc + interval) % 12
+        if pc_set[target_pc] == 1:
+            weight += support_weight
+    return weight
+
+
+def get_root_ambiguity(pc_weights: List[float], exponent: float = 0.5) -> float:
+    """
+    Calculate the root ambiguity of a pitch class set.
+
+    Parameters
+    ----------
+    pc_weights : List[float]
+        A list of weights for each pitch class.
+    exponent : float, optional
+        The exponent to use when computing root ambiguities, by default 0.5.
+
+    Returns
+    -------
+    float
+        The root ambiguity.
+    """
+    max_weight = max(pc_weights)
+    if max_weight == 0:
+        return 0.0
+    return sum(w / max_weight for w in pc_weights) ** exponent
