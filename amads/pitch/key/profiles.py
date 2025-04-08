@@ -7,6 +7,7 @@ Key Profiles (key_profiles_literature.py)
 BY:
 ===============================
 Mark Gotham, 2021
+Huw Cheston, 2025
 
 
 LICENCE:
@@ -32,7 +33,7 @@ The exception is QuinnWhite which provides key-specific data.
 
 The profiles here provide the values exactly as reported in the literature.
 Where a profile does not sum to 1, an additional
-'_sum' entry is provided with that normalisation.
+"_sum" entry is provided with that normalisation.
 
 The profiles appear below in approximately chronological order.
 For reference, the alphabetical ordering is:
@@ -51,12 +52,71 @@ For reference, the alphabetical ordering is:
     VuvanHughes,
 """
 
-KrumhanslKessler = dict(
-    name="KrumhanslKessler",
-    literature="Krumhansl and Kessler (1982). See also Krumhansl and Shepard (1979)",
-    about="Early PCP from psychological 'goodness of fit' tests using probe-tones",
-    major=[6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88],
-    major_sum=[
+from dataclasses import dataclass
+
+
+@dataclass
+class _KeyProfile:
+    """This is the base class for all key profiles.
+
+    This is the body of the docstring description.
+
+    Attributes:
+        name (str): the name of the profile
+        literature (str): citations for the profile in the literature
+        about (str): a longer description of the profile.
+
+    """
+
+    name: str = ""
+    literature: str = ""
+    about: str = ""
+
+    def __getitem__(self, key: str):
+        """This is added for (some) backwards compatibility when these objects were dictionaries.
+        It means we can still access class attributes using bracket notation.
+
+        Examples:
+            >>> kp = KrumhanslKessler()
+            >>> kp["name"]
+            'KrumhanslKessler'
+        """
+        try:
+            return getattr(self, key)
+        # Slightly nicer error handling
+        except AttributeError:
+            raise AttributeError(
+                f"Key Profile '{self.__str__()}' has no attribute '{key}'"
+            )
+
+    def __str__(self) -> str:
+        return self.name
+
+
+@dataclass
+class KrumhanslKessler(_KeyProfile):
+    name: str = "KrumhanslKessler"
+    literature: str = (
+        "Krumhansl and Kessler (1982). See also Krumhansl and Shepard (1979)"
+    )
+    about: str = (
+        "Early PCP from psychological 'goodness of fit' tests using probe-tones"
+    )
+    major: tuple[float] = (
+        6.35,
+        2.23,
+        3.48,
+        2.33,
+        4.38,
+        4.09,
+        2.52,
+        5.19,
+        2.39,
+        3.66,
+        2.29,
+        2.88,
+    )
+    major_sum: tuple[float] = (
         0.152,
         0.053,
         0.083,
@@ -69,9 +129,22 @@ KrumhanslKessler = dict(
         0.088,
         0.055,
         0.069,
-    ],
-    minor=[6.33, 2.68, 3.52, 5.38, 2.6, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17],
-    minor_sum=[
+    )
+    minor: tuple[float] = (
+        6.33,
+        2.68,
+        3.52,
+        5.38,
+        2.6,
+        3.53,
+        2.54,
+        4.75,
+        3.98,
+        2.69,
+        3.34,
+        3.17,
+    )
+    minor_sum: tuple[float] = (
         0.142,
         0.06,
         0.079,
@@ -84,14 +157,29 @@ KrumhanslKessler = dict(
         0.06,
         0.075,
         0.071,
-    ],
-)
-KrumhanslSchmuckler = dict(
-    name="KrumhanslSchmuckler",
-    literature="Krumhansl (1990)",
-    about="Early case of key-estimation through matching usage with profiles",
-    major=[6.35, 2.33, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88],
-    major_sum=[
+    )
+
+
+@dataclass
+class KrumhanslSchmuckler(_KeyProfile):
+    name: str = "KrumhanslSchmuckler"
+    literature: str = "Krumhansl (1990)"
+    about: str = "Early case of key-estimation through matching usage with profiles"
+    major: tuple[float] = (
+        6.35,
+        2.33,
+        3.48,
+        2.33,
+        4.38,
+        4.09,
+        2.52,
+        5.19,
+        2.39,
+        3.66,
+        2.29,
+        2.88,
+    )
+    major_sum: tuple[float] = (
         0.152,
         0.056,
         0.083,
@@ -104,9 +192,22 @@ KrumhanslSchmuckler = dict(
         0.087,
         0.055,
         0.069,
-    ],
-    minor=[6.33, 2.68, 3.52, 5.38, 2.6, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17],
-    minor_sum=[
+    )
+    minor: tuple[float] = (
+        6.33,
+        2.68,
+        3.52,
+        5.38,
+        2.6,
+        3.53,
+        2.54,
+        4.75,
+        3.98,
+        2.69,
+        3.34,
+        3.17,
+    )
+    minor_sum: tuple[float] = (
         0.142,
         0.06,
         0.079,
@@ -119,13 +220,15 @@ KrumhanslSchmuckler = dict(
         0.06,
         0.075,
         0.071,
-    ],
-)
-AardenEssen = dict(
-    name="AardenEssen",
-    literature="Aarden (2003) based on Schaffrath (1995)",
-    about="Folk melody transcriptions from the Essen collection",
-    major=[
+    )
+
+
+@dataclass
+class AardenEssen(_KeyProfile):
+    name: str = "AardenEssen"
+    literature: str = "Aarden (2003) based on Schaffrath (1995)"
+    about: str = "Folk melody transcriptions from the Essen collection"
+    major: tuple[float] = (
         17.7661,
         0.145624,
         14.9265,
@@ -138,8 +241,8 @@ AardenEssen = dict(
         8.15494,
         0.232998,
         4.95122,
-    ],
-    major_sum=[
+    )
+    major_sum: tuple[float] = (
         0.178,
         0.001,
         0.149,
@@ -152,8 +255,8 @@ AardenEssen = dict(
         0.082,
         0.002,
         0.05,
-    ],
-    minor=[
+    )
+    minor: tuple[float] = (
         18.2648,
         0.737619,
         14.0499,
@@ -166,8 +269,8 @@ AardenEssen = dict(
         1.93186,
         7.37619,
         1.75623,
-    ],
-    minor_sum=[
+    )
+    minor_sum: tuple[float] = (
         0.183,
         0.007,
         0.14,
@@ -180,14 +283,29 @@ AardenEssen = dict(
         0.019,
         0.074,
         0.018,
-    ],
-)
-BellmanBudge = dict(
-    name="BellmanBudge",
-    literature="Bellman (2005, sometimes given as 2006) after Budge (1943)",
-    about="Chords in Western common practice tonality",
-    major=[16.8, 0.86, 12.95, 1.41, 13.49, 11.93, 1.25, 20.28, 1.8, 8.04, 0.62, 10.57],
-    major_sum=[
+    )
+
+
+@dataclass
+class BellmanBudge(_KeyProfile):
+    name: str = "BellmanBudge"
+    literature: str = "Bellman (2005, sometimes given as 2006) after Budge (1943)"
+    about: str = "Chords in Western common practice tonality"
+    major: tuple[float] = (
+        16.8,
+        0.86,
+        12.95,
+        1.41,
+        13.49,
+        11.93,
+        1.25,
+        20.28,
+        1.8,
+        8.04,
+        0.62,
+        10.57,
+    )
+    major_sum: tuple[float] = (
         0.168,
         0.009,
         0.13,
@@ -200,8 +318,8 @@ BellmanBudge = dict(
         0.08,
         0.006,
         0.106,
-    ],
-    minor=[
+    )
+    minor: tuple[float] = (
         18.16,
         0.69,
         12.99,
@@ -214,8 +332,8 @@ BellmanBudge = dict(
         1.53,
         0.92,
         10.21,
-    ],
-    minor_sum=[
+    )
+    minor_sum: tuple[float] = (
         0.182,
         0.007,
         0.13,
@@ -228,13 +346,15 @@ BellmanBudge = dict(
         0.015,
         0.009,
         0.102,
-    ],
-)
-TemperleyKostkaPayne = dict(
-    name="TemperleyKostkaPayne",
-    literature="Temperley (2007 and 2008)",
-    about="Usage by section and excerpts from a textbook (Kostka & Payne)",
-    major=[
+    )
+
+
+@dataclass
+class TemperleyKostkaPayne(_KeyProfile):
+    name: str = "TemperleyKostkaPayne"
+    literature: str = "Temperley (2007 and 2008)"
+    about: str = "Usage by section and excerpts from a textbook (Kostka & Payne)"
+    major: tuple[float] = (
         0.748,
         0.06,
         0.488,
@@ -247,8 +367,8 @@ TemperleyKostkaPayne = dict(
         0.366,
         0.057,
         0.4,
-    ],
-    major_sum=[
+    )
+    major_sum: tuple[float] = (
         0.176,
         0.014,
         0.115,
@@ -261,8 +381,8 @@ TemperleyKostkaPayne = dict(
         0.086,
         0.013,
         0.094,
-    ],
-    minor=[
+    )
+    minor: tuple[float] = (
         0.712,
         0.084,
         0.474,
@@ -275,8 +395,8 @@ TemperleyKostkaPayne = dict(
         0.067,
         0.133,
         0.33,
-    ],
-    minor_sum=[
+    )
+    minor_sum: tuple[float] = (
         0.17,
         0.02,
         0.113,
@@ -289,14 +409,18 @@ TemperleyKostkaPayne = dict(
         0.016,
         0.032,
         0.079,
-    ],
-)
-Sapp = dict(
-    name="Sapp",
-    literature="Sapp (PhD thesis, 2011)",
-    about="Simple set of scale degree intended for use with Krumhansl Schmuckler (above)",
-    major=[2, 0, 1, 0, 1, 1, 0, 2, 0, 1, 0, 1],
-    major_sum=[
+    )
+
+
+@dataclass
+class Sapp(_KeyProfile):
+    name: str = "Sapp"
+    literature: str = "Sapp (PhD thesis, 2011)"
+    about: str = (
+        "Simple set of scale degree intended for use with Krumhansl Schmuckler (above)"
+    )
+    major: tuple[float] = (2.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 2.0, 0.0, 1.0, 0.0, 1.0)
+    major_sum: tuple[float] = (
         0.222,
         0.0,
         0.111,
@@ -309,9 +433,9 @@ Sapp = dict(
         0.111,
         0.0,
         0.111,
-    ],
-    minor=[2, 0, 1, 1, 0, 1, 0, 2, 1, 0, 1, 0],
-    minor_sum=[
+    )
+    minor: tuple[float] = (2.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 2.0, 1.0, 0.0, 1.0, 0.0)
+    minor_sum: tuple[float] = (
         0.222,
         0.0,
         0.111,
@@ -324,13 +448,15 @@ Sapp = dict(
         0.0,
         0.111,
         0.0,
-    ],
-)
-Vuvan = dict(
-    name="Vuvan",
-    literature="Vuvan et al. (2011)",
-    about="Different profiles for natural, harmonic, and melodic minors",
-    natural_minor=[
+    )
+
+
+@dataclass
+class Vuvan(_KeyProfile):
+    name: str = "Vuvan"
+    literature: str = "Vuvan et al. (2011)"
+    about: str = "Different profiles for natural, harmonic, and melodic minors"
+    natural_minor: tuple[float] = (
         5.08,
         3.03,
         3.73,
@@ -343,8 +469,8 @@ Vuvan = dict(
         3.95,
         5.26,
         3.99,
-    ],
-    natural_minor_sum=[
+    )
+    natural_minor_sum: tuple[float] = (
         0.102,
         0.061,
         0.075,
@@ -357,8 +483,8 @@ Vuvan = dict(
         0.08,
         0.106,
         0.08,
-    ],
-    harmonic_minor=[
+    )
+    harmonic_minor: tuple[float] = (
         4.62,
         2.63,
         3.74,
@@ -371,8 +497,8 @@ Vuvan = dict(
         3.95,
         3.79,
         5.3,
-    ],
-    harmonic_minor_sum=[
+    )
+    harmonic_minor_sum: tuple[float] = (
         0.093,
         0.053,
         0.075,
@@ -385,8 +511,8 @@ Vuvan = dict(
         0.079,
         0.076,
         0.106,
-    ],
-    melodic_minor=[
+    )
+    melodic_minor: tuple[float] = (
         4.75,
         3.26,
         3.76,
@@ -399,8 +525,8 @@ Vuvan = dict(
         4.43,
         4.51,
         4.91,
-    ],
-    melodic_minor_sum=[
+    )
+    melodic_minor_sum: tuple[float] = (
         0.094,
         0.064,
         0.074,
@@ -413,13 +539,15 @@ Vuvan = dict(
         0.088,
         0.089,
         0.097,
-    ],
-)
-deClerqTemperley = dict(
-    name="deClerqTemperley",
-    literature="deClerq and Temperley (Popular Music, 2011)",
-    about="Chord roots (specifically) in rock harmony.",
-    roots=[
+    )
+
+
+@dataclass
+class DeClerqTemperley(_KeyProfile):
+    name: str = "DeClerqTemperley"
+    literature: str = "deClerq and Temperley (Popular Music, 2011)"
+    about: str = "Chord roots (specifically) in rock harmony."
+    roots: tuple[float] = (
         0.328,
         0.005,
         0.036,
@@ -432,15 +560,17 @@ deClerqTemperley = dict(
         0.072,
         0.081,
         0.004,
-    ],
-)
-TemperleyDeClerq = dict(
-    name="TemperleyDeClerq",
-    literature="Temperley and deClerq (JNMR, 2013)",
-    about="Rock music and a distinction between melody and harmony. "
-    "Distributions as reported in Vuvan and Hughes (2021, see below) "
-    "following personal correspondence with Temperley.",
-    melody_major=[
+    )
+
+
+@dataclass
+class TemperleyDeClerq(_KeyProfile):
+    name: str = "TemperleyDeClerq"
+    literature: str = "Temperley and deClerq (JNMR, 2013)"
+    about: str = """Rock music and a distinction between melody and harmony.
+               Distributions as reported in Vuvan and Hughes (2021, see below)
+               following personal correspondence with Temperley."""
+    melody_major: tuple[float] = (
         0.223,
         0.001,
         0.158,
@@ -453,8 +583,8 @@ TemperleyDeClerq = dict(
         0.119,
         0.008,
         0.035,
-    ],
-    melody_minor=[
+    )
+    melody_minor: tuple[float] = (
         0.317,
         0.001,
         0.09,
@@ -467,8 +597,8 @@ TemperleyDeClerq = dict(
         0.047,
         0.087,
         0.009,
-    ],
-    harmony_major=[
+    )
+    harmony_major: tuple[float] = (
         0.231,
         0.002,
         0.091,
@@ -481,8 +611,8 @@ TemperleyDeClerq = dict(
         0.126,
         0.011,
         0.076,
-    ],
-    harmony_minor=[
+    )
+    harmony_minor: tuple[float] = (
         0.202,
         0.006,
         0.102,
@@ -495,14 +625,16 @@ TemperleyDeClerq = dict(
         0.051,
         0.09,
         0.034,
-    ],
-)
-AlbrechtShanahan = dict(
-    name="AlbrechtShanahan",
-    literature="Albrecht and Shanahan (Music Perception, 2013)",
-    about="Partial pieces for more stable within-key environment. "
-    "Note that the two pairs of distributions reported in the appendix are identical",
-    major=[
+    )
+
+
+@dataclass
+class AlbrechtShanahan(_KeyProfile):
+    name: str = "AlbrechtShanahan"
+    literature: str = "Albrecht and Shanahan (Music Perception, 2013)"
+    about: str = """Partial pieces for more stable within-key environment.
+               Note that the two pairs of distributions reported in the appendix are identical"""
+    major: tuple[float] = (
         0.238,
         0.006,
         0.111,
@@ -515,8 +647,8 @@ AlbrechtShanahan = dict(
         0.08,
         0.008,
         0.081,
-    ],
-    minor=[
+    )
+    minor: tuple[float] = (
         0.220,
         0.006,
         0.104,
@@ -529,15 +661,17 @@ AlbrechtShanahan = dict(
         0.022,
         0.061,
         0.052,
-    ],
-)
-PrinceSchumuckler = dict(
-    name="PrinceSchumuckler",
-    literature="Prince and Schmuckler (Music Perception, 2014)",
-    about="Distinction between downbeat and all beats. "
-    "Note they also provide profiles for metrical position usage.",
-    downbeat_major=[
-        1,
+    )
+
+
+@dataclass
+class PrinceSchumuckler(_KeyProfile):
+    name: str = "PrinceSchumuckler"
+    literature: str = "Prince and Schmuckler (Music Perception, 2014)"
+    about: str = """Distinction between downbeat and all beats.
+               Note they also provide profiles for metrical position usage."""
+    downbeat_major: tuple[float] = (
+        1.0,
         0.088610811,
         0.569205361,
         0.140888014,
@@ -549,8 +683,8 @@ PrinceSchumuckler = dict(
         0.433398971,
         0.122721209,
         0.427237502,
-    ],
-    downbeat_major_sum=[
+    )
+    downbeat_major_sum: tuple[float] = (
         0.194,
         0.017,
         0.11,
@@ -563,9 +697,9 @@ PrinceSchumuckler = dict(
         0.084,
         0.024,
         0.083,
-    ],
-    downbeat_minor=[
-        1,
+    )
+    downbeat_minor: tuple[float] = (
+        1.0,
         0.127885863,
         0.516472114,
         0.640207523,
@@ -577,8 +711,8 @@ PrinceSchumuckler = dict(
         0.172114137,
         0.430350195,
         0.286381323,
-    ],
-    downbeat_minor_sum=[
+    )
+    downbeat_minor_sum: tuple[float] = (
         0.183,
         0.023,
         0.095,
@@ -591,8 +725,8 @@ PrinceSchumuckler = dict(
         0.032,
         0.079,
         0.052,
-    ],
-    all_beats_major=[
+    )
+    all_beats_major: tuple[float] = (
         0.919356471,
         0.114927991,
         0.729198287,
@@ -600,13 +734,13 @@ PrinceSchumuckler = dict(
         0.697021822,
         0.525970522,
         0.214762724,
-        1,
+        1.0,
         0.156143546,
         0.542952545,
         0.142399406,
         0.541215555,
-    ],
-    all_beats_major_sum=[
+    )
+    all_beats_major_sum: tuple[float] = (
         0.16,
         0.02,
         0.127,
@@ -619,8 +753,8 @@ PrinceSchumuckler = dict(
         0.095,
         0.025,
         0.094,
-    ],
-    all_beats_minor=[
+    )
+    all_beats_minor: tuple[float] = (
         0.874192439,
         0.150655606,
         0.637256776,
@@ -628,13 +762,13 @@ PrinceSchumuckler = dict(
         0.162238618,
         0.62471807,
         0.167131771,
-        1,
+        1.0,
         0.47788524,
         0.212622807,
         0.467754884,
         0.298711724,
-    ],
-    all_beats_minor_sum=[
+    )
+    all_beats_minor_sum: tuple[float] = (
         0.151,
         0.026,
         0.11,
@@ -647,13 +781,15 @@ PrinceSchumuckler = dict(
         0.037,
         0.081,
         0.052,
-    ],
-)
-QuinnWhite = dict(
-    name="QuinnWhite",
-    literature="Quinn and White (Music Perception 2017)",
-    about="Separate profiles for each key",
-    majorAll=[
+    )
+
+
+@dataclass
+class QuinnWhite(_KeyProfile):
+    name: str = "QuinnWhite"
+    literature: str = "Quinn and White (Music Perception 2017)"
+    about: str = "Separate profiles for each key"
+    major_all: tuple[float] = (
         0.172,
         0.014,
         0.107,
@@ -666,8 +802,8 @@ QuinnWhite = dict(
         0.059,
         0.016,
         0.093,
-    ],
-    major6=[
+    )
+    major_6: tuple[float] = (
         0.166,
         0.018,
         0.096,
@@ -680,8 +816,8 @@ QuinnWhite = dict(
         0.062,
         0.020,
         0.091,
-    ],
-    major1=[
+    )
+    major_1: tuple[float] = (
         0.173,
         0.016,
         0.103,
@@ -694,8 +830,8 @@ QuinnWhite = dict(
         0.055,
         0.018,
         0.093,
-    ],
-    major8=[
+    )
+    major_8: tuple[float] = (
         0.171,
         0.014,
         0.099,
@@ -708,8 +844,8 @@ QuinnWhite = dict(
         0.064,
         0.015,
         0.093,
-    ],
-    major3=[
+    )
+    major_3: tuple[float] = (
         0.173,
         0.015,
         0.108,
@@ -722,8 +858,8 @@ QuinnWhite = dict(
         0.059,
         0.015,
         0.094,
-    ],
-    major10=[
+    )
+    major_10: tuple[float] = (
         0.169,
         0.016,
         0.107,
@@ -736,8 +872,8 @@ QuinnWhite = dict(
         0.060,
         0.017,
         0.096,
-    ],
-    major5=[
+    )
+    major_5: tuple[float] = (
         0.173,
         0.014,
         0.108,
@@ -750,8 +886,8 @@ QuinnWhite = dict(
         0.063,
         0.016,
         0.095,
-    ],
-    major0=[
+    )
+    major_0: tuple[float] = (
         0.174,
         0.014,
         0.112,
@@ -764,8 +900,8 @@ QuinnWhite = dict(
         0.058,
         0.016,
         0.096,
-    ],
-    major7=[
+    )
+    major_7: tuple[float] = (
         0.175,
         0.013,
         0.108,
@@ -778,8 +914,8 @@ QuinnWhite = dict(
         0.058,
         0.019,
         0.091,
-    ],
-    major2=[
+    )
+    major_2: tuple[float] = (
         0.175,
         0.013,
         0.113,
@@ -792,8 +928,8 @@ QuinnWhite = dict(
         0.061,
         0.015,
         0.094,
-    ],
-    major9=[
+    )
+    major_9: tuple[float] = (
         0.174,
         0.014,
         0.108,
@@ -806,8 +942,8 @@ QuinnWhite = dict(
         0.059,
         0.014,
         0.093,
-    ],
-    major4=[
+    )
+    major_4: tuple[float] = (
         0.171,
         0.013,
         0.108,
@@ -820,8 +956,8 @@ QuinnWhite = dict(
         0.059,
         0.016,
         0.092,
-    ],
-    major11=[
+    )
+    major_11: tuple[float] = (
         0.167,
         0.014,
         0.106,
@@ -834,8 +970,8 @@ QuinnWhite = dict(
         0.054,
         0.020,
         0.089,
-    ],
-    minorAll=[
+    )
+    minor_all: tuple[float] = (
         0.170,
         0.012,
         0.115,
@@ -848,8 +984,8 @@ QuinnWhite = dict(
         0.024,
         0.026,
         0.085,
-    ],
-    minor6=[
+    )
+    minor_6: tuple[float] = (
         0.172,
         0.013,
         0.109,
@@ -862,8 +998,8 @@ QuinnWhite = dict(
         0.025,
         0.028,
         0.081,
-    ],
-    minor1=[
+    )
+    minor_1: tuple[float] = (
         0.168,
         0.014,
         0.112,
@@ -876,8 +1012,8 @@ QuinnWhite = dict(
         0.022,
         0.026,
         0.082,
-    ],
-    minor8=[
+    )
+    minor_8: tuple[float] = (
         0.168,
         0.014,
         0.106,
@@ -890,8 +1026,8 @@ QuinnWhite = dict(
         0.022,
         0.030,
         0.085,
-    ],
-    minor3=[
+    )
+    minor_3: tuple[float] = (
         0.168,
         0.014,
         0.111,
@@ -904,8 +1040,8 @@ QuinnWhite = dict(
         0.025,
         0.027,
         0.082,
-    ],
-    minor10=[
+    )
+    minor_10: tuple[float] = (
         0.164,
         0.011,
         0.113,
@@ -918,8 +1054,8 @@ QuinnWhite = dict(
         0.027,
         0.027,
         0.083,
-    ],
-    minor5=[
+    )
+    minor_5: tuple[float] = (
         0.167,
         0.011,
         0.117,
@@ -932,8 +1068,8 @@ QuinnWhite = dict(
         0.024,
         0.025,
         0.089,
-    ],
-    minor0=[
+    )
+    minor_0: tuple[float] = (
         0.170,
         0.012,
         0.118,
@@ -946,8 +1082,8 @@ QuinnWhite = dict(
         0.024,
         0.023,
         0.091,
-    ],
-    minor7=[
+    )
+    minor_7: tuple[float] = (
         0.174,
         0.011,
         0.116,
@@ -960,8 +1096,8 @@ QuinnWhite = dict(
         0.027,
         0.026,
         0.081,
-    ],
-    minor2=[
+    )
+    minor_2: tuple[float] = (
         0.172,
         0.010,
         0.118,
@@ -974,8 +1110,8 @@ QuinnWhite = dict(
         0.027,
         0.027,
         0.084,
-    ],
-    minor9=[
+    )
+    minor_9: tuple[float] = (
         0.175,
         0.010,
         0.114,
@@ -988,8 +1124,8 @@ QuinnWhite = dict(
         0.021,
         0.026,
         0.083,
-    ],
-    minor4=[
+    )
+    minor_4: tuple[float] = (
         0.174,
         0.012,
         0.114,
@@ -1002,8 +1138,8 @@ QuinnWhite = dict(
         0.025,
         0.023,
         0.087,
-    ],
-    minor11=[
+    )
+    minor_11: tuple[float] = (
         0.164,
         0.012,
         0.120,
@@ -1016,14 +1152,29 @@ QuinnWhite = dict(
         0.022,
         0.028,
         0.088,
-    ],
-)
-VuvanHughes = dict(
-    name="VuvanHughes",
-    literature="Vuvan and Hughes (Music Perception 2021)",
-    about="A comparison of Classical and Rock music.",
-    classical=[5.38, 2.65, 3.39, 3.01, 3.62, 3.96, 2.83, 4.93, 2.9, 3.38, 2.91, 3.03],
-    classical_sum=[
+    )
+
+
+@dataclass
+class VuvanHughes(_KeyProfile):
+    name: str = "VuvanHughes"
+    literature: str = "Vuvan and Hughes (Music Perception 2021)"
+    about: str = "A comparison of Classical and Rock music."
+    classical: tuple[float] = (
+        5.38,
+        2.65,
+        3.39,
+        3.01,
+        3.62,
+        3.96,
+        2.83,
+        4.93,
+        2.9,
+        3.38,
+        2.91,
+        3.03,
+    )
+    classical_sum: tuple[float] = (
         0.128,
         0.063,
         0.081,
@@ -1036,9 +1187,22 @@ VuvanHughes = dict(
         0.08,
         0.069,
         0.072,
-    ],
-    rock=[5.34, 3.33, 3.73, 3.39, 3.95, 3.99, 2.82, 4.54, 2.9, 3.21, 2.88, 2.71],
-    rock_sum=[
+    )
+    rock: tuple[float] = (
+        5.34,
+        3.33,
+        3.73,
+        3.39,
+        3.95,
+        3.99,
+        2.82,
+        4.54,
+        2.9,
+        3.21,
+        2.88,
+        2.71,
+    )
+    rock_sum: tuple[float] = (
         0.125,
         0.078,
         0.087,
@@ -1051,14 +1215,14 @@ VuvanHughes = dict(
         0.075,
         0.067,
         0.063,
-    ],
-)
+    )
+
 
 source_list = (
     AardenEssen,
     AlbrechtShanahan,
     BellmanBudge,
-    deClerqTemperley,
+    DeClerqTemperley,
     KrumhanslKessler,
     KrumhanslSchmuckler,
     PrinceSchumuckler,
@@ -1069,3 +1233,18 @@ source_list = (
     Vuvan,
     VuvanHughes,
 )
+
+
+aarden_essen = AardenEssen()
+albrecht_shanahan = AlbrechtShanahan()
+bellman_budge = BellmanBudge()
+declerq_temperley = DeClerqTemperley()
+krumhansl_kessler = KrumhanslKessler()
+krumhansl_schmuckler = KrumhanslSchmuckler()
+prince_schmuckler = PrinceSchumuckler()
+quinn_white = QuinnWhite()
+sapp = Sapp()
+temperley_kostka_payne = TemperleyKostkaPayne()
+temperley_de_clerq = TemperleyDeClerq()
+vuvan = Vuvan()
+vuvan_hughes = VuvanHughes()
