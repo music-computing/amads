@@ -1,6 +1,6 @@
 import pytest
 
-from amads.harmony.root_finding.parncutt_1988 import ParncuttRootAnalysis
+from amads.harmony.root_finding.parncutt import ParncuttRootAnalysis
 
 
 def test_get_root_strength():

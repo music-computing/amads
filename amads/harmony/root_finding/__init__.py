@@ -1,1 +1,1 @@
-from .parncutt_1988 import ParncuttRootAnalysis
+from .parncutt import ParncuttRootAnalysis
