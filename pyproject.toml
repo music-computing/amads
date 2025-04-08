@@ -28,6 +28,7 @@ dependencies = [
     "music21",
     "pytest",
     "sphinx-gallery",
+    "tenacity",
 ]
 
 [project.optional-dependencies]
