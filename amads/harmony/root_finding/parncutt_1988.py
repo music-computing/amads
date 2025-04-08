@@ -1,7 +1,7 @@
 """
-Parncutt's 1988 model for finding the root of a chord.
+Parncutt's 1988 model for finding the get_root of a chord.
 
-This module implements the root-finding model of Parncutt (1988).
+This module implements the get_root-finding model of Parncutt (1988).
 """
 
 from typing import Dict, List, Optional, Union
@@ -17,7 +17,7 @@ ROOT_SUPPORT_WEIGHTS = {
 
 def parn88(
     chord: List[int],
-    root_support: Union[str, Dict[int, float]] = "v2",
+    root_support_weights: Union[str, Dict[int, float]] = "v2",
     exponent: float = 0.5,
 ) -> Dict[str, Union[int, float, List[float]]]:
     """
@@ -27,7 +27,7 @@ def parn88(
     ----------
     chord : List[int]
         A list of MIDI pitches representing a chord.
-    root_support : Union[str, Dict[int, float]], optional
+    root_support_weights : Union[str, Dict[int, float]], optional
         Identifies the root support weights to use. "v1" uses the original weights
         from Parncutt (1988), "v2" uses the updated weights from Parncutt (2006),
         by default "v2".
@@ -40,7 +40,7 @@ def parn88(
         A dictionary with three values:
         - root: the estimated chord root (integer)
         - root_ambiguity: the root ambiguity (float)
-        - pc_weight: a 12-dimensional vector of weights by pitch class
+        - pc_weights: a 12-dimensional vector of weights by pitch class
 
     Examples
     --------
@@ -49,7 +49,7 @@ def parn88(
     0
     >>> result["root_ambiguity"]
     1.871
-    >>> result = parn88([0, 4, 7, 10], root_support="v1")
+    >>> result = parn88([0, 4, 7, 10], root_support_weights="v1")
     >>> result["root"]
     0
     >>> result["root_ambiguity"]
@@ -62,29 +62,33 @@ def parn88(
     pc_set = set([pitch % 12 for pitch in chord])
 
     # Get root support weights
-    if isinstance(root_support, str):
-        if root_support not in ROOT_SUPPORT_WEIGHTS:
-            raise ValueError(f"Unknown root support version: {root_support}")
-        root_support = ROOT_SUPPORT_WEIGHTS[root_support]
+    if isinstance(root_support_weights, str):
+        if root_support_weights not in ROOT_SUPPORT_WEIGHTS:
+            raise ValueError(
+                f"Unknown root support weights version: {root_support_weights}"
+            )
+        root_support_weights = ROOT_SUPPORT_WEIGHTS[root_support_weights]
 
     # Encode pitch class set
-    encoded_pc_set = encode_pc_set(list(pc_set))
+    encoded_pc_set = _encode_pc_set(list(pc_set))
 
     # Calculate weights for each pitch class
-    pc_weights = [pc_weight(pc, encoded_pc_set, root_support) for pc in range(12)]
+    pc_weights = [
+        _get_pc_weight(pc, encoded_pc_set, root_support_weights) for pc in range(12)
+    ]
 
     # Find the root
     root = pc_weights.index(max(pc_weights))
 
     # Calculate root ambiguity
-    root_ambiguity = get_root_ambiguity(pc_weights, exponent)
+    root_ambiguity = _get_root_ambiguity(pc_weights, exponent)
 
-    return {"root": root, "root_ambiguity": root_ambiguity, "pc_weight": pc_weights}
+    return {"root": root, "root_ambiguity": root_ambiguity, "pc_weights": pc_weights}
 
 
-def root(
+def get_root(
     chord: List[int],
-    root_support: Union[str, Dict[int, float]] = "v2",
+    root_support_weights: Union[str, Dict[int, float]] = "v2",
     exponent: float = 0.5,
 ) -> int:
     """
@@ -95,7 +99,7 @@ def root(
     ----------
     chord : List[int]
         A list of MIDI pitches representing a chord.
-    root_support : Union[str, Dict[int, float]], optional
+    root_support_weights : Union[str, Dict[int, float]], optional
         Identifies the root support weights to use, by default "v2".
     exponent : float, optional
         Exponent to be used when computing root ambiguities, by default 0.5.
@@ -107,32 +111,32 @@ def root(
 
     Examples
     --------
-    >>> root([0, 4, 7])
+    >>> get_root([0, 4, 7])
     0
-    >>> root([0, 4, 7, 10])
+    >>> get_root([0, 4, 7, 10])
     0
-    >>> root([2, 5, 9])
+    >>> get_root([2, 5, 9])
     2
-    >>> root([1, 4, 9])
+    >>> get_root([1, 4, 9])
     9
     """
-    return parn88(chord, root_support, exponent)["root"]
+    return parn88(chord, root_support_weights, exponent)["root"]
 
 
-def root_ambiguity(
+def get_root_ambiguity(
     chord: List[int],
-    root_support: Union[str, Dict[int, float]] = "v2",
+    root_support_weights: Union[str, Dict[int, float]] = "v2",
     exponent: float = 0.5,
 ) -> float:
     """
-    Estimate the root ambiguity of a chord using Parncutt's 1988 model.
+    Estimate the get_root ambiguity of a chord using Parncutt's 1988 model.
     Calls parn88 under the hood.
 
     Parameters
     ----------
     chord : List[int]
         A list of MIDI pitches representing a chord.
-    root_support : Union[str, Dict[int, float]], optional
+    root_support_weights : Union[str, Dict[int, float]], optional
         Identifies the root support weights to use, by default "v2".
     exponent : float, optional
         Exponent to be used when computing root ambiguities, by default 0.5.
@@ -144,39 +148,39 @@ def root_ambiguity(
 
     Examples
     --------
-    >>> root_ambiguity([0, 4, 7])
+    >>> get_root_ambiguity([0, 4, 7])
     1.871
-    >>> root_ambiguity([0, 4, 7, 10], root_support="v1")
+    >>> get_root_ambiguity([0, 4, 7, 10], get_root_support="v1")
     2.139
-    >>> root_ambiguity([0, 3, 6]) > root_ambiguity([0, 4, 7])
+    >>> get_root_ambiguity([0, 3, 6]) > get_root_ambiguity([0, 4, 7])
     True
     """
-    return parn88(chord, root_support, exponent)["root_ambiguity"]
+    return parn88(chord, root_support_weights, exponent)["root_ambiguity"]
 
 
-def visualize_root_weights(
+def visualize_parn88_analysis(
     chord: List[int],
-    root_support: Union[str, Dict[int, float]] = "v2",
+    root_support_weights: Union[str, Dict[int, float]] = "v2",
     title: Optional[str] = None,
 ) -> None:
     """
-    Visualize the root weights for a chord.
+    Visualize the root support weights for a chord.
 
     Parameters
     ----------
     chord : List[int]
         A list of MIDI pitches representing a chord.
-    root_support : Union[str, Dict[int, float]], optional
+    root_support_weights : Union[str, Dict[int, float]], optional
         Identifies the root support weights to use, by default "v2".
     title : Optional[str], optional
         Title for the plot, by default None.
 
     Examples
     --------
-    >>> visualize_root_weights([0, 4, 7])
+    >>> visualize_parn88_analysis([0, 4, 7])
     """
-    result = parn88(chord, root_support)
-    weights = result["pc_weight"]
+    result = parn88(chord, root_support_weights)
+    weights = result["pc_weights"]
     root_pc = result["root"]
 
     # Create a bar chart
@@ -210,7 +214,7 @@ def visualize_root_weights(
     # Add title
     if title is None:
         chord_str = ", ".join(str(pc) for pc in sorted(set(p % 12 for p in chord)))
-        title = f"Root Weights for Chord [{chord_str}]"
+        title = f"Root Support Weights for Chord [{chord_str}]"
     plt.title(title)
 
     # Add grid
@@ -221,7 +225,7 @@ def visualize_root_weights(
     plt.show()
 
 
-def encode_pc_set(pc_set: List[int]) -> List[int]:
+def _encode_pc_set(pc_set: List[int]) -> List[int]:
     """
     Encode a pitch class set as a binary vector.
 
@@ -237,11 +241,11 @@ def encode_pc_set(pc_set: List[int]) -> List[int]:
 
     Examples
     --------
-    >>> encode_pc_set([0, 4, 7])
+    >>> _encode_pc_set([0, 4, 7])
     [1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0]
-    >>> encode_pc_set([0])
+    >>> _encode_pc_set([0])
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    >>> encode_pc_set([])
+    >>> _encode_pc_set([])
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     """
     result = [0] * 12
@@ -250,7 +254,9 @@ def encode_pc_set(pc_set: List[int]) -> List[int]:
     return result
 
 
-def pc_weight(pc: int, pc_set: List[int], root_support: Dict[int, float]) -> float:
+def _get_pc_weight(
+    pc: int, pc_set: List[int], root_support_weights: Dict[int, float]
+) -> float:
     """
     Calculate the weight for a given pitch class.
 
@@ -260,7 +266,7 @@ def pc_weight(pc: int, pc_set: List[int], root_support: Dict[int, float]) -> flo
         The pitch class to calculate the weight for.
     pc_set : List[int]
         A binary vector representing a pitch class set.
-    root_support : Dict[int, float]
+    root_support_weights : Dict[int, float]
         A dictionary mapping intervals to root support weights.
 
     Returns
@@ -271,21 +277,21 @@ def pc_weight(pc: int, pc_set: List[int], root_support: Dict[int, float]) -> flo
     Examples
     --------
     >>> v2_weights = {0: 10, 7: 5, 4: 3, 10: 2, 2: 1}
-    >>> pc_set = encode_pc_set([0, 4, 7])
-    >>> pc_weight(0, pc_set, v2_weights)
+    >>> pc_set = _encode_pc_set([0, 4, 7])
+    >>> _get_pc_weight(0, pc_set, v2_weights)
     18.0
-    >>> pc_weight(1, pc_set, v2_weights)
+    >>> _get_pc_weight(1, pc_set, v2_weights)
     0.0
     """
     weight = 0.0
-    for interval, support_weight in root_support.items():
+    for interval, support_weight in root_support_weights.items():
         target_pc = (pc + interval) % 12
         if pc_set[target_pc] == 1:
             weight += support_weight
     return weight
 
 
-def get_root_ambiguity(pc_weights: List[float], exponent: float = 0.5) -> float:
+def _get_root_ambiguity(pc_weights: List[float], exponent: float = 0.5) -> float:
     """
     Calculate the root ambiguity of a pitch class set.
 
