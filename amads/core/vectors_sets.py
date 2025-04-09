@@ -1,8 +1,13 @@
 # coding: utf-8
 """
 Basic, shared functionality for sets and vectors.
-We aim for clear and consistent use of "set" and "vector" in  naming and documentation,
-though we tend to use basic classes such as lists in preference over the Python multiset class, for instance.
+We aim for clear and consistent use of "set" and "vector" in naming and documentation.
+We also use Python classes to that effect where practical,
+though we use some basic classes in preference over non-standard options:
+- sets are encoded as `set()`
+- multi-sets are tuples or `Counter` objects (NB: not the Python `multiset` class)
+- vectors (whether indicator or weighted): are tuples (here as elsewhere we aim for immutability)
+- ambiguous cases tend to be tuples, likewise for immutability.
 
 Argument names are "set" or "vector" where that is the clear expectation and reason for the function.
 Where the function could be more widely applied, arguments are named `input_list`.
@@ -14,7 +19,7 @@ __author__ = "Mark Gotham"
 
 
 def set_to_vector(
-    input_set: list[int] | tuple[int],
+    input_set: set[int] | tuple[int, ...],
     min_index: int | None = 0,
     max_index: int | None = 6,
 ) -> tuple:
@@ -35,7 +40,7 @@ def set_to_vector(
 
     Examples
     --------
-    >>> test_set = [1, 2, 3]
+    >>> test_set = set(1, 2, 3)
     >>> set_to_vector(test_set, min_index=0, max_index=6)
     (0, 1, 1, 1, 0, 0, 0)
 
@@ -58,7 +63,7 @@ def set_to_vector(
     return tuple(counts)
 
 
-def vector_to_set(vector: list[int] | tuple[int]) -> tuple:
+def vector_to_set(vector: tuple[int, ...]) -> tuple:
     """
     Converts any "vector" (count of integers organised by index)
     to a corresponding "set" (unordered list of integers).
@@ -70,7 +75,7 @@ def vector_to_set(vector: list[int] | tuple[int]) -> tuple:
 
     Returns
     -------
-    tuple: The corresponding set.
+    tuple: The corresponding set as a tuple (because it will often be a multiset).
 
     Examples
     --------
@@ -87,15 +92,17 @@ def vector_to_set(vector: list[int] | tuple[int]) -> tuple:
     True
 
     """
-    return tuple(i for i in range(len(vector)) for _ in range(vector[i]))
+    return tuple([i for i in range(len(vector)) for _ in range(vector[i])])
 
 
-# Arithmetic operations: Addition/subtraction, multiplication,division
+# Arithmetic operations: Addition/subtraction, multiplication, division
 
 
 def apply_constant(
-    set_or_vector: list[int] | tuple[int], constant: float, modulo: int | None = None
-) -> list | tuple:
+    set_or_vector: set[int] | list[int] | tuple[int, ...],
+    constant: float,
+    modulo: int | None = None,
+) -> tuple:
     """
     Apply a constant value to a set or vector.
 
@@ -107,34 +114,34 @@ def apply_constant(
 
     Returns
     -------
-    list | tuple: The set or vector with constant applied.
+    tuple: The set or vector with constant applied.
 
     Examples
     --------
 
-    >>> start = [0, 1, 2, 3, 11]
+    >>> start = (0, 1, 2, 3, 11)
     >>> more = apply_constant(start, 1)
     >>> more
-    [1, 2, 3, 4, 12]
+    (1, 2, 3, 4, 12)
 
     >>> less = apply_constant(more, -1)
     >>> less
-    [0, 1, 2, 3, 11]
+    (0, 1, 2, 3, 11)
 
     >>> start == less
     True
 
     >>> more = apply_constant(start, 1, modulo=12)
     >>> more
-    [1, 2, 3, 4, 0]
+    (1, 2, 3, 4, 0)
     """
     result = [x + constant for x in set_or_vector]
     if modulo is not None:
         result = [x % modulo for x in result]
-    return result
+    return tuple(result)
 
 
-def scalar_multiply(input_list: list, scale_factor: int = 2) -> list:
+def scalar_multiply(input_list: list, scale_factor: int = 2) -> tuple:
     """
     Multiply all values of a list.
 
@@ -144,18 +151,18 @@ def scalar_multiply(input_list: list, scale_factor: int = 2) -> list:
     scale_factor: The "scale factor" aka "multiplicative operand". Multiply all terms by this amount. Defaults to 2.
 
     >>> scalar_multiply([0, 1, 2])
-    [0, 2, 4]
+    (0, 2, 4)
 
     """
-    return [
+    return tuple(
         x * scale_factor for x in input_list
-    ]  # TODO np would be better in cases like this
+    )  # TODO np would be better in cases like this)
 
 
 # Transformations
 
 
-def rotate(vector: list[int] | tuple[int], steps: int | None = None) -> list:
+def rotate(vector: tuple[int, ...] | list[int], steps: int | None = None) -> list:
     """
     Rotate a list by N steps.
     This serves equivalently for
@@ -171,20 +178,20 @@ def rotate(vector: list[int] | tuple[int], steps: int | None = None) -> list:
 
     Returns
     -------
-    list | tuple: The input (list or tuple), rotated. Same length.
+    tuple: The input (tuple or list), rotated. Same length.
 
     Examples
     --------
 
-    >>> start = [0, 1, 2, 3]
+    >>> start = (0, 1, 2, 3)
     >>> rotate(start, 1)
-    [1, 2, 3, 0]
+    (1, 2, 3, 0)
 
     >>> rotate(start, -1)
-    [3, 0, 1, 2]
+    (3, 0, 1, 2)
 
-    >>> rotate([0, 1, 2, 3])  # note no steps specified
-    [2, 3, 0, 1]
+    >>> rotate(start) # note no steps specified
+    (2, 3, 0, 1)
 
     """
     if not steps:
@@ -252,11 +259,11 @@ def weighted_to_indicator(weighted_vector: list | tuple, threshold=0.0) -> tuple
 
     Examples
     --------
-    >>> weighted_vector1 = [0.0, 0.0, 2.0, 0.0]
+    >>> weighted_vector1 = (0.0, 0.0, 2.0, 0.0)
     >>> weighted_to_indicator(weighted_vector1)
     (0, 0, 1, 0)
 
-    >>> weighted_vector2 = [0.2, 0.0, 1.5, 0.0, 0.01]
+    >>> weighted_vector2 = (0.2, 0.0, 1.5, 0.0, 0.01)
     >>> weighted_to_indicator(weighted_vector2)
     (1, 0, 1, 0, 1)
 
@@ -273,17 +280,17 @@ def weighted_to_indicator(weighted_vector: list | tuple, threshold=0.0) -> tuple
     # TODO consider np.where(weighted_vector > threshold, 1, 0)
 
 
-def complement(indicator_vector: list) -> list:
+def complement(indicator_vector: tuple[int, ...]) -> tuple:
     """
     Provide the complement of an indicator vector.
-    >>> complement([1, 0, 1, 0])
-    [0, 1, 0, 1]
+    >>> complement((1, 0, 1, 0))
+    (0, 1, 0, 1)
     """
     if not is_indicator_vector(indicator_vector):
         raise ValueError(
             "This is to be called only on binary lists (indicator vectors)."
         )
-    return [1 - x for x in indicator_vector]
+    return tuple(1 - x for x in indicator_vector)
 
 
 # ------------------------------------------------------------------------
