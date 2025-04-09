@@ -153,7 +153,10 @@ class ParncuttRootAnalysis:
                 raise ValueError(
                     f"Unknown root support weights version: {root_support_weights}"
                 )
-        return self.available_root_support_weights[root_support_weights]
+            return self.available_root_support_weights[root_support_weights]
+        else:
+            # If it's a dictionary, return it directly
+            return root_support_weights
 
     def get_root_strength(self, pc: int) -> float:
         return sum(
