@@ -2,6 +2,9 @@ from typing import Dict, List, Optional, Union
 
 import matplotlib.pyplot as plt
 
+from amads.core.basics import Chord, Note
+from amads.pitch import PitchCollection
+
 __author__ = "Peter Harrison"
 
 
@@ -11,8 +14,11 @@ class ParncuttRootAnalysis:
 
     Parameters
     ----------
-    chord : List[int]
-        A list of MIDI pitches representing a chord.
+    chord : Union[List[int], Chord, PitchCollection]
+        The chord to analyze. Can be represented as:
+        - A list of MIDI pitches representing a chord,
+        - A Chord object,
+        - A PitchCollection object.
     root_support_weights : Union[str, Dict[int, float]], optional
         Identifies the root support weights to use. "v1" uses the original weights
         from Parncutt (1988), "v2" uses the updated weights from Parncutt (2006),
@@ -73,6 +79,25 @@ class ParncuttRootAnalysis:
     >>> # plt.show() # in an interactive session, this will display the plot
     >>> plt.close(fig) # in a non-interactive session, this is needed to close the plot
 
+    >>> # Using a Chord object as the input
+    >>> from amads.core.basics import Chord, Note
+    >>> chord = (
+    ...     Chord()
+    ...     .insert(Note(pitch=60))  # C4
+    ...     .insert(Note(pitch=64))  # E4
+    ...     .insert(Note(pitch=67))  # G4
+    ... )
+    >>> analysis = ParncuttRootAnalysis(chord)
+    >>> analysis.root
+    0
+
+    >>> # Using a PitchCollection object as the input
+    >>> from amads.pitch import Pitch, PitchCollection
+    >>> pitch_collection = PitchCollection([Pitch.from_name(x) for x in ["D4", "F4", "A4"]])
+    >>> analysis = ParncuttRootAnalysis(pitch_collection)
+    >>> analysis.root
+    2
+
     References
     ----------
     [1] Parncutt, R. (1988). Revision of Terhardt's psychoacoustical model of the root(s) of a musical chord.
@@ -88,20 +113,37 @@ class ParncuttRootAnalysis:
 
     def __init__(
         self,
-        chord: List[int],
+        chord: Union[List[int], Chord, PitchCollection],
         root_support_weights: Union[str, Dict[int, float]] = "v2",
         exponent: float = 0.5,
     ):
-        if len(chord) == 0:
-            raise ValueError("Chord must contain at least one pitch")
-
-        self.chord = chord
-        self.pc_set = set([pitch % 12 for pitch in chord])
+        self.pitch_set, self.pc_set = self.load_chord(chord)
         self.root_support_weights = self.load_root_support_weights(root_support_weights)
         self.exponent = exponent
         self.root_strengths = [self.get_root_strength(pc) for pc in range(12)]
         self.root = self.get_root()
         self.root_ambiguity = self.get_root_ambiguity()
+
+    @staticmethod
+    def load_chord(
+        chord: Union[List[int], Chord, PitchCollection]
+    ) -> tuple[List[int], set[int]]:
+        if isinstance(chord, list):
+            pitch_set = set(chord)
+        elif isinstance(chord, Chord):
+            pitch_set = set(note.pitch.keynum for note in chord.find_all(Note))
+        elif isinstance(chord, PitchCollection):
+            pitch_set = set(chord.MIDI_multi_set)
+        else:
+            raise TypeError(
+                "Chord must be a list of MIDI pitches, a Chord object, or a PitchCollection object"
+            )
+
+        if len(pitch_set) == 0:
+            raise ValueError("Chord must contain at least one pitch")
+
+        pc_set = set(pitch % 12 for pitch in pitch_set)
+        return pitch_set, pc_set
 
     def load_root_support_weights(
         self, root_support_weights: Union[str, Dict[int, float]]
@@ -181,7 +223,7 @@ class ParncuttRootAnalysis:
         # Add title
         if title is None:
             chord_str = ", ".join(
-                str(pc) for pc in sorted(set(p % 12 for p in self.chord))
+                str(pc) for pc in sorted(set(p % 12 for p in self.pc_set))
             )
             title = f"Root strengths for chord [{chord_str}]"
         plt.title(title)
