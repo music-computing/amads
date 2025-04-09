@@ -1,0 +1,1998 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>amads.time.meter.break_it_up &#8212; amads  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/amads/time/meter/break_it_up';</script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">amads  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">User guide:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/installation.html">Installation</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Developer notes:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../developer_notes/contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developer_notes/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developer_notes/design.html">Design considerations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developer_notes/modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developer_notes/music21.html">Music21</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developer_notes/testing.html">Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developer_notes/style.html">Style</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developer_notes/making_a_release.html">Making a release</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Examples:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../auto_examples/plot_durdist1.html">Duration distributions (I)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../auto_examples/plot_durdist2.html">Duration distributions (II)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../auto_examples/plot_parncutt_root_analysis.html">Root analysis (after Parncutt)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../auto_examples/plot_boundary.html">Boundary detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../auto_examples/plot_sliding_window.html">Sliding window analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../auto_examples/plot_melsim.html">Melodic similarity</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">General algorithms:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.algorithms.entropy.html">amads.algorithms.entropy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.algorithms.nnotes.html">amads.algorithms.nnotes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.algorithms.scale.html">amads.algorithms.scale</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.algorithms.slice.salami.html">amads.algorithms.slice.salami</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.algorithms.slice.window.html">amads.algorithms.slice.window</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Pitch:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.hz2midi.html">amads.pitch.hz2midi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.ismonophonic.html">amads.pitch.ismonophonic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.ivdirdist1.html">amads.pitch.ivdirdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.ivdist1.html">amads.pitch.ivdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.ivdist2.html">amads.pitch.ivdist2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.ivsizedist1.html">amads.pitch.ivsizedist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.key.profiles.html">amads.pitch.key.profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.pcdist1.html">amads.pitch.pcdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.pcdist2.html">amads.pitch.pcdist2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.pitch_mean.html">amads.pitch.pitch_mean</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.transformations.html">amads.pitch.transformations</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Time:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.time.durdist1.html">amads.time.durdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.time.durdist2.html">amads.time.durdist2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.time.npvi.html">amads.time.npvi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.time.swing.html">amads.time.swing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.time.tempo.html">amads.time.tempo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.time.meter.break_it_up.html">amads.time.meter.break_it_up</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Melody:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.melody.boundary.html">amads.melody.boundary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.melody.segment_gestalt.html">amads.melody.segment_gestalt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.melody.contour.interpolation_contour.html">amads.melody.contour.interpolation_contour</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.melody.contour.step_contour.html">amads.melody.contour.step_contour</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.melody.similarity.melsim.html">amads.melody.similarity.melsim</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Polyphony:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.polyphony.skyline.html">amads.polyphony.skyline</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Core:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.core.basics.html">amads.core.basics</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">IO:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.io.pianoroll.html">amads.io.pianoroll</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for amads.time.meter.break_it_up</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Make sense of the relationship between</span>
+<span class="sd">the notes in</span>
+<span class="sd">and</span>
+<span class="sd">the hierarchy of</span>
+<span class="sd">a metrical cycle.</span>
+
+<span class="sd">Uses include identifying notes that traverse metrical levels,</span>
+<span class="sd">for anaylsis (e.g., as a measure of syncopation)</span>
+<span class="sd">and notation (e.g., re-notating to reflect the</span>
+<span class="sd">within-measure notational conventions).</span>
+
+<span class="sd">This delivers functionality promised in previous discussions on the music21</span>
+<span class="sd">list (https://groups.google.com/g/music21list/c/5G-UafJeW94/m/YcEBE0PFAQAJ)</span>
+<span class="sd">and repo (issue 992, https://github.com/cuthbertLab/music21/issues/992)</span>
+
+<span class="sd">Basically, the idea is that</span>
+<span class="sd">a single note can only cross metrical boundaries</span>
+<span class="sd">for levels lower than the one it starts on.</span>
+<span class="sd">If it traverses a metrical boundaries at a higher level, then</span>
+<span class="sd">it is split at that position into two note-heads to be connected by a tie.</span>
+
+
+<span class="sd">TODO:</span>
+<span class="sd">- Connect up to scores (work with note and time signature by context).</span>
+<span class="sd">- Divide the metrical structure logic from the operations</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="c1"># ------------------------------------------------------------------------------</span>
+
+
+<div class="viewcode-block" id="ReGrouper">
+<a class="viewcode-back" href="../../../../_autosummary/amads.time.meter.break_it_up.html#amads.time.meter.break_it_up.ReGrouper">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ReGrouper</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Split up notes and rests to reflect the</span>
+<span class="sd">    within-measure notational conventions</span>
+<span class="sd">    of metrical hierarchies in Western classical music.</span>
+
+<span class="sd">    This class</span>
+<span class="sd">    takes in a representation of a note in terms of the start position and duration,</span>
+<span class="sd">    and metrical context (the overall structure, and which part to use), and</span>
+<span class="sd">    returns a list of start-duration pairs for the broken-up note value.</span>
+
+<span class="sd">    The basic premise here is that a single note can only traverse metrical boundaries</span>
+<span class="sd">    for levels lower than the one it starts on.</span>
+<span class="sd">    If it traverses the metrical boundary of a higher level, then</span>
+<span class="sd">    it is split at that position into two note-heads to be connected by a tie.</span>
+
+<span class="sd">    There are many variants on this basic set up.</span>
+<span class="sd">    This class aims to support almost any such variant, while providing easy defaults</span>
+<span class="sd">    for simple, standard practice.</span>
+
+<span class="sd">    The flexibility comes from the definition of a metrical structure.</span>
+<span class="sd">    Here, everything ultimately runs through a single representation</span>
+<span class="sd">    of metrical levels in terms of starts expressed by quarter length</span>
+<span class="sd">    from the start of the measure,</span>
+<span class="sd">    e.g., levels 0-3 of a time signature like 4/4 would be represented as:</span>
+<span class="sd">    [[0.0, 4.0],</span>
+<span class="sd">    [0.0, 2.0, 4.0],</span>
+<span class="sd">    [0.0, 1.0, 2.0, 3.0, 4.0],</span>
+<span class="sd">    [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0]]</span>
+
+<span class="sd">    Each split of the note duration serves to move up one metrical level.</span>
+<span class="sd">    For instance, for the 4/4 example above, a note of duration 2.0 starting at start</span>
+<span class="sd">    0.25 connects to 0.5 in level 3 (duration = 0.25), then</span>
+<span class="sd">    0.5 connects to 1.0 in level 2 (duration = 0.5), then</span>
+<span class="sd">    1.0 connects to 2.0 in level 1 (duration = 1.0), and</span>
+<span class="sd">    this leaves a duration of 0.25 to start on start 2.0.</span>
+<span class="sd">    The data is returned as a list of (position, duration) tuples.</span>
+<span class="sd">    The values for the example would be:</span>
+<span class="sd">    [(0.25, 0.25),</span>
+<span class="sd">    (0.5, 0.5),</span>
+<span class="sd">    (1.0, 1.0),</span>
+<span class="sd">    (1.0, 0.25)].</span>
+
+<span class="sd">    There are three main user options (for advanced use cases only):</span>
+<span class="sd">    tweak a metrical hierarchy to only consider certain levels (see the `levels` parameter);</span>
+<span class="sd">    define a metrical structure completely from scratch (`start_hierarchy`);</span>
+<span class="sd">    determine the handling of splits within a level for metres like 6/8 (`split_same_level`).</span>
+
+<span class="sd">    The input parameters are:</span>
+
+<span class="sd">    note_start_start:</span>
+<span class="sd">    the note or rest in question&quot;s starting start.</span>
+
+<span class="sd">    note_length:</span>
+<span class="sd">    the note or rest&quot;s length.</span>
+
+<span class="sd">    time_signature (optional):</span>
+<span class="sd">    the time signature (currently expressed as a string).</span>
+<span class="sd">    to be converted into a start_hierarchy.</span>
+
+<span class="sd">    levels (optional):</span>
+<span class="sd">    the default arrangement is to use all levels of a time signature&quot;s metrical hierarchy.</span>
+<span class="sd">    Alternatively, this parameter allows users to select certain levels for in-/exclusion.</span>
+<span class="sd">    See the starts_from_ts_and_levels function for further explanation.</span>
+
+<span class="sd">    pulse_lengths (optional):</span>
+<span class="sd">    this provides an alternative way of expressing the metrical hierarchy</span>
+<span class="sd">    in terms of pulse lengths (by quarter length), again</span>
+<span class="sd">    to be converted into a start_hierarchy.</span>
+<span class="sd">    See start_list_from_pulse_lengths for further explanation.</span>
+
+<span class="sd">    start_hierarchy (optional):</span>
+<span class="sd">    a final alternative way of expressing the metrical hierarchy</span>
+<span class="sd">    completely from scratch (ignoring all other parameters and defaults).</span>
+<span class="sd">    Use this for advanced cases requiring non-standard metrical structures</span>
+<span class="sd">    including those without 2-/3- grouping, or even nested hierarchies.</span>
+
+<span class="sd">    split_same_level:</span>
+<span class="sd">    in cases of metrical structures with a 3-grouping</span>
+<span class="sd">    (i.e., two &quot;weak&quot; events between a &quot;strong&quot; in compound signatures like 6/8)</span>
+<span class="sd">    some conventions chose to split notes within-level as well as between them.</span>
+<span class="sd">    For instance, with a quarter note starting on the second eighth note (start 0.5) of 6/8,</span>
+<span class="sd">    some will want to split that into two 1/8th notes, divided on the third eighth note position,</span>
+<span class="sd">    while others will want to leave this intact.</span>
+<span class="sd">    The split_same_level option accommodates this:</span>
+<span class="sd">    it effects the within-level split when set to True and not otherwise (default).</span>
+
+<span class="sd">    At least one of</span>
+<span class="sd">    time_signature,</span>
+<span class="sd">    levels (with a time_signature),</span>
+<span class="sd">    pulse_lengths, or</span>
+<span class="sd">    start_hierarchy</span>
+<span class="sd">    must be specified.</span>
+
+<span class="sd">    These are listed in order from the most standard to the most specialised.</span>
+<span class="sd">    The time_signature defaults will serve most use cases, and the</span>
+<span class="sd">    &quot;levels&quot; parameter should be enough for a particular editorial style.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">note_start_start</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+        <span class="n">note_length</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+        <span class="n">time_signature</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">levels</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">pulse_lengths</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">start_hierarchy</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">split_same_level</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+
+        <span class="c1"># Retrieve or create the metrical structure</span>
+        <span class="k">if</span> <span class="n">start_hierarchy</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">start_hierarchy</span> <span class="o">=</span> <span class="n">start_hierarchy</span>
+        <span class="k">elif</span> <span class="n">pulse_lengths</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">start_hierarchy</span> <span class="o">=</span> <span class="n">start_list_from_pulse_lengths</span><span class="p">(</span>
+                <span class="n">pulse_lengths</span><span class="p">,</span> <span class="n">require_2_or_3_between_levels</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">levels</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">time_signature</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;To specify levels, please also enter a valid time signature.&quot;</span>
+                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">start_hierarchy</span> <span class="o">=</span> <span class="n">starts_from_ts_and_levels</span><span class="p">(</span><span class="n">time_signature</span><span class="p">,</span> <span class="n">levels</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># time_signature, not levels specified</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">start_hierarchy</span> <span class="o">=</span> <span class="n">starts_from_ts_and_levels</span><span class="p">(</span><span class="n">time_signature</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_hierarchy</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Cannot create a `start_hierarchy`. &quot;</span>
+                <span class="s2">&quot;Please enter a valid time signature or equivalent.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">note_length</span> <span class="o">=</span> <span class="n">note_length</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">note_start_start</span> <span class="o">=</span> <span class="n">note_start_start</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">split_same_level</span> <span class="o">=</span> <span class="n">split_same_level</span>
+
+        <span class="c1"># Initialise</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_duration_pairs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">updated_start</span> <span class="o">=</span> <span class="n">note_start_start</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remaining_length</span> <span class="o">=</span> <span class="n">note_length</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">level_pass</span><span class="p">()</span>
+
+    <span class="c1"># ------------------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="ReGrouper.level_pass">
+<a class="viewcode-back" href="../../../../_autosummary/amads.time.meter.break_it_up.html#amads.time.meter.break_it_up.ReGrouper.level_pass">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">level_pass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Having established the structure of the start_hierarchy,</span>
+<span class="sd">        this method iterates across the levels of that hierarchy to find</span>
+<span class="sd">        the current start position, and (through advance_step) the start position to map to.</span>
+
+<span class="sd">        This method runs once for each such mapping,</span>
+<span class="sd">        typically advancing up one (or more) layer of the metrical hierarchy with each call.</span>
+<span class="sd">        &quot;Typically&quot; because split_same_level is supported where relevant.</span>
+
+<span class="sd">        Each iteration creates a new start-duration pair</span>
+<span class="sd">        stored in the start_duration_pairs list</span>
+<span class="sd">        that records the constituent parts of the split note.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">levelIndex</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_hierarchy</span><span class="p">)):</span>
+
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">remaining_length</span> <span class="o">&lt;=</span> <span class="mi">0</span>
+            <span class="p">):</span>  <span class="c1"># sic, here due to the various routes through</span>
+                <span class="k">return</span>
+
+            <span class="n">this_level</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_hierarchy</span><span class="p">[</span><span class="n">levelIndex</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">updated_start</span> <span class="ow">in</span> <span class="n">this_level</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">levelIndex</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># i.e., updated_start == 0</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">start_duration_pairs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">updated_start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">remaining_length</span><span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="k">return</span>
+                <span class="k">else</span><span class="p">:</span>  <span class="c1"># level up. NB: duplicates in nested hierarchy help here</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_same_level</span><span class="p">:</span>  <span class="c1"># relevant option for e.g., 6/8</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">advance_step</span><span class="p">(</span><span class="n">this_level</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>  <span class="c1"># usually</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">advance_step</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_hierarchy</span><span class="p">[</span><span class="n">levelIndex</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">remaining_length</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># start not in the hierarchy at all</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">advance_step</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_hierarchy</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>  <span class="c1"># get to the lowest level</span>
+            <span class="c1"># Now start the process with the metrical structure:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">level_pass</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="ReGrouper.advance_step">
+<a class="viewcode-back" href="../../../../_autosummary/amads.time.meter.break_it_up.html#amads.time.meter.break_it_up.ReGrouper.advance_step">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">advance_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">positions_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        For a start position, and a metrical level expressed as a list of starts,</span>
+<span class="sd">        finds the next higher value from those levels.</span>
+<span class="sd">        Used for determining iterative divisions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">positions_list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">p</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">updated_start</span><span class="p">:</span>
+                <span class="n">duration_to_next_position</span> <span class="o">=</span> <span class="n">p</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">updated_start</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">remaining_length</span> <span class="o">&lt;=</span> <span class="n">duration_to_next_position</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">start_duration_pairs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">updated_start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">remaining_length</span><span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="c1"># done but still reduce remaining_length to end the whole process in level_pass</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">remaining_length</span> <span class="o">-=</span> <span class="n">duration_to_next_position</span>
+                    <span class="k">return</span>
+                <span class="k">else</span><span class="p">:</span>  <span class="c1"># self.remaining_length &gt; duration_to_next_position:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">start_duration_pairs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">updated_start</span><span class="p">,</span> <span class="n">duration_to_next_position</span><span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="c1"># Updated start and position; run again</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">updated_start</span> <span class="o">=</span> <span class="n">p</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">remaining_length</span> <span class="o">-=</span> <span class="n">duration_to_next_position</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">level_pass</span><span class="p">()</span>  <span class="c1"># NB: to re-start from top as may have jumped a level</span>
+                    <span class="k">return</span></div>
+</div>
+
+
+
+<span class="c1"># ------------------------------------------------------------------------------</span>
+
+
+<div class="viewcode-block" id="start_hierarchy_from_ts">
+<a class="viewcode-back" href="../../../../_autosummary/amads.time.meter.break_it_up.html#amads.time.meter.break_it_up.start_hierarchy_from_ts">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">start_hierarchy_from_ts</span><span class="p">(</span><span class="n">ts_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">minimum_pulse</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">64</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a start hierarchy for almost any time signature</span>
+<span class="sd">    directly from a string (e.g., &quot;4/4&quot;) without dependencies.</span>
+<span class="sd">    Returns a list of lists with start positions by level.</span>
+
+<span class="sd">    The following examples index the most interesting level:</span>
+
+<span class="sd">    &gt;&gt;&gt; start_hierarchy_from_ts(&quot;4/4&quot;)[1]  # note the half cycle division</span>
+<span class="sd">    [0.0, 2.0, 4.0]</span>
+
+
+<span class="sd">    &gt;&gt;&gt; start_hierarchy_from_ts(&quot;6/8&quot;)[1]  # note the macro-beat division</span>
+<span class="sd">    [0.0, 1.5, 3.0]</span>
+
+
+<span class="sd">    Numerators like 5 and 7 are supported.</span>
+<span class="sd">    Use the total value only to avoid segmentation about the denominator level:</span>
+
+<span class="sd">    &gt;&gt;&gt; start_hierarchy_from_ts(&quot;5/4&quot;)[1]  # note no 2+3 or 3+2 level division</span>
+<span class="sd">    [0.0, 1.0, 2.0, 3.0, 4.0, 5.0]</span>
+
+<span class="sd">    Or use numerator addition in the form &quot;X+Y/Z&quot; to clarify this level ...</span>
+
+<span class="sd">    &gt;&gt;&gt; start_hierarchy_from_ts(&quot;2+3/4&quot;)[1]  # note the 2+3 division</span>
+<span class="sd">    [0.0, 2.0, 5.0]</span>
+
+<span class="sd">    &gt;&gt;&gt; start_hierarchy_from_ts(&quot;2+2+3/8&quot;)[1]  # note the 2+2+3 division</span>
+<span class="sd">    [0.0, 1.0, 2.0, 3.5]</span>
+
+<span class="sd">    &gt;&gt;&gt; start_hierarchy_from_ts(&quot;2+2+2+3/8&quot;)[1]  # note the 2+2+2+3 division</span>
+<span class="sd">    [0.0, 1.0, 2.0, 3.0, 4.5]</span>
+
+<span class="sd">    Only standard denominators are supported:</span>
+<span class="sd">    i.e., time signatures in the form X/ one of</span>
+<span class="sd">    1, 2, 4, 8, 16, 32, or 64.</span>
+<span class="sd">    No so-called &quot;irrational&quot; meters yet (e.g., 2/3), sorry!</span>
+
+<span class="sd">    Likewise the minimum_pulse must be set to one of these values</span>
+<span class="sd">    (default = 64 for 64th note) and not be longer than the meter.</span>
+
+<span class="sd">    TODO:</span>
+<span class="sd">    Whole signatures added together in the form &quot;P/Q+R/S&quot;</span>
+<span class="sd">    (split by &quot;+&quot; before &quot;/&quot;).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Prep and checks</span>
+    <span class="n">numerator</span><span class="p">,</span> <span class="n">denominator</span> <span class="o">=</span> <span class="n">ts_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+    <span class="n">numerators</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">numerator</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;+&quot;</span><span class="p">)]</span>
+    <span class="n">denominator</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">denominator</span><span class="p">)</span>
+    <span class="c1"># TODO ?regex for more than one &quot;/&quot;, e.g., `4/4 + 3/8` = split by `+` first</span>
+
+    <span class="n">supported_denominators</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">denominator</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">supported_denominators</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Invalid time signature denominator; chose from one of:&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">supported_denominators</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">minimum_pulse</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">supported_denominators</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Invalid minimum_pulse: it should be expressed as a note value, from one of&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">supported_denominators</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Prep. &quot;hiddenLayer&quot;/s</span>
+    <span class="n">hidden_layer_mappings</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">([</span><span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]),</span>
+        <span class="p">([</span><span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]),</span>
+        <span class="p">([</span><span class="mi">9</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]),</span>  <span class="c1"># alternative groupings need to be set out, e.g., 2+2+2+3</span>
+        <span class="p">([</span><span class="mi">12</span><span class="p">],</span> <span class="p">[[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]]),</span>  <span class="c1"># &quot; e.g., 2+2+2+3</span>
+        <span class="p">([</span><span class="mi">15</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]),</span>  <span class="c1"># &quot; e.g., 2+2+2+3</span>
+        <span class="p">([</span><span class="mi">6</span><span class="p">,</span> <span class="mi">9</span><span class="p">],</span> <span class="p">[[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">9</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]]),</span>  <span class="c1"># TODO generalise</span>
+        <span class="p">([</span><span class="mi">9</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="p">[[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]]),</span>
+    <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">hidden_layer_mappings</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">numerators</span> <span class="o">==</span> <span class="n">h</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">numerators</span> <span class="o">=</span> <span class="n">h</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">numerators</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">sum_num</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">numerators</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sum_num</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">numerators</span><span class="p">)</span>
+
+    <span class="n">measure_length</span> <span class="o">=</span> <span class="n">sum_num</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">/</span> <span class="n">denominator</span>
+
+    <span class="c1"># Now ready for each layer in order:</span>
+
+    <span class="c1"># 1. top level = whole cycle (always included as entry[0])</span>
+    <span class="n">start_hierarchy</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">measure_length</span><span class="p">]]</span>
+
+    <span class="c1"># 2. &quot;hidden&quot; layer/s</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">numerators</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># whole cycle covered.</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">numerators</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">level</span> <span class="ow">in</span> <span class="n">numerators</span><span class="p">:</span>
+                <span class="n">starts</span> <span class="o">=</span> <span class="n">starts_from_beat_pattern</span><span class="p">(</span><span class="n">level</span><span class="p">,</span> <span class="n">denominator</span><span class="p">)</span>
+                <span class="n">start_hierarchy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">starts</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">starts</span> <span class="o">=</span> <span class="n">starts_from_beat_pattern</span><span class="p">(</span><span class="n">numerators</span><span class="p">,</span> <span class="n">denominator</span><span class="p">)</span>
+            <span class="n">start_hierarchy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">starts</span><span class="p">)</span>
+
+    <span class="c1"># 3. Finally, everything at the denominator level and shorter:</span>
+    <span class="n">this_denominator_power</span> <span class="o">=</span> <span class="n">supported_denominators</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">denominator</span><span class="p">)</span>
+    <span class="n">max_denominator_power</span> <span class="o">=</span> <span class="n">supported_denominators</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">minimum_pulse</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">this_denominator</span> <span class="ow">in</span> <span class="n">supported_denominators</span><span class="p">[</span>
+        <span class="n">this_denominator_power</span> <span class="p">:</span> <span class="n">max_denominator_power</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="p">]:</span>
+        <span class="n">this_ql</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">/</span> <span class="n">this_denominator</span>
+        <span class="n">starts</span> <span class="o">=</span> <span class="n">starts_from_lengths</span><span class="p">(</span><span class="n">measure_length</span><span class="p">,</span> <span class="n">this_ql</span><span class="p">)</span>
+        <span class="n">start_hierarchy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">starts</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">start_hierarchy</span></div>
+
+
+
+<div class="viewcode-block" id="starts_from_ts_and_levels">
+<a class="viewcode-back" href="../../../../_autosummary/amads.time.meter.break_it_up.html#amads.time.meter.break_it_up.starts_from_ts_and_levels">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">starts_from_ts_and_levels</span><span class="p">(</span>
+    <span class="n">ts_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>  <span class="c1"># TODO Union[str, meter.time_signature] or similar</span>
+    <span class="n">levels</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">use_music21</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Gets starts from a time signature and a list of levels.</span>
+<span class="sd">    Records the starts associated with each level as a list,</span>
+<span class="sd">    and return a list of those lists.</span>
+
+<span class="sd">    Levels are defined by the hierarchies recorded in the time signature.</span>
+<span class="sd">    The 0th level for the full cycle (start 0.0 and full measure length) is always included.</span>
+<span class="sd">    &quot;1&quot; stands for the 1st level below that of the full metrical cycle</span>
+<span class="sd">    (e.g., a half cycle of 4/4 and similar time signtures like 2/2).</span>
+<span class="sd">    &quot;2&quot; is the next level down, (quarter cycle) and so on.</span>
+
+<span class="sd">    The function arranges a list of levels in increasing order:</span>
+<span class="sd">    level 0 is always included, and</span>
+<span class="sd">    the maximum permitted level (depth) is 6.</span>
+
+<span class="sd">    Level choices do not need to be successive:</span>
+<span class="sd">    e.g., in 4/4 a user could choose [1, 3],</span>
+<span class="sd">    with 1 standing for the half note level,</span>
+<span class="sd">    3 for the eight note level,</span>
+<span class="sd">    and skipping in intervening level 2 (quarter note).</span>
+
+<span class="sd">    This function provides a hard-coded workaround that&quot;s called when use_music21=False (default).</span>
+<span class="sd">    Note also the inclusion of the full cycle length here (useful in ReGrouper).</span>
+<span class="sd">    &gt;&gt;&gt; starts_from_ts_and_levels(&quot;6/8&quot;, [1, 2], use_music21=False)</span>
+<span class="sd">    [[0.0, 3.0], [0.0, 1.5, 3.0], [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0]]</span>
+
+<span class="sd">    The music21 beamSequence method may also be useful here (i.e., integrating the two).</span>
+<span class="sd">    See discussion on music21, issue 992.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">levels</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">levels</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="nb">max</span><span class="p">(</span><span class="n">levels</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">6</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;6 is the maximum level depth supported.&quot;</span><span class="p">)</span>
+    <span class="n">levels</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">levels</span><span class="p">)</span>  <span class="c1"># smallest first</span>
+    <span class="k">if</span> <span class="mi">0</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">levels</span><span class="p">:</span>  <span class="c1"># likely, and not a problem</span>
+        <span class="n">levels</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">levels</span>  <span class="c1"># Always have level 0 as first entry</span>
+
+    <span class="n">starts_by_level</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="n">use_music21</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">music21</span><span class="w"> </span><span class="kn">import</span> <span class="n">meter</span>
+
+        <span class="n">ms</span> <span class="o">=</span> <span class="n">meter</span><span class="o">.</span><span class="n">MeterSequence</span><span class="p">(</span><span class="n">ts_str</span><span class="p">)</span>
+        <span class="n">ms</span><span class="o">.</span><span class="n">subdivideNestedHierarchy</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">levels</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">level</span> <span class="ow">in</span> <span class="n">levels</span><span class="p">:</span>
+            <span class="n">starts_this_level</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ms</span><span class="o">.</span><span class="n">getLevelSpan</span><span class="p">(</span><span class="n">level</span><span class="p">)]</span>
+            <span class="n">starts_by_level</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">starts_this_level</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">full_hierarchy</span> <span class="o">=</span> <span class="n">start_hierarchy_from_ts</span><span class="p">(</span><span class="n">ts_str</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">level</span> <span class="ow">in</span> <span class="n">levels</span><span class="p">:</span>
+            <span class="n">starts_by_level</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">full_hierarchy</span><span class="p">[</span><span class="n">level</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">starts_by_level</span></div>
+
+
+
+<div class="viewcode-block" id="start_list_from_pulse_lengths">
+<a class="viewcode-back" href="../../../../_autosummary/amads.time.meter.break_it_up.html#amads.time.meter.break_it_up.start_list_from_pulse_lengths">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">start_list_from_pulse_lengths</span><span class="p">(</span>
+    <span class="n">pulse_lengths</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+    <span class="n">measure_length</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">require_2_or_3_between_levels</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a list of pulse lengths into a corresponding list of lists</span>
+<span class="sd">    with start positions per metrical level.</span>
+<span class="sd">    All values (pulse lengths, start positions, and measure_length)</span>
+<span class="sd">    are all expressed in terms of quarter length.</span>
+
+<span class="sd">    The measure_length is not required - if not provided it&#39;s taken to be the longest pulse length.</span>
+
+<span class="sd">    &gt;&gt;&gt; qsl = start_list_from_pulse_lengths(pulse_lengths=[4, 2, 1, 0.5])</span>
+
+<span class="sd">    &gt;&gt;&gt; qsl[0]</span>
+<span class="sd">    [0.0, 4.0]</span>
+
+<span class="sd">    &gt;&gt;&gt; qsl[1]</span>
+<span class="sd">    [0.0, 2.0, 4.0]</span>
+
+<span class="sd">    &gt;&gt;&gt; qsl[2]</span>
+<span class="sd">    [0.0, 1.0, 2.0, 3.0, 4.0]</span>
+
+<span class="sd">    &gt;&gt;&gt; qsl[3]</span>
+<span class="sd">    [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0]</span>
+
+<span class="sd">    This does not work for (&quot;nonisochronous&quot;) pulse streams of varying duration</span>
+<span class="sd">    in time signatures like 5/x, 7/x</span>
+<span class="sd">    (e.g., the level of 5/4 with dotted/undotted 1/2 notes).</span>
+
+<span class="sd">    It is still perfectly fine to use this for the pulse streams</span>
+<span class="sd">    within those meters that are regular, equally spaced (&quot;isochronous&quot;)</span>
+<span class="sd">    (e.g., the 1/4 note level of 5/4).</span>
+
+<span class="sd">    The list of pulse lengths is set in decreasing order.</span>
+
+<span class="sd">    If `require_2_or_3_between_levels` is True (default), this functions checks that</span>
+<span class="sd">    each level is either a 2 or 3 multiple of the next.</span>
+
+<span class="sd">    By default, the measure_length is taken by the longest pulse length.</span>
+<span class="sd">    Alternatively, this can be user-defined to anything as long as it is</span>
+<span class="sd">    1) longer than the longest pulse and</span>
+<span class="sd">    2) if `require_2_or_3_between_levels` is True then exactly 2x or 3x longer.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">pulse_lengths</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">pulse_lengths</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># largest number first</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">measure_length</span><span class="p">:</span>
+        <span class="n">measure_length</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">pulse_lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">pulse_lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">measure_length</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;_pulse lengths cannot be longer than the measure_length.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">require_2_or_3_between_levels</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">level</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pulse_lengths</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">pulse_lengths</span><span class="p">[</span><span class="n">level</span><span class="p">]</span> <span class="o">/</span> <span class="n">pulse_lengths</span><span class="p">[</span><span class="n">level</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;The proportion between consecutive levels is not 2 or 3 in &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;this case: </span><span class="si">{</span><span class="n">pulse_lengths</span><span class="p">[</span><span class="n">level</span><span class="p">]</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">pulse_lengths</span><span class="p">[</span><span class="n">level</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
+
+    <span class="n">start_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">pulse_length</span> <span class="ow">in</span> <span class="n">pulse_lengths</span><span class="p">:</span>
+        <span class="n">starts</span> <span class="o">=</span> <span class="n">starts_from_lengths</span><span class="p">(</span><span class="n">measure_length</span><span class="p">,</span> <span class="n">pulse_length</span><span class="p">)</span>
+        <span class="n">start_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">starts</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">start_list</span></div>
+
+
+
+<span class="c1"># ------------------------------------------------------------------------------</span>
+
+<span class="c1"># Subsidiary one-level converters</span>
+
+
+<div class="viewcode-block" id="starts_from_lengths">
+<a class="viewcode-back" href="../../../../_autosummary/amads.time.meter.break_it_up.html#amads.time.meter.break_it_up.starts_from_lengths">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">starts_from_lengths</span><span class="p">(</span>
+    <span class="n">measure_length</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">pulse_length</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">include_measure_length</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">use_numpy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a pulse length and measure length into a list of starts.</span>
+<span class="sd">    All expressed in quarter length.</span>
+<span class="sd">    If `include_measure_length` is True (default) then each level ends with the full cycle length</span>
+<span class="sd">    (i.e., the start of the start of the next cycle).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">use_numpy</span><span class="p">:</span>
+        <span class="n">starts</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">measure_length</span><span class="p">,</span> <span class="n">pulse_length</span><span class="p">)]</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># music21 avoids numpy right?</span>
+        <span class="n">current_index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">starts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="n">current_index</span> <span class="o">&lt;</span> <span class="n">measure_length</span><span class="p">:</span>
+            <span class="n">starts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">current_index</span><span class="p">))</span>  <span class="c1"># float for type consistency</span>
+            <span class="n">current_index</span> <span class="o">+=</span> <span class="n">pulse_length</span>
+
+    <span class="k">if</span> <span class="n">include_measure_length</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">starts</span> <span class="o">+</span> <span class="p">[</span><span class="n">measure_length</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">starts</span></div>
+
+
+
+<div class="viewcode-block" id="starts_from_beat_pattern">
+<a class="viewcode-back" href="../../../../_autosummary/amads.time.meter.break_it_up.html#amads.time.meter.break_it_up.starts_from_beat_pattern">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">starts_from_beat_pattern</span><span class="p">(</span>
+    <span class="n">beat_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">denominator</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">include_measure_length</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts a list of beats</span>
+<span class="sd">    like [2, 2, 2]</span>
+<span class="sd">    or [3, 3]</span>
+<span class="sd">    or indeed</span>
+<span class="sd">    [6, 9]</span>
+<span class="sd">    into a list of starts.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">starts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">beat_list</span><span class="p">:</span>
+        <span class="n">this_start</span> <span class="o">=</span> <span class="n">count</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">/</span> <span class="n">denominator</span>
+        <span class="n">starts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_start</span><span class="p">)</span>
+        <span class="n">count</span> <span class="o">+=</span> <span class="n">x</span>
+    <span class="k">if</span> <span class="n">include_measure_length</span><span class="p">:</span>  <span class="c1"># include last value</span>
+        <span class="n">this_start</span> <span class="o">=</span> <span class="n">count</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">/</span> <span class="n">denominator</span>
+        <span class="n">starts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_start</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">starts</span></div>
+
+
+
+<span class="c1"># ------------------------------------------------------------------------------</span>
+
+<span class="c1"># Examples of the start hierarchy structures.</span>
+<span class="c1"># For reference and testing.</span>
+<span class="c1"># Down to 1/32 note level [0, 0.125 ... ] in each case</span>
+<span class="c1"># TODO preference for this explicit listing or in the form e.g., [float(x) for x in range(8)]</span>
+<span class="c1"># TODO here or move to resources?</span>
+
+<span class="n">start_hierarchy_examples</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;2/2&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">],</span>
+        <span class="p">[</span>
+            <span class="mf">0.0</span><span class="p">,</span>
+            <span class="mf">0.25</span><span class="p">,</span>
+            <span class="mf">0.5</span><span class="p">,</span>
+            <span class="mf">0.75</span><span class="p">,</span>
+            <span class="mf">1.0</span><span class="p">,</span>
+            <span class="mf">1.25</span><span class="p">,</span>
+            <span class="mf">1.5</span><span class="p">,</span>
+            <span class="mf">1.75</span><span class="p">,</span>
+            <span class="mf">2.0</span><span class="p">,</span>
+            <span class="mf">2.25</span><span class="p">,</span>
+            <span class="mf">2.5</span><span class="p">,</span>
+            <span class="mf">2.75</span><span class="p">,</span>
+            <span class="mf">3.0</span><span class="p">,</span>
+            <span class="mf">3.25</span><span class="p">,</span>
+            <span class="mf">3.5</span><span class="p">,</span>
+            <span class="mf">3.75</span><span class="p">,</span>
+            <span class="mf">4.0</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="p">[</span>
+            <span class="mf">0.0</span><span class="p">,</span>
+            <span class="mf">0.125</span><span class="p">,</span>
+            <span class="mf">0.25</span><span class="p">,</span>
+            <span class="mf">0.375</span><span class="p">,</span>
+            <span class="mf">0.5</span><span class="p">,</span>
+            <span class="mf">0.625</span><span class="p">,</span>
+            <span class="mf">0.75</span><span class="p">,</span>
+            <span class="mf">0.875</span><span class="p">,</span>
+            <span class="mf">1.0</span><span class="p">,</span>
+            <span class="mf">1.125</span><span class="p">,</span>
+            <span class="mf">1.25</span><span class="p">,</span>
+            <span class="mf">1.375</span><span class="p">,</span>
+            <span class="mf">1.5</span><span class="p">,</span>
+            <span class="mf">1.625</span><span class="p">,</span>
+            <span class="mf">1.75</span><span class="p">,</span>
+            <span class="mf">1.875</span><span class="p">,</span>
+            <span class="mf">2.0</span><span class="p">,</span>
+            <span class="mf">2.125</span><span class="p">,</span>
+            <span class="mf">2.25</span><span class="p">,</span>
+            <span class="mf">2.375</span><span class="p">,</span>
+            <span class="mf">2.5</span><span class="p">,</span>
+            <span class="mf">2.625</span><span class="p">,</span>
+            <span class="mf">2.75</span><span class="p">,</span>
+            <span class="mf">2.875</span><span class="p">,</span>
+            <span class="mf">3.0</span><span class="p">,</span>
+            <span class="mf">3.125</span><span class="p">,</span>
+            <span class="mf">3.25</span><span class="p">,</span>
+            <span class="mf">3.375</span><span class="p">,</span>
+            <span class="mf">3.5</span><span class="p">,</span>
+            <span class="mf">3.625</span><span class="p">,</span>
+            <span class="mf">3.75</span><span class="p">,</span>
+            <span class="mf">3.875</span><span class="p">,</span>
+            <span class="mf">4.0</span><span class="p">,</span>
+        <span class="p">],</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;3/2&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">5.5</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">],</span>
+        <span class="p">[</span>
+            <span class="mf">0.0</span><span class="p">,</span>
+            <span class="mf">0.25</span><span class="p">,</span>
+            <span class="mf">0.5</span><span class="p">,</span>
+            <span class="mf">0.75</span><span class="p">,</span>
+            <span class="mf">1.0</span><span class="p">,</span>
+            <span class="mf">1.25</span><span class="p">,</span>
+            <span class="mf">1.5</span><span class="p">,</span>
+            <span class="mf">1.75</span><span class="p">,</span>
+            <span class="mf">2.0</span><span class="p">,</span>
+            <span class="mf">2.25</span><span class="p">,</span>
+            <span class="mf">2.5</span><span class="p">,</span>
+            <span class="mf">2.75</span><span class="p">,</span>
+            <span class="mf">3.0</span><span class="p">,</span>
+            <span class="mf">3.25</span><span class="p">,</span>
+            <span class="mf">3.5</span><span class="p">,</span>
+            <span class="mf">3.75</span><span class="p">,</span>
+            <span class="mf">4.0</span><span class="p">,</span>
+            <span class="mf">4.25</span><span class="p">,</span>
+            <span class="mf">4.5</span><span class="p">,</span>
+            <span class="mf">4.75</span><span class="p">,</span>
+            <span class="mf">5.0</span><span class="p">,</span>
+            <span class="mf">5.25</span><span class="p">,</span>
+            <span class="mf">5.5</span><span class="p">,</span>
+            <span class="mf">5.75</span><span class="p">,</span>
+            <span class="mf">6.0</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="p">[</span>
+            <span class="mf">0.0</span><span class="p">,</span>
+            <span class="mf">0.125</span><span class="p">,</span>
+            <span class="mf">0.25</span><span class="p">,</span>
+            <span class="mf">0.375</span><span class="p">,</span>
+            <span class="mf">0.5</span><span class="p">,</span>
+            <span class="mf">0.625</span><span class="p">,</span>
+            <span class="mf">0.75</span><span class="p">,</span>
+            <span class="mf">0.875</span><span class="p">,</span>
+            <span class="mf">1.0</span><span class="p">,</span>
+            <span class="mf">1.125</span><span class="p">,</span>
+            <span class="mf">1.25</span><span class="p">,</span>
+            <span class="mf">1.375</span><span class="p">,</span>
+            <span class="mf">1.5</span><span class="p">,</span>
+            <span class="mf">1.625</span><span class="p">,</span>
+            <span class="mf">1.75</span><span class="p">,</span>
+            <span class="mf">1.875</span><span class="p">,</span>
+            <span class="mf">2.0</span><span class="p">,</span>
+            <span class="mf">2.125</span><span class="p">,</span>
+            <span class="mf">2.25</span><span class="p">,</span>
+            <span class="mf">2.375</span><span class="p">,</span>
+            <span class="mf">2.5</span><span class="p">,</span>
+            <span class="mf">2.625</span><span class="p">,</span>
+            <span class="mf">2.75</span><span class="p">,</span>
+            <span class="mf">2.875</span><span class="p">,</span>
+            <span class="mf">3.0</span><span class="p">,</span>
+            <span class="mf">3.125</span><span class="p">,</span>
+            <span class="mf">3.25</span><span class="p">,</span>
+            <span class="mf">3.375</span><span class="p">,</span>
+            <span class="mf">3.5</span><span class="p">,</span>
+            <span class="mf">3.625</span><span class="p">,</span>
+            <span class="mf">3.75</span><span class="p">,</span>
+            <span class="mf">3.875</span><span class="p">,</span>
+            <span class="mf">4.0</span><span class="p">,</span>
+            <span class="mf">4.125</span><span class="p">,</span>
+            <span class="mf">4.25</span><span class="p">,</span>
+            <span class="mf">4.375</span><span class="p">,</span>
+            <span class="mf">4.5</span><span class="p">,</span>
+            <span class="mf">4.625</span><span class="p">,</span>
+            <span class="mf">4.75</span><span class="p">,</span>
+            <span class="mf">4.875</span><span class="p">,</span>
+            <span class="mf">5.0</span><span class="p">,</span>
+            <span class="mf">5.125</span><span class="p">,</span>
+            <span class="mf">5.25</span><span class="p">,</span>
+            <span class="mf">5.375</span><span class="p">,</span>
+            <span class="mf">5.5</span><span class="p">,</span>
+            <span class="mf">5.625</span><span class="p">,</span>
+            <span class="mf">5.75</span><span class="p">,</span>
+            <span class="mf">5.875</span><span class="p">,</span>
+            <span class="mf">6.0</span><span class="p">,</span>
+        <span class="p">],</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;4/2&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">,</span> <span class="mf">7.0</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">],</span>
+        <span class="p">[</span>
+            <span class="mf">0.0</span><span class="p">,</span>
+            <span class="mf">0.5</span><span class="p">,</span>
+            <span class="mf">1.0</span><span class="p">,</span>
+            <span class="mf">1.5</span><span class="p">,</span>
+            <span class="mf">2.0</span><span class="p">,</span>
+            <span class="mf">2.5</span><span class="p">,</span>
+            <span class="mf">3.0</span><span class="p">,</span>
+            <span class="mf">3.5</span><span class="p">,</span>
+            <span class="mf">4.0</span><span class="p">,</span>
+            <span class="mf">4.5</span><span class="p">,</span>
+            <span class="mf">5.0</span><span class="p">,</span>
+            <span class="mf">5.5</span><span class="p">,</span>
+            <span class="mf">6.0</span><span class="p">,</span>
+            <span class="mf">6.5</span><span class="p">,</span>
+            <span class="mf">7.0</span><span class="p">,</span>
+            <span class="mf">7.5</span><span class="p">,</span>
+            <span class="mf">8.0</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="p">[</span>
+            <span class="mf">0.0</span><span class="p">,</span>
+            <span class="mf">0.25</span><span class="p">,</span>
+            <span class="mf">0.5</span><span class="p">,</span>
+            <span class="mf">0.75</span><span class="p">,</span>
+            <span class="mf">1.0</span><span class="p">,</span>
+            <span class="mf">1.25</span><span class="p">,</span>
+            <span class="mf">1.5</span><span class="p">,</span>
+            <span class="mf">1.75</span><span class="p">,</span>
+            <span class="mf">2.0</span><span class="p">,</span>
+            <span class="mf">2.25</span><span class="p">,</span>
+            <span class="mf">2.5</span><span class="p">,</span>
+            <span class="mf">2.75</span><span class="p">,</span>
+            <span class="mf">3.0</span><span class="p">,</span>
+            <span class="mf">3.25</span><span class="p">,</span>
+            <span class="mf">3.5</span><span class="p">,</span>
+            <span class="mf">3.75</span><span class="p">,</span>
+            <span class="mf">4.0</span><span class="p">,</span>
+            <span class="mf">4.25</span><span class="p">,</span>
+            <span class="mf">4.5</span><span class="p">,</span>
+            <span class="mf">4.75</span><span class="p">,</span>
+            <span class="mf">5.0</span><span class="p">,</span>
+            <span class="mf">5.25</span><span class="p">,</span>
+            <span class="mf">5.5</span><span class="p">,</span>
+            <span class="mf">5.75</span><span class="p">,</span>
+            <span class="mf">6.0</span><span class="p">,</span>
+            <span class="mf">6.25</span><span class="p">,</span>
+            <span class="mf">6.5</span><span class="p">,</span>
+            <span class="mf">6.75</span><span class="p">,</span>
+            <span class="mf">7.0</span><span class="p">,</span>
+            <span class="mf">7.25</span><span class="p">,</span>
+            <span class="mf">7.5</span><span class="p">,</span>
+            <span class="mf">7.75</span><span class="p">,</span>
+            <span class="mf">8.0</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="p">[</span>
+            <span class="mf">0.0</span><span class="p">,</span>
+            <span class="mf">0.125</span><span class="p">,</span>
+            <span class="mf">0.25</span><span class="p">,</span>
+            <span class="mf">0.375</span><span class="p">,</span>
+            <span class="mf">0.5</span><span class="p">,</span>
+            <span class="mf">0.625</span><span class="p">,</span>
+            <span class="mf">0.75</span><span class="p">,</span>
+            <span class="mf">0.875</span><span class="p">,</span>
+            <span class="mf">1.0</span><span class="p">,</span>
+            <span class="mf">1.125</span><span class="p">,</span>
+            <span class="mf">1.25</span><span class="p">,</span>
+            <span class="mf">1.375</span><span class="p">,</span>
+            <span class="mf">1.5</span><span class="p">,</span>
+            <span class="mf">1.625</span><span class="p">,</span>
+            <span class="mf">1.75</span><span class="p">,</span>
+            <span class="mf">1.875</span><span class="p">,</span>
+            <span class="mf">2.0</span><span class="p">,</span>
+            <span class="mf">2.125</span><span class="p">,</span>
+            <span class="mf">2.25</span><span class="p">,</span>
+            <span class="mf">2.375</span><span class="p">,</span>
+            <span class="mf">2.5</span><span class="p">,</span>
+            <span class="mf">2.625</span><span class="p">,</span>
+            <span class="mf">2.75</span><span class="p">,</span>
+            <span class="mf">2.875</span><span class="p">,</span>
+            <span class="mf">3.0</span><span class="p">,</span>
+            <span class="mf">3.125</span><span class="p">,</span>
+            <span class="mf">3.25</span><span class="p">,</span>
+            <span class="mf">3.375</span><span class="p">,</span>
+            <span class="mf">3.5</span><span class="p">,</span>
+            <span class="mf">3.625</span><span class="p">,</span>
+            <span class="mf">3.75</span><span class="p">,</span>
+            <span class="mf">3.875</span><span class="p">,</span>
+            <span class="mf">4.0</span><span class="p">,</span>
+            <span class="mf">4.125</span><span class="p">,</span>
+            <span class="mf">4.25</span><span class="p">,</span>
+            <span class="mf">4.375</span><span class="p">,</span>
+            <span class="mf">4.5</span><span class="p">,</span>
+            <span class="mf">4.625</span><span class="p">,</span>
+            <span class="mf">4.75</span><span class="p">,</span>
+            <span class="mf">4.875</span><span class="p">,</span>
+            <span class="mf">5.0</span><span class="p">,</span>
+            <span class="mf">5.125</span><span class="p">,</span>
+            <span class="mf">5.25</span><span class="p">,</span>
+            <span class="mf">5.375</span><span class="p">,</span>
+            <span class="mf">5.5</span><span class="p">,</span>
+            <span class="mf">5.625</span><span class="p">,</span>
+            <span class="mf">5.75</span><span class="p">,</span>
+            <span class="mf">5.875</span><span class="p">,</span>
+            <span class="mf">6.0</span><span class="p">,</span>
+            <span class="mf">6.125</span><span class="p">,</span>
+            <span class="mf">6.25</span><span class="p">,</span>
+            <span class="mf">6.375</span><span class="p">,</span>
+            <span class="mf">6.5</span><span class="p">,</span>
+            <span class="mf">6.625</span><span class="p">,</span>
+            <span class="mf">6.75</span><span class="p">,</span>
+            <span class="mf">6.875</span><span class="p">,</span>
+            <span class="mf">7.0</span><span class="p">,</span>
+            <span class="mf">7.125</span><span class="p">,</span>
+            <span class="mf">7.25</span><span class="p">,</span>
+            <span class="mf">7.375</span><span class="p">,</span>
+            <span class="mf">7.5</span><span class="p">,</span>
+            <span class="mf">7.625</span><span class="p">,</span>
+            <span class="mf">7.75</span><span class="p">,</span>
+            <span class="mf">7.875</span><span class="p">,</span>
+            <span class="mf">8.0</span><span class="p">,</span>
+        <span class="p">],</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;2/4&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.25</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.75</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">],</span>
+        <span class="p">[</span>
+            <span class="mf">0.0</span><span class="p">,</span>
+            <span class="mf">0.125</span><span class="p">,</span>
+            <span class="mf">0.25</span><span class="p">,</span>
+            <span class="mf">0.375</span><span class="p">,</span>
+            <span class="mf">0.5</span><span class="p">,</span>
+            <span class="mf">0.625</span><span class="p">,</span>
+            <span class="mf">0.75</span><span class="p">,</span>
+            <span class="mf">0.875</span><span class="p">,</span>
+            <span class="mf">1.0</span><span class="p">,</span>
+            <span class="mf">1.125</span><span class="p">,</span>
+            <span class="mf">1.25</span><span class="p">,</span>
+            <span class="mf">1.375</span><span class="p">,</span>
+            <span class="mf">1.5</span><span class="p">,</span>
+            <span class="mf">1.625</span><span class="p">,</span>
+            <span class="mf">1.75</span><span class="p">,</span>
+            <span class="mf">1.875</span><span class="p">,</span>
+            <span class="mf">2.0</span><span class="p">,</span>
+        <span class="p">],</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;3/4&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.25</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.75</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.25</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">2.75</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">],</span>
+        <span class="p">[</span>
+            <span class="mf">0.0</span><span class="p">,</span>
+            <span class="mf">0.125</span><span class="p">,</span>
+            <span class="mf">0.25</span><span class="p">,</span>
+            <span class="mf">0.375</span><span class="p">,</span>
+            <span class="mf">0.5</span><span class="p">,</span>
+            <span class="mf">0.625</span><span class="p">,</span>
+            <span class="mf">0.75</span><span class="p">,</span>
+            <span class="mf">0.875</span><span class="p">,</span>
+            <span class="mf">1.0</span><span class="p">,</span>
+            <span class="mf">1.125</span><span class="p">,</span>
+            <span class="mf">1.25</span><span class="p">,</span>
+            <span class="mf">1.375</span><span class="p">,</span>
+            <span class="mf">1.5</span><span class="p">,</span>
+            <span class="mf">1.625</span><span class="p">,</span>
+            <span class="mf">1.75</span><span class="p">,</span>
+            <span class="mf">1.875</span><span class="p">,</span>
+            <span class="mf">2.0</span><span class="p">,</span>
+            <span class="mf">2.125</span><span class="p">,</span>
+            <span class="mf">2.25</span><span class="p">,</span>
+            <span class="mf">2.375</span><span class="p">,</span>
+            <span class="mf">2.5</span><span class="p">,</span>
+            <span class="mf">2.625</span><span class="p">,</span>
+            <span class="mf">2.75</span><span class="p">,</span>
+            <span class="mf">2.875</span><span class="p">,</span>
+            <span class="mf">3.0</span><span class="p">,</span>
+        <span class="p">],</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;4/4&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">],</span>
+        <span class="p">[</span>
+            <span class="mf">0.0</span><span class="p">,</span>
+            <span class="mf">0.25</span><span class="p">,</span>
+            <span class="mf">0.5</span><span class="p">,</span>
+            <span class="mf">0.75</span><span class="p">,</span>
+            <span class="mf">1.0</span><span class="p">,</span>
+            <span class="mf">1.25</span><span class="p">,</span>
+            <span class="mf">1.5</span><span class="p">,</span>
+            <span class="mf">1.75</span><span class="p">,</span>
+            <span class="mf">2.0</span><span class="p">,</span>
+            <span class="mf">2.25</span><span class="p">,</span>
+            <span class="mf">2.5</span><span class="p">,</span>
+            <span class="mf">2.75</span><span class="p">,</span>
+            <span class="mf">3.0</span><span class="p">,</span>
+            <span class="mf">3.25</span><span class="p">,</span>
+            <span class="mf">3.5</span><span class="p">,</span>
+            <span class="mf">3.75</span><span class="p">,</span>
+            <span class="mf">4.0</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="p">[</span>
+            <span class="mf">0.0</span><span class="p">,</span>
+            <span class="mf">0.125</span><span class="p">,</span>
+            <span class="mf">0.25</span><span class="p">,</span>
+            <span class="mf">0.375</span><span class="p">,</span>
+            <span class="mf">0.5</span><span class="p">,</span>
+            <span class="mf">0.625</span><span class="p">,</span>
+            <span class="mf">0.75</span><span class="p">,</span>
+            <span class="mf">0.875</span><span class="p">,</span>
+            <span class="mf">1.0</span><span class="p">,</span>
+            <span class="mf">1.125</span><span class="p">,</span>
+            <span class="mf">1.25</span><span class="p">,</span>
+            <span class="mf">1.375</span><span class="p">,</span>
+            <span class="mf">1.5</span><span class="p">,</span>
+            <span class="mf">1.625</span><span class="p">,</span>
+            <span class="mf">1.75</span><span class="p">,</span>
+            <span class="mf">1.875</span><span class="p">,</span>
+            <span class="mf">2.0</span><span class="p">,</span>
+            <span class="mf">2.125</span><span class="p">,</span>
+            <span class="mf">2.25</span><span class="p">,</span>
+            <span class="mf">2.375</span><span class="p">,</span>
+            <span class="mf">2.5</span><span class="p">,</span>
+            <span class="mf">2.625</span><span class="p">,</span>
+            <span class="mf">2.75</span><span class="p">,</span>
+            <span class="mf">2.875</span><span class="p">,</span>
+            <span class="mf">3.0</span><span class="p">,</span>
+            <span class="mf">3.125</span><span class="p">,</span>
+            <span class="mf">3.25</span><span class="p">,</span>
+            <span class="mf">3.375</span><span class="p">,</span>
+            <span class="mf">3.5</span><span class="p">,</span>
+            <span class="mf">3.625</span><span class="p">,</span>
+            <span class="mf">3.75</span><span class="p">,</span>
+            <span class="mf">3.875</span><span class="p">,</span>
+            <span class="mf">4.0</span><span class="p">,</span>
+        <span class="p">],</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;6/8&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.25</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.75</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.25</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">2.75</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">],</span>
+        <span class="p">[</span>
+            <span class="mf">0.0</span><span class="p">,</span>
+            <span class="mf">0.125</span><span class="p">,</span>
+            <span class="mf">0.25</span><span class="p">,</span>
+            <span class="mf">0.375</span><span class="p">,</span>
+            <span class="mf">0.5</span><span class="p">,</span>
+            <span class="mf">0.625</span><span class="p">,</span>
+            <span class="mf">0.75</span><span class="p">,</span>
+            <span class="mf">0.875</span><span class="p">,</span>
+            <span class="mf">1.0</span><span class="p">,</span>
+            <span class="mf">1.125</span><span class="p">,</span>
+            <span class="mf">1.25</span><span class="p">,</span>
+            <span class="mf">1.375</span><span class="p">,</span>
+            <span class="mf">1.5</span><span class="p">,</span>
+            <span class="mf">1.625</span><span class="p">,</span>
+            <span class="mf">1.75</span><span class="p">,</span>
+            <span class="mf">1.875</span><span class="p">,</span>
+            <span class="mf">2.0</span><span class="p">,</span>
+            <span class="mf">2.125</span><span class="p">,</span>
+            <span class="mf">2.25</span><span class="p">,</span>
+            <span class="mf">2.375</span><span class="p">,</span>
+            <span class="mf">2.5</span><span class="p">,</span>
+            <span class="mf">2.625</span><span class="p">,</span>
+            <span class="mf">2.75</span><span class="p">,</span>
+            <span class="mf">2.875</span><span class="p">,</span>
+            <span class="mf">3.0</span><span class="p">,</span>
+        <span class="p">],</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;9/8&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">],</span>
+        <span class="p">[</span>
+            <span class="mf">0.0</span><span class="p">,</span>
+            <span class="mf">0.25</span><span class="p">,</span>
+            <span class="mf">0.5</span><span class="p">,</span>
+            <span class="mf">0.75</span><span class="p">,</span>
+            <span class="mf">1.0</span><span class="p">,</span>
+            <span class="mf">1.25</span><span class="p">,</span>
+            <span class="mf">1.5</span><span class="p">,</span>
+            <span class="mf">1.75</span><span class="p">,</span>
+            <span class="mf">2.0</span><span class="p">,</span>
+            <span class="mf">2.25</span><span class="p">,</span>
+            <span class="mf">2.5</span><span class="p">,</span>
+            <span class="mf">2.75</span><span class="p">,</span>
+            <span class="mf">3.0</span><span class="p">,</span>
+            <span class="mf">3.25</span><span class="p">,</span>
+            <span class="mf">3.5</span><span class="p">,</span>
+            <span class="mf">3.75</span><span class="p">,</span>
+            <span class="mf">4.0</span><span class="p">,</span>
+            <span class="mf">4.25</span><span class="p">,</span>
+            <span class="mf">4.5</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="p">[</span>
+            <span class="mf">0.0</span><span class="p">,</span>
+            <span class="mf">0.125</span><span class="p">,</span>
+            <span class="mf">0.25</span><span class="p">,</span>
+            <span class="mf">0.375</span><span class="p">,</span>
+            <span class="mf">0.5</span><span class="p">,</span>
+            <span class="mf">0.625</span><span class="p">,</span>
+            <span class="mf">0.75</span><span class="p">,</span>
+            <span class="mf">0.875</span><span class="p">,</span>
+            <span class="mf">1.0</span><span class="p">,</span>
+            <span class="mf">1.125</span><span class="p">,</span>
+            <span class="mf">1.25</span><span class="p">,</span>
+            <span class="mf">1.375</span><span class="p">,</span>
+            <span class="mf">1.5</span><span class="p">,</span>
+            <span class="mf">1.625</span><span class="p">,</span>
+            <span class="mf">1.75</span><span class="p">,</span>
+            <span class="mf">1.875</span><span class="p">,</span>
+            <span class="mf">2.0</span><span class="p">,</span>
+            <span class="mf">2.125</span><span class="p">,</span>
+            <span class="mf">2.25</span><span class="p">,</span>
+            <span class="mf">2.375</span><span class="p">,</span>
+            <span class="mf">2.5</span><span class="p">,</span>
+            <span class="mf">2.625</span><span class="p">,</span>
+            <span class="mf">2.75</span><span class="p">,</span>
+            <span class="mf">2.875</span><span class="p">,</span>
+            <span class="mf">3.0</span><span class="p">,</span>
+            <span class="mf">3.125</span><span class="p">,</span>
+            <span class="mf">3.25</span><span class="p">,</span>
+            <span class="mf">3.375</span><span class="p">,</span>
+            <span class="mf">3.5</span><span class="p">,</span>
+            <span class="mf">3.625</span><span class="p">,</span>
+            <span class="mf">3.75</span><span class="p">,</span>
+            <span class="mf">3.875</span><span class="p">,</span>
+            <span class="mf">4.0</span><span class="p">,</span>
+            <span class="mf">4.125</span><span class="p">,</span>
+            <span class="mf">4.25</span><span class="p">,</span>
+            <span class="mf">4.375</span><span class="p">,</span>
+            <span class="mf">4.5</span><span class="p">,</span>
+        <span class="p">],</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;12/8&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">5.5</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">],</span>
+        <span class="p">[</span>
+            <span class="mf">0.0</span><span class="p">,</span>
+            <span class="mf">0.25</span><span class="p">,</span>
+            <span class="mf">0.5</span><span class="p">,</span>
+            <span class="mf">0.75</span><span class="p">,</span>
+            <span class="mf">1.0</span><span class="p">,</span>
+            <span class="mf">1.25</span><span class="p">,</span>
+            <span class="mf">1.5</span><span class="p">,</span>
+            <span class="mf">1.75</span><span class="p">,</span>
+            <span class="mf">2.0</span><span class="p">,</span>
+            <span class="mf">2.25</span><span class="p">,</span>
+            <span class="mf">2.5</span><span class="p">,</span>
+            <span class="mf">2.75</span><span class="p">,</span>
+            <span class="mf">3.0</span><span class="p">,</span>
+            <span class="mf">3.25</span><span class="p">,</span>
+            <span class="mf">3.5</span><span class="p">,</span>
+            <span class="mf">3.75</span><span class="p">,</span>
+            <span class="mf">4.0</span><span class="p">,</span>
+            <span class="mf">4.25</span><span class="p">,</span>
+            <span class="mf">4.5</span><span class="p">,</span>
+            <span class="mf">4.75</span><span class="p">,</span>
+            <span class="mf">5.0</span><span class="p">,</span>
+            <span class="mf">5.25</span><span class="p">,</span>
+            <span class="mf">5.5</span><span class="p">,</span>
+            <span class="mf">5.75</span><span class="p">,</span>
+            <span class="mf">6.0</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="p">[</span>
+            <span class="mf">0.0</span><span class="p">,</span>
+            <span class="mf">0.125</span><span class="p">,</span>
+            <span class="mf">0.25</span><span class="p">,</span>
+            <span class="mf">0.375</span><span class="p">,</span>
+            <span class="mf">0.5</span><span class="p">,</span>
+            <span class="mf">0.625</span><span class="p">,</span>
+            <span class="mf">0.75</span><span class="p">,</span>
+            <span class="mf">0.875</span><span class="p">,</span>
+            <span class="mf">1.0</span><span class="p">,</span>
+            <span class="mf">1.125</span><span class="p">,</span>
+            <span class="mf">1.25</span><span class="p">,</span>
+            <span class="mf">1.375</span><span class="p">,</span>
+            <span class="mf">1.5</span><span class="p">,</span>
+            <span class="mf">1.625</span><span class="p">,</span>
+            <span class="mf">1.75</span><span class="p">,</span>
+            <span class="mf">1.875</span><span class="p">,</span>
+            <span class="mf">2.0</span><span class="p">,</span>
+            <span class="mf">2.125</span><span class="p">,</span>
+            <span class="mf">2.25</span><span class="p">,</span>
+            <span class="mf">2.375</span><span class="p">,</span>
+            <span class="mf">2.5</span><span class="p">,</span>
+            <span class="mf">2.625</span><span class="p">,</span>
+            <span class="mf">2.75</span><span class="p">,</span>
+            <span class="mf">2.875</span><span class="p">,</span>
+            <span class="mf">3.0</span><span class="p">,</span>
+            <span class="mf">3.125</span><span class="p">,</span>
+            <span class="mf">3.25</span><span class="p">,</span>
+            <span class="mf">3.375</span><span class="p">,</span>
+            <span class="mf">3.5</span><span class="p">,</span>
+            <span class="mf">3.625</span><span class="p">,</span>
+            <span class="mf">3.75</span><span class="p">,</span>
+            <span class="mf">3.875</span><span class="p">,</span>
+            <span class="mf">4.0</span><span class="p">,</span>
+            <span class="mf">4.125</span><span class="p">,</span>
+            <span class="mf">4.25</span><span class="p">,</span>
+            <span class="mf">4.375</span><span class="p">,</span>
+            <span class="mf">4.5</span><span class="p">,</span>
+            <span class="mf">4.625</span><span class="p">,</span>
+            <span class="mf">4.75</span><span class="p">,</span>
+            <span class="mf">4.875</span><span class="p">,</span>
+            <span class="mf">5.0</span><span class="p">,</span>
+            <span class="mf">5.125</span><span class="p">,</span>
+            <span class="mf">5.25</span><span class="p">,</span>
+            <span class="mf">5.375</span><span class="p">,</span>
+            <span class="mf">5.5</span><span class="p">,</span>
+            <span class="mf">5.625</span><span class="p">,</span>
+            <span class="mf">5.75</span><span class="p">,</span>
+            <span class="mf">5.875</span><span class="p">,</span>
+            <span class="mf">6.0</span><span class="p">,</span>
+        <span class="p">],</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;2+3/4&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">],</span>
+        <span class="p">[</span>
+            <span class="mf">0.0</span><span class="p">,</span>
+            <span class="mf">0.25</span><span class="p">,</span>
+            <span class="mf">0.5</span><span class="p">,</span>
+            <span class="mf">0.75</span><span class="p">,</span>
+            <span class="mf">1.0</span><span class="p">,</span>
+            <span class="mf">1.25</span><span class="p">,</span>
+            <span class="mf">1.5</span><span class="p">,</span>
+            <span class="mf">1.75</span><span class="p">,</span>
+            <span class="mf">2.0</span><span class="p">,</span>
+            <span class="mf">2.25</span><span class="p">,</span>
+            <span class="mf">2.5</span><span class="p">,</span>
+            <span class="mf">2.75</span><span class="p">,</span>
+            <span class="mf">3.0</span><span class="p">,</span>
+            <span class="mf">3.25</span><span class="p">,</span>
+            <span class="mf">3.5</span><span class="p">,</span>
+            <span class="mf">3.75</span><span class="p">,</span>
+            <span class="mf">4.0</span><span class="p">,</span>
+            <span class="mf">4.25</span><span class="p">,</span>
+            <span class="mf">4.5</span><span class="p">,</span>
+            <span class="mf">4.75</span><span class="p">,</span>
+            <span class="mf">5.0</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="p">[</span>
+            <span class="mf">0.0</span><span class="p">,</span>
+            <span class="mf">0.125</span><span class="p">,</span>
+            <span class="mf">0.25</span><span class="p">,</span>
+            <span class="mf">0.375</span><span class="p">,</span>
+            <span class="mf">0.5</span><span class="p">,</span>
+            <span class="mf">0.625</span><span class="p">,</span>
+            <span class="mf">0.75</span><span class="p">,</span>
+            <span class="mf">0.875</span><span class="p">,</span>
+            <span class="mf">1.0</span><span class="p">,</span>
+            <span class="mf">1.125</span><span class="p">,</span>
+            <span class="mf">1.25</span><span class="p">,</span>
+            <span class="mf">1.375</span><span class="p">,</span>
+            <span class="mf">1.5</span><span class="p">,</span>
+            <span class="mf">1.625</span><span class="p">,</span>
+            <span class="mf">1.75</span><span class="p">,</span>
+            <span class="mf">1.875</span><span class="p">,</span>
+            <span class="mf">2.0</span><span class="p">,</span>
+            <span class="mf">2.125</span><span class="p">,</span>
+            <span class="mf">2.25</span><span class="p">,</span>
+            <span class="mf">2.375</span><span class="p">,</span>
+            <span class="mf">2.5</span><span class="p">,</span>
+            <span class="mf">2.625</span><span class="p">,</span>
+            <span class="mf">2.75</span><span class="p">,</span>
+            <span class="mf">2.875</span><span class="p">,</span>
+            <span class="mf">3.0</span><span class="p">,</span>
+            <span class="mf">3.125</span><span class="p">,</span>
+            <span class="mf">3.25</span><span class="p">,</span>
+            <span class="mf">3.375</span><span class="p">,</span>
+            <span class="mf">3.5</span><span class="p">,</span>
+            <span class="mf">3.625</span><span class="p">,</span>
+            <span class="mf">3.75</span><span class="p">,</span>
+            <span class="mf">3.875</span><span class="p">,</span>
+            <span class="mf">4.0</span><span class="p">,</span>
+            <span class="mf">4.125</span><span class="p">,</span>
+            <span class="mf">4.25</span><span class="p">,</span>
+            <span class="mf">4.375</span><span class="p">,</span>
+            <span class="mf">4.5</span><span class="p">,</span>
+            <span class="mf">4.625</span><span class="p">,</span>
+            <span class="mf">4.75</span><span class="p">,</span>
+            <span class="mf">4.875</span><span class="p">,</span>
+            <span class="mf">5.0</span><span class="p">,</span>
+        <span class="p">],</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;3+2/4&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">],</span>
+        <span class="p">[</span>
+            <span class="mf">0.0</span><span class="p">,</span>
+            <span class="mf">0.25</span><span class="p">,</span>
+            <span class="mf">0.5</span><span class="p">,</span>
+            <span class="mf">0.75</span><span class="p">,</span>
+            <span class="mf">1.0</span><span class="p">,</span>
+            <span class="mf">1.25</span><span class="p">,</span>
+            <span class="mf">1.5</span><span class="p">,</span>
+            <span class="mf">1.75</span><span class="p">,</span>
+            <span class="mf">2.0</span><span class="p">,</span>
+            <span class="mf">2.25</span><span class="p">,</span>
+            <span class="mf">2.5</span><span class="p">,</span>
+            <span class="mf">2.75</span><span class="p">,</span>
+            <span class="mf">3.0</span><span class="p">,</span>
+            <span class="mf">3.25</span><span class="p">,</span>
+            <span class="mf">3.5</span><span class="p">,</span>
+            <span class="mf">3.75</span><span class="p">,</span>
+            <span class="mf">4.0</span><span class="p">,</span>
+            <span class="mf">4.25</span><span class="p">,</span>
+            <span class="mf">4.5</span><span class="p">,</span>
+            <span class="mf">4.75</span><span class="p">,</span>
+            <span class="mf">5.0</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="p">[</span>
+            <span class="mf">0.0</span><span class="p">,</span>
+            <span class="mf">0.125</span><span class="p">,</span>
+            <span class="mf">0.25</span><span class="p">,</span>
+            <span class="mf">0.375</span><span class="p">,</span>
+            <span class="mf">0.5</span><span class="p">,</span>
+            <span class="mf">0.625</span><span class="p">,</span>
+            <span class="mf">0.75</span><span class="p">,</span>
+            <span class="mf">0.875</span><span class="p">,</span>
+            <span class="mf">1.0</span><span class="p">,</span>
+            <span class="mf">1.125</span><span class="p">,</span>
+            <span class="mf">1.25</span><span class="p">,</span>
+            <span class="mf">1.375</span><span class="p">,</span>
+            <span class="mf">1.5</span><span class="p">,</span>
+            <span class="mf">1.625</span><span class="p">,</span>
+            <span class="mf">1.75</span><span class="p">,</span>
+            <span class="mf">1.875</span><span class="p">,</span>
+            <span class="mf">2.0</span><span class="p">,</span>
+            <span class="mf">2.125</span><span class="p">,</span>
+            <span class="mf">2.25</span><span class="p">,</span>
+            <span class="mf">2.375</span><span class="p">,</span>
+            <span class="mf">2.5</span><span class="p">,</span>
+            <span class="mf">2.625</span><span class="p">,</span>
+            <span class="mf">2.75</span><span class="p">,</span>
+            <span class="mf">2.875</span><span class="p">,</span>
+            <span class="mf">3.0</span><span class="p">,</span>
+            <span class="mf">3.125</span><span class="p">,</span>
+            <span class="mf">3.25</span><span class="p">,</span>
+            <span class="mf">3.375</span><span class="p">,</span>
+            <span class="mf">3.5</span><span class="p">,</span>
+            <span class="mf">3.625</span><span class="p">,</span>
+            <span class="mf">3.75</span><span class="p">,</span>
+            <span class="mf">3.875</span><span class="p">,</span>
+            <span class="mf">4.0</span><span class="p">,</span>
+            <span class="mf">4.125</span><span class="p">,</span>
+            <span class="mf">4.25</span><span class="p">,</span>
+            <span class="mf">4.375</span><span class="p">,</span>
+            <span class="mf">4.5</span><span class="p">,</span>
+            <span class="mf">4.625</span><span class="p">,</span>
+            <span class="mf">4.75</span><span class="p">,</span>
+            <span class="mf">4.875</span><span class="p">,</span>
+            <span class="mf">5.0</span><span class="p">,</span>
+        <span class="p">],</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;2+2+3/4&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">7.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">7.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">,</span> <span class="mf">7.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">5.5</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">,</span> <span class="mf">6.5</span><span class="p">,</span> <span class="mf">7.0</span><span class="p">],</span>
+        <span class="p">[</span>
+            <span class="mf">0.0</span><span class="p">,</span>
+            <span class="mf">0.25</span><span class="p">,</span>
+            <span class="mf">0.5</span><span class="p">,</span>
+            <span class="mf">0.75</span><span class="p">,</span>
+            <span class="mf">1.0</span><span class="p">,</span>
+            <span class="mf">1.25</span><span class="p">,</span>
+            <span class="mf">1.5</span><span class="p">,</span>
+            <span class="mf">1.75</span><span class="p">,</span>
+            <span class="mf">2.0</span><span class="p">,</span>
+            <span class="mf">2.25</span><span class="p">,</span>
+            <span class="mf">2.5</span><span class="p">,</span>
+            <span class="mf">2.75</span><span class="p">,</span>
+            <span class="mf">3.0</span><span class="p">,</span>
+            <span class="mf">3.25</span><span class="p">,</span>
+            <span class="mf">3.5</span><span class="p">,</span>
+            <span class="mf">3.75</span><span class="p">,</span>
+            <span class="mf">4.0</span><span class="p">,</span>
+            <span class="mf">4.25</span><span class="p">,</span>
+            <span class="mf">4.5</span><span class="p">,</span>
+            <span class="mf">4.75</span><span class="p">,</span>
+            <span class="mf">5.0</span><span class="p">,</span>
+            <span class="mf">5.25</span><span class="p">,</span>
+            <span class="mf">5.5</span><span class="p">,</span>
+            <span class="mf">5.75</span><span class="p">,</span>
+            <span class="mf">6.0</span><span class="p">,</span>
+            <span class="mf">6.25</span><span class="p">,</span>
+            <span class="mf">6.5</span><span class="p">,</span>
+            <span class="mf">6.75</span><span class="p">,</span>
+            <span class="mf">7.0</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="p">[</span>
+            <span class="mf">0.0</span><span class="p">,</span>
+            <span class="mf">0.125</span><span class="p">,</span>
+            <span class="mf">0.25</span><span class="p">,</span>
+            <span class="mf">0.375</span><span class="p">,</span>
+            <span class="mf">0.5</span><span class="p">,</span>
+            <span class="mf">0.625</span><span class="p">,</span>
+            <span class="mf">0.75</span><span class="p">,</span>
+            <span class="mf">0.875</span><span class="p">,</span>
+            <span class="mf">1.0</span><span class="p">,</span>
+            <span class="mf">1.125</span><span class="p">,</span>
+            <span class="mf">1.25</span><span class="p">,</span>
+            <span class="mf">1.375</span><span class="p">,</span>
+            <span class="mf">1.5</span><span class="p">,</span>
+            <span class="mf">1.625</span><span class="p">,</span>
+            <span class="mf">1.75</span><span class="p">,</span>
+            <span class="mf">1.875</span><span class="p">,</span>
+            <span class="mf">2.0</span><span class="p">,</span>
+            <span class="mf">2.125</span><span class="p">,</span>
+            <span class="mf">2.25</span><span class="p">,</span>
+            <span class="mf">2.375</span><span class="p">,</span>
+            <span class="mf">2.5</span><span class="p">,</span>
+            <span class="mf">2.625</span><span class="p">,</span>
+            <span class="mf">2.75</span><span class="p">,</span>
+            <span class="mf">2.875</span><span class="p">,</span>
+            <span class="mf">3.0</span><span class="p">,</span>
+            <span class="mf">3.125</span><span class="p">,</span>
+            <span class="mf">3.25</span><span class="p">,</span>
+            <span class="mf">3.375</span><span class="p">,</span>
+            <span class="mf">3.5</span><span class="p">,</span>
+            <span class="mf">3.625</span><span class="p">,</span>
+            <span class="mf">3.75</span><span class="p">,</span>
+            <span class="mf">3.875</span><span class="p">,</span>
+            <span class="mf">4.0</span><span class="p">,</span>
+            <span class="mf">4.125</span><span class="p">,</span>
+            <span class="mf">4.25</span><span class="p">,</span>
+            <span class="mf">4.375</span><span class="p">,</span>
+            <span class="mf">4.5</span><span class="p">,</span>
+            <span class="mf">4.625</span><span class="p">,</span>
+            <span class="mf">4.75</span><span class="p">,</span>
+            <span class="mf">4.875</span><span class="p">,</span>
+            <span class="mf">5.0</span><span class="p">,</span>
+            <span class="mf">5.125</span><span class="p">,</span>
+            <span class="mf">5.25</span><span class="p">,</span>
+            <span class="mf">5.375</span><span class="p">,</span>
+            <span class="mf">5.5</span><span class="p">,</span>
+            <span class="mf">5.625</span><span class="p">,</span>
+            <span class="mf">5.75</span><span class="p">,</span>
+            <span class="mf">5.875</span><span class="p">,</span>
+            <span class="mf">6.0</span><span class="p">,</span>
+            <span class="mf">6.125</span><span class="p">,</span>
+            <span class="mf">6.25</span><span class="p">,</span>
+            <span class="mf">6.375</span><span class="p">,</span>
+            <span class="mf">6.5</span><span class="p">,</span>
+            <span class="mf">6.625</span><span class="p">,</span>
+            <span class="mf">6.75</span><span class="p">,</span>
+            <span class="mf">6.875</span><span class="p">,</span>
+            <span class="mf">7.0</span><span class="p">,</span>
+        <span class="p">],</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;3+2+2/4&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">7.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">7.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">,</span> <span class="mf">7.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">5.5</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">,</span> <span class="mf">6.5</span><span class="p">,</span> <span class="mf">7.0</span><span class="p">],</span>
+        <span class="p">[</span>
+            <span class="mf">0.0</span><span class="p">,</span>
+            <span class="mf">0.25</span><span class="p">,</span>
+            <span class="mf">0.5</span><span class="p">,</span>
+            <span class="mf">0.75</span><span class="p">,</span>
+            <span class="mf">1.0</span><span class="p">,</span>
+            <span class="mf">1.25</span><span class="p">,</span>
+            <span class="mf">1.5</span><span class="p">,</span>
+            <span class="mf">1.75</span><span class="p">,</span>
+            <span class="mf">2.0</span><span class="p">,</span>
+            <span class="mf">2.25</span><span class="p">,</span>
+            <span class="mf">2.5</span><span class="p">,</span>
+            <span class="mf">2.75</span><span class="p">,</span>
+            <span class="mf">3.0</span><span class="p">,</span>
+            <span class="mf">3.25</span><span class="p">,</span>
+            <span class="mf">3.5</span><span class="p">,</span>
+            <span class="mf">3.75</span><span class="p">,</span>
+            <span class="mf">4.0</span><span class="p">,</span>
+            <span class="mf">4.25</span><span class="p">,</span>
+            <span class="mf">4.5</span><span class="p">,</span>
+            <span class="mf">4.75</span><span class="p">,</span>
+            <span class="mf">5.0</span><span class="p">,</span>
+            <span class="mf">5.25</span><span class="p">,</span>
+            <span class="mf">5.5</span><span class="p">,</span>
+            <span class="mf">5.75</span><span class="p">,</span>
+            <span class="mf">6.0</span><span class="p">,</span>
+            <span class="mf">6.25</span><span class="p">,</span>
+            <span class="mf">6.5</span><span class="p">,</span>
+            <span class="mf">6.75</span><span class="p">,</span>
+            <span class="mf">7.0</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="p">[</span>
+            <span class="mf">0.0</span><span class="p">,</span>
+            <span class="mf">0.125</span><span class="p">,</span>
+            <span class="mf">0.25</span><span class="p">,</span>
+            <span class="mf">0.375</span><span class="p">,</span>
+            <span class="mf">0.5</span><span class="p">,</span>
+            <span class="mf">0.625</span><span class="p">,</span>
+            <span class="mf">0.75</span><span class="p">,</span>
+            <span class="mf">0.875</span><span class="p">,</span>
+            <span class="mf">1.0</span><span class="p">,</span>
+            <span class="mf">1.125</span><span class="p">,</span>
+            <span class="mf">1.25</span><span class="p">,</span>
+            <span class="mf">1.375</span><span class="p">,</span>
+            <span class="mf">1.5</span><span class="p">,</span>
+            <span class="mf">1.625</span><span class="p">,</span>
+            <span class="mf">1.75</span><span class="p">,</span>
+            <span class="mf">1.875</span><span class="p">,</span>
+            <span class="mf">2.0</span><span class="p">,</span>
+            <span class="mf">2.125</span><span class="p">,</span>
+            <span class="mf">2.25</span><span class="p">,</span>
+            <span class="mf">2.375</span><span class="p">,</span>
+            <span class="mf">2.5</span><span class="p">,</span>
+            <span class="mf">2.625</span><span class="p">,</span>
+            <span class="mf">2.75</span><span class="p">,</span>
+            <span class="mf">2.875</span><span class="p">,</span>
+            <span class="mf">3.0</span><span class="p">,</span>
+            <span class="mf">3.125</span><span class="p">,</span>
+            <span class="mf">3.25</span><span class="p">,</span>
+            <span class="mf">3.375</span><span class="p">,</span>
+            <span class="mf">3.5</span><span class="p">,</span>
+            <span class="mf">3.625</span><span class="p">,</span>
+            <span class="mf">3.75</span><span class="p">,</span>
+            <span class="mf">3.875</span><span class="p">,</span>
+            <span class="mf">4.0</span><span class="p">,</span>
+            <span class="mf">4.125</span><span class="p">,</span>
+            <span class="mf">4.25</span><span class="p">,</span>
+            <span class="mf">4.375</span><span class="p">,</span>
+            <span class="mf">4.5</span><span class="p">,</span>
+            <span class="mf">4.625</span><span class="p">,</span>
+            <span class="mf">4.75</span><span class="p">,</span>
+            <span class="mf">4.875</span><span class="p">,</span>
+            <span class="mf">5.0</span><span class="p">,</span>
+            <span class="mf">5.125</span><span class="p">,</span>
+            <span class="mf">5.25</span><span class="p">,</span>
+            <span class="mf">5.375</span><span class="p">,</span>
+            <span class="mf">5.5</span><span class="p">,</span>
+            <span class="mf">5.625</span><span class="p">,</span>
+            <span class="mf">5.75</span><span class="p">,</span>
+            <span class="mf">5.875</span><span class="p">,</span>
+            <span class="mf">6.0</span><span class="p">,</span>
+            <span class="mf">6.125</span><span class="p">,</span>
+            <span class="mf">6.25</span><span class="p">,</span>
+            <span class="mf">6.375</span><span class="p">,</span>
+            <span class="mf">6.5</span><span class="p">,</span>
+            <span class="mf">6.625</span><span class="p">,</span>
+            <span class="mf">6.75</span><span class="p">,</span>
+            <span class="mf">6.875</span><span class="p">,</span>
+            <span class="mf">7.0</span><span class="p">,</span>
+        <span class="p">],</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;2+3+2/4&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">7.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">7.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">,</span> <span class="mf">7.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">5.5</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">,</span> <span class="mf">6.5</span><span class="p">,</span> <span class="mf">7.0</span><span class="p">],</span>
+        <span class="p">[</span>
+            <span class="mf">0.0</span><span class="p">,</span>
+            <span class="mf">0.25</span><span class="p">,</span>
+            <span class="mf">0.5</span><span class="p">,</span>
+            <span class="mf">0.75</span><span class="p">,</span>
+            <span class="mf">1.0</span><span class="p">,</span>
+            <span class="mf">1.25</span><span class="p">,</span>
+            <span class="mf">1.5</span><span class="p">,</span>
+            <span class="mf">1.75</span><span class="p">,</span>
+            <span class="mf">2.0</span><span class="p">,</span>
+            <span class="mf">2.25</span><span class="p">,</span>
+            <span class="mf">2.5</span><span class="p">,</span>
+            <span class="mf">2.75</span><span class="p">,</span>
+            <span class="mf">3.0</span><span class="p">,</span>
+            <span class="mf">3.25</span><span class="p">,</span>
+            <span class="mf">3.5</span><span class="p">,</span>
+            <span class="mf">3.75</span><span class="p">,</span>
+            <span class="mf">4.0</span><span class="p">,</span>
+            <span class="mf">4.25</span><span class="p">,</span>
+            <span class="mf">4.5</span><span class="p">,</span>
+            <span class="mf">4.75</span><span class="p">,</span>
+            <span class="mf">5.0</span><span class="p">,</span>
+            <span class="mf">5.25</span><span class="p">,</span>
+            <span class="mf">5.5</span><span class="p">,</span>
+            <span class="mf">5.75</span><span class="p">,</span>
+            <span class="mf">6.0</span><span class="p">,</span>
+            <span class="mf">6.25</span><span class="p">,</span>
+            <span class="mf">6.5</span><span class="p">,</span>
+            <span class="mf">6.75</span><span class="p">,</span>
+            <span class="mf">7.0</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="p">[</span>
+            <span class="mf">0.0</span><span class="p">,</span>
+            <span class="mf">0.125</span><span class="p">,</span>
+            <span class="mf">0.25</span><span class="p">,</span>
+            <span class="mf">0.375</span><span class="p">,</span>
+            <span class="mf">0.5</span><span class="p">,</span>
+            <span class="mf">0.625</span><span class="p">,</span>
+            <span class="mf">0.75</span><span class="p">,</span>
+            <span class="mf">0.875</span><span class="p">,</span>
+            <span class="mf">1.0</span><span class="p">,</span>
+            <span class="mf">1.125</span><span class="p">,</span>
+            <span class="mf">1.25</span><span class="p">,</span>
+            <span class="mf">1.375</span><span class="p">,</span>
+            <span class="mf">1.5</span><span class="p">,</span>
+            <span class="mf">1.625</span><span class="p">,</span>
+            <span class="mf">1.75</span><span class="p">,</span>
+            <span class="mf">1.875</span><span class="p">,</span>
+            <span class="mf">2.0</span><span class="p">,</span>
+            <span class="mf">2.125</span><span class="p">,</span>
+            <span class="mf">2.25</span><span class="p">,</span>
+            <span class="mf">2.375</span><span class="p">,</span>
+            <span class="mf">2.5</span><span class="p">,</span>
+            <span class="mf">2.625</span><span class="p">,</span>
+            <span class="mf">2.75</span><span class="p">,</span>
+            <span class="mf">2.875</span><span class="p">,</span>
+            <span class="mf">3.0</span><span class="p">,</span>
+            <span class="mf">3.125</span><span class="p">,</span>
+            <span class="mf">3.25</span><span class="p">,</span>
+            <span class="mf">3.375</span><span class="p">,</span>
+            <span class="mf">3.5</span><span class="p">,</span>
+            <span class="mf">3.625</span><span class="p">,</span>
+            <span class="mf">3.75</span><span class="p">,</span>
+            <span class="mf">3.875</span><span class="p">,</span>
+            <span class="mf">4.0</span><span class="p">,</span>
+            <span class="mf">4.125</span><span class="p">,</span>
+            <span class="mf">4.25</span><span class="p">,</span>
+            <span class="mf">4.375</span><span class="p">,</span>
+            <span class="mf">4.5</span><span class="p">,</span>
+            <span class="mf">4.625</span><span class="p">,</span>
+            <span class="mf">4.75</span><span class="p">,</span>
+            <span class="mf">4.875</span><span class="p">,</span>
+            <span class="mf">5.0</span><span class="p">,</span>
+            <span class="mf">5.125</span><span class="p">,</span>
+            <span class="mf">5.25</span><span class="p">,</span>
+            <span class="mf">5.375</span><span class="p">,</span>
+            <span class="mf">5.5</span><span class="p">,</span>
+            <span class="mf">5.625</span><span class="p">,</span>
+            <span class="mf">5.75</span><span class="p">,</span>
+            <span class="mf">5.875</span><span class="p">,</span>
+            <span class="mf">6.0</span><span class="p">,</span>
+            <span class="mf">6.125</span><span class="p">,</span>
+            <span class="mf">6.25</span><span class="p">,</span>
+            <span class="mf">6.375</span><span class="p">,</span>
+            <span class="mf">6.5</span><span class="p">,</span>
+            <span class="mf">6.625</span><span class="p">,</span>
+            <span class="mf">6.75</span><span class="p">,</span>
+            <span class="mf">6.875</span><span class="p">,</span>
+            <span class="mf">7.0</span><span class="p">,</span>
+        <span class="p">],</span>
+    <span class="p">],</span>
+<span class="p">}</span>
+
+
+<span class="c1"># -----------------------------------------------------------------------------</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">doctest</span>
+
+    <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">()</span>
+</pre></div>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The AMADS team
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, The AMADS team.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
