@@ -40,7 +40,7 @@ def set_to_vector(
 
     Examples
     --------
-    >>> test_set = set(1, 2, 3)
+    >>> test_set = {1, 2, 3}
     >>> set_to_vector(test_set, min_index=0, max_index=6)
     (0, 1, 1, 1, 0, 0, 0)
 
