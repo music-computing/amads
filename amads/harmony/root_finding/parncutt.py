@@ -1,3 +1,4 @@
+from types import ModuleType
 from typing import Dict, List, Optional, Union
 
 import matplotlib.pyplot as plt
@@ -174,7 +175,7 @@ class ParncuttRootAnalysis:
             return 0.0
         return sum(w / max_weight for w in self.root_strengths) ** self.exponent
 
-    def visualize(self, title: Optional[str] = None) -> plt.Figure:
+    def visualize(self, title: Optional[str] = None) -> tuple[ModuleType, plt.Figure]:
         """
         Visualize the root support weights for a chord.
 
@@ -185,8 +186,8 @@ class ParncuttRootAnalysis:
 
         Returns
         -------
-        plt.Figure
-            The matplotlib figure containing the visualization.
+        tuple[ModuleType, plt.Figure]
+            A tuple containing the matplotlib pyplot module and the figure containing the visualization.
 
         Examples
         --------
