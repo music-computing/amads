@@ -1,4 +1,3 @@
-import os
 from typing import Dict, List, Optional, Union
 
 import matplotlib.pyplot as plt
@@ -70,7 +69,9 @@ class ParncuttRootAnalysis:
     2.1
 
     >>> # Visualize the root strengths
-    >>> analysis.visualize()
+    >>> plt, fig = analysis.visualize()
+    >>> # plt.show() # in an interactive session, this will display the plot
+    >>> plt.close(fig) # in a non-interactive session, this is needed to close the plot
 
     References
     ----------
@@ -128,7 +129,7 @@ class ParncuttRootAnalysis:
             return 0.0
         return sum(w / max_weight for w in self.root_strengths) ** self.exponent
 
-    def visualize(self, title: Optional[str] = None) -> None:
+    def visualize(self, title: Optional[str] = None) -> plt.Figure:
         """
         Visualize the root support weights for a chord.
 
@@ -137,13 +138,20 @@ class ParncuttRootAnalysis:
         title : Optional[str], optional
             Title for the plot, by default None.
 
+        Returns
+        -------
+        plt.Figure
+            The matplotlib figure containing the visualization.
+
         Examples
         --------
         >>> analysis = ParncuttRootAnalysis([0, 4, 7])
-        >>> analysis.visualize()
+        >>> plt, fig = analysis.visualize()
+        >>> # plt.show() # in an interactive session, this will display the plot
+        >>> plt.close(fig) # in a non-interactive session, this is needed to close the plot
         """
         # Create a bar chart
-        plt.figure(figsize=(10, 6))
+        fig = plt.figure(figsize=(10, 6))
         bars = plt.bar(range(12), self.root_strengths)
 
         # Highlight the root
@@ -183,8 +191,4 @@ class ParncuttRootAnalysis:
 
         plt.tight_layout()
 
-        # Check if we're in a Pytest environment
-        if os.environ.get("PYTEST_CURRENT_TEST"):
-            plt.close()  # Close the figure to prevent memory leaks
-        else:
-            plt.show()
+        return plt, fig
