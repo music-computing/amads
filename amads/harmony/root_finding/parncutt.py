@@ -127,7 +127,7 @@ class ParncuttRootAnalysis:
     @staticmethod
     def load_chord(
         chord: Union[List[int], Chord, PitchCollection]
-    ) -> tuple[List[int], set[int]]:
+    ) -> tuple[set[int], set[int]]:
         if isinstance(chord, list):
             pitch_set = set(chord)
         elif isinstance(chord, Chord):
