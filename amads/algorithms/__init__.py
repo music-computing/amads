@@ -20,6 +20,7 @@ from ..polyphony.skyline import skyline
 from ..time.durdist1 import duration_distribution_1
 from ..time.durdist2 import duration_distribution_2
 from ..time.meter.break_it_up import ReGrouper
+from .complexity import lz77_complexity
 from .entropy import entropy
 from .nnotes import nnotes
 from .scale import scale
