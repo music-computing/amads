@@ -6,9 +6,14 @@ import numpy as np
 from amads.algorithms.mtype_tokenizer import FantasticTokenizer
 from amads.algorithms.ngrams import NGramCounter
 from amads.core.basics import Note, Score
+from amads.melody.contour.huron_contour import HuronContour
 from amads.melody.contour.interpolation_contour import InterpolationContour
+from amads.melody.contour.parsons_contour import ParsonsContour
+from amads.melody.contour.polynomial_contour import PolynomialContour
 from amads.melody.contour.step_contour import StepContour
 from amads.melody.segment import fantastic_segmenter
+
+__author__ = "David Whyatt"
 
 
 def fantastic_pitch_features(score: Score) -> Dict:
@@ -220,6 +225,104 @@ def fantastic_interpolation_contour_features(score: Score) -> Dict:
         "gradient_std": ic.gradient_std,
         "direction_changes": ic.direction_changes,
         "class_label": ic.class_label,
+    }
+
+
+def fantastic_parsons_contour_features(
+    score: Score, character_dict: Dict = None, initial_asterisk: bool = False
+) -> Dict:
+    """Extract Parsons contour features from a melody.
+
+    Parameters
+    ----------
+    score : Score
+        The score to extract Parsons contour features from.
+
+    Returns
+    -------
+    Dict
+        A dictionary of Parsons contour features.
+        Dictionary keys:
+            - interval_sequence: The interval sequence of the melody.
+            - interval_sequence_sign: A representation of the direction of the interval sequence
+                using -1, 0, and 1 to represent down, repeat, and up intervals respectively.
+            - as_string: The Parsons contour as a string, using the characters u, r, and d
+                to represent up, repeat, and down intervals respectively.
+    """
+
+    flattened_score = score.flatten(collapse=True)
+    notes = list(flattened_score.find_all(Note))
+
+    pitches = [note.pitch.keynum for note in notes]
+    pc = ParsonsContour(
+        pitches, character_dict=character_dict, initial_asterisk=initial_asterisk
+    )
+
+    return {
+        "interval_sequence": pc.interval_sequence,
+        "interval_sequence_sign": pc.interval_sequence_sign,
+        "as_string": pc.as_string,
+    }
+
+
+def fantastic_polynomial_contour_features(score: Score) -> Dict:
+    """Extract polynomial contour features from a melody.
+
+    Parameters
+    ----------
+    score : Score
+        The score to extract polynomial contour features from.
+
+    Returns
+    -------
+    Dict
+        A dictionary of polynomial contour coefficients.
+        Dictionary keys:
+            - coefficients: The coefficients of the polynomial contour.
+    """
+
+    pc = PolynomialContour(score)
+
+    return {
+        "coefficients": pc.coefficients,
+    }
+
+
+def fantastic_huron_contour_features(score: Score) -> Dict:
+    """Extract Huron contour features from a melody.
+
+    Parameters
+    ----------
+    score : Score
+        The score to extract Huron contour features from.
+
+    Returns
+    -------
+    Dict
+        A dictionary of Huron contour features.
+        Dictionary keys:
+            - first_pitch: The first pitch of the melody.
+            - mean_pitch: The mean pitch of the melody.
+            - last_pitch: The last pitch of the melody.
+            - first_to_mean: The difference between the first and mean pitch.
+            - mean_to_last: The difference between the mean and last pitch.
+            - contour_class: The class of the Huron contour.
+    """
+    flattened_score = score.flatten(collapse=True)
+    notes = list(flattened_score.find_all(Note))
+
+    pitches = [note.pitch.keynum for note in notes]
+    times = [note.onset for note in notes]
+
+    hc = HuronContour(pitches, times)
+
+    return {
+        "first_pitch": hc.first_pitch,
+        "mean_pitch": hc.mean_pitch,
+        "last_pitch": hc.last_pitch,
+        "first_to_mean": hc.first_to_mean,
+        "mean_to_last": hc.mean_to_last,
+        "contour_class": hc.contour_class,
     }
 
 

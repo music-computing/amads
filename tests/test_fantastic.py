@@ -5,12 +5,17 @@ import pytest
 from amads.core.basics import Score
 from amads.melody.fantastic import (
     fantastic_count_mtypes,
+    fantastic_huron_contour_features,
     fantastic_interpolation_contour_features,
     fantastic_mtype_summary_features,
+    fantastic_parsons_contour_features,
     fantastic_pitch_features,
     fantastic_pitch_interval_features,
+    fantastic_polynomial_contour_features,
     fantastic_step_contour_features,
 )
+
+__author__ = "David Whyatt"
 
 
 def test_fantastic_count_mtypes():
@@ -67,8 +72,7 @@ def test_fantastic_interpolation_contour_features():
     assert desc_features["gradient_std"] < 0.1
     # No direction changes
     assert desc_features["direction_changes"] == 0.0
-    # Should be classified as all down,
-    # but the contour is not steep, so it is categorised into cccc
+    # Contour is shallow, so it is classified as cccc
     assert desc_features["class_label"] == "cccc"
 
     # Test with a flat melody
@@ -135,6 +139,85 @@ def test_fantastic_step_contour_features():
     assert flat_features["global_direction"] == 0
     # Zero local variation
     assert flat_features["local_variation"] == 0
+
+
+def test_fantastic_parsons_contour_features():
+    melody = Score.from_melody(pitches=[60, 62, 64, 65, 67, 72], durations=[1.0] * 6)
+    features = fantastic_parsons_contour_features(melody)
+    assert features is not None
+
+    # The interval sequence should be [None, 2, 2, 1, 2, 5]
+    assert features["interval_sequence"] == [None, 2, 2, 1, 2, 5]
+
+    # As such, the sign sequence would be [None, +1, +1, +1, +1, +1]
+    assert features["interval_sequence_sign"] == [None, 1, 1, 1, 1, 1]
+
+    # The string representation should be "uuuuu"
+    assert features["as_string"] == "uuuuu"
+
+    # We can also use the initial asterisk option
+    features = fantastic_parsons_contour_features(melody, initial_asterisk=True)
+
+    # The string representation should be "*uuuuu"
+    assert features["as_string"] == "*uuuuu"
+
+    # We can also use a custom character dict
+    features = fantastic_parsons_contour_features(
+        melody, character_dict={1: "^", 0: "->", -1: "v"}
+    )
+
+    # The string representation should be "^^^^^"
+    assert features["as_string"] == "^^^^^"
+
+
+def test_fantastic_polynomial_contour_features():
+    melody = Score.from_melody(pitches=[60, 62, 64, 65, 67, 72], durations=[1.0] * 6)
+    features = fantastic_polynomial_contour_features(melody)
+    assert features is not None
+
+    # We would expect the linear term to be positive
+    assert features["coefficients"][0] > 0
+
+    # We would also expect this for the quadratic and cubic terms
+    assert features["coefficients"][1] > 0
+    assert features["coefficients"][2] > 0
+
+    # Verify that melodies with a single note have 0.0 coefficients
+    # for all 3 terms
+    single_note = Score.from_melody(pitches=[60], durations=[1.0])
+    single_note_features = fantastic_polynomial_contour_features(single_note)
+    assert single_note_features["coefficients"] == [0.0, 0.0, 0.0]
+
+    # Produce a melody with an arching contour
+    arching = Score.from_melody(
+        pitches=[60, 62, 64, 65, 67, 72, 67, 65, 64, 62, 60],
+        durations=[1.0] * 11,
+    )
+    arching_features = fantastic_polynomial_contour_features(arching)
+
+    # We expect that the quadratic term is greater in magnitude than the linear term
+    assert abs(arching_features["coefficients"][1]) > abs(
+        arching_features["coefficients"][0]
+    )
+
+
+def test_fantastic_huron_contour_features():
+    melody = Score.from_melody(pitches=[60, 62, 64, 65, 67, 72], durations=[1.0] * 6)
+    features = fantastic_huron_contour_features(melody)
+    assert features is not None
+
+    # The first pitch should be 60
+    assert features["first_pitch"] == 60
+    # The mean pitch should be 67
+    assert features["mean_pitch"] == 67
+    # The last pitch should be 72
+    assert features["last_pitch"] == 72
+    # The first to mean difference should be 7
+    assert features["first_to_mean"] == 7
+    # The mean to last difference should be 5
+    assert features["mean_to_last"] == 5
+    # The contour class should be "Ascending-Ascending"
+    assert features["contour_class"] == "Ascending-Ascending"
 
 
 def test_fantastic_mtype_summary_features():
