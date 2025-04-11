@@ -5,7 +5,7 @@ Parsons code for contour of musical melody by direction only.
 
 from typing import Optional
 
-from utils import sign
+from .utils import sign
 
 __author__ = "Mark Gotham"
 
