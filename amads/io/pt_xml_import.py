@@ -340,6 +340,11 @@ def partitura_xml_import(filename, ptprint=False):
     """Use Partitura to import a MusicXML file."""
     if filename is None:
         filename = pt.EXAMPLE_MUSICXML
+
+    # Partitura.load_score claims to accept a file-like object, but
+    # it has been problematic for us in the past, so we use a string filename.
+    filename = str(filename)
+
     ptscore = pt.load_score(filename)
     if ptprint:
         for ptpart in ptscore:
