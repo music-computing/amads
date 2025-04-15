@@ -89,3 +89,11 @@ def test_log_gaussian():
     assert np.isclose(log_gaussian(1.2), np.float64(0.604448254722616))
     assert np.isclose(log_gaussian(0.5), np.float64(0.96576814))
     assert np.isclose(log_gaussian(0.0), np.float64(0.0))
+
+
+def test_log_gaussian_raises():
+    """Tests the `log_gaussian` function raises errors in these cases."""
+    with pytest.raises(ValueError):
+        log_gaussian(0.6, mu=-1)
+    with pytest.raises(ValueError):
+        log_gaussian(0.6, sig=-100)

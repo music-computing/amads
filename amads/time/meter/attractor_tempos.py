@@ -186,6 +186,10 @@ def log_gaussian(x: Union[float, np.ndarray], mu: float = 0.6, sig: float = 0.3)
     array([0.96576814, 0.76076784, 0.21895238])
 
     """
+    if sig <= 0:
+        raise ValueError("Standard deviation (`sig`) must be positive.")
+    if mu <= 0:
+        raise ValueError("Mean (`mu`) must be positive.")
     x = np.clip(x, 1e-9, None)
     return np.exp(-(np.log10(x / mu) ** 2 / (2 * sig**2)))
 
