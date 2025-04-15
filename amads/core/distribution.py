@@ -85,9 +85,7 @@ class Distribution:
             raise ValueError("Unsupported number of dimensions")
         if display:
             plt.show()
-            return None
-        else:
-            return fig
+        return plt, fig
 
     def plot_1d(self, color=DEFAULT_BAR_COLOR) -> figure.Figure:
         """Create a 1D plot of the distribution.

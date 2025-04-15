@@ -6,8 +6,6 @@ of notes in a MIDI file.
 """
 
 # %%
-import matplotlib.pyplot as plt
-
 from amads.algorithms import duration_distribution_2
 from amads.io import partitura_midi_import
 from amads.music import example
@@ -31,5 +29,5 @@ dd.plot(display=True)  # Creates and displays the plot
 
 # %%
 # Optain the figure from dd.plot() and show plot explicitly
-fig = dd.plot()
+plt, fig = dd.plot()
 plt.show()
