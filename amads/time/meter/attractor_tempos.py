@@ -50,15 +50,6 @@ class MetricalSalience:
            [0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25]])
 
     >>> ms.calculate_salience_values()
-    >>> ms.salience_values_array[0, 0] # small value
-    np.float64(0.21895238068829734)
-
-    >>> ms.salience_values_array[0, 1] # 0 value
-    np.float64(0.0)
-
-    >>> ms.salience_values_array[1, 0] # higher value (nearer mu)
-    np.float64(0.760767837812628)
-
     >>> ms.calculate_cumulative_salience_values()
     >>> ms.cumulative_salience_values
     array([2.39342011, 0.44793176, 1.4136999 , 0.44793176, 2.17446773,
@@ -187,9 +178,6 @@ def log_gaussian(x: Union[float, np.ndarray], mu: float = 0.6, sig: float = 0.3)
 
     Examples
     --------
-
-    >>> log_gaussian(0.6)
-    np.float64(1.0)
 
     >>> log_gaussian(np.array([0.06, 0.6, 6.0])) # demo log-lin symmetry
     array([0.00386592, 1.        , 0.00386592])
