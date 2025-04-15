@@ -793,8 +793,6 @@ class PulseLengths:
                [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]])
 
         """
-        import numpy as np
-
         tatum = self.pulse_lengths[-1]
         linear_positions = int(self.cycle_length / tatum)
         granular_row = np.full(
@@ -828,7 +826,7 @@ class BeatPattern:
 
     def __init__(
         self,
-        beat_list: tuple[int],
+        beat_list: tuple[int, ...],
         beat_type: int,
     ):
 
