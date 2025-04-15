@@ -21,8 +21,12 @@ import numpy as np
 
 
 class MetricalSalience:
-    """ "
-    Organises an array representation of metrical structre and derives salience values.
+    """
+    Organise array representations of metrical structre and derived salience values.
+
+    Parameters
+    ----------
+    symbolic_pulse_length_array: A NumPy array representing the symbolic pulse lengths.
 
     Examples
     --------
@@ -38,17 +42,14 @@ class MetricalSalience:
            [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]])
 
     >>> ms = MetricalSalience(symbolic_pulse_length_array=arr)
-    >>> ms.pulse_lengths == pl
-    True
-
-    >>> ms.pulse_symbolic_to_absolute(quarter_bpm=120)
+    >>> ms.calculate_absolute_pulse_lengths(quarter_bpm=120)
     >>> ms.absolute_pulse_length_array
     array([[2.  , 0.  , 0.  , 0.  , 0.  , 0.  , 0.  , 0.  ],
            [1.  , 0.  , 0.  , 0.  , 1.  , 0.  , 0.  , 0.  ],
            [0.5 , 0.  , 0.5 , 0.  , 0.5 , 0.  , 0.5 , 0.  ],
            [0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25]])
 
-    >>> ms.get_salience_values()
+    >>> ms.calculate_salience_values()
     >>> ms.salience_values_array[0, 0] # small value
     np.float64(0.21895238068829734)
 
@@ -58,7 +59,7 @@ class MetricalSalience:
     >>> ms.salience_values_array[1, 0] # higher value (nearer mu)
     np.float64(0.760767837812628)
 
-    >>> ms.get_cumulative_salience_values()
+    >>> ms.calculate_cumulative_salience_values()
     >>> ms.cumulative_salience_values
     array([2.39342011, 0.44793176, 1.4136999 , 0.44793176, 2.17446773,
            0.44793176, 1.4136999 , 0.44793176])
@@ -70,38 +71,62 @@ class MetricalSalience:
         symbolic_pulse_length_array: Optional[np.array] = None,
     ):
         self.symbolic_pulse_length_array = symbolic_pulse_length_array
-        self.pulse_lengths = [x[0] for x in self.symbolic_pulse_length_array]
+        self.pulse_lengths = self.symbolic_pulse_length_array[:, 0]
         self.quarter_bpm = None
         self.absolute_pulse_length_array = None
         self.salience_values_array = None
         self.cumulative_salience_values = None
         self.indicator = None
 
-    def pulse_symbolic_to_absolute(self, quarter_bpm: float = 120):
+    def calculate_absolute_pulse_lengths(self, quarter_bpm: float):
         """
-        Get absolute values for every item in the `symbolic_pulse_length_array`.
+        Calculate absolute pulse lengths from
+        the symbolic lengths (`.symbolic_pulse_length_array`)
+        and the BPM provided here for the 'quarter note' as reference value.
 
+        Args:
+            quarter_bpm: The quarter note BPM.
         """
+        if self.symbolic_pulse_length_array is None:
+            raise ValueError("Symbolic pulse length array must be provided.")
+
         self.quarter_bpm = quarter_bpm
-        self.absolute_pulse_length_array = (
-            self.symbolic_pulse_length_array * 60 / quarter_bpm
+        self.absolute_pulse_length_array = self.symbolic_pulse_length_array * (
+            60 / self.quarter_bpm
         )
 
-    def get_salience_values(self):
+    def calculate_salience_values(self, mu: float = 0.6, sig: float = 0.3):
         """
-        Get salience values for every item in the `symbolic_pulse_length_array`
-        See notes at `log_gaussian`
+        Calculate salience values for items in the `symbolic_pulse_length_array`
+        using `log_gaussian` (see notes on that function).
 
+        Parameters
+        ----------
+        mu: float
+            The mean of the Gaussian.
+        sig: float
+            The standard deviation of the Gaussian.
         """
-        self.salience_values_array = log_gaussian(self.absolute_pulse_length_array)
+        if self.absolute_pulse_length_array is None:
+            raise ValueError("Absolute pulse length array must be calculated first.")
 
-    def get_cumulative_salience_values(self):
+        self.salience_values_array = log_gaussian(
+            self.absolute_pulse_length_array, mu, sig
+        )
+
+    def calculate_cumulative_salience_values(self):
         """
-        Get cumulative salience values by summing over columns.
+        Calculate cumulative salience values by summing over columns.
         """
         if self.salience_values_array is None:
-            self.get_salience_values()
-        self.cumulative_salience_values = self.salience_values_array.sum(axis=0)
+            self.calculate_salience_values()
+        self.cumulative_salience_values = np.sum(self.salience_values_array, axis=0)
+
+    def make_indicator(self):
+        """
+        Make a 2D indicator vector for the presence/absense of a pulse value at each position.
+        """
+        self.indicator = (self.symbolic_pulse_length_array > 0).astype(int)
 
     def plot(self, symbolic_not_absolute: bool = False, reverse_to_plot: bool = True):
         """
@@ -114,7 +139,7 @@ class MetricalSalience:
         reverse_to_plot: If True (default), plot the fastest values at the bottom.
         """
         if symbolic_not_absolute:
-            self.indicator = (self.symbolic_pulse_length_array > 0).astype(int)
+            self.make_indicator()
             data = self.indicator
         else:
             data = self.salience_values_array
@@ -128,7 +153,7 @@ class MetricalSalience:
         num_layers = data.shape[0]
         num_cols = data.shape[1]
         fig, ax = plt.subplots()
-        bottom = np.zeros(num_cols)  # Init bottom of each bar
+        bottom = np.zeros(num_cols)
 
         for i in range(num_layers):
             ax.bar(
@@ -137,19 +162,31 @@ class MetricalSalience:
                 bottom=bottom,
                 label=f"Pulse={pulse_values_for_labels[i]}; IOI={pulse_values_for_labels[i] * 60 / self.quarter_bpm}",
             )
-            bottom += data[i]  # Update bottom for each layer
+            bottom += data[i]
 
         ax.set_xlabel("Cycle-relative position")
         ax.set_ylabel("Weighting")
         ax.legend()
         ax.grid(True)
-        return plt
+        return plt, fig
 
 
-def log_gaussian(x: Union[float, np.array], mu: float = 0.6, sig: float = 0.3):
+def log_gaussian(x: Union[float, np.ndarray], mu: float = 0.6, sig: float = 0.3):
     """
-    The log-linear Gaussian is the basis of individual pulse salience values.
-    See `MetricalSalience.get_salience_values`.
+    Compute a log-linear Gaussian which is the basis of individual pulse salience values.
+    To avoid log(0) issues, `np.clip` values to be always greater than 0.
+    See also `MetricalSalience.get_salience_values`.
+
+
+    Parameters
+    ----------
+    mu: float
+        The mean of the Gaussian.
+    sig: float
+        The standard deviation of the Gaussian.
+
+    Examples
+    --------
 
     >>> log_gaussian(0.6)
     np.float64(1.0)
@@ -161,10 +198,9 @@ def log_gaussian(x: Union[float, np.array], mu: float = 0.6, sig: float = 0.3):
     array([0.96576814, 0.76076784, 0.21895238])
 
     """
+    x = np.clip(x, 1e-9, None)
     return np.exp(-(np.log10(x / mu) ** 2 / (2 * sig**2)))
 
-
-# -----------------------------------------------------------------------------
 
 if __name__ == "__main__":
     import doctest
