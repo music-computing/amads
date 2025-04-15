@@ -1,7 +1,7 @@
 """Salami slice algorithm for segmenting musical scores.
 
 This module implements the salami slice algorithm, which segments a musical score
-into vertical slices at each note start and end. Each slice contains all notes
+into vertical slices at each note onset and offset. Each slice contains all notes
 that are sounding at that point in time.
 
 Notes
@@ -117,7 +117,7 @@ def salami_slice(
     include_note_end_slices: bool = True,
     min_slice_duration: float = 0.01,
 ) -> List[Slice]:
-    """Segment a musical passage into vertical slices at note starts and ends ('salami slices').
+    """Segment a musical passage into vertical slices at note onsets and offsets ('salami slices').
 
     Parameters
     ----------
@@ -138,7 +138,7 @@ def salami_slice(
         The sequence of vertical slices
     """
     if isinstance(passage, Score):
-        notes = passage.flatten(collapse=True).find_all(Note)
+        notes = passage.get_sorted_notes()
     else:
         notes = passage
 
@@ -164,7 +164,7 @@ def salami_slice(
                     # Don't include empty slices at the end of the score
                     continue
 
-            slice_start = timepoint.time
+            slice_onset = timepoint.time
 
             if next_timepoint is None:
                 if len(timepoint.sounding_notes) == 0:
@@ -174,7 +174,7 @@ def salami_slice(
             else:
                 slice_end = next_timepoint.time
 
-            slice_duration = slice_end - slice_start
+            slice_duration = slice_end - slice_onset
 
             if slice_duration < min_slice_duration:
                 continue
@@ -183,22 +183,14 @@ def salami_slice(
             if remove_duplicated_pitches:
                 pitches = sorted(set(pitches))
 
-            notes = [
-                Note(
-                    delta=slice_start,
-                    duration=slice_duration,
-                    pitch=pitch,
-                )
-                for pitch in pitches
-            ]
-
-            slices.append(
-                Slice(
-                    content=notes,
-                    original_notes=timepoint.sounding_notes,
-                    delta=slice_start,
-                    duration=slice_end - slice_start,
-                )
+            slice = Slice(
+                timepoint.sounding_notes, slice_onset, slice_end - slice_onset
             )
+
+            # construct a new Note for each pitch and add it to the slice
+            for pitch in pitches:
+                Note(slice, slice_onset, slice_duration, pitch)
+
+            slices.append(slice)
 
     return slices

@@ -13,7 +13,7 @@ def test_sliding_window(twochan_score: Score, twochan_notes: Iterable[Note]):
     score = twochan_score.flatten(collapse=True)
 
     last_note = twochan_notes[-1]
-    last_note_off = last_note.delta + last_note.duration
+    last_note_off = last_note.offset
     assert last_note_off == approx(16.0)
 
     windows = sliding_window(

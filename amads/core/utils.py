@@ -97,7 +97,7 @@ def keyname(n, detail="nameoctave"):
     def keyname_single(k):
         pitch = Pitch(k)
         if detail == "nameonly":
-            return pitch.name_str  # Handles sharps, flats, and natural notes correctly
+            return pitch.name  # Handles sharps, flats, and natural notes correctly
         elif detail == "nameoctave":
             return pitch.name_with_octave  # Includes both the note name and octave
         else:

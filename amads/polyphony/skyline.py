@@ -2,7 +2,7 @@
 Provides the `skyline` function
 """
 
-from ..core.basics import Note, Part, Score
+from ..core.basics import Part, Score
 
 
 def skyline(score: Score, threshold: float = 0.1):
@@ -26,7 +26,7 @@ def skyline(score: Score, threshold: float = 0.1):
     - An upper note of a melody sustains in a legato fashion past the next,
       but lower, note of the melody. Though musically the upper note should
       be shortened and we should keep the lower note, the "skyline" concept
-      says the top note has priority, so shift the start time of the lower
+      says the top note has priority, so shift the onset time of the lower
       note to the end time of the upper note, and shorten the lower note
       duration so that it still ends at the same time as before.
     - It is common to have melodies in lower voices. This algorithm just fails
@@ -41,51 +41,87 @@ def skyline(score: Score, threshold: float = 0.1):
     Returns:
         Score: A new score containing the "skyline" notes
     """
-    score = score.deep_copy()
 
-    # flatten method alone doesn't merge tied notes for some reason
-    score = score.strip_ties()
-    if not score.is_flattened_and_collapsed():
-        score = score.flatten(collapse=True)
-    filtered_notes = []
-    notes = list(score.find_all(Note))
+    score = score.merge_tied_notes()
+    new_score = score.emptycopy()
+    skyline = Part(parent=new_score)
+    notes = score.get_sorted_notes()
 
-    # sort the notes by start, if start is equal, sort by pitch
-    notes.sort(key=lambda note: (note.onset, -note.pitch.keynum))
+    # Algorithm: the basic idea is to scan notes and copy them
+    # to skyline, a Part object. We can use shallow copy
+    # because notes are already deep copied from score after
+    # merge_tied_notes.
+    #
+    # In the outer looop, we test each note to see if it is below
+    # the skyline as it exists so far. Since we process in order,
+    # we know each note starts after all notes in the skyline, so
+    # time overlap occurs when a note starts before the end of a
+    # skyline note. (Use a threshold in case the note starts at
+    # approximately the previous note end time) When a note is
+    # added to the skyline, it may be above an existing skyline
+    # note that started earlier, so the inner loop deals with
+    # this problem.
+    #
+    # In the inner loop, we remove skyline notes that started before
+    # the new note and are below it (if they were above, the new note
+    # would have been filtered out before we got to this part). Since
+    # notes have arbitrary duration, *any* skuyline note could potentially
+    # overlap in time and be below the new note, so we have to check
+    # all skyline notes. We search in reverse order so that we can remove
+    # notes from skyline without worrying about the index changing.
+    # Since we know the new note starts after all skyline notes, again we
+    # can test for time overlap by checking if the new note starts before
+    # the end of the skyline note. We remove the lower note only when
+    # the new note starts within threshold of the skuyline note. Otherwise,
+    # the lower note plays for longer than threshold before the new note:
+    # we shorten the duration of the lower note to end at the onset time
+    # of the new note.
+    #
+    # A consequence of this algorithm is that a very long low note will
+    # be shortened to the onset time of a new note, so a piano roll like
+    # this:                      ----------
+    #          ------------------------------------------
+    # will result in this:       ----------
+    #          ------------------          (nothing here)
+    # rather than this:          ----------
+    #          ------------------          --------------
+    # A faster algorithm would avoid iterating over all skyline notes
+    # (twice!) since we know the skyline is monophonic and ordered.
 
     for i in range(len(notes)):
         note = notes[i]
-        # ignore notes that are below another existing note in filtered_notes
+        # ignore notes that are below another existing note in skyline
         if any(
-            note.pitch.keynum < prev.pitch.keynum and note.onset < prev.offset
-            for prev in filtered_notes
+            note.pitch.keynum < prev.pitch.keynum
+            and note.onset < prev.offset - threshold
+            for prev in skyline.content
         ):
+            print("Skipping note ", end="")
+            note.show()
             continue
 
-        # append the note to filtered_notes
-        filtered_notes.append(note.deep_copy())
+        # append the note to skyline
+        print("Adding note ", end="")
+        note.show()
+        note.copy(skyline)
 
-        # remove notes in filtered_notes that are below the current note
+        # remove notes in skyline that are below the current note
 
-        for j in reversed(range(len(filtered_notes))):
+        for j in reversed(range(len(skyline.content))):
             if (
-                filtered_notes[j].pitch.keynum < note.pitch.keynum
-                and filtered_notes[j].offset > note.onset
+                skyline.content[j].pitch.keynum < note.pitch.keynum
+                and note.onset < skyline.content[j].offset
             ):
                 # remove low notes quickly followed by a higher note
-                if filtered_notes[j].onset > note.onset - threshold:
-                    filtered_notes.pop(j)
+                if skyline.content[j].onset > note.onset - threshold:
+                    print("Removing note ", end="")
+                    skyline.content[j].show()
+                    skyline.content.pop(j)
                 # keep low notes not so quickly followed by a higher note
-                # shorten the duration of the low note
+                # but shorten the duration to prevent overlap
                 else:
-                    note_end = min(note.onset, filtered_notes[j].offset)
-                    filtered_notes[j].duration = note_end - filtered_notes[j].onset
-
-    # create a new score and part to store the filtered notes
-    new_score = Score()
-    new_part = Part()
-    for note in filtered_notes:
-        new_part.insert(note)
-    new_score.insert(new_part)
+                    print("Shortening note ", end="")
+                    skyline.content[j].show()
+                    skyline.content[j].offset = note.onset
 
     return new_score
