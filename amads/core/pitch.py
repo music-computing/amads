@@ -131,7 +131,7 @@ class Pitch:
             self._fix_alteration()
         elif isinstance(pitch, str):
             self.key_num, self.alt = Pitch.from_name(pitch, alt, accidental_chars)
-        elif isinstance(pitch, Pitch):
+        elif isinstance(pitch, Pitch):  # TODO Not supported in the type hint. Consider removing.
             self.key_num = pitch.key_num
             self.alt = pitch.alt
         else:
@@ -319,7 +319,7 @@ class Pitch:
         The octave number is calculated by subtracting 1 from the
         integer division of key_num by 12. The octave number is
         independent of enharmonics. e.g., C4 is enharmonic to B#3 and
-        represent the same (more or less) pitch, but BOTH have an
+        represents the same (more or less) pitch, but BOTH have an
         octave of 4. On the other hand name() will return "C4"
         and "B#3", respectively.
 
@@ -453,8 +453,8 @@ class PitchCollection:
     >>> pitches = [Pitch(p) for p in test_case]
     >>> pitches_gathered = PitchCollection(pitches)
 
-    # >>> pitches_gathered.pitch_multi_set
-    # ['G#4', 'G#4', 'B4', 'D4', 'F4', 'Ab4']
+    >>> pitches_gathered.pitch_multi_set
+    ['G#4', 'G#4', 'B4', 'D4', 'F4', 'Ab4']
 
     >>> pitches_gathered.key_num_multi_set
     [68, 68, 71, 62, 65, 68]
@@ -477,7 +477,7 @@ class PitchCollection:
 
     @property
     def pitch_multi_set(self):
-        return [p.name for p in self.pitches]
+        return [p.name_with_octave for p in self.pitches]
 
     @property
     def key_num_multi_set(self):
