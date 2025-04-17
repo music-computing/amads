@@ -4,6 +4,13 @@
 
 
 import functools
+from dataclasses import dataclass
+from math import floor
+from typing import Optional, Tuple, Union
+
+from amads.utils import set_to_vector, weighted_to_indicator
+
+LETTER_TO_NUMBER = {"C": 0, "D": 2, "E": 4, "F": 5, "G": 7, "A": 9, "B": 11}
 
 
 @functools.total_ordering
@@ -26,10 +33,19 @@ class Pitch:
 
     Parameters
     ----------
-        keynum : float
-            MIDI key number, e.g. C4 = 60, generalized to float.
-        alt : float, optional
-            Alteration, e.g. flat = -1. (Defaults to 0)
+        pitch : Union[float, str, None], optional
+            MIDI keynum or string Pitch name. Syntax is A-G followed by
+            accidentals followed by octave number.
+            (Defaults to 60)
+        alt: Union[float, None], optional
+            If pitch is a number, alt is an optional alteration (Defaults to 0);
+            if pitch is a string, alt is the optional octave (an integer)
+            (Overridden by any octave specification in pitch,
+            otherwise defaults to -1, which yields pitch class keynums 0-11).
+        accidental_chars: Union[str, None], optional
+            Allows parsing of pitch names with customized accidental characters.
+            (Defaults to None, which admits '♭', 'b' or '-' for flat, and 
+            '♯', '#', and '+' for sharp, but does not accept 'f' and 's'.
 
     Attributes
     ----------
@@ -78,12 +94,27 @@ class Pitch:
         # now (keynum + alt) % 12 is in {C D E F G A B}
 
 
-    def __init__(self, keynum: float, alt: float = 0):
-        self.keynum = keynum
-        self.alt = alt
-        self._fix_alteration()
+    def __init__(self, pitch: Union[float, str, None] = 60,
+                 alt: Union[float, None] = None,
+                 accidental_chars: Optional[str] = None):
+        if isinstance(pitch, (int, float)):
+            self.keynum = pitch
+            self.alt = (0 if alt == None else 0)
+            self._fix_alteration()
+        elif isinstance(pitch, str):
+            self.keynum, self.alt = Pitch.from_name(pitch, alt, accidental_chars)
+        elif isinstance(pitch, Pitch):
+            self.keynum = pitch.keynum
+            self.alt = pitch.alt
+        else:
+            raise ValueError(f"invalid pitch specification: {pitch}")
+            
 
-    def astuple(self):
+    def __repr__(self):
+        return f"Pitch(name='{self.name}', keynum={self.keynum})"
+
+
+    def as_tuple(self):
         """Return a tuple representation of the Pitch instance.
 
         Returns
@@ -110,7 +141,7 @@ class Pitch:
         bool
             True if the keynum and alt values are equal, False otherwise.
         """
-        return self.astuple() == other.astuple()
+        return self.as_tuple() == other.as_tuple()
 
 
     def __hash__(self) -> int:
@@ -121,7 +152,7 @@ class Pitch:
         int
             A hash value representing the Pitch instance.
         """
-        return hash(self.astuple())
+        return hash(self.as_tuple())
 
 
     def __lt__(self, other) -> bool:
@@ -143,6 +174,78 @@ class Pitch:
         return (self.keynum, -self.alt) < (other.keynum, -other.alt)
 
 
+    @classmethod
+    def from_name(cls, name: str, 
+                  octave: Optional[float],
+                  accidental_chars: Optional[str] = None
+                 ) -> Tuple[float, float]:
+        """
+        Converts a string like 'Bb' to the corresponding pitch (10)
+        and alteration, e.g. 'Bb' returns (10, -1).
+        If the string has an octave number or octave is given, the
+        octave will be applied, e.g. "C4" yields (60, 0). octave takes
+        effect if it is a number and name does not include an octave.
+        If both name has no octave and octave is None, the octave is
+        -1, yeilding pitch class numbers 0-11.
+
+        First character must be one of the unmodified base pitch names:
+        C, D, E, F, G, A, B (not case-sensitive).
+
+        Subsequent characters must indicate a single accidental type:
+        one of '♭', 'b' or '-' for flat, and '♯', '#', and '+' for sharp,
+        unless accidental_chars specified exactly the acceptable flat
+        and sharp chars, e.g. "fs" indicates 'f' for flat, 's' for sharp.
+
+        Note that 's' is not a default accidental type as it is ambiguous:
+        'Fs' probably indicates F#, but Es is more likely Eb (German).
+
+        Also unsupported are:
+        mixtures of sharps and flats (e.g. B#b);
+        symbols for double sharps, quarter sharps, naturals, etc.;
+        any other characters (except space, tab and underscore,
+        which are allowed but ignored).
+
+        Following accidentals (if any) is an optional single-digit octave
+        number. Note that MIDI goes below C0; if the octave number is
+        omitted, the octave will be -1, which corresponds to pitch class
+        numbers 0 - 11 and octave -1 (which you can also specify as octave).
+
+        Instructive error messages are given for invalid input.
+        """
+        name = name.replace(" ", "").replace("\t", "").replace("_", "")
+        if name == "":
+            return (60, octave if octave else 0)
+        pitch_base = name[0].upper();  # error if non-string
+        if pitch_base not in "ABCDEFG":
+            raise ValueError("Invalid first character: must be one of ABCDEFG")
+        pitch_class = LETTER_TO_NUMBER[pitch_base]
+
+        name = name[1:]  # trim the note letter
+        if name[-1].isdigit():  # final character indicates octave
+            octave = int(name[-1])  # overrides octave parameter
+
+        # parse the accidentals, if any
+        alteration = 0
+        if accidental_chars:
+           flat_chars = [accidental_chars[0]]
+           sharp_chars = [accidental_chars[1]]
+        else:
+            flat_chars = ["♭", "b", "-"]
+            sharp_chars = ["♯", "#", "+"]
+        if all(x in flat_chars for x in name):  # flats
+            alteration = -len(name)
+        elif all(x in sharp_chars for x in name):  # sharps
+            alteration = len(name)
+        else:
+            raise ValueError("Invalid accidentals: must be only " +
+                                f"{flat_chars} or {sharp_chars}.")
+
+        if octave == None:  # no octave given in name or 2nd parameter
+            octave = -1
+
+        return (pitch_class + alteration + 12 * (octave + 1), alteration)
+
+
     @property
     def step(self) -> str:
         """Retrieve the name of the pitch, e.g. A, B, C, D, E, F, G
@@ -159,14 +262,15 @@ class Pitch:
 
 
     @property
-    def name(self, flat_char: str = "b") -> str:
+    def name(self, accidental_chars: str = "b#") -> str:
         """Return string name including accidentals (# or b) if alt is integral.
         Otherwise, return step name concatenated with "?".
         
         Parameters
         ----------
-        flat_char : str, optional
-            The character to use for flat accidentals. (Defaults to "b")
+        accidental_chars : str, optional
+            The characters to use for flat and sharp accidentals.
+            (Defaults to "b#")
 
         Returns
         -------
@@ -174,11 +278,12 @@ class Pitch:
             The string representation of the pitch name, including accidentals.
         """
         accidentals = "?"
+        sharp_char = (accidental_chars[1] if len(accidental_chars) > 1 else "#")
         if round(self.alt) == self.alt:  # an integer value
             if self.alt > 0:
-                accidentals = "#" * self.alt
+                accidentals = sharp_char * self.alt
             elif self.alt < 0:
-                accidentals = flat_char * -self.alt
+                accidentals = accidental_chars[0] * -self.alt
             else:
                 accidentals = ""  # natural
         return self.step + accidentals
@@ -320,3 +425,60 @@ class Pitch:
         else:  # F->E, C->B
             alt += 1
         return Pitch(self.keynum, alt=alt)
+
+
+@dataclass
+class PitchCollection:
+    """
+    Combined representations of more than one pitch. Differs from Chord
+    which has onset, duration, and contains Notes, not Pitches.
+
+    >>> test_case = ["G#", "G#", "B", "D", "F", "Ab"]
+    >>> pitches = [Pitch(p) for p in test_case]
+    >>> pitches_gathered = PitchCollection(pitches)
+
+    >>> pitches_gathered.pitch_multi_set
+    ['G#', 'G#', 'B', 'D', 'F', 'Ab']
+
+    >>> pitches_gathered.MIDI_multi_set
+    [68, 68, 71, 62, 65, 68]
+
+    >>> pitches_gathered.pitch_class_multi_set
+    [2, 5, 8, 8, 8, 11]
+
+    >>> pitches_gathered.pitch_class_set
+    [2, 5, 8, 11]
+
+    >>> pitches_gathered.pitch_class_vector
+    (0, 0, 1, 0, 0, 1, 0, 0, 3, 0, 0, 1, 0)
+
+    >>> pitches_gathered.pitch_class_indicator_vector
+    (0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0)
+    """
+
+    pitches: list[Pitch]
+
+
+    @property
+    def pitch_multi_set(self):
+        return [p.name for p in self.pitches]
+
+
+    @property
+    def pc_multi_set(self):
+        [p.pitch_class for p in self.pitches].sort()
+
+
+    @property
+    def pc_set(self):
+        return list(set(self.pc_multi_set)).sort()
+
+
+    @property
+    def pitch_class_vector(self):
+        return set_to_vector(self.pc_multi_set, max_index=11)
+
+
+    @property
+    def pitch_class_indicator_vector(self):
+        return weighted_to_indicator(self.pitch_class_vector)
