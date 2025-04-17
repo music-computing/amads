@@ -466,12 +466,12 @@ class PitchCollection:
 
     @property
     def pc_multi_set(self):
-        [p.pitch_class for p in self.pitches].sort()
+        return sorted([p.pitch_class for p in self.pitches])
 
 
     @property
     def pc_set(self):
-        return list(set(self.pc_multi_set)).sort()
+        return sorted(set(self.pc_multi_set))
 
 
     @property
