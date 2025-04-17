@@ -4,7 +4,7 @@ The 'pitch' module contains functions and classes related to pitch.
 
 from __future__ import annotations
 
-from amads.core.vectors_sets import set_to_vector, weighted_to_indicator
+from amads.core.vectors_sets import multiset_to_vector, weighted_to_indicator
 
 from .transformations import *
 
@@ -12,7 +12,7 @@ from .transformations import *
 class Pitch:
     """
     Combined representations of a single pitch,
-    serving to organise various conversion routines among the representation of pitch.
+    serving to organize various conversion routines among the representation of pitch.
 
     To be clear: we're not talking about a note in a score, but only the pitch,
     there's no duration or position in this class.
@@ -25,7 +25,7 @@ class Pitch:
         octave: int | None,
     ):
         """
-        Initializes a Pitch object.
+        Initializes a `Pitch` object.
 
         Parameters
         ----------
@@ -34,7 +34,7 @@ class Pitch:
             <Base name><Sharps_flats><Octave>
             (e.g., "C4", "A#", "Bbb3").
             The octave may or may not be specified and any number of sharps/flats is permitted.
-            If the octave is not be specified, the MIDI number will be assiged in octave 4,
+            If the octave is not specified, the MIDI number will be assiged in octave 4,
             but the octave attribute will be None.
 
         Examples
@@ -100,7 +100,7 @@ class Pitch:
         """
         Converts a string like 'Bb' to the corresponding pc integer (10).
 
-        First character must be one of the unmodified base pitch names: C, D, E, F, G, A, B
+        The first character must be one of the unmodified base pitch names: C, D, E, F, G, A, B
         (not case-sensitive).
 
         Any subsequent characters must indicate a single accidental type: one of
@@ -110,9 +110,9 @@ class Pitch:
         Note that 's' is not a supported accidental type as it is ambiguous:
         'Fs' probably indicates F#, but Es is more likely Eb (German).
 
-        Also unsupported are:
-        mixtures of sharps and flats (e.g. B#b);
-        symbols for double sharps etc.;
+        The following are also unsupported:
+        mixtures of sharps and flats (e.g., B#b);
+        special symbols (e.g., for double sharps);
         any other symbols (including white space).
 
         Subsequent characters either:
@@ -213,7 +213,7 @@ class PitchCollection:
         self.pitch_class_multi_set.sort()
         self.pitch_class_set = list(set(self.pitch_class_multi_set))
         self.pitch_class_set.sort()
-        self.pitch_class_vector = set_to_vector(
+        self.pitch_class_vector = multiset_to_vector(
             self.pitch_class_multi_set, max_index=12
         )
         self.pitch_class_indicator_vector = weighted_to_indicator(
