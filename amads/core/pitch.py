@@ -99,7 +99,7 @@ class Pitch:
                  accidental_chars: Optional[str] = None):
         if isinstance(pitch, (int, float)):
             self.keynum = pitch
-            self.alt = (0 if alt == None else 0)
+            self.alt = 0 if alt is None else alt
             self._fix_alteration()
         elif isinstance(pitch, str):
             self.keynum, self.alt = Pitch.from_name(pitch, alt, accidental_chars)
