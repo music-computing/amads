@@ -46,7 +46,7 @@ leverage the fact that each note start has a unique note in the score and
 emit start and strength pairs...
 """
 
-from ..core.basics import Note, Score
+from ..core.basics import Score
 from ..pitch.ismonophonic import ismonophonic
 
 
@@ -59,14 +59,8 @@ def boundary(score: Score):
     """
     if not ismonophonic(score):
         raise ValueError("Score must be monophonic")
-    # make a flattened and collapsed copy of the original score
-    flattened_score = score.flatten(collapse=True)
 
-    # extracting note references here from our flattened score
-    notes = list(flattened_score.find_all(Note))
-
-    # sort the notes
-    notes.sort(key=lambda note: (note.onset, -note.pitch.keynum))
+    notes = score.get_sorted_notes()
 
     # profiles
     pp = [abs(pair[1].keynum - pair[0].keynum) for pair in zip(notes, notes[1:])]

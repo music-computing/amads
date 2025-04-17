@@ -6,6 +6,8 @@ This example demonstrates how to calculate and visualize the duration distributi
 of notes in a MIDI file.
 """
 
+import matplotlib.pyplot
+
 from amads.algorithms import duration_distribution_1
 from amads.io import partitura_midi_import
 from amads.music import example
@@ -19,9 +21,9 @@ myscore = partitura_midi_import(my_midi_file, ptprint=False)
 
 # Calculate duration distribution
 dd = duration_distribution_1(myscore)
-plt, fig = dd.plot()
+dd.plot()
 
 print("Duration distribution:", dd.data, dd.x_categories)
-plt.show()
+matplotlib.pyplot.show()
 
 # %%

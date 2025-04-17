@@ -47,6 +47,9 @@ you restart Python (e.g. start the next debugging session).
 A. For team members
 ^^^^^^^^^^^^^^^^^^^
 
+In the this section, please replace "feature-name" with the name of
+your branch.
+
 1. Create a new branch from main::
 
     git checkout -b feature-name
@@ -81,9 +84,11 @@ B. For external contributors
 7. **Before you push**, there might be new changes in the repo to
    integrate. To merge the changes::
    
-    git fetch origin
-    git checkout feature-name  # does nothing if it's your branch already
-    git merge origin/feature-name
+    git checkout main
+    git pull origin main
+    git branch # if needed to find your feature name
+    git checkout feature-name
+    git merge main
 
 8  If there are conflicts, edit/fix the files with conflicts and::
 
