@@ -9,6 +9,10 @@ from amads.pitch.ismonophonic import ismonophonic
 class MelodyTokenizer:
     """Base class for tokenizing melodies into n-grams."""
 
+    def __init__(self):
+        """Initialize the tokenizer."""
+        self.ioi_data = {}  # Dictionary to store IOI information for notes
+
     def tokenize(self, score: Score) -> List[List]:
         """Tokenize a melody into phrases.
 
@@ -44,24 +48,31 @@ class MelodyTokenizer:
         flattened_score = score.flatten(collapse=True)
         notes = list(flattened_score.find_all(Note))
 
+        # Clear any previous IOI data
+        self.ioi_data = {}
+
         # Calculate IOIs and IOI ratios
         # n.b. when #68 is merged, this should be revised
         # Calculate IOIs
         for i, note in enumerate(notes):
-            if i > 1:
-                note.ioi = note.onset - notes[i - 1].onset
+            # Initialize entry for this note
+            self.ioi_data[note] = {"ioi": None, "ioi_ratio": None}
+
+            if i > 0:
+                self.ioi_data[note]["ioi"] = note.onset - notes[i - 1].onset
             else:
-                note.ioi = None
+                self.ioi_data[note]["ioi"] = None
 
             if i == 0:
-                note.ioi_ratio = None
+                self.ioi_data[note]["ioi_ratio"] = None
             else:
-                prev_ioi = notes[i - 1].ioi
-                ioi = note.ioi
+                prev_note = notes[i - 1]
+                prev_ioi = self.ioi_data[prev_note]["ioi"]
+                ioi = self.ioi_data[note]["ioi"]
                 if ioi is None or prev_ioi is None:
-                    note.ioi_ratio = None
+                    self.ioi_data[note]["ioi_ratio"] = None
                 else:
-                    note.ioi_ratio = ioi / prev_ioi
+                    self.ioi_data[note]["ioi_ratio"] = ioi / prev_ioi
 
         return notes
 
@@ -91,6 +102,7 @@ class FantasticTokenizer(MelodyTokenizer):
     """
 
     def __init__(self):
+        super().__init__()
         self.tokens = []
 
     def tokenize(self, score: Score) -> List:
@@ -116,10 +128,15 @@ class FantasticTokenizer(MelodyTokenizer):
 
         for prev_note, current_note in zip(notes[:-1], notes[1:]):
             pitch_interval = current_note.keynum - prev_note.keynum
-            if prev_note.ioi is None or current_note.ioi is None:
+            if (
+                self.ioi_data[prev_note]["ioi"] is None
+                or self.ioi_data[current_note]["ioi"] is None
+            ):
                 ioi_ratio = None
             else:
-                ioi_ratio = current_note.ioi / prev_note.ioi
+                ioi_ratio = (
+                    self.ioi_data[current_note]["ioi"] / self.ioi_data[prev_note]["ioi"]
+                )
 
             pitch_interval_class = self.classify_pitch_interval(pitch_interval)
             ioi_ratio_class = self.classify_ioi_ratio(ioi_ratio)

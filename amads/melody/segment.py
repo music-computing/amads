@@ -29,13 +29,20 @@ def fantastic_segmenter(score: Score, phrase_gap: float, units: str) -> List[Sco
         # Extract notes from score
         flattened_score = score.flatten(collapse=True)
         notes = list(flattened_score.find_all(Note))
+
+        # Create a dictionary to store IOI information
+        ioi_data = {}
+
         # Calculate IOIs
         for i, note in enumerate(notes):
+            # Initialize entry for this note
+            ioi_data[note] = None
+
             # first note has no IOI by convention
             if i > 0:
-                note.ioi = note.onset - notes[i - 1].onset
+                ioi_data[note] = note.onset - notes[i - 1].onset
             else:
-                note.ioi = None
+                ioi_data[note] = None
 
         phrases = []
         current_phrase = []
@@ -43,35 +50,37 @@ def fantastic_segmenter(score: Score, phrase_gap: float, units: str) -> List[Sco
             # Check whether we need to make a new phrase
             need_new_phrase = (
                 len(current_phrase) > 0
-                and note.ioi
+                and ioi_data[note]
                 is not None  # Check current note's IOI instead of previous note
-                and note.ioi > phrase_gap  # Default phrase gap of 1 quarter note
+                and ioi_data[note] > phrase_gap
             )
             if need_new_phrase:
                 # Create new score for the phrase
-                phrase_score = Score()
-                part = Part()
+                phrase_score = Score(onset=0, duration=None)
+                part = Part(
+                    parent=None, onset=0, duration=None
+                )  # parent=None is required
                 start_time = current_phrase[0].onset
                 # Adjust note timings relative to phrase start
                 for phrase_note in current_phrase:
-                    new_note = phrase_note.deep_copy()
+                    new_note = phrase_note.copy()
                     new_note.onset -= start_time
                     part.insert(new_note)
-                phrase_score.insert(part)
+                phrase_score.insert(part)  # This will set the parent
                 phrases.append(phrase_score)
                 current_phrase = []
             current_phrase.append(note)
 
         # Append final phrase
         if len(current_phrase) > 0:
-            phrase_score = Score()
-            part = Part()
+            phrase_score = Score(onset=0, duration=None)
+            part = Part(parent=None, onset=0, duration=None)  # parent=None is required
             start_time = current_phrase[0].onset
             for phrase_note in current_phrase:
-                new_note = phrase_note.deep_copy()
+                new_note = phrase_note.copy()
                 new_note.onset -= start_time
                 part.insert(new_note)
-            phrase_score.insert(part)
+            phrase_score.insert(part)  # This will set the parent
             phrases.append(phrase_score)
 
         return phrases
