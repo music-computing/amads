@@ -45,7 +45,12 @@ def midi_num_to_name(midi_num: int, accidental) -> str:
 
 
 def pianoroll(
-    score: Score, y_label="name", x_label="beat", color="skyblue", accidental="sharp"
+    score: Score,
+    y_label: str = "name",
+    x_label: str = "beat",
+    color: str = "skyblue",
+    accidental: str = "sharp",
+    show: bool = True,
 ) -> figure.Figure:
     """Converts a Score to a piano roll display of a musical score.
 
@@ -59,11 +64,15 @@ def pianoroll(
         x_label (str, optional):
             Determines whether the x-axis is labeled
             with beats or seconds. Valid input: 'beat' or 'sec'.
+        color (str, optional):
+            The color of the note rectangles. Defaults to 'skyblue'.
         accidental (str, optional):
             Determines whether the y-axis is
             labeled with sharps or flats. O nly useful if argument
             y_label is 'name'. Raises exception on inputs that's not
             'sharp' or 'flat'.
+        show (bool, optional):
+            If True, the plot is displayed. Defaults to True.
 
     Returns:
         A matplotlib.figure.Figure of a pianoroll diagram.
@@ -140,5 +149,8 @@ def pianoroll(
     ax.set_ylim(min(midi_numbers), max(midi_numbers) + 1)
 
     ax.grid(True)
+
+    if show:
+        plt.show()
 
     return fig

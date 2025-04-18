@@ -20,7 +20,7 @@ from typing import Any, List, Union
 
 # matplotlib.use('TkAgg') # We should not force this on users as it is not compatible with all backends
 import matplotlib.pyplot as plt
-from matplotlib import figure
+from matplotlib.figure import Figure
 
 DEFAULT_BAR_COLOR = "skyblue"
 
@@ -76,21 +76,21 @@ class Distribution:
         self.y_categories = y_categories
         self.y_label = y_label
 
-    def plot(self, color=DEFAULT_BAR_COLOR, display: bool = False):
+    def plot(self, color=DEFAULT_BAR_COLOR, show: bool = True) -> Figure:
         if len(self.dimensions) == 1:
             fig = self.plot_1d(color)
         elif len(self.dimensions) == 2:
             fig = self.plot_2d(color)
         else:
             raise ValueError("Unsupported number of dimensions")
-        if display:
+        if show:
             plt.show()
-        return plt, fig
+        return fig
 
-    def plot_1d(self, color=DEFAULT_BAR_COLOR) -> figure.Figure:
+    def plot_1d(self, color=DEFAULT_BAR_COLOR) -> Figure:
         """Create a 1D plot of the distribution.
         Returns:
-            figure.Figure - A matplotlib figure object.
+            Figure - A matplotlib figure object.
         """
 
         fig, ax = plt.subplots()
@@ -100,10 +100,10 @@ class Distribution:
         fig.suptitle(self.name)
         return fig
 
-    def plot_2d(self, color=DEFAULT_BAR_COLOR) -> figure.Figure:
+    def plot_2d(self, color=DEFAULT_BAR_COLOR) -> Figure:
         """Create a 2D plot of the distribution.
         Returns:
-            figure.Figure - A matplotlib figure object.
+            Figure - A matplotlib figure object.
         """
         fig, ax = plt.subplots()
         cax = ax.imshow(self.data, cmap="gray_r", interpolation="nearest")
