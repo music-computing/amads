@@ -83,7 +83,7 @@ def multiset_to_vector(
 def vector_to_multiset(vector: tuple[int, ...]) -> tuple:
     """
     Converts any "vector" (count of integers organised by index)
-    to a corresponding "set" (unordered integers).
+    to a corresponding "multiset" (unordered integers).
 
     Parameters
     ----------
@@ -108,12 +108,7 @@ def vector_to_multiset(vector: tuple[int, ...]) -> tuple:
     True
 
     """
-    multiset = []
-    for i in range(len(vector)):
-        for _ in range(vector[i]):
-            multiset.append(i)
-
-    return tuple(multiset)
+    return tuple(i for i, count in enumerate(vector) for _ in range(count))
 
 
 # Arithmetic operations: Addition/subtraction, multiplication, division
@@ -185,25 +180,25 @@ def apply_constant(
         return result
 
 
-def scalar_multiply(input_tuple: tuple, scale_factor: int = 2) -> tuple:
+def scalar_multiply(input: tuple, scale_factor: int = 2) -> tuple:
     """
     Multiply all values of a tuple.
 
     Parameters
     ----------
-    input_tuple: tuple
+    input: tuple
 
     scale_factor: int
         The "scale factor" aka "multiplicative operand".
         Multiply all terms by this amount.
         Defaults to 2.
 
-    >>> scalar_multiply([0, 1, 2])
+    >>> scalar_multiply((0, 1, 2))
     (0, 2, 4)
 
     """
     return tuple(
-        x * scale_factor for x in input_tuple
+        x * scale_factor for x in input
     )  # TODO np would be better in cases like this)
 
 
@@ -253,7 +248,7 @@ def rotate(
 
 
 def mirror(
-    vector: Union[list, tuple], index_of_symmetry: Union[int, None] = None
+    vector: tuple, index_of_symmetry: Union[int, None] = None
 ) -> Union[list, tuple]:
     """
     Reverse a vector (or any ordered iterable).
@@ -264,7 +259,7 @@ def mirror(
         The tuple accepts any ordered succession of any elements.
         We expect integers representing a vector, but do not enforce it.
     index_of_symmetry: Union[int, None] = None
-        Defaults to None, in which case, standard refelction of the form `[::-1]`.
+        Defaults to None, in which case, standard reflection of the form `[::-1]`.
         Alternatively, specify an index to rotate about, e.g., for the reverse function in convolution use 0.
         This is equivalent to mirror and rotation.
         See notes at `rotate`.
@@ -293,10 +288,10 @@ def mirror(
     return tuple(rotated)
 
 
-def is_set(iterable_object: Iterable) -> bool:
+def is_set(input: Iterable) -> bool:
     """
     Check whether an iterable object is
-    a set (in type) or
+    a set (specified in the type) or
     a de facto set (not in type, but with no repeated elements).
 
     >>> clear_set = {1, 2, 3}
@@ -311,25 +306,25 @@ def is_set(iterable_object: Iterable) -> bool:
     >>> is_set(de_facto_multi_set)
     False
     """
-    if isinstance(iterable_object, set):
+    if isinstance(input, set):
         return True
-    elif len(set(iterable_object)) == len(iterable_object):
+    elif len(set(input)) == len(input):
         return True
     return False
 
 
-def is_indicator_vector(indicator_vector: tuple) -> bool:
+def is_indicator_vector(vector: tuple) -> bool:
     """
-    Check that a tuple is an indicator vector, featuring only 0s and 1s.
+    Check whether an input vector (tuple) is an indicator vector, featuring only 0s and 1s.
     """
-    if all(x in (0, 1) for x in indicator_vector):
+    if all(x in (0, 1) for x in vector):
         return True
     return False
 
 
 def multiset_to_set(multiset: Iterable):
     """
-    For completeness, a mapping from multiset (iterable) to set (set).
+    For completeness, this function provides a simple mapping from multiset (iterable) to set (set).
     No reciprocal function is possible.
     See `weighted_to_indicator` for the corresponding treatment of vectors.
     """
