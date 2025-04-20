@@ -86,7 +86,7 @@ def pianoroll(
     for note in next(score.find_all(Part)).content:
         onset_time = note.onset
         offset_time = note.offset
-        pitch = note.keynum - 0.5  # to center note rectangle
+        pitch = note.key_num - 0.5  # to center note rectangle
 
         # Conditionally converts beat to sec
         if x_label == "sec":
