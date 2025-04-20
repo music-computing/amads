@@ -2,6 +2,8 @@ import numpy as np
 
 from amads.core.basics import Note, Score
 
+__author__ = "David Whyatt"
+
 
 class PolynomialContour:
     """A class for computing polynomial contour, as described in the FANTASTIC toolbox [1].
