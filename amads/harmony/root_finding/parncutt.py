@@ -2,6 +2,7 @@ from types import ModuleType
 from typing import Dict, List, Optional, Union
 
 import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
 
 from amads.core.basics import Chord, Note
 from amads.pitch import PitchCollection
@@ -76,7 +77,7 @@ class ParncuttRootAnalysis:
     2.1
 
     >>> # Visualize the root strengths
-    >>> plt, fig = analysis.visualize()
+    >>> fig = analysis.plot(show=False)
     >>> # plt.show() # in an interactive session, this will display the plot
     >>> plt.close(fig) # in a non-interactive session, this is needed to close the plot
 
@@ -172,7 +173,7 @@ class ParncuttRootAnalysis:
             return 0.0
         return sum(w / max_weight for w in self.root_strengths) ** self.exponent
 
-    def visualize(self, title: Optional[str] = None) -> tuple[ModuleType, plt.Figure]:
+    def plot(self, title: Optional[str] = None, show=True) -> tuple[ModuleType, Figure]:
         """
         Visualize the root support weights for a chord.
 
@@ -183,13 +184,13 @@ class ParncuttRootAnalysis:
 
         Returns
         -------
-        tuple[ModuleType, plt.Figure]
+        tuple[ModuleType, Figure]
             A tuple containing the matplotlib pyplot module and the figure containing the visualization.
 
         Examples
         --------
         >>> analysis = ParncuttRootAnalysis([0, 4, 7])
-        >>> plt, fig = analysis.visualize()
+        >>> fig = analysis.plot(show=False)
         >>> # plt.show() # in an interactive session, this will display the plot
         >>> plt.close(fig) # in a non-interactive session, this is needed to close the plot
         """
@@ -234,4 +235,7 @@ class ParncuttRootAnalysis:
 
         plt.tight_layout()
 
-        return plt, fig
+        if show:
+            plt.show()
+
+        return fig
