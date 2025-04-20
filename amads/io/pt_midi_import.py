@@ -21,5 +21,5 @@ def partitura_midi_import(filename, ptprint=False):
             print(ptpart.pretty())
     score = Score()
     for ptpart in ptscore.parts:
-        score.append(partitura_convert_part(ptpart, score))
+        partitura_convert_part(ptpart, score)
     return score

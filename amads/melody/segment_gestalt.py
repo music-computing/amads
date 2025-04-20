@@ -65,7 +65,7 @@ the *exact* same implementation and 2 filenames...
 
 from operator import lt
 
-from ..core.basics import Note, Part, Score
+from ..core.basics import Part, Score
 from ..pitch.ismonophonic import ismonophonic
 from ..pitch.pitch_mean import pitch_mean
 
@@ -78,10 +78,9 @@ def construct_score_list(notes, intervals):
     score_list = []
     for interval in intervals:
         new_score = Score()
-        new_part = Part()
+        new_part = Part(new_score)
         for note in notes[interval[0] : interval[1]]:
-            new_part.insert(note.deep_copy())
-        new_score.insert(new_part)
+            note.deepcopy_into(new_part)
         score_list.append(new_score)
     return score_list
 
@@ -108,20 +107,7 @@ def segment_gestalt(score: Score) -> tuple[list[float], list[float]]:
     if not ismonophonic(score):
         raise Exception("score not monophonic, input is not valid.")
 
-    # we probably don't need to strip ties (flatten does it automatically)
-    score = score.flatten(collapse=True)
-
-    # ripped straight from skyline.py...
-    # extracting notes here
-    # the bigger question is why do we need to flatten when we are
-    # already extracting notes here? For another time I suppose...
-    notes = list(score.find_all(Note))
-
-    # keynum is the true midi pitch value (alt is only there for printing)
-    # sort the notes by start, if start is equal, sort by pitch
-    # start lists the start time in beats per quarter note
-    # ripped from skyline.py
-    notes.sort(key=lambda note: (note.onset, -note.pitch.keynum))
+    notes = score.flatten(collapse=True).content
 
     if len(notes) <= 0:
         return ([], [])
@@ -145,10 +131,10 @@ def segment_gestalt(score: Score) -> tuple[list[float], list[float]]:
     cl_indices.extend([idx + 1 for idx in clang_soft_peaks])
     cl_indices.append(len(notes))
 
-    clang_starts = list(map(lambda i: (notes[i].onset), cl_indices[:-1]))
+    clang_onsets = list(map(lambda i: (notes[i].onset), cl_indices[:-1]))
 
-    if len(clang_starts) <= 2:
-        return (clang_starts, [])
+    if len(clang_onsets) <= 2:
+        return (clang_onsets, [])
 
     # we can probably split the clangs here and organize them into scores
     clang_scores = construct_score_list(notes, zip(cl_indices[:-1], cl_indices[1:]))
@@ -175,7 +161,7 @@ def segment_gestalt(score: Score) -> tuple[list[float], list[float]]:
         )
         seg_dist_values.append(local_seg_dist)
     if len(seg_dist_values) < 3:
-        return (clang_starts, [])
+        return (clang_onsets, [])
 
     seg_soft_peaks = find_peaks(seg_dist_values)
     assert seg_soft_peaks[-1] < len(cl_indices) - 1
@@ -185,5 +171,5 @@ def segment_gestalt(score: Score) -> tuple[list[float], list[float]]:
     seg_indices.extend([cl_indices[idx + 1] for idx in seg_soft_peaks])
     seg_indices.append(len(notes))
 
-    segment_starts = list(map(lambda i: (notes[i].onset), seg_indices[:-1]))
-    return (clang_starts, segment_starts)
+    segment_onsets = list(map(lambda i: (notes[i].onset), seg_indices[:-1]))
+    return (clang_onsets, segment_onsets)

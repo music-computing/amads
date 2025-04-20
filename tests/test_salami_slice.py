@@ -9,7 +9,13 @@ def test_timepoints_twochan(twochan_notes):
 
 
 def test_salami_slice_twochan(twochan_score):
+    print("test_salami_slice_twochan(twochan_score): ")
+    twochan_score.show()
     chords = salami_slice(twochan_score)
+    print("after salami_slice:", chords)
+    for chord in chords:
+        print("chord at ", chord.onset)
+        chord.show()
     assert len(chords) == 16
 
     pitches = [[int(p.keynum) for p in c.content] for c in chords]

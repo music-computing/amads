@@ -28,14 +28,14 @@ def pcdist1(score: Score, weighted: bool = True) -> list[float]:
     """
     pcd = [0] * 12
 
-    for container in score.note_containers():
-        container.show()
-        for note in container.find_all(Note):
+    if weighted:  # no need to merge ties due to weighting
+        for note in score.find_all(Note):
             pc = note.pitch.pitch_class
-            if weighted:
-                pcd[pc] += note.duration
-            else:
-                pcd[pc] += 1
+            pcd[pc] += note.duration
+    else:  # count tied notes as single notes
+        score = score.merge_tied_notes()
+        for note in score.find_all(Note):
+            pcd[pc] += 1
     total = sum(pcd)
     if total > 0:
         pcd = [i / total for i in pcd]

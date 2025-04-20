@@ -93,7 +93,7 @@ from types import SimpleNamespace
 
 from tenacity import RetryError, Retrying, stop_after_attempt, wait_exponential
 
-from amads.core.basics import Note, Score
+from amads.core.basics import Score
 from amads.pitch.ismonophonic import ismonophonic
 from amads.utils import check_python_package_installed
 
@@ -247,9 +247,7 @@ def r_load_melody(melody: Score, name: str):
 
     assert ismonophonic(melody)
 
-    # Flatten the score to get notes in order
-    flattened_score = melody.flatten(collapse=True)
-    notes = list(flattened_score.find_all(Note))
+    notes = melody.get_sorted_notes()
 
     # Extract onset, pitch, duration for each note
     onsets = FloatVector([note.onset for note in notes])

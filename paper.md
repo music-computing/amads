@@ -15,24 +15,18 @@ authors:
     orcid: 
     equal-contrib: true
     affiliation: 2
-  - name: Tuomas Eerola
-    orcid: 
-    equal-contrib: true
-    affiliation: 3
   - name: Roger Dannenberg
     orcid: 
     equal-contrib: true
-    affiliation: 4
+    affiliation: 3
 affiliations:
  - name: KCL, England
    index: 1
  - name: Cambridge, England
    index: 2
- - name: Durham, England
-   index: 3
  - name: CMU, United States of America
    index: 4
-date: 2024
+date: 2025
 bibliography: paper.bib
 
 # Optional fields if submitting to a AAS journal too, see this blog post:
@@ -75,11 +69,13 @@ We begin with some high-level observations will serve to provide the context and
 
 While some parts of the music computing landscape
 are relatively well served with code libraries
-(e.g., tool-based libraries for extracting data from audio),
-relatively little exists by way of libraries consolidating algorithms for research,
-and the coverage varies across music computing.
+(e.g., tool-based libraries for extracting data from audio such as
+[librosa](https://librosa.org/) and 
+[madmom](https://github.com/CPJKU/madmom)),
+there has been little by way of libraries for consolidating algorithms
+across the music computing, and so the coverage continues to be patchy and disparate.
 
-There are several promising initiatives that draw together algorithms in a particular area.
+There have been several promising initiatives that draw together algorithms in a particular area.
 These include
 "OMNISIA" (Meredith et al. for pattern finding in Java),
 "synpy" (Song et al., for rhythmic syncopation in Python).

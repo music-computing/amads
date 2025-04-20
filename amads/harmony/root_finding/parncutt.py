@@ -82,12 +82,9 @@ class ParncuttRootAnalysis:
 
     >>> # Using a Chord object as the input
     >>> from amads.core.basics import Chord, Note
-    >>> chord = (
-    ...     Chord()
-    ...     .insert(Note(pitch=60))  # C4
-    ...     .insert(Note(pitch=64))  # E4
-    ...     .insert(Note(pitch=67))  # G4
-    ... )
+    >>> chord = Chord(Note(pitch=60),  # C4
+    ...               Note(pitch=64),  # E4
+    ...               Note(pitch=67))  # G4
     >>> analysis = ParncuttRootAnalysis(chord)
     >>> analysis.root
     0
