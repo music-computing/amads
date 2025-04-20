@@ -218,7 +218,7 @@ def rotate(
     ----------
     vector : Union[tuple[int, ...], list[int]]
         Any tuple or list of any elements.
-        We expect to work with a list integers representing a vector.
+        We expect to work with a list of integers representing a vector.
     steps: how many steps to rotate.
         Or, equivalently, the nth index of the input list becomes the 0th index of the new.
         If unspecified, use the half cycle: int(<cycle lenth>/2).
