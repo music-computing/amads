@@ -42,12 +42,12 @@ def multiset_to_vector(
 
     Examples
     --------
-    >>> test_multi_set = (1, 1, 1, 2, 2, 3)
-    >>> vector = multiset_to_vector(test_multi_set)
+    >>> test_multiset = (1, 1, 1, 2, 2, 3)
+    >>> vector = multiset_to_vector(test_multiset)
     >>> vector
     (0, 3, 2, 1)
 
-    >>> vector_with_padding = multiset_to_vector(test_multi_set, max_index=6)
+    >>> vector_with_padding = multiset_to_vector(test_multiset, max_index=6)
     >>> vector_with_padding
     (0, 3, 2, 1, 0, 0, 0)
 
@@ -55,7 +55,7 @@ def multiset_to_vector(
     >>> roundtrip
     (1, 1, 1, 2, 2, 3)
 
-    >>> roundtrip == test_multi_set
+    >>> roundtrip == test_multiset
     True
 
     >>> test_set = (1, 2, 3)
@@ -302,8 +302,8 @@ def is_set(input: Iterable) -> bool:
     >>> is_set(de_facto_set)
     True
 
-    >>> de_facto_multi_set = (1, 1, 2, 3)
-    >>> is_set(de_facto_multi_set)
+    >>> de_facto_multiset = (1, 1, 2, 3)
+    >>> is_set(de_facto_multiset)
     False
     """
     if isinstance(input, set):

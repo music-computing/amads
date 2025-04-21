@@ -583,19 +583,20 @@ class Note(Event):
 
     @pitch_class.setter
     def pitch_class(self, pc: int) -> None:
-        """Set the pitch class of the note.
+        """Set the pitch class of the note. Keep the same octave, but
+        not necessarily the same register.
 
         Parameters
         ----------
         pc : int
             The new pitch class value.
         """
-        self.pitch.pitch_class = pc
+        self.pitch = Pitch(pc + 12 * (self.octave + 1), self.pitch.alt)
 
 
     @property
     def octave(self) -> int:
-        """Retrieve the octave number of the note, based on keynum.
+        """Retrieve the octave number of the note, based on key_num.
         E.g. C4 is enharmonic to B#3 and represent the same (more or less)
         pitch, but BOTH have an octave of 4. On the other hand name()
         will return "C4" and "B#3", respectively.
@@ -617,11 +618,12 @@ class Note(Event):
         oct : int
             The new octave number.
         """
-        self.pitch.octave = oct
+        self.pitch = Pitch(self.key_num + (oct - self.octave) * 12,
+                           self.pitch.alt)
 
 
     @property
-    def keynum(self) -> int:
+    def key_num(self) -> int:
         """Retrieve the MIDI key number of the note, e.g. C4 = 60.
 
         Returns
@@ -629,7 +631,7 @@ class Note(Event):
         int
             The MIDI key number of the note.
         """
-        return self.pitch.keynum
+        return self.pitch.key_num
 
 
     def enharmonic(self) -> "Pitch":
@@ -670,6 +672,26 @@ class Note(Event):
             equivalent of the note.
         """
         return self.pitch.lower_enharmonic()
+
+
+    def simplest_enharmonic(self) -> "Pitch":
+        """Return a valid Pitch with the simplest enharmonic representation.
+        (see Pitch.simplest_enharmonic)
+
+        Parameters
+        ----------
+        sharp_or_flat: str
+            This is only relevant if the pitch needs an alteration, otherwise
+            it is unused. The value can be "sharp" (use sharps), "flat" (use
+            flats), and otherwise use the same enharmonic choice as the Pitch
+            constructor.
+
+        Returns
+        -------
+        Pitch
+            A Pitch object representing the enharmonic equivalent.
+        """
+        return self.pitch.simplest_enharmonic(sharp_or_flat)
 
 
 
@@ -1521,7 +1543,7 @@ class Concurrence(EventGroup):
 
 class Chord(Concurrence):
     """A Chord is a collection of Notes, normally with onsets equal
-    to that of the chord and the same durations but distinct keynums,
+    to that of the chord and the same durations but distinct key_nums,
     but none of this is enforced.  The order of notes is arbitrary.
     Normally, a Chord is a member of a Measure. There is no requirement
     that simultaneous or overlapping notes be grouped into Chords,
@@ -1800,7 +1822,7 @@ class Score(Concurrence):
         >>> notes = score.content[0].content
         >>> len(notes)  # number of notes in first part
         8
-        >>> notes[0].pitch.keynum
+        >>> notes[0].key_num
         60
         >>> score.duration  # last note ends at t=8
         8.0
@@ -1955,8 +1977,8 @@ class Score(Concurrence):
         is not ideal, but we need to distinguish between part numbers
         (arbitrary labels) and part index. Initially, I used tuples,
         but they are error prone. E.g. part=(0) means part=0, so you
-        have to write keynum_list(part=((0))). With [n], you write
-        keynum_list(part=[0]) to indicate an index. This is
+        have to write key_num_list(part=((0))). With [n], you write
+        key_num_list(part=[0]) to indicate an index. This is
         prettier and less prone to error.
         """
         # Algorithm: Since we might be selecting individual Staffs and
@@ -2034,7 +2056,7 @@ class Score(Concurrence):
             for note in notes:
                 note.parent = new_part
             # notes with equal onset times are sorted in pitch from high to low
-            notes.sort(key=lambda x: (x.onset, -note.pitch.keynum))
+            notes.sort(key=lambda x: (x.onset, -note.key_num))
             new_part.content = notes  # content will have only Notes
 
             # set the Part duration so it ends at the max offset of all Parts:
@@ -2318,11 +2340,11 @@ class Part(Concurrence):
         group = [notes[i]]  # start the list
         while notes[i].tie == "start" or notes[i].tie == "continue":
             offset = notes[i].offset
-            keynum = notes[i].keynum  # allow ties to enharmonics
+            key_num = notes[i].key_num  # allow ties to enharmonics
             candidates = []  # save indices of possible tied notes
             j = i + 1  # search for candidates starting at i + 1
             while j < len(notes) and notes[j].onset < offset + 0.0001:
-                if (notes[j].keynum == keynum
+                if (notes[j].key_num == key_num
                     and (notes[j].tie == "stop" or notes[j].tie == "continue")
                     and notes[j].onset > offset - 0.0001):
                     candidates.append(j)  # found one!

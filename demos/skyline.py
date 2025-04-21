@@ -11,7 +11,7 @@ myscore = partitura_midi_import(my_midi_file, ptprint=False)
 print("------- finished input from partitura")
 myscore.show()
 
-pianoroll(myscore)
+pianoroll(myscore, show=False)
 
 print("------- Find skyline")
 sl = skyline(myscore)
@@ -19,5 +19,5 @@ sl = skyline(myscore)
 # print(sl)
 sl.show()
 
-pianoroll(sl)
+pianoroll(sl, show=False)
 plt.show()

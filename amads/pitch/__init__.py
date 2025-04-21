@@ -184,13 +184,13 @@ class PitchCollection:
     >>> pitches = [Pitch.from_name(p) for p in test_case]
     >>> pitches_gathered = PitchCollection(pitches)
 
-    >>> pitches_gathered.pitch_multi_set
+    >>> pitches_gathered.pitch_multiset
     ['G#', 'G#', 'B', 'D', 'F', 'Ab']
 
-    >>> pitches_gathered.MIDI_multi_set
+    >>> pitches_gathered.MIDI_multiset
     [68, 68, 71, 62, 65, 68]
 
-    >>> pitches_gathered.pitch_class_multi_set
+    >>> pitches_gathered.pitch_class_multiset
     [2, 5, 8, 8, 8, 11]
 
     >>> pitches_gathered.pitch_class_set
@@ -205,16 +205,16 @@ class PitchCollection:
     """
 
     def __init__(self, pitches: list[Pitch]):
-        self.pitch_multi_set = [p.name for p in pitches]
-        self.MIDI_multi_set = [p.midi for p in pitches]
-        self.pitch_class_multi_set = [
-            midi % 12 for midi in self.MIDI_multi_set
+        self.pitch_multiset = [p.name for p in pitches]
+        self.MIDI_multiset = [p.midi for p in pitches]
+        self.pitch_class_multiset = [
+            midi % 12 for midi in self.MIDI_multiset
         ]  # TODO or make pc attr on Pitch.
-        self.pitch_class_multi_set.sort()
-        self.pitch_class_set = list(set(self.pitch_class_multi_set))
+        self.pitch_class_multiset.sort()
+        self.pitch_class_set = list(set(self.pitch_class_multiset))
         self.pitch_class_set.sort()
         self.pitch_class_vector = multiset_to_vector(
-            self.pitch_class_multi_set, max_index=12
+            self.pitch_class_multiset, max_index=12
         )
         self.pitch_class_indicator_vector = weighted_to_indicator(
             self.pitch_class_vector
