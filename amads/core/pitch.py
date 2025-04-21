@@ -203,17 +203,30 @@ class Pitch:
         return (self.key_num, -self.alt) < (other.key_num, -other.alt)
 
 
-    def enharmonic(self):
+    def enharmonic(self) -> "Pitch":
         """If alt is non-zero, return a Pitch where alt is zero
         or has the opposite sign and where alt is minimized. E.g.
         enharmonic(Cbb) is A# (not Bb). If alt is zero, return a
         Pitch with alt of +1 or -1 if possible. Otherwise, return
         a Pitch with alt of -2 (Ebb, Abb or Bbb).
+        Note the difference between this and `to_simplest_enharmonic`.
 
         Returns
         -------
         Pitch
             A new Pitch object representing the enharmonic equivalent.
+
+        Examples
+        --------
+        >>> bds = Pitch("B##3")
+        >>> bds
+        Pitch(name='B##3', key_num=61)
+
+        >>> bds.enharmonic()  # change of direction
+        Pitch(name='Db4', key_num=61)
+
+        >>> bds.upper_enharmonic()
+        Pitch(name='C#4', key_num=61)
         """
         alt = self.alt
         unaltered = round(self.key_num - alt)
