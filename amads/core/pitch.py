@@ -9,7 +9,7 @@ from math import floor
 from numbers import Number
 from typing import Optional, Tuple, Union
 
-from amads.core.vectors_sets import set_to_vector, weighted_to_indicator
+from amads.core.vectors_sets import multiset_to_vector, weighted_to_indicator
 
 LETTER_TO_NUMBER = {"C": 0, "D": 2, "E": 4, "F": 5, "G": 7, "A": 9, "B": 11}
 
@@ -126,18 +126,20 @@ class Pitch:
     def __init__(self, pitch: Union["Pitch", Number, str] = 60,
                  alt: Union[Number, None] = None,
                  accidental_chars: Optional[str] = None):
-        pitch = float(pitch)  # converts numpy.int64, nympy.floating, etc.
-        if isinstance(pitch, Number):
-            self.key_num = pitch
-            self.alt = (0 if alt is None else alt)
-            self._fix_alteration()
-        elif isinstance(pitch, str):
+        if isinstance(pitch, str):
             self.key_num, self.alt = Pitch.from_name(pitch, alt, accidental_chars)
         elif isinstance(pitch, Pitch):
             self.key_num = pitch.key_num
             self.alt = pitch.alt
         else:
-            raise ValueError(f"invalid pitch specification: {pitch}")
+            # this will raise a ValueError if pitch is not some kind of number:
+            pitch = float(pitch)  # converts numpy.int64, nympy.floating, etc.
+            if pitch.is_integer():  # for nicer printing, represent "exact" 12-TET
+                pitch = int(pitch)  # pitch numbers as integers.
+            self.key_num = pitch
+            self.alt = (0 if alt is None else alt)
+            self._fix_alteration()
+
 
     def __repr__(self):
         return f"Pitch(name='{self.name_with_octave}', key_num={self.key_num})"
@@ -513,17 +515,17 @@ class Pitch:
         Examples
         --------
 
-        >>> es = Pitch("Eb4")
-        >>> es
-        Pitch(name='B##3", key_num=61)
+        >>> bds = Pitch("B##3")
+        >>> bds
+        Pitch(name='B##3', key_num=61)
 
-        >>> es.alt
+        >>> bds.alt
         2
 
-        >>> es.simplest_enharmonic()
+        >>> bds.simplest_enharmonic()
         Pitch(name='C#4', key_num=61)
 
-        >>> es.simplest_enharmonic(sharp_or_flat="flat")
+        >>> bds.simplest_enharmonic(sharp_or_flat="flat")
         Pitch(name='Db4', key_num=61)
 
         Returns
@@ -573,13 +575,10 @@ class PitchCollection:
     >>> pitches = [Pitch(p) for p in test_case]
     >>> pitches_gathered = PitchCollection(pitches)
 
-    # >>> pitches_gathered.pitch_num_multi_set
-    # [68, 68, 'B4', 62, 65, 68]
+    >>> pitches_gathered.pitch_name_multi_set
+    ['G#4', 'G#4', 'B4', 'D4', 'F4', 'Ab4']
 
-    # >>> pitches_gathered.pitch_name_multi_set
-    # ['G#4', 'G#4', 'B4', 'D4', 'F4', 'Ab4']
-
-    >>> pitches_gathered.key_num_multi_set
+    >>> pitches_gathered.pitch_num_multi_set
     [68, 68, 71, 62, 65, 68]
 
     >>> pitches_gathered.pitch_class_multi_set
@@ -615,7 +614,7 @@ class PitchCollection:
 
     @property
     def pitch_class_vector(self):
-        return set_to_vector(self.pitch_class_multi_set, max_index=11)
+        return multiset_to_vector(self.pitch_class_multi_set, max_index=11)
 
     @property
     def pitch_class_indicator_vector(self):
