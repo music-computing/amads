@@ -457,15 +457,24 @@ class Pitch:
 
         Examples
         --------
-        >>> bds = Pitch("B##3")
-        >>> bds
-        Pitch(name='B##3', key_num=61)
+        >>> Pitch("C4").enharmonic()
+        Pitch(name='B#3', key_num=60)
 
-        >>> bds.enharmonic()  # change of direction
+        >>> Pitch("B3").enharmonic()
+        Pitch(name='Cb4', key_num=59)
+
+        >>> Pitch("B#3").enharmonic()
+        Pitch(name='C4', key_num=60)
+
+        >>> bds = Pitch("B##3")
+        >>> bds.enharmonic() # change of direction
         Pitch(name='Db4', key_num=61)
 
-        >>> bds.upper_enharmonic()
+        >>> bds.upper_enharmonic()  # note the difference
         Pitch(name='C#4', key_num=61)
+
+        >>> Pitch("Dbb4").enharmonic()
+        Pitch(name='C4', key_num=60)
         """
         alt = self.alt
         unaltered = round(self.key_num - alt)
@@ -510,17 +519,14 @@ class Pitch:
         --------
 
         >>> bds = Pitch("B##3")
-        >>> bds
-        Pitch(name='B##3', key_num=61)
-
-        >>> bds.alt
-        2
-
         >>> bds.simplest_enharmonic()
         Pitch(name='C#4', key_num=61)
 
         >>> bds.simplest_enharmonic(sharp_or_flat="flat")
         Pitch(name='Db4', key_num=61)
+
+        >>> Pitch("C4").simplest_enharmonic()
+        Pitch(name='C4', key_num=60)
 
         Returns
         -------
@@ -566,9 +572,11 @@ class Pitch:
         >>> des
         Pitch(name='Db4', key_num=61)
 
-        >>> des = des.upper_enharmonic()
-        >>> des
+        >>> des.upper_enharmonic()
         Pitch(name='Ebbb4', key_num=61)
+
+        >>> Pitch("D4").upper_enharmonic()
+        Pitch(name='Ebb4', key_num=62)
 
         """
         alt = self.alt
@@ -595,14 +603,14 @@ class Pitch:
 
         Examples
         --------
-        >>> des = Pitch("Db4")
-        >>> des.lower_enharmonic()
+        >>> Pitch("Db4").lower_enharmonic()
         Pitch(name='C#4', key_num=61)
 
-        >>> d = Pitch("D4")
-        >>> d.lower_enharmonic()
+        >>> Pitch("D4").lower_enharmonic()
         Pitch(name='C##4', key_num=62)
 
+        >>> Pitch("C#4").lower_enharmonic()
+        Pitch(name='B##3', key_num=61)
 
         """
         alt = self.alt
