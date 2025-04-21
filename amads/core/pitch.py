@@ -547,13 +547,35 @@ class Pitch:
 
 
     def upper_enharmonic(self) -> "Pitch":
-        """Return a valid Pitch with alt decreased by 1 or 2, e.g., C#->Db,
-        C##->D, Cb->Dbbb
+        """
+        Return a valid Pitch object based on the note name above the input
+        and with `alt` accordingly decreased by 1 or 2,
+        e.g., C#->Db, C##->D, Cb->Dbbb.
 
         Returns
         -------
         Pitch
             A Pitch object representing the upper enharmonic equivalent.
+
+
+        Examples
+        --------
+        >>> bds = Pitch("B##3")
+        >>> bds
+        Pitch(name='B##3', key_num=61)
+
+        >>> cis = bds.upper_enharmonic()
+        >>> cis
+        Pitch(name='C#4', key_num=61)
+
+        >>> des = cis.upper_enharmonic()
+        >>> des
+        Pitch(name='Db4', key_num=61)
+
+        >>> des = des.upper_enharmonic()
+        >>> des
+        Pitch(name='Ebbb4', key_num=61)
+
         """
         alt = self.alt
         unaltered = round(self.key_num - alt) % 12
