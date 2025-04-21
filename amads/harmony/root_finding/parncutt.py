@@ -132,7 +132,7 @@ class ParncuttRootAnalysis:
         elif isinstance(chord, Chord):
             pitch_set = set(note.key_num for note in chord.find_all(Note))
         elif isinstance(chord, PitchCollection):
-            pitch_set = set(chord.MIDI_multi_set)
+            pitch_set = set(chord.MIDI_multiset)
         else:
             raise TypeError(
                 "Chord must be a list of MIDI pitches, a Chord object, or a PitchCollection object"

@@ -575,13 +575,13 @@ class PitchCollection:
     >>> pitches = [Pitch(p) for p in test_case]
     >>> pitches_gathered = PitchCollection(pitches)
 
-    >>> pitches_gathered.pitch_name_multi_set
+    >>> pitches_gathered.pitch_name_multiset
     ['G#4', 'G#4', 'B4', 'D4', 'F4', 'Ab4']
 
-    >>> pitches_gathered.pitch_num_multi_set
+    >>> pitches_gathered.pitch_num_multiset
     [68, 68, 71, 62, 65, 68]
 
-    >>> pitches_gathered.pitch_class_multi_set
+    >>> pitches_gathered.pitch_class_multiset
     [2, 5, 8, 8, 8, 11]
 
     >>> pitches_gathered.pitch_class_set
@@ -597,24 +597,24 @@ class PitchCollection:
     pitches: list[Pitch]
 
     @property
-    def pitch_num_multi_set(self):
+    def pitch_num_multiset(self):
         return [p.key_num for p in self.pitches]
 
     @property
-    def pitch_name_multi_set(self):
+    def pitch_name_multiset(self):
         return [p.name_with_octave for p in self.pitches]
 
     @property
-    def pitch_class_multi_set(self):
+    def pitch_class_multiset(self):
         return sorted([p.pitch_class for p in self.pitches])
 
     @property
     def pitch_class_set(self):
-        return sorted(list(set(self.pitch_class_multi_set)))
+        return sorted(list(set(self.pitch_class_multiset)))
 
     @property
     def pitch_class_vector(self):
-        return multiset_to_vector(self.pitch_class_multi_set, max_index=11)
+        return multiset_to_vector(self.pitch_class_multiset, max_index=11)
 
     @property
     def pitch_class_indicator_vector(self):
