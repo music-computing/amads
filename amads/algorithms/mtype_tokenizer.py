@@ -127,7 +127,7 @@ class FantasticTokenizer(MelodyTokenizer):
             return tokens
 
         for prev_note, current_note in zip(notes[:-1], notes[1:]):
-            pitch_interval = current_note.keynum - prev_note.keynum
+            pitch_interval = current_note.key_num - prev_note.key_num
             if (
                 self.ioi_data[prev_note]["ioi"] is None
                 or self.ioi_data[current_note]["ioi"] is None

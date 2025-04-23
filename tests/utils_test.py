@@ -1,6 +1,6 @@
 import unittest
 
-from amads.core.utils import dir2coll, hz2keynum, keyname, keynum2hz
+from amads.core.utils import dir2coll, hz2key_num, key_num2hz, keyname
 from amads.music import example
 
 
@@ -21,17 +21,17 @@ class TestUntils(unittest.TestCase):
         self.assertEqual(len(scores), 2)
         print("Scores extracted from files: ", scores.keys())
 
-    def test_hz2keynum(self):
+    def test_hz2key_num(self):
         """Test converting frequencies to MIDI key numbers."""
-        print("-----------Testing hz2keynum function-----------")
-        self.assertEqual(hz2keynum(440.0).keynum, 69)  # A4 (440 Hz) is MIDI key 69
-        self.assertEqual(hz2keynum(880.0).keynum, 81)  # A5 (880 Hz) is MIDI key 81
+        print("-----------Testing hz2key_num function-----------")
+        self.assertEqual(hz2key_num(440.0).key_num, 69)  # A4 (440 Hz) is MIDI key 69
+        self.assertEqual(hz2key_num(880.0).key_num, 81)  # A5 (880 Hz) is MIDI key 81
 
-    def test_keynum2hz(self):
+    def test_key_num2hz(self):
         """Test converting MIDI key numbers to frequencies."""
-        print("-----------Testing keynum2hz function-----------")
-        self.assertAlmostEqual(keynum2hz(69), 440.0, places=2)  # MIDI key 69 is 440 Hz
-        self.assertAlmostEqual(keynum2hz(81), 880.0, places=2)  # MIDI key 81 is 880 Hz
+        print("-----------Testing key_num2hz function-----------")
+        self.assertAlmostEqual(key_num2hz(69), 440.0, places=2)  # MIDI key 69 is 440 Hz
+        self.assertAlmostEqual(key_num2hz(81), 880.0, places=2)  # MIDI key 81 is 880 Hz
 
     def test_keyname(self):
         """Test converting key numbers to key names."""

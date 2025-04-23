@@ -22,8 +22,8 @@ def update_pcd(pcd: list[list[float]], notes: list[Note], weighted: bool):
     prev = None
     for note in notes:
         if prev:
-            pc_curr = note.pitch.pitch_class
-            pc_prev = prev.pitch.pitch_class
+            pc_curr = note.pitch_class
+            pc_prev = prev.pitch_class
 
             if weighted:
                 pcd[pc_prev][pc_curr] += prev.duration * note.duration

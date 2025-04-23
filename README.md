@@ -33,12 +33,12 @@ pip install -e amads
    - The sources are far-flung, in many code languages, and not interoperable.
 2. The language is Python, for all the usual reasons, chief among them being it popularity.
    - some designers of computer languages programming languages may find that a rather shallow reason,
-   - but commitment to access and interoperability makes a language"s existing popularity critically important.
+   - but commitment to access and interoperability makes a language's existing popularity critically important.
    - e.g., we have in mind the student of music who gets that computing will open things up for them, but who also wants the time they invest in learning the ropes to be transferable in case they ever want or need to move away from music computing (imagine!).
-3. Algorithms are linked to a credible publication
-   - ... or other demonstrable take-up by the community.
-   - implemented here as exactly as reference to the source allows (usually from scratch)
-   - Open source, well documented, etc.
+3. Algorithms are:
+   - linked to a credible publication or other demonstrable take-up by the community.
+   - implemented here as exactly as reference to the source allows (usually from scratch), or with clear commentary on any changes
+   - open-source, well documented, etc.
 
 ## Uses
 
@@ -54,5 +54,4 @@ Among them, those we have had in mind during the development include:
 ... are welcome!
 
 Please pitch in relevant material, making sure to include any relevant citation.
-Equally, please feel free to add issues for algorithms you'd like to see us implement and include here.
-
+Equally, please feel free to add issues (or write directly) to propose algorithms you'd like to see us implement and include here.
