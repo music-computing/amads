@@ -21,7 +21,7 @@ import numpy as np
 
 class MetricalSalience:
     """
-    Methods for storing array representations of metrical structre and derived salience values.
+    Methods for storing array representations of metrical structure and derived salience values.
 
     Parameters
     ----------
