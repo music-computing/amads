@@ -83,7 +83,6 @@ def metrical_gcm(
         Converted to a Counter object if not already in that format.
     bins
         The argument sets a starting number of bins per measure.
-        This must be an integer multiple of 2 or 3.
         This function tests various values at this level and greater, returning the one it alights on.
     distance_threshold
         The rounding tolerance between a temporal position multiplied by the bin value and the nearest integer.
@@ -117,9 +116,17 @@ def metrical_gcm(
 
 
     """
-    if int(bins / 2) != bins / 2:
-        if int(bins / 3) != bins / 3:
-            raise ValueError("The `bins` must be an integer multiple of 2 or 3.")
+    if not 0.0 < distance_threshold < 1.0:
+        raise ValueError("The `distance_threshold` must be between 0 and 1.")
+
+    if not 0.0 < proportion_threshold < 1.0:
+        raise ValueError("The `proportion_threshold` must be between 0 and 1.")
+
+    if not isinstance(bins, int):
+        raise ValueError("The `bins` must be an integer.")
+
+    if bins < 0:
+        raise ValueError("The `bins` must be a positive integer.")
 
     if isinstance(starts, Counter):
         for k in starts:
