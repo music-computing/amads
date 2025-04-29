@@ -55,6 +55,7 @@ work:
 """
 
 import copy
+from functools import cache
 from math import floor
 from typing import Generator, Optional, Type, Union
 
@@ -2241,6 +2242,34 @@ class Score(Concurrence):
         # score will have one Part, content of which is all Notes:
         return self.flatten(collapse=True).content[0].content
 
+    @cache
+    def get_notes(self, strip_ties: bool, sort: bool) -> list[Note]:
+        """Return a list of all notes found in the score.
+        This method caches the notes based on the strip_ties and sort parameters
+        to reduce computation time when the same score is processed multiple times in the same way.
+        
+        Parameters
+        ----------
+        strip_ties : bool
+            If True, merge tied notes before returning.
+        sort : bool
+            If True, sort notes by onset time.
+            
+        Returns
+        -------
+        list[Note]
+            A list of all Note objects found in the score.
+        """
+        score = self
+        if strip_ties:
+            score = score.merge_tied_notes()
+
+        notes = list(score.find_all(Note))
+
+        if sort:
+            notes.sort(key=lambda x: x.onset)
+
+        return notes
 
 
 class Part(Concurrence):
