@@ -1,0 +1,736 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>amads.melody.similarity.melsim &#8212; amads  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/amads/melody/similarity/melsim';</script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">amads  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">User guide:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/installation.html">Installation</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Developer notes:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../developer_notes/contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developer_notes/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developer_notes/design.html">Design considerations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developer_notes/modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developer_notes/music21.html">Music21</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developer_notes/testing.html">Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developer_notes/style.html">Style</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developer_notes/making_a_release.html">Making a release</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Examples:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../auto_examples/plot_durdist1.html">Duration distributions (I)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../auto_examples/plot_durdist2.html">Duration distributions (II)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../auto_examples/plot_parncutt_root_analysis.html">Root analysis (after Parncutt)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../auto_examples/plot_boundary.html">Boundary detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../auto_examples/plot_sliding_window.html">Sliding window analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../auto_examples/plot_melsim.html">Melodic similarity</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">General algorithms:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.algorithms.entropy.html">amads.algorithms.entropy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.algorithms.nnotes.html">amads.algorithms.nnotes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.algorithms.scale.html">amads.algorithms.scale</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.algorithms.slice.salami.html">amads.algorithms.slice.salami</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.algorithms.slice.window.html">amads.algorithms.slice.window</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Pitch:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.hz2midi.html">amads.pitch.hz2midi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.ismonophonic.html">amads.pitch.ismonophonic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.ivdirdist1.html">amads.pitch.ivdirdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.ivdist1.html">amads.pitch.ivdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.ivdist2.html">amads.pitch.ivdist2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.ivsizedist1.html">amads.pitch.ivsizedist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.key.profiles.html">amads.pitch.key.profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.pcdist1.html">amads.pitch.pcdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.pcdist2.html">amads.pitch.pcdist2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.pitch_mean.html">amads.pitch.pitch_mean</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.transformations.html">amads.pitch.transformations</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Time:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.time.durdist1.html">amads.time.durdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.time.durdist2.html">amads.time.durdist2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.time.swing.html">amads.time.swing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.time.tempo.html">amads.time.tempo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.time.meter.break_it_up.html">amads.time.meter.break_it_up</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Melody:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.melody.boundary.html">amads.melody.boundary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.melody.segment_gestalt.html">amads.melody.segment_gestalt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.melody.contour.interpolation_contour.html">amads.melody.contour.interpolation_contour</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.melody.contour.step_contour.html">amads.melody.contour.step_contour</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.melody.similarity.melsim.html">amads.melody.similarity.melsim</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Polyphony:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.polyphony.skyline.html">amads.polyphony.skyline</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Core:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.core.basics.html">amads.core.basics</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">IO:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.io.pianoroll.html">amads.io.pianoroll</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for amads.melody.similarity.melsim</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This is a Python wrapper for the R package &#39;melsim&#39; (https://github.com/sebsilas/melsim).</span>
+<span class="sd">This wrapper seeks to allow the user to easily interface with the melsim package using</span>
+<span class="sd">the Score objects in AMADS.</span>
+
+<span class="sd">Melsim is a package for computing similarity between melodies, and is being developed by</span>
+<span class="sd">Sebastian Silas (https://sebsilas.com/) and Klaus Frieler</span>
+<span class="sd">(https://www.aesthetics.mpg.de/en/the-institute/people/klaus-frieler.html).</span>
+
+<span class="sd">Melsim is based on SIMILE, which was written by Daniel Müllensiefen and Klaus Frieler in 2003/2004.</span>
+<span class="sd">This package is used to compare two or more melodies pairwise across a range of similarity measures.</span>
+<span class="sd">Not all similarity measures are implemented in melsim, but the ones that are can be used in AMADS.</span>
+
+<span class="sd">All of the following similarity measures are implemented and functional in melsim:</span>
+<span class="sd">Please be aware that the names of the similarity measures are case-sensitive.</span>
+
+<span class="sd">Num:        Name:</span>
+<span class="sd">1           Jaccard</span>
+<span class="sd">2       Kulczynski2</span>
+<span class="sd">3            Russel</span>
+<span class="sd">4             Faith</span>
+<span class="sd">5          Tanimoto</span>
+<span class="sd">6              Dice</span>
+<span class="sd">7            Mozley</span>
+<span class="sd">8            Ochiai</span>
+<span class="sd">9            Simpson</span>
+<span class="sd">10           cosine</span>
+<span class="sd">11          angular</span>
+<span class="sd">12      correlation</span>
+<span class="sd">13        Tschuprow</span>
+<span class="sd">14           Cramer</span>
+<span class="sd">15            Gower</span>
+<span class="sd">16        Euclidean</span>
+<span class="sd">17        Manhattan</span>
+<span class="sd">18         supremum</span>
+<span class="sd">19         Canberra</span>
+<span class="sd">20            Chord</span>
+<span class="sd">21         Geodesic</span>
+<span class="sd">22             Bray</span>
+<span class="sd">23          Soergel</span>
+<span class="sd">24           Podani</span>
+<span class="sd">25        Whittaker</span>
+<span class="sd">26         eJaccard</span>
+<span class="sd">27            eDice</span>
+<span class="sd">28   Bhjattacharyya</span>
+<span class="sd">29       divergence</span>
+<span class="sd">30        Hellinger</span>
+<span class="sd">31    edit_sim_utf8</span>
+<span class="sd">32         edit_sim</span>
+<span class="sd">33      Levenshtein</span>
+<span class="sd">34          sim_NCD</span>
+<span class="sd">35            const</span>
+<span class="sd">36          sim_dtw</span>
+
+<span class="sd">The following similarity measures are not currently functional in melsim:</span>
+<span class="sd">1    count_distinct (set-based)</span>
+<span class="sd">2          tversky (set-based)</span>
+<span class="sd">3   simple matching</span>
+<span class="sd">4   braun_blanquet (set-based)</span>
+<span class="sd">5        minkowski (vector-based)</span>
+<span class="sd">6           ukkon (distribution-based)</span>
+<span class="sd">7      sum_common (distribution-based)</span>
+<span class="sd">8       distr_sim (distribution-based)</span>
+<span class="sd">9   stringdot_utf8 (sequence-based)</span>
+<span class="sd">10            pmi (special)</span>
+<span class="sd">11       sim_emd (special)</span>
+
+<span class="sd">Further to the similarity measures, melsim allows the user to specify which domain the</span>
+<span class="sd">similarity should be calculated for. This is referred to as a &quot;transformation&quot; in melsim,</span>
+<span class="sd">and all of the following transformations are implemented and functional:</span>
+
+<span class="sd">Num:        Name:</span>
+<span class="sd">1           pitch</span>
+<span class="sd">2           int</span>
+<span class="sd">3           fuzzy_int</span>
+<span class="sd">4           parsons</span>
+<span class="sd">5           pc</span>
+<span class="sd">6           ioi_class</span>
+<span class="sd">7           duration_class</span>
+<span class="sd">8           int_X_ioi_class</span>
+<span class="sd">9           implicit_harmonies</span>
+
+<span class="sd">The following transformations are not currently functional in melsim:</span>
+
+<span class="sd">Num:        Name:</span>
+<span class="sd">1           ioi</span>
+<span class="sd">2           phrase_segmentation</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">cache</span><span class="p">,</span> <span class="n">wraps</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimpleNamespace</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">tenacity</span><span class="w"> </span><span class="kn">import</span> <span class="n">RetryError</span><span class="p">,</span> <span class="n">Retrying</span><span class="p">,</span> <span class="n">stop_after_attempt</span><span class="p">,</span> <span class="n">wait_exponential</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">amads.core.basics</span><span class="w"> </span><span class="kn">import</span> <span class="n">Score</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">amads.pitch.ismonophonic</span><span class="w"> </span><span class="kn">import</span> <span class="n">ismonophonic</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">amads.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_python_package_installed</span>
+
+<span class="n">r_base_packages</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">,</span> <span class="s2">&quot;utils&quot;</span><span class="p">]</span>
+<span class="n">r_cran_packages</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;tibble&quot;</span><span class="p">,</span> <span class="s2">&quot;R6&quot;</span><span class="p">,</span> <span class="s2">&quot;remotes&quot;</span><span class="p">]</span>
+
+<span class="n">r_github_packages</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;melsim&quot;</span><span class="p">]</span>
+<span class="n">github_repos</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;melsim&quot;</span><span class="p">:</span> <span class="s2">&quot;sebsilas/melsim&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">R</span> <span class="o">=</span> <span class="n">SimpleNamespace</span><span class="p">()</span>
+
+
+<span class="nd">@cache</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_melsim</span><span class="p">():</span>
+    <span class="n">check_python_package_installed</span><span class="p">(</span><span class="s2">&quot;pandas&quot;</span><span class="p">)</span>
+    <span class="n">check_python_package_installed</span><span class="p">(</span><span class="s2">&quot;rpy2&quot;</span><span class="p">)</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">rpy2.robjects</span><span class="w"> </span><span class="kn">import</span> <span class="n">pandas2ri</span>
+
+    <span class="n">pandas2ri</span><span class="o">.</span><span class="n">activate</span><span class="p">()</span>
+    <span class="n">check_r_packages_installed</span><span class="p">()</span>
+    <span class="n">import_packages</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">requires_melsim</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+
+    <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">load_melsim</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">wrapper</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">check_r_packages_installed</span><span class="p">(</span><span class="n">install_missing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">n_retries</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">):</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">rpy2.robjects.packages</span><span class="w"> </span><span class="kn">import</span> <span class="n">isinstalled</span>
+
+    <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="n">r_cran_packages</span> <span class="o">+</span> <span class="n">r_github_packages</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">isinstalled</span><span class="p">(</span><span class="n">package</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">install_missing</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">attempt</span> <span class="ow">in</span> <span class="n">Retrying</span><span class="p">(</span>
+                        <span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">n_retries</span><span class="p">),</span>
+                        <span class="n">wait</span><span class="o">=</span><span class="n">wait_exponential</span><span class="p">(</span><span class="n">multiplier</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
+                    <span class="p">):</span>
+                        <span class="k">with</span> <span class="n">attempt</span><span class="p">:</span>
+                            <span class="n">install_r_package</span><span class="p">(</span><span class="n">package</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">RetryError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Failed to install R package &#39;</span><span class="si">{</span><span class="n">package</span><span class="si">}</span><span class="s2">&#39; after </span><span class="si">{</span><span class="n">n_retries</span><span class="si">}</span><span class="s2"> attempts. &quot;</span>
+                        <span class="s2">&quot;See above for the traceback.&quot;</span>
+                    <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Package &#39;</span><span class="si">{</span><span class="n">package</span><span class="si">}</span><span class="s2">&#39; is required but not installed. &quot;</span>
+                    <span class="s2">&quot;You can install it by running the following command: &quot;</span>
+                    <span class="s2">&quot;from amads.melody.similarity.melsim import install_dependencies; install_dependencies()&quot;</span>
+                <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">install_r_package</span><span class="p">(</span><span class="n">package</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">rpy2.robjects.packages</span><span class="w"> </span><span class="kn">import</span> <span class="n">importr</span>
+
+    <span class="k">if</span> <span class="n">package</span> <span class="ow">in</span> <span class="n">r_cran_packages</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Installing CRAN package &#39;</span><span class="si">{</span><span class="n">package</span><span class="si">}</span><span class="s2">&#39;...&quot;</span><span class="p">)</span>
+        <span class="n">utils</span> <span class="o">=</span> <span class="n">importr</span><span class="p">(</span><span class="s2">&quot;utils&quot;</span><span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">install_packages</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="n">repos</span><span class="o">=</span><span class="s2">&quot;https://cloud.r-project.org&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">package</span> <span class="ow">in</span> <span class="n">r_github_packages</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Installing GitHub package &#39;</span><span class="si">{</span><span class="n">package</span><span class="si">}</span><span class="s2">&#39;...&quot;</span><span class="p">)</span>
+        <span class="n">remotes</span> <span class="o">=</span> <span class="n">importr</span><span class="p">(</span><span class="s2">&quot;remotes&quot;</span><span class="p">)</span>
+        <span class="n">repo</span> <span class="o">=</span> <span class="n">github_repos</span><span class="p">[</span><span class="n">package</span><span class="p">]</span>
+        <span class="n">remotes</span><span class="o">.</span><span class="n">install_github</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">upgrade</span><span class="o">=</span><span class="s2">&quot;always&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown package type for &#39;</span><span class="si">{</span><span class="n">package</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">install_dependencies</span><span class="p">():</span>
+    <span class="n">check_r_packages_installed</span><span class="p">(</span><span class="n">install_missing</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">import_packages</span><span class="p">():</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">rpy2.robjects.packages</span><span class="w"> </span><span class="kn">import</span> <span class="n">importr</span>
+
+    <span class="n">all_packages</span> <span class="o">=</span> <span class="n">r_base_packages</span> <span class="o">+</span> <span class="n">r_cran_packages</span> <span class="o">+</span> <span class="n">r_github_packages</span>
+    <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="n">all_packages</span><span class="p">:</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">package</span><span class="p">,</span> <span class="n">importr</span><span class="p">(</span><span class="n">package</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="get_similarity">
+<a class="viewcode-back" href="../../../../_autosummary/amads.melody.similarity.melsim.html#amads.melody.similarity.melsim.get_similarity">[docs]</a>
+<span class="nd">@requires_melsim</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_similarity</span><span class="p">(</span>
+    <span class="n">melody_1</span><span class="p">:</span> <span class="n">Score</span><span class="p">,</span> <span class="n">melody_2</span><span class="p">:</span> <span class="n">Score</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">transformation</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate similarity between two melodies using the specified method.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    melody_1 : Score</span>
+<span class="sd">        First Score object containing a monophonic melody</span>
+<span class="sd">    melody_2 : Score</span>
+<span class="sd">        Second Score object containing a monophonic melody</span>
+<span class="sd">    method : str</span>
+<span class="sd">        Name of the similarity method to use from the list in the module docstring.</span>
+<span class="sd">    transformation : str</span>
+<span class="sd">        Name of the transformation to use from the list in the module docstring.</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        Similarity value between the two melodies</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the number of melodies is not exactly two.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from amads.core.basics import Score</span>
+<span class="sd">    &gt;&gt;&gt; # Create two simple melodies using from_melody</span>
+<span class="sd">    &gt;&gt;&gt; melody_1 = Score.from_melody(pitches=[60, 62, 64, 65], durations=1.0)</span>
+<span class="sd">    &gt;&gt;&gt; melody_2 = Score.from_melody(pitches=[60, 62, 64, 67], durations=1.0)</span>
+<span class="sd">    &gt;&gt;&gt; # Calculate similarity using Jaccard method</span>
+<span class="sd">    &gt;&gt;&gt; similarity = get_similarity(melody_1, melody_2, &#39;Jaccard&#39;, &#39;pitch&#39;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">r_load_melody</span><span class="p">(</span><span class="n">melody_1</span><span class="p">,</span> <span class="s2">&quot;melody_1&quot;</span><span class="p">)</span>
+    <span class="n">r_load_melody</span><span class="p">(</span><span class="n">melody_2</span><span class="p">,</span> <span class="s2">&quot;melody_2&quot;</span><span class="p">)</span>
+    <span class="n">load_similarity_measure</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">transformation</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">r_get_similarity</span><span class="p">(</span><span class="s2">&quot;melody_1&quot;</span><span class="p">,</span> <span class="s2">&quot;melody_2&quot;</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">transformation</span><span class="p">)</span></div>
+
+
+
+<span class="n">loaded_melodies</span> <span class="o">=</span> <span class="p">{}</span>
+
+
+<div class="viewcode-block" id="r_load_melody">
+<a class="viewcode-back" href="../../../../_autosummary/amads.melody.similarity.melsim.html#amads.melody.similarity.melsim.r_load_melody">[docs]</a>
+<span class="nd">@requires_melsim</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">r_load_melody</span><span class="p">(</span><span class="n">melody</span><span class="p">:</span> <span class="n">Score</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a Score to a format compatible with melsim R package.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        melody: Score object containing a monophonic melody</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A melsim Melody object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">rpy2.robjects</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ro</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">rpy2.robjects</span><span class="w"> </span><span class="kn">import</span> <span class="n">FloatVector</span>
+
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">loaded_melodies</span> <span class="ow">and</span> <span class="n">loaded_melodies</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="ow">is</span> <span class="n">melody</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="k">assert</span> <span class="n">ismonophonic</span><span class="p">(</span><span class="n">melody</span><span class="p">)</span>
+
+    <span class="n">notes</span> <span class="o">=</span> <span class="n">melody</span><span class="o">.</span><span class="n">get_sorted_notes</span><span class="p">()</span>
+
+    <span class="c1"># Extract onset, pitch, duration for each note</span>
+    <span class="n">onsets</span> <span class="o">=</span> <span class="n">FloatVector</span><span class="p">([</span><span class="n">note</span><span class="o">.</span><span class="n">onset</span> <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="n">notes</span><span class="p">])</span>
+    <span class="n">pitches</span> <span class="o">=</span> <span class="n">FloatVector</span><span class="p">([</span><span class="n">note</span><span class="o">.</span><span class="n">key_num</span> <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="n">notes</span><span class="p">])</span>
+    <span class="n">durations</span> <span class="o">=</span> <span class="n">FloatVector</span><span class="p">([</span><span class="n">note</span><span class="o">.</span><span class="n">duration</span> <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="n">notes</span><span class="p">])</span>
+
+    <span class="c1"># Create R tibble using tibble::tibble()</span>
+    <span class="n">tibble</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">tibble</span><span class="o">.</span><span class="n">tibble</span><span class="p">(</span><span class="n">onset</span><span class="o">=</span><span class="n">onsets</span><span class="p">,</span> <span class="n">pitch</span><span class="o">=</span><span class="n">pitches</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="n">durations</span><span class="p">)</span>
+
+    <span class="n">ro</span><span class="o">.</span><span class="n">r</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ro</span><span class="o">.</span><span class="n">r</span><span class="p">(</span><span class="s2">&quot;melody_factory$new&quot;</span><span class="p">)(</span><span class="n">mel_data</span><span class="o">=</span><span class="n">tibble</span><span class="p">))</span>
+    <span class="n">loaded_melodies</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">melody</span></div>
+
+
+
+<span class="nd">@cache</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_similarity_measure</span><span class="p">(</span><span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">transformation</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">rpy2.robjects</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ro</span>
+
+    <span class="n">valid_transformations</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;pitch&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;int&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;fuzzy_int&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;parsons&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;pc&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ioi_class&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;duration_class&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;int_X_ioi_class&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;implicit_harmonies&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="c1"># &quot;ioi&quot; and &quot;phrase_segmentation&quot; are not currently functional in melsim</span>
+    <span class="c1"># but they will likely be added in the future</span>
+
+    <span class="k">if</span> <span class="n">transformation</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_transformations</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid transformation: </span><span class="si">{</span><span class="n">transformation</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">ro</span><span class="o">.</span><span class="n">r</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">_sim&quot;</span><span class="p">,</span>
+        <span class="n">ro</span><span class="o">.</span><span class="n">r</span><span class="p">(</span><span class="s2">&quot;sim_measure_factory$new&quot;</span><span class="p">)(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
+            <span class="n">full_name</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
+            <span class="n">transformation</span><span class="o">=</span><span class="n">transformation</span><span class="p">,</span>
+            <span class="n">parameters</span><span class="o">=</span><span class="n">ro</span><span class="o">.</span><span class="n">ListVector</span><span class="p">({}),</span>
+            <span class="n">sim_measure</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+
+<div class="viewcode-block" id="r_get_similarity">
+<a class="viewcode-back" href="../../../../_autosummary/amads.melody.similarity.melsim.html#amads.melody.similarity.melsim.r_get_similarity">[docs]</a>
+<span class="nd">@requires_melsim</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">r_get_similarity</span><span class="p">(</span>
+    <span class="n">melody_1</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">melody_2</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">transformation</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Use the melsim R package to get the similarity between two or more melodies.</span>
+<span class="sd">    This version of get_similarity is designed to be used alongside r_load_melody.</span>
+<span class="sd">    The user should call r_load_melody for each melody they wish to compare, and then</span>
+<span class="sd">    call r_get_similarity for each pair of melodies. This is more efficient than</span>
+<span class="sd">    calling get_similarity for each pair of melodies, as the melodies are only loaded once,</span>
+<span class="sd">    and stored in memory for each subsequent call. Similarity measures are already cached,</span>
+<span class="sd">    making this the faster way to calculate similarity between multiple melodies.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        melody_1: Name of the first melody. This should have already been passed to R</span>
+<span class="sd">        (see r_load_melody).</span>
+<span class="sd">        melody_2: Name of the second melody. This should have already been passed to R.</span>
+<span class="sd">        method: Name of the similarity method.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The similarity value for each of the melody comparisons</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">rpy2.robjects</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ro</span>
+
+    <span class="c1"># Load the similarity measure</span>
+    <span class="n">load_similarity_measure</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">transformation</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span>
+        <span class="n">ro</span><span class="o">.</span><span class="n">r</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">melody_1</span><span class="si">}</span><span class="s2">$similarity&quot;</span><span class="p">)(</span><span class="n">ro</span><span class="o">.</span><span class="n">r</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">melody_2</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span> <span class="n">ro</span><span class="o">.</span><span class="n">r</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">_sim&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">rx2</span><span class="p">(</span>
+            <span class="s2">&quot;sim&quot;</span>
+        <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="p">)</span></div>
+
+</pre></div>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The AMADS team
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, The AMADS team.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

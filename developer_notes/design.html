@@ -1,0 +1,794 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Design considerations &#8212; amads  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'developer_notes/design';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Modules" href="modules.html" />
+    <link rel="prev" title="Documentation" href="documentation.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">amads  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">User guide:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/installation.html">Installation</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Developer notes:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Documentation</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Design considerations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="music21.html">Music21</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="style.html">Style</a></li>
+<li class="toctree-l1"><a class="reference internal" href="making_a_release.html">Making a release</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Examples:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../auto_examples/plot_durdist1.html">Duration distributions (I)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_examples/plot_durdist2.html">Duration distributions (II)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_examples/plot_parncutt_root_analysis.html">Root analysis (after Parncutt)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_examples/plot_boundary.html">Boundary detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_examples/plot_sliding_window.html">Sliding window analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_examples/plot_melsim.html">Melodic similarity</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">General algorithms:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.algorithms.entropy.html">amads.algorithms.entropy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.algorithms.nnotes.html">amads.algorithms.nnotes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.algorithms.scale.html">amads.algorithms.scale</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.algorithms.slice.salami.html">amads.algorithms.slice.salami</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.algorithms.slice.window.html">amads.algorithms.slice.window</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Pitch:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.hz2midi.html">amads.pitch.hz2midi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.ismonophonic.html">amads.pitch.ismonophonic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.ivdirdist1.html">amads.pitch.ivdirdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.ivdist1.html">amads.pitch.ivdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.ivdist2.html">amads.pitch.ivdist2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.ivsizedist1.html">amads.pitch.ivsizedist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.key.profiles.html">amads.pitch.key.profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.pcdist1.html">amads.pitch.pcdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.pcdist2.html">amads.pitch.pcdist2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.pitch_mean.html">amads.pitch.pitch_mean</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.transformations.html">amads.pitch.transformations</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Time:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.time.durdist1.html">amads.time.durdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.time.durdist2.html">amads.time.durdist2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.time.swing.html">amads.time.swing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.time.tempo.html">amads.time.tempo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.time.meter.break_it_up.html">amads.time.meter.break_it_up</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Melody:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.melody.boundary.html">amads.melody.boundary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.melody.segment_gestalt.html">amads.melody.segment_gestalt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.melody.contour.interpolation_contour.html">amads.melody.contour.interpolation_contour</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.melody.contour.step_contour.html">amads.melody.contour.step_contour</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.melody.similarity.melsim.html">amads.melody.similarity.melsim</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Polyphony:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.polyphony.skyline.html">amads.polyphony.skyline</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Core:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.core.basics.html">amads.core.basics</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">IO:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.io.pianoroll.html">amads.io.pianoroll</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/developer_notes/design.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Design considerations</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#terminology-and-structure">Terminology and Structure</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#time">Time</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#conversion-to-seconds">Conversion to Seconds</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#immutable-scores">Immutable Scores</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-representation-and-simplifications">Basic Representation and Simplifications</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#measured-scores">Measured Scores</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#flattened-scores">Flattened Scores</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#other-scores">Other Scores</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#distributions">Distributions</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="design-considerations">
+<h1>Design considerations<a class="headerlink" href="#design-considerations" title="Link to this heading">#</a></h1>
+<section id="terminology-and-structure">
+<h2>Terminology and Structure<a class="headerlink" href="#terminology-and-structure" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">onset</span></code> refers to the start time of a note or other event.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">offset</span></code> refers to the ending time of a note or other event.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">duration</span></code> refers to <code class="docutils literal notranslate"><span class="pre">offset</span> <span class="pre">-</span> <span class="pre">onset</span></code></p></li>
+<li><p>Scores are hierarchical, but all nodes and leaves represent
+<code class="docutils literal notranslate"><span class="pre">onset</span></code> directly in absolute beat or time (not relative to the
+onset time of the parent). The end time is called <code class="docutils literal notranslate"><span class="pre">offset</span></code> and is
+computed as onset + duration.  (Note that in contexts outside of
+AMADS, “offset” is a synonym for “displacement,” which is
+essentially a “delta” or “difference,” so be careful not to be
+confused: “onset” is the beginning, “offset” is the ending!)</p></li>
+</ul>
+<p>The use of absolute onset times makes it relatively expensive to shift
+an object in time. E.g. to move a measure to a later time, you must
+shift not only the <code class="docutils literal notranslate"><span class="pre">onset</span></code> of the <code class="docutils literal notranslate"><span class="pre">Measure</span></code> but also all of the
+<code class="docutils literal notranslate"><span class="pre">Note``s</span> <span class="pre">and</span> <span class="pre">other</span> <span class="pre">objects</span> <span class="pre">in</span> <span class="pre">the</span> <span class="pre">``Measure</span></code>. However, the most
+common reason to use a <code class="docutils literal notranslate"><span class="pre">Measure</span></code> or some other object at another
+time is to reuse the object in a different context, e.g. to copy a
+measure from one part to another part. Since all member objects have a
+reference to their parent, the copy must be a deep copy of the entire
+subtree. Given the cost of the deep copy, the cost of recomputing the
+<code class="docutils literal notranslate"><span class="pre">onset``s</span> <span class="pre">is</span> <span class="pre">negligible.</span> <span class="pre">In</span> <span class="pre">addition,</span> <span class="pre">using</span> <span class="pre">an</span> <span class="pre">absolute</span> <span class="pre">``onset</span></code>
+simplifies a lot of code and makes access to the <code class="docutils literal notranslate"><span class="pre">onset</span></code> more
+efficient.</p>
+<p>The music representation hierarchy is constrained to match intuitive
+ideas about music structure. The levels of hierarchy are <code class="docutils literal notranslate"><span class="pre">Score</span></code>,
+<code class="docutils literal notranslate"><span class="pre">Part</span></code>, <code class="docutils literal notranslate"><span class="pre">Staff</span></code>, <code class="docutils literal notranslate"><span class="pre">Measure</span></code>, <code class="docutils literal notranslate"><span class="pre">Chord</span></code>, <code class="docutils literal notranslate"><span class="pre">Note</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">Rest</span></code>. Often, this is overkill for the task at hand, so we support
+a “flat” representation which is basically a list of <code class="docutils literal notranslate"><span class="pre">Note</span></code>
+objects. More on this in the next section.</p>
+<p>The edge or leaf-nodes of the representation hierarchy include
+<code class="docutils literal notranslate"><span class="pre">Note</span></code> and <code class="docutils literal notranslate"><span class="pre">Rest</span></code> classes. All of these inherit from an abstract
+superclass called Event, which is basically just <code class="docutils literal notranslate"><span class="pre">onset</span></code>,
+<code class="docutils literal notranslate"><span class="pre">duration</span></code> and <code class="docutils literal notranslate"><span class="pre">parent</span></code> attributes. The <code class="docutils literal notranslate"><span class="pre">Note</span></code> subclass adds
+attributes for <code class="docutils literal notranslate"><span class="pre">pitch</span></code>, <code class="docutils literal notranslate"><span class="pre">dynamic</span></code>, <code class="docutils literal notranslate"><span class="pre">tie</span></code>, etc.</p>
+<p>Inner levels of hierarchy are represented by subclasses of
+<code class="docutils literal notranslate"><span class="pre">EventGroup</span></code>, which is in turn an <code class="docutils literal notranslate"><span class="pre">Event</span></code> with an added attribute
+named <code class="docutils literal notranslate"><span class="pre">content</span></code>, a list of children. E.g. a <code class="docutils literal notranslate"><span class="pre">Measure</span></code> is an
+<code class="docutils literal notranslate"><span class="pre">EventGroup</span></code>. You might expect the duration of an <code class="docutils literal notranslate"><span class="pre">EventGroup</span></code> to
+be implied by the content, but especially if Rests are removed, a
+<code class="docutils literal notranslate"><span class="pre">Measure</span></code> has a duration that is independent of the content. An
+<code class="docutils literal notranslate"><span class="pre">EventGroup</span></code> duration is mainly relevant of you want to append nodes
+sequentially: The duration gives you the offset time, which becomes
+the onset time of the next appended element.</p>
+<p>Pitch is structured and includes a representation of accidentals, so
+AMADS can disambiguate between Bb and A#, for example.</p>
+</section>
+<section id="time">
+<h2>Time<a class="headerlink" href="#time" title="Link to this heading">#</a></h2>
+<p>Time is normally measured in quarters, regardless of the meter. So a
+measure in 4/16 time has a duration of 1 (not 4). Scores have a tempo
+and information corresponding to a Standard MIDI File tempo track, so
+AMADS can convert from quarters to seconds or seconds to quarters.</p>
+<p>To work in seconds, it is most efficient to convert the entire score
+to seconds, meaning that every <code class="docutils literal notranslate"><span class="pre">onset</span></code> and <code class="docutils literal notranslate"><span class="pre">duration</span></code> attribute is
+converted in one pass through the score. Since the entire score stores
+in one unit or the other, there are no separate attributes such as
+<code class="docutils literal notranslate"><span class="pre">offset_seconds</span></code> or <code class="docutils literal notranslate"><span class="pre">duration_seconds</span></code>, and computed values such as
+<code class="docutils literal notranslate"><span class="pre">offset</span></code> run identical computations whether the units are beats or
+seconds, so they return values in the same units as are stored in the
+score.</p>
+<section id="conversion-to-seconds">
+<h3>Conversion to Seconds<a class="headerlink" href="#conversion-to-seconds" title="Link to this heading">#</a></h3>
+<p>Conversion to seconds is done in-place. This violates the immutable
+Score design (see next section) but note that if you convert back to
+beats, you can restore the original score, so changes are not
+<em>necessarily</em> visible even when scores are shared. Conversion involves
+using the score <code class="docutils literal notranslate"><span class="pre">TimeMap</span></code> to map between beats and seconds. The
+<code class="docutils literal notranslate"><span class="pre">TimeMap</span></code> is stored as an array of breakpoints, so a lookup involves
+a search, but since most accesses are in time order, it is possible to
+cache the location of the previous lookup in case the next one is
+nearby. Thus, we can expect to make a single pass through the
+<code class="docutils literal notranslate"><span class="pre">TimeMap</span></code> to convert each <code class="docutils literal notranslate"><span class="pre">Staff</span></code> and its children.</p>
+</section>
+</section>
+<section id="immutable-scores">
+<h2>Immutable Scores<a class="headerlink" href="#immutable-scores" title="Link to this heading">#</a></h2>
+<p>In general, music structures in AMADS are immutable. This means that
+once you read or construct a score, you can extract data and reformat
+the data without side-effects from analysis functions. For example,
+given a piano score, you can extract the top staff into a new
+score. This will <em>not</em> delete the bottom staff, so you can still
+extract the bottom staff into another score. Similarly, if you merge
+all tied notes in a score, any references you had to notes before the
+merge will remain unaffected because the notes will be merged in a
+copy.</p>
+<p>Elements of the Score hierarchy have access to their parent, so
+parents cannot generally share sub-trees. E.g. to extract the flute
+Part from a complete Score, AMADS cannot simply construct a new Score
+that contains just the flute Part, because the original flute Part’s
+parent is the original Score. Instead, the entire flute Part (but no
+other Parts) must be deep-copied to assign new parents to elements of
+the copy.</p>
+<p>It would be prohibitively expensive to rule out all modifications to
+Scores, e.g. transposing 100 notes should not make 100 copies of the
+original score, making one change at a time. The rule is that once you
+copy a score, you can make any number of modifications as long as
+there are no shared references to the score or score elements. Thus,
+scores are not <em>observably</em> mutable from the “outside” of
+computations. AMADS transformations such as <code class="docutils literal notranslate"><span class="pre">flatten</span></code> or
+<code class="docutils literal notranslate"><span class="pre">merge_tied_notes</span></code> generally make a single copy even though there
+are many changes.</p>
+<p>Another case is that some analysis algorithms need to report results
+on a per-note basis, e.g. assigning an entropy value to each note. In
+these cases, the analysis algorithm can create and set an
+analysis-specific attribute, e.g. <code class="docutils literal notranslate"><span class="pre">entropy</span></code>, on each
+note. Essentially, algorithms are allowed to <em>annotate</em> scores by
+adding new events and attributes, as long as they do not change
+existing attributes or insert or delete Notes, Rests, Chords or other
+event types understood by AMADS.</p>
+</section>
+<section id="basic-representation-and-simplifications">
+<h2>Basic Representation and Simplifications<a class="headerlink" href="#basic-representation-and-simplifications" title="Link to this heading">#</a></h2>
+<p>The “standard” score has parts representing instrumental parts. Each
+part has 1 or more staves (e.g. a piano part would ordinarily have 2
+staves [“staves” is the plural of “staff”]), each staff has measures,
+and measures have notes and chords which have notes. Notes can be
+tied, so a single “logical” note can be represented (as in standard
+notation) by multiple notes tied together. This is basically because
+notes do not fit within the hierarchy imposed by measures and
+beats. When a note crosses a measure boundary, and sometimes when it
+crosses a beat boundary, at least in conventional notation, it must
+be split across these boundaries and the original note is indicated
+by ties between the fragments.</p>
+<p>All this hierarchy can get in the way, so we allow various
+simplifications:</p>
+<ul class="simple">
+<li><p>Tied notes can be replaced by single notes, with durations that may</p></li>
+</ul>
+<p>extend beyond a measure boundary (<code class="docutils literal notranslate"><span class="pre">merge_tied_notes()</span></code> method)</p>
+<ul class="simple">
+<li><p>Rests can be removed (<code class="docutils literal notranslate"><span class="pre">remove_rests()</span></code> method)</p></li>
+<li><p>Staves within each part can be collapsed to a single staff
+(currently, no method does just this)</p></li>
+<li><p>Chords can be removed, moving notes “up” into measures
+(<code class="docutils literal notranslate"><span class="pre">expand_chords()</span></code> method)</p></li>
+<li><p>Staves, measures and chords can be removed and all “leaf” notes
+moved directly into parts (<code class="docutils literal notranslate"><span class="pre">flatten()</span></code> method, which additionally
+removes ties as in <code class="docutils literal notranslate"><span class="pre">merge_tied_notes()</span></code> since there are no more
+explicit measures)</p></li>
+<li><p>Multiple parts can be combined into a single part (<code class="docutils literal notranslate"><span class="pre">merge_part()</span></code>
+method, but this also does <code class="docutils literal notranslate"><span class="pre">flatten()</span></code> which implies
+<code class="docutils literal notranslate"><span class="pre">merge_tied_notes()</span></code>)</p></li>
+</ul>
+<p>So there are lots of variations all having to do with removing
+different hierarchies. We considered a hierarchy of representations,
+each with additional notation details or hierarchy, but this seems
+too complicated and while it might be appropriate for certain kinds
+of analysis, the intermediate levels of simplification do not
+correspond to any familiar notation and so they are not intuitive.</p>
+<p>In conclusion, the main thing users should think about is measure
+structure vs. “flat” note lists, so we have two categories for scores:
+measured and flat. Within these types, we can have checks for
+the more subtle differences and operations to remove structure:</p>
+<section id="measured-scores">
+<h3>Measured Scores<a class="headerlink" href="#measured-scores" title="Link to this heading">#</a></h3>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">.is_measured()</span></code></dt><dd><p>Test if this is a measured score. A measured score has a strict
+hierarchy described by: Score-Part-Staff-Measure-(Note or Rest or
+Chord), and Chord-Note. A Staff cannot be a direct child of a
+Score, and a Measure cannot be a direct child of a Part or
+Score. A Chord can only be a child of a Measure, and a Note can
+only be a child of a Measure or Chord.  Other objects are also
+allowed in Score, Part, Staff, Measure and Chord. As just a few
+examples, there might be rehearsal cues or emotion annotations
+or other meta-data as Events in the Score but outside of
+notation-related parts. A special case is tempo or MIDI tempo
+track data. Since this is used to map between beats and seconds,
+we reserve the <code class="docutils literal notranslate"><span class="pre">time_map</span></code> attribute in Score objects to record
+a list of tempo changes rather than putting these “events” in the
+<code class="docutils literal notranslate"><span class="pre">content</span></code> list of Scores. Getting back to Scores, Parts, Staffs,
+and Measures, Developers can assume <code class="docutils literal notranslate"><span class="pre">is_measured</span></code> means, for
+example, that there is no Measure that is directly contained by a
+Score, but there might be any number of unknown types (e.g. a
+“RehearsalMark”) at any level, so code should handle or ignore
+any such <code class="docutils literal notranslate"><span class="pre">content</span></code>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">.has_rests()</span></code></dt><dd><p>The Score or Part or Staff or Measure has one or more Rest objects.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">.remove_rests()</span></code></dt><dd><p>Construct a Score or Part or Staff or Measure without any
+Rests. Note that removing rests does not change the timing of
+notes or other objects since each Events has a delta time relative
+to the parent (as opposed to music notation where a note begins
+after a previous note or rest).</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">.has_chords()</span></code></dt><dd><p>The Score or Part or Staff or Measure has one or more Chord objects.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">.expand_chords()</span></code></dt><dd><p>Convert a Score, Part, Staff or Measure to one without chords
+(chord notes become ordinary notes within the parent).</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">.has_ties()</span></code></dt><dd><p>The Score, Part, Staff or Measure has one or more tied notes.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">.merge_tied_notes()</span></code></dt><dd><p>Convert the Score, Part, Staff or Measure to one without
+ties. Although not required, we expect ties to break notes where
+they cross measure boundaries.  After <code class="docutils literal notranslate"><span class="pre">.merge_tied_notes()</span></code>,
+notes may cross one or more measure boundaries.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">.remove_measures()</span></code></dt><dd><p>The <code class="docutils literal notranslate"><span class="pre">.remove_measures()</span></code> method “lifts” notes into the Staff
+level, preserving each Staff. This is neither a Measured Score
+nor a Flat Score, but might be useful in processing each Staff
+separately. Note that tied notes can cross staves.
+<code class="docutils literal notranslate"><span class="pre">remove_measures()</span></code> merges ties to eliminate staff-crossings.
+For example if (staff 1, note 1) ties to (staff 2, note 2), then
+note 2 will be removed from staff 2 (and the duration of note 1
+will be adjusted).</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">.flatten()</span></code></dt><dd><p>Convert a measured score into a flat score. Parts are preserved or
+collapsed based on an optional parameter. Tied notes are always
+merged because we assume ties are not useful in this
+context. Non-Note events are not retained in Part(s) because they
+might only be relevant within the hierarchy of a measured
+score. However, non-Note events can be inserted into a flat score.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">.collapse_parts()</span></code></dt><dd><p>Merge the notes of selected Parts and Staffs into a flat score
+with one Part. When called with not part or staff selection, all
+notes are combined this is equivalent to
+<code class="docutils literal notranslate"><span class="pre">.flatten(collapse=True)</span></code>.</p>
+</dd>
+</dl>
+</section>
+<section id="flattened-scores">
+<h3>Flattened Scores<a class="headerlink" href="#flattened-scores" title="Link to this heading">#</a></h3>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">.is_flat()</span></code></dt><dd><p>Test if this is a flat score. A flat score has a strict hierarchy
+described by: Score-Part-Note. There are no tied notes. Also,
+there are no Staff, Measure, Rest or Chord objects, but there may
+be other subclasses of Events at any level.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">.is_flat_and_collapsed()</span></code></dt><dd><p>Test if this is a flat score with one and only one Part.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">.part_count()</span></code></dt><dd><p>Returns number of parts</p>
+</dd>
+</dl>
+</section>
+<section id="other-scores">
+<h3>Other Scores<a class="headerlink" href="#other-scores" title="Link to this heading">#</a></h3>
+<p>Scores which are neither Measured nor Flat are at least possible
+to construct. E.g. a Score-Part-Note hierarchy with tied notes
+or a Score with a mix of measured and flattened Parts. Developers
+should consider that valid Measured Scores could have Chord objects
+with zero or one Notes.</p>
+<p>Ideally, algorithms should detect violations in assumptions and report
+them as errors: We do not want users to call functions with an
+intuitive idea of what they <em>should</em> do, only to get some
+non-intuitive result that the user does not notice. It’s better to
+raise an error to say “you can’t do this, or I don’t support it” than
+to silently return something possibly wrong.</p>
+</section>
+</section>
+<section id="distributions">
+<h2>Distributions<a class="headerlink" href="#distributions" title="Link to this heading">#</a></h2>
+<p>The Distribution class models statistical distributions or
+histograms. Attributes describe the data with enough detail to produce
+reasonably labeled plots:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">distribution_type</span></code> - a str; one of “pitch_class”, “interval”,</dt><dd><p>“pitch_class_interval”, “duration”, “interval_size”,
+“interval_direction”, “duration”, “pitch_class_transition”,
+“interval_transition”, “duration_transition”, “key_correlation”</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">dimensions</span></code> - a List of dimensions, e.g. [12] for a pitch class</dt><dd><p>distribution or [25, 25] for an interval_transition (intervals are
+from -12 to +12 and include 0 for unison, intervals larger than
+one octave are ignored.</p>
+</dd>
+</dl>
+<p><code class="docutils literal notranslate"><span class="pre">name</span></code> - a str name for this distribution that is used for plot title.</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">x_categories</span></code> - a List of str with labels for x-axis categories;</dt><dd><p>inferred from distribution_type if needed.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">x_label</span></code> - x-axis label; inferred from distribution_type if not</dt><dd><p>present</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">y_categories</span></code> - a List of str with labels for y-axis categories;</dt><dd><p>inferred from bin_centers and then distribution_type if needed</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">y_label</span></code> - y-axis label; inferred from distribution_type if not</dt><dd><p>present</p>
+</dd>
+</dl>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="documentation.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Documentation</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="modules.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Modules</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#terminology-and-structure">Terminology and Structure</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#time">Time</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#conversion-to-seconds">Conversion to Seconds</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#immutable-scores">Immutable Scores</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-representation-and-simplifications">Basic Representation and Simplifications</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#measured-scores">Measured Scores</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#flattened-scores">Flattened Scores</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#other-scores">Other Scores</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#distributions">Distributions</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The AMADS team
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, The AMADS team.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

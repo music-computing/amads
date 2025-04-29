@@ -1,0 +1,609 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>amads.time.swing &#8212; amads  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/amads/time/swing';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">amads  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">User guide:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/installation.html">Installation</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Developer notes:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../developer_notes/contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer_notes/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer_notes/design.html">Design considerations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer_notes/modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer_notes/music21.html">Music21</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer_notes/testing.html">Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer_notes/style.html">Style</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer_notes/making_a_release.html">Making a release</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Examples:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../auto_examples/plot_durdist1.html">Duration distributions (I)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../auto_examples/plot_durdist2.html">Duration distributions (II)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../auto_examples/plot_parncutt_root_analysis.html">Root analysis (after Parncutt)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../auto_examples/plot_boundary.html">Boundary detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../auto_examples/plot_sliding_window.html">Sliding window analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../auto_examples/plot_melsim.html">Melodic similarity</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">General algorithms:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/amads.algorithms.entropy.html">amads.algorithms.entropy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/amads.algorithms.nnotes.html">amads.algorithms.nnotes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/amads.algorithms.scale.html">amads.algorithms.scale</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/amads.algorithms.slice.salami.html">amads.algorithms.slice.salami</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/amads.algorithms.slice.window.html">amads.algorithms.slice.window</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Pitch:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/amads.pitch.hz2midi.html">amads.pitch.hz2midi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/amads.pitch.ismonophonic.html">amads.pitch.ismonophonic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/amads.pitch.ivdirdist1.html">amads.pitch.ivdirdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/amads.pitch.ivdist1.html">amads.pitch.ivdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/amads.pitch.ivdist2.html">amads.pitch.ivdist2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/amads.pitch.ivsizedist1.html">amads.pitch.ivsizedist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/amads.pitch.key.profiles.html">amads.pitch.key.profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/amads.pitch.pcdist1.html">amads.pitch.pcdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/amads.pitch.pcdist2.html">amads.pitch.pcdist2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/amads.pitch.pitch_mean.html">amads.pitch.pitch_mean</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/amads.pitch.transformations.html">amads.pitch.transformations</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Time:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/amads.time.durdist1.html">amads.time.durdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/amads.time.durdist2.html">amads.time.durdist2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/amads.time.swing.html">amads.time.swing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/amads.time.tempo.html">amads.time.tempo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/amads.time.meter.break_it_up.html">amads.time.meter.break_it_up</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Melody:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/amads.melody.boundary.html">amads.melody.boundary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/amads.melody.segment_gestalt.html">amads.melody.segment_gestalt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/amads.melody.contour.interpolation_contour.html">amads.melody.contour.interpolation_contour</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/amads.melody.contour.step_contour.html">amads.melody.contour.step_contour</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/amads.melody.similarity.melsim.html">amads.melody.similarity.melsim</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Polyphony:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/amads.polyphony.skyline.html">amads.polyphony.skyline</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Core:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/amads.core.basics.html">amads.core.basics</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">IO:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/amads.io.pianoroll.html">amads.io.pianoroll</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for amads.time.swing</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module implements various functions useful for analyzing swing in jazz and other genres.</span>
+
+<span class="sd">References:</span>
+<span class="sd">    - Benadon, F. (2006). Slicing the Beat: Jazz Eighth-Notes as Expressive Microrhythm.</span>
+<span class="sd">      Ethnomusicology, 50(1), 73–98. https://doi.org/10.2307/20174424</span>
+<span class="sd">    - Corcoran, C., &amp; Frieler, K. (2021). Playing It Straight: Analyzing Jazz Soloists’ Swing</span>
+<span class="sd">      Eighth-Note Distributions with the Weimar Jazz Database. Music Perception, 38(4), 372–385.</span>
+<span class="sd">      https://doi.org/10.1525/mp.2021.38.4.372</span>
+
+<span class="sd">Author:</span>
+<span class="sd">    Huw Cheston (2025)</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">math</span><span class="w"> </span><span class="kn">import</span> <span class="n">log2</span> <span class="k">as</span> <span class="n">log2_</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Huw Cheston&quot;</span>
+
+<span class="n">TINY</span> <span class="o">=</span> <span class="mf">1e-8</span>
+<span class="n">LOW_BUR</span><span class="p">,</span> <span class="n">HIGH_BUR</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="mf">0.25</span><span class="p">,</span>
+    <span class="mf">4.0</span><span class="p">,</span>
+<span class="p">)</span>  <span class="c1"># the range of BURs to keep as defined in Corcoran &amp; Frieler (2021)</span>
+
+
+<span class="c1"># flake8: noqa: W605</span>
+<div class="viewcode-block" id="beat_upbeat_ratio">
+<a class="viewcode-back" href="../../../_autosummary/amads.time.swing.html#amads.time.swing.beat_upbeat_ratio">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">beat_upbeat_ratio</span><span class="p">(</span>
+    <span class="n">beats</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">upbeats</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">log2</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">bounded</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">lower_bound</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">LOW_BUR</span><span class="p">,</span>
+    <span class="n">upper_bound</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">HIGH_BUR</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extracts beat-upbeat ratio (BUR) values from an array of beats and upbeats.</span>
+
+<span class="sd">    The beat-upbeat ratio (BUR) is used to analyze the amount of &quot;swing&quot; in two consecutive</span>
+<span class="sd">    eighth-note beat durations. It is calculated by dividing the duration of the first (&quot;long&quot;)</span>
+<span class="sd">    eighth-note beat by the duration of the second (&quot;short&quot;) eighth-note beat. A BUR value of 2</span>
+<span class="sd">    represents &quot;perfect&quot; swing (e.g., a triplet quarter note followed by a triplet eighth note),</span>
+<span class="sd">    while a BUR of 1 represents &quot;even&quot; eighth-note durations.</span>
+
+<span class="sd">    The formula for BUR is:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        \text{BUR} = \frac{t_{a,b} - t_{a}}{t_{b} - t_{a,b}},</span>
+
+<span class="sd">    where :math:`t_a` is the beat at position :math:`a`, :math:`t_b` is the beat at position :math:`b`,</span>
+<span class="sd">    and :math:`t_{a,b}` is the single upbeat between beats :math:`a` and :math:`b`.</span>
+
+<span class="sd">    The function takes two iterables of timestamps: `beats` and `upbeats`. Both lists should be</span>
+<span class="sd">    unique, and missing values should not be present. The function returns an array of BUR values with</span>
+<span class="sd">    a size of `len(beats) - 1`. If multiple `upbeats` are found between two consecutive `beats`</span>
+<span class="sd">    or if no `upbeat` is found, the BUR for those beats will be omitted and the corresponding value</span>
+<span class="sd">    will be `None`.</span>
+
+<span class="sd">    Additionally, the function can calculate the :math:`log_2` of the BUR values, where a value of 0.0</span>
+<span class="sd">    corresponds to &quot;triplet&quot; swing. This can be enabled by setting `log2=True`. The values can also</span>
+<span class="sd">    be filtered to remove outliers by setting `bounded=True`, with the default values for the boundaries</span>
+<span class="sd">    coming from Corcoran &amp; Frieler (2021).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    beats : Iterable[float]</span>
+<span class="sd">        An array of beat timestamps. Should not overlap with `upbeats`.</span>
+<span class="sd">    upbeats : Iterable[float]</span>
+<span class="sd">        An array of upbeat timestamps.</span>
+<span class="sd">    log2 : bool, optional</span>
+<span class="sd">        If True, computes the log base 2 of BUR values, as used in [2]. Defaults to False.</span>
+<span class="sd">    bounded : bool, optional</span>
+<span class="sd">        If True, filters out BUR values outside the specified range. Defaults to False.</span>
+<span class="sd">    lower_bound : float, optional</span>
+<span class="sd">        Lower boundary for filtering BUR values. Defaults to 0.25 (:math:`log_2` -2).</span>
+<span class="sd">    upper_bound : float, optional</span>
+<span class="sd">        Upper boundary for filtering BUR values. Defaults to 4.0 (:math:`log_2` 2).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list[float]</span>
+<span class="sd">        A list of the calculated BUR values.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; my_beats = [0., 1., 2., 3.]</span>
+<span class="sd">    &gt;&gt;&gt; my_upbeats = [0.5, 1.75, 2.2]</span>
+<span class="sd">    &gt;&gt;&gt; beat_upbeat_ratio(my_beats, my_upbeats)</span>
+<span class="sd">    [1., 3., 0.25]</span>
+
+<span class="sd">    &gt;&gt;&gt; # Consecutive beats without a matching upbeat will be skipped.</span>
+<span class="sd">    &gt;&gt;&gt; my_beats = [0., 1., 2., 3.]</span>
+<span class="sd">    &gt;&gt;&gt; my_upbeats = [0.5, 2.2]</span>
+<span class="sd">    &gt;&gt;&gt; beat_upbeat_ratio(my_beats, my_upbeats)</span>
+<span class="sd">    [1., None, 0.25]</span>
+
+<span class="sd">    &gt;&gt;&gt; # Consecutive beats with multiple matching upbeats will be skipped.</span>
+<span class="sd">    &gt;&gt;&gt; my_beats = [0., 1., 2., 3.]</span>
+<span class="sd">    &gt;&gt;&gt; my_upbeats = [0.5, 1.5, 1.75, 1.8, 2.2]</span>
+<span class="sd">    &gt;&gt;&gt; beat_upbeat_ratio(my_beats, my_upbeats)</span>
+<span class="sd">    [1., None, 0.25]</span>
+
+<span class="sd">    &gt;&gt;&gt; # Filter out outlying values by setting `bounded=True`.</span>
+<span class="sd">    &gt;&gt;&gt; my_beats = [0., 1., 2., 3.]</span>
+<span class="sd">    &gt;&gt;&gt; my_upbeats = [0.5, 1.75, 2.99]</span>
+<span class="sd">    &gt;&gt;&gt; beat_upbeat_ratio(my_beats, my_upbeats, bounded=True)</span>
+<span class="sd">    [1., 3., None]</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Parse beats and upbeats to an array, sorting as required</span>
+    <span class="n">beats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">beats</span><span class="p">))</span>
+    <span class="n">upbeats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">upbeats</span><span class="p">))</span>
+    <span class="c1"># Validate inputs and raise an errors if required</span>
+    <span class="n">_validate_bur_inputs</span><span class="p">(</span><span class="n">beats</span><span class="p">,</span> <span class="n">upbeats</span><span class="p">)</span>
+    <span class="c1"># Match beats with upbeats and return a 2d array of shape [[beat1, upbeat, beat2], [beat2, upbeat, beat3]]</span>
+    <span class="n">matched</span> <span class="o">=</span> <span class="n">match_beats_and_upbeats</span><span class="p">(</span><span class="n">beats</span><span class="p">,</span> <span class="n">upbeats</span><span class="p">)</span>
+    <span class="c1"># Raise an error if we cannot find any matches between beats and upbeats</span>
+    <span class="k">if</span> <span class="nb">all</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">matched</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]]):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;No matches found between beats and upbeats, cannot calculate BUR&quot;</span>
+        <span class="p">)</span>
+    <span class="c1"># Calculate the BUR for upbeats between consecutive beats</span>
+    <span class="n">burs</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">_bur</span><span class="p">(</span><span class="n">b1</span><span class="p">,</span> <span class="n">upbeat</span><span class="p">,</span> <span class="n">b2</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">upbeat</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">b1</span><span class="p">,</span> <span class="n">upbeat</span><span class="p">,</span> <span class="n">b2</span> <span class="ow">in</span> <span class="n">matched</span>
+    <span class="p">]</span>
+    <span class="c1"># Apply our filtering if required</span>
+    <span class="c1"># Filter before log_2 transform to make things simpler</span>
+    <span class="k">if</span> <span class="n">bounded</span><span class="p">:</span>
+        <span class="n">burs</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">if</span> <span class="n">lower_bound</span> <span class="o">&lt;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">upper_bound</span> <span class="k">else</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">burs</span><span class="p">]</span>
+    <span class="c1"># Express as base-2 log if required</span>
+    <span class="k">if</span> <span class="n">log2</span><span class="p">:</span>
+        <span class="n">burs</span> <span class="o">=</span> <span class="p">[</span><span class="n">log2_</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="k">if</span> <span class="n">b</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">burs</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">burs</span></div>
+
+
+
+<div class="viewcode-block" id="mean_bur">
+<a class="viewcode-back" href="../../../_autosummary/amads.time.swing.html#amads.time.swing.mean_bur">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">mean_bur</span><span class="p">(</span><span class="n">beats</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">upbeats</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculates mean BUR (or :math:`log_2` BUR) given a list of beats and upbeats&quot;&quot;&quot;</span>
+    <span class="c1"># We use nanmean here as we may have null values in cases where multiple upbeats match with a</span>
+    <span class="c1">#  single pair of beats, or where no upbeats match with a beat.</span>
+    <span class="c1">#  I think this makes sense to avoid the user having to chop a large list into multiple sublists</span>
+    <span class="c1">#  depending on the presence of nans.</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">beat_upbeat_ratio</span><span class="p">(</span><span class="n">beats</span><span class="p">,</span> <span class="n">upbeats</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)))</span></div>
+
+
+
+<div class="viewcode-block" id="std_bur">
+<a class="viewcode-back" href="../../../_autosummary/amads.time.swing.html#amads.time.swing.std_bur">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">std_bur</span><span class="p">(</span><span class="n">beats</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">upbeats</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculates standard deviation BUR (or :math:`log_2` BUR) given a list of beats and upbeats&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nanstd</span><span class="p">(</span><span class="n">beat_upbeat_ratio</span><span class="p">(</span><span class="n">beats</span><span class="p">,</span> <span class="n">upbeats</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_bur_inputs</span><span class="p">(</span><span class="n">beats</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">upbeats</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate beats and upbeats before calculating BURs&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">beats</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Must have at least two beats to calculate BURs&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">upbeats</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Must have at least one upbeat to calculate BURs&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">beats</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">upbeats</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Beats and upbeats must be one-dimensional arrays&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">beats</span><span class="p">))</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">upbeats</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Missing values found in beats or upbeats&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">b1</span> <span class="ow">in</span> <span class="n">beats</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">b1</span><span class="p">,</span> <span class="n">upbeats</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">TINY</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Intersection found between beats and upbeats&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="match_beats_and_upbeats">
+<a class="viewcode-back" href="../../../_autosummary/amads.time.swing.html#amads.time.swing.match_beats_and_upbeats">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">match_beats_and_upbeats</span><span class="p">(</span><span class="n">beats</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">upbeats</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Iterates over consecutive beats and creates an array of `[[beat1, upbeat, beat2], [beat2, upbeat, beat3]]`&quot;&quot;&quot;</span>
+
+    <span class="n">matched</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># Iterate over consecutive pairs of beats</span>
+    <span class="k">for</span> <span class="n">b1</span><span class="p">,</span> <span class="n">b2</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">beats</span><span class="p">,</span> <span class="n">beats</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+        <span class="c1"># Get the upbeats that are between both pairs of beats</span>
+        <span class="n">upbeat_bw</span> <span class="o">=</span> <span class="n">upbeats</span><span class="p">[(</span><span class="n">b1</span> <span class="o">&lt;</span> <span class="n">upbeats</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">upbeats</span> <span class="o">&lt;</span> <span class="n">b2</span><span class="p">)]</span>
+        <span class="c1"># Add a missing value in cases where multiple upbeats match with a single pair of beats, or no upbeats match</span>
+        <span class="c1">#  We do not consider cases where multiple upbeats match with a single beat, as these are not &quot;swing 8ths&quot;</span>
+        <span class="c1">#  Adding a missing value means that we&#39;ll have the shape len(beats) - 1</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">upbeat_bw</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">upbeat_bw</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">matched</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">b1</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">b2</span><span class="p">])</span>
+        <span class="c1"># This will only catch cases where we have matched a single upbeat</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">matched</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">b1</span><span class="p">,</span> <span class="n">upbeat_bw</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">b2</span><span class="p">])</span>
+    <span class="c1"># Create a 2d array of [[beat1, upbeat, beat2], [beat2, upbeat, beat3]]</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">matched</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_bur</span><span class="p">(</span><span class="n">beat1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">upbeat</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">beat2</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;BUR calculation function. Takes in two consecutive beats and gets BURs from provided upbeats.&quot;&quot;&quot;</span>
+
+    <span class="c1"># Everything should be in order</span>
+    <span class="k">assert</span> <span class="n">beat1</span> <span class="o">-</span> <span class="n">TINY</span> <span class="o">&lt;</span> <span class="n">upbeat</span> <span class="o">&lt;</span> <span class="n">beat2</span> <span class="o">+</span> <span class="n">TINY</span>
+    <span class="c1"># Calculate IOIs</span>
+    <span class="n">ioi1</span> <span class="o">=</span> <span class="n">upbeat</span> <span class="o">-</span> <span class="n">beat1</span>
+    <span class="n">ioi2</span> <span class="o">=</span> <span class="n">beat2</span> <span class="o">-</span> <span class="n">upbeat</span>
+    <span class="c1"># Calculate BUR</span>
+    <span class="k">return</span> <span class="n">ioi1</span> <span class="o">/</span> <span class="n">ioi2</span>
+</pre></div>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The AMADS team
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, The AMADS team.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
