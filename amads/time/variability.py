@@ -33,13 +33,17 @@ TINY = 1e-4
 def _validate_inputs(
     durations: Iterable[float], _kind: str = "durations", _min: float = 2
 ) -> None:
-    """Validates an input list (usually durations) and raises errors as required"""
-    # Explicitly check to make sure we have enough elements
+    """
+    Validates an input list (usually durations) and raises errors if:
+    - insufficient number of elements,
+    - any element (duration) is zero or negative.
+    """
+
     if len(durations) < _min:
         raise ValueError(
             f"Must have at least {_min} {_kind}, but got {len(durations)} duration(s)"
         )
-    # Also raise an error if any of the durations are zero or below
+
     if any(d <= 0.0 for d in durations):
         raise ValueError(f"All {_kind} must be positive, but got {durations}!")
 
@@ -54,37 +58,67 @@ def normalized_pairwise_variability_index(
     durations: Iterable[float],
 ) -> float:
     r"""
-    Extracts the normalised pairwise variability index (nPVI).
+     Calculates the normalised pairwise variability index (nPVI).
 
-    The nPVI is a measure of variability between successive elements in a sequence, commonly used
-    in music analysis to quantify rhythmic variability. The equation is:
+     The nPVI is a measure of variability between successive elements in a sequence.
 
-    .. math::
+     The equation is:
 
-       \text{nPVI} = \frac{100}{m-1} \times \sum\limits_{k=1}^{m-1}
-       \left| \frac{d_k - d_{k+1}}{\frac{d_k + d_{k+1}}{2}} \right|
+     .. math::
 
-    where :math:`m` is the number of intervals, and :math:`d_k` is the duration of the :math:`k^{th}` interval.
+        \text{nPVI} = \frac{100}{m-1} \times \sum\limits_{k=1}^{m-1}
+        \left| \frac{d_k - d_{k+1}}{\frac{d_k + d_{k+1}}{2}} \right|
 
-    Args:
-        durations (Iterable[float]): the durations to analyse
+     where :math:`m` is the number of intervals, and :math:`d_k` is the duration of the :math:`k^{th}` interval.
 
-    Returns:
-        float: the extracted nPVI value.
+     A completely regular stream of equal durations returns 0 variability.
+     High difference between successive items returns a high nPVI value
+     irrespective of other (e.g., metrical) considerations.
 
-    Examples:
-        The first example is taken from Condit-Schultz (2019, Figure 1).
+     Parameters
+     ----------
+     durations (Iterable[float]): the durations to analyse
 
-        >>> durs = [1., 1., 1., 1.]
-        >>> normalized_pairwise_variability_index(durations=durs)
-        0.
+     Returns
+     -------
+     float: the extracted nPVI value.
 
-        The second example is Daniele & Patel (2013, Appendix).
+     Examples
+     -------
 
-        >>> durs = [1., 1/2, 1/2, 1., 1/2, 1/2, 1/3, 1/3, 1/3, 2., 1/3, 1/3, 1/3, 1/3, 1/3, 1/3, 3/2, 1., 1/2]
-        >>> x = normalized_pairwise_variability_index(durations=durs)
-        >>> round(x, 1)
-        42.2
+     A completely regular stream of equal durations returns 0 variability.
+
+     >>> normalized_pairwise_variability_index([1., 1., 1., 1.])
+     0.
+
+     This example is from Daniele & Patel (2013, Appendix).
+
+     >>> durs = [1., 1/2, 1/2, 1., 1/2, 1/2, 1/3, 1/3, 1/3, 2., 1/3, 1/3, 1/3, 1/3, 1/3, 1/3, 3/2, 1., 1/2]
+     >>> x = normalized_pairwise_variability_index(durations=durs)
+     >>> round(x, 1)
+     42.2
+
+    These next examples are from Condit-Schultz's 2019 critique (Figure 2).
+
+     >>> normalized_pairwise_variability_index([0.25, 0.25, 0.25, 0.25, 1., 0.25, 0.25, 0.25, 0.25, 1.])
+     40.
+
+     >>> normalized_pairwise_variability_index([0.25, 0.25, 0.5, 1., 0.25, 0.25, 0.5, 1.])
+     55.2
+
+     >>> normalized_pairwise_variability_index([0.5, 0.25, 0.25, 1., 0.5, 0.25, 0.25, 1.])
+     62.8
+
+     >>> normalized_pairwise_variability_index([2, 1, 2, 1])
+     66.66
+
+     >>> normalized_pairwise_variability_index([0.5, 1, 2, 1, 0.5])
+     66.66
+
+     >>> normalized_pairwise_variability_index([2, 1, 0.5, 1, 0.5, 0.25])
+     66.66
+
+
     """
 
     _validate_inputs(durations)
@@ -101,9 +135,9 @@ def normalized_pairwise_variability_index(
     return numerator / denominator
 
 
-def normalized_pairwise_calculation(durations: Iterable[float]) -> Iterable[float]:
+def normalized_pairwise_calculation(durations: Iterable[float]) -> list[float]:
     r"""
-    Extracts the normalized pairwise calculation (nPC) for a list of durations, as defined by Condit-Schultz (2019).
+    Calculates the normalized pairwise calculation (nPC) for a list of durations, as defined by Condit-Schultz (2019).
 
     The nPVI is equivalent to the arithmetic mean of a set of nPC values. The equation for nPC can be written as:
 
@@ -111,11 +145,42 @@ def normalized_pairwise_calculation(durations: Iterable[float]) -> Iterable[floa
         \text{nPC} = 200 * \biggl{|} \frac{\text{antecedent IOI} - \text{consequent IOI}}
         {\text{antecedent IOI} + \text{consequent IOI}} \biggr{|}
 
-    Args:
-        durations (Iterable[float]): the durations to analyse
+    Parameters
+    ----------
+    durations (Iterable[float]): the durations to analyse
 
-    Returns:
-        Iterable[float]: the extracted nPC value(s) for every pair of antecedent-consequent durations
+    Returns
+    -------
+    Iterable[float]: the extracted nPC value(s) for every pair of antecedent-consequent durations
+
+    Examples
+    --------
+
+    From Condit-Schultz (2019) figure 3.
+
+    >>> normalized_pairwise_calculation([1, 15])
+    [175.]
+
+    >>> normalized_pairwise_calculation([1, 7])
+    [150.]
+
+    >>> normalized_pairwise_calculation([1, 5])
+    [133.33]
+
+    >>> normalized_pairwise_calculation([1, 4])
+    [120.]
+
+    >>> normalized_pairwise_calculation([1, 3])
+    [100.]
+
+    >>> normalized_pairwise_calculation([1, 2])
+    [66.67]
+
+    >>> normalized_pairwise_calculation([2, 3])
+    [40.]
+
+    >>> normalized_pairwise_calculation([1, 1])
+    [0.]
 
     """
 
@@ -130,17 +195,25 @@ def isochrony_proportion(
     durations: Iterable[float],
 ) -> float:
     r"""
-    Calculates the isochrony proportion (IsoP) for a list of durations, as defined in Condit-Schultz (2019).
+    Calculates the isochrony proportion (IsoP) for a list of durations, as defined in Condit-Schultz (2019):
+    "by iterating over every pair of successive IOIs in a rhythm,
+    counting the pairs that are identical,
+    and dividing this count by the total number of pairs (one less than the total number of IOIs)."
 
-    The IsoP is calculated simply by iterating over every pair of duration values, counting the pairs that are
-    identical, and dividing this count by the total number of pairs. In previous research (e.g., Condit-Schultz 2019),
-    the IsoP has shown to account for a large degree of the variance contained in the nPVI.
+    Condit-Schultz 2019 demonstrates that the IsoP accounts for a large degree of the variance in the nPVI.
 
-    Args:
-        durations (Iterable[float]): the durations to analyse
+    Parameters
+    ----------
+    durations (Iterable[float]): the durations to analyse
 
-    Returns:
-        float: the extracted IsoP value
+    Returns
+    -------
+    float: the extracted IsoP value
+
+    Examples
+    --------
+    >>> isochrony_proportion([1, 1, 2, 2, 1, 0.5])
+    0.4
 
     """
 
@@ -163,15 +236,18 @@ def pairwise_anisochronous_contrast_index(
     r"""
     Calculates the pairwise anisochronous contrast index (pACI) for a list of durations.
 
-    Defined in Condit-Schultz(2019), the pACI is functionally equivalent to the nPVI, but ignores isochronous pairs of
-    IOIs. This means that it is sensitive to changes in the frequencies of pairs of IOIs such as 2:1, 3:1, without
-    being overwhelmbed by isochronous pairs (1:1).
+    Defined in Condit-Schultz (2019), the pACI is equivalent to the nPVI,
+    except that it "factors out" isochronous pairs of IOIs.
+    This means that it is sensitive to changes in the frequencies of IOIs pairs such as 2:1, 3:1, without
+    being "overwhelmed by isochronous pairs" (1:1).
 
-    Args:
-        durations (Iterable[float]): the durations to analyse
+    Parameters
+    ----------
+    durations (Iterable[float]): the durations to analyse
 
-    Returns:
-        float: the extracted pACI value
+    Returns
+    -------
+    float: the extracted pACI value
 
     """
 
@@ -186,7 +262,7 @@ def pairwise_anisochronous_contrast_index(
             all_npcs.append(npc)
     # Raise errors as required
     if len(all_npcs) == 0:
-        raise ValueError("No non-isochronous pairs were found, cannot calculate pACI!")
+        raise ValueError("No non-isochronous pairs were found, cannot calculate pACI.")
     # Return the average
     return sum(all_npcs) / len(all_npcs)
 
@@ -198,16 +274,17 @@ def phrase_normalized_pairwise_variability_index(
     r"""
     Calculates the phrase-normalized pairwise variability index (pnPVI), as defined by VanHandel & Song (2010).
 
-    The pnNPVI simply calculates the nPVI, but *ignores* cases where pairs of IOIs straddle phrase boundaries. To do
-    so, we also need a list of phrase boundary times, which should increase linearly (i.e., they are not duration
-    values, but closer to onsets).
+    The pnNPVI calculates the nPVI, ignoring cases where pairs of IOIs straddle a phrase boundary.
+    To do so, we also need a list of times for where those phrase boundaries fall.
 
-    Args:
-        durations (Iterable[float]): the durations to analyse
+    Parameters
+    ----------
+    durations (Iterable[float]): the durations to analyse
         phrase_boundaries (Iterable[float]): the phrase boundaries to analyse
 
-    Returns:
-        float: the extracted pnNPVI value
+    Returns
+    -------
+    float: the extracted pnNPVI value
 
     """
 
@@ -233,7 +310,7 @@ def phrase_normalized_pairwise_variability_index(
     # Raise errors as required
     if len(all_npcs) == 0:
         raise ValueError(
-            "All pairs of IOIs cross phrase boundaries, cannot calculate pnNPVI!"
+            "All pairs of IOIs cross phrase boundaries, cannot calculate pnNPVI."
         )
     # Return the average of all nPC values
     return sum(all_npcs) / len(all_npcs)
