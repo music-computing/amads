@@ -47,6 +47,10 @@ melsim = [
     "pandas",
     "rpy2"
 ]
+examples = [
+    "mirdata @ git+https://github.com/mir-dataset-loaders/mirdata.git@master",
+    "scikit-learn"
+]
 
 [project.urls]
 "GitHub" = "https://github.com/music-computing/amads"  # Update with your repo URL
