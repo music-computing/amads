@@ -18,7 +18,7 @@ def test_salami_slice_twochan(twochan_score):
         chord.show()
     assert len(chords) == 16
 
-    pitches = [[int(p.key_num) for p in c.content] for c in chords]
+    pitches = [[int(p.num) for p in c.content] for c in chords]
     assert pitches == [
         [43, 67],
         [43, 64],

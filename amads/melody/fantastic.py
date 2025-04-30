@@ -36,7 +36,7 @@ def fantastic_pitch_features(score: Score) -> Dict:
     flattened_score = score.flatten(collapse=True)
     notes = list(flattened_score.find_all(Note))
 
-    pitches = [note.pitch.key_num for note in notes]
+    pitches = [note.pitch.num for note in notes]
 
     pitch_range = max(pitches) - min(pitches)
     pitch_std = np.std(pitches)
@@ -81,7 +81,7 @@ def fantastic_pitch_interval_features(score: Score) -> Dict:
     flattened_score = score.flatten(collapse=True)
     notes = list(flattened_score.find_all(Note))
 
-    pitches = [note.pitch.key_num for note in notes]
+    pitches = [note.pitch.num for note in notes]
     # Fantastic defines intervals by looking forwards
     intervals = [pitches[i + 1] - pitches[i] for i in range(len(pitches) - 1)]
     # and then always uses the absolute value
@@ -177,7 +177,7 @@ def fantastic_step_contour_features(score: Score) -> Dict:
     notes = list(flattened_score.find_all(Note))
 
     # Extract pitches and times for contour calculation
-    pitches = [note.pitch.key_num for note in notes]
+    pitches = [note.pitch.num for note in notes]
     durations = [note.duration for note in notes]
 
     sc = StepContour(pitches, durations)
@@ -212,7 +212,7 @@ def fantastic_interpolation_contour_features(score: Score) -> Dict:
     notes = list(flattened_score.find_all(Note))
 
     # Extract pitches and times for contour calculation
-    pitches = [note.pitch.key_num for note in notes]
+    pitches = [note.pitch.num for note in notes]
     times = [note.onset for note in notes]
 
     # Calculate contour
@@ -253,7 +253,7 @@ def fantastic_parsons_contour_features(
     flattened_score = score.flatten(collapse=True)
     notes = list(flattened_score.find_all(Note))
 
-    pitches = [note.pitch.key_num for note in notes]
+    pitches = [note.pitch.num for note in notes]
     pc = ParsonsContour(
         pitches, character_dict=character_dict, initial_asterisk=initial_asterisk
     )
@@ -311,7 +311,7 @@ def fantastic_huron_contour_features(score: Score) -> Dict:
     flattened_score = score.flatten(collapse=True)
     notes = list(flattened_score.find_all(Note))
 
-    pitches = [note.pitch.key_num for note in notes]
+    pitches = [note.pitch.num for note in notes]
     times = [note.onset for note in notes]
 
     hc = HuronContour(pitches, times)

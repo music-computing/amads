@@ -103,9 +103,7 @@ class Timepoint:
                     time=time,
                     note_ons=note_ons[time],
                     note_offs=note_offs[time],
-                    sounding_notes=sorted(
-                        list(sounding_notes), key=lambda n: n.key_num
-                    ),
+                    sounding_notes=sorted(list(sounding_notes), key=lambda n: n.num),
                 )
             )
 

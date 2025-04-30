@@ -3,8 +3,8 @@ Sliding window analysis
 =======================
 
 This example demonstrates how to perform a sliding window analysis on a musical
-score to compute the mean pitch height (mean key_num) from each window and plot
-the result.
+score to compute the mean pitch height (mean numumber) from each window and
+plot the result.
 """
 
 # %%
@@ -57,7 +57,7 @@ for window in windows:
         continue
 
     total_duration = sum(note.duration for note in window.content)
-    weighted_sum = sum(note.key_num * note.duration for note in window.content)
+    weighted_sum = sum(note.num * note.duration for note in window.content)
     mean_pitch_heights.append(weighted_sum / total_duration)
 
 # %%

@@ -596,17 +596,15 @@ class Note(Event):
 
     @property
     def octave(self) -> int:
-        """Retrieve the octave number of the note, based on key_num.
-        E.g. C4 is enharmonic to B#3 and represent the same (more or less)
-        pitch, but BOTH have an octave of 4. On the other hand name()
-        will return "C4" and "B#3", respectively.
+        """Retrieve the octave number of the note, based on `num - alt`, e.g.,
+        C4 has octave 4 while B#3 has octave 3. (See also `register`).
 
         Returns
         -------
         int
             The octave number of the note.
         """
-        return self.octave
+        return self.pitch.octave
 
 
     @octave.setter
@@ -618,12 +616,38 @@ class Note(Event):
         oct : int
             The new octave number.
         """
-        self.pitch = Pitch(self.key_num + (oct - self.octave) * 12,
+        self.pitch = Pitch(self.num + (oct - self.octave) * 12,
                            self.pitch.alt)
 
 
     @property
-    def key_num(self) -> int:
+    def register(self) -> int:
+        """Retrieve the absolute octave number based on `floor(num)`,
+        e.g., both C4 and B#3 has register 4. (See also `octave`).
+
+        Returns
+        -------
+        int
+            The octave number of the note.
+        """
+        return self.pitch.register
+
+
+    @octave.setter
+    def register(self, register: int) -> None:
+        """Set the register of the note.
+
+        Parameters
+        ----------
+        register : int
+            The new register number.
+        """
+        self.pitch = Pitch(self.num + (register - self.register) * 12,
+                           self.pitch.alt)
+
+
+    @property
+    def num(self) -> int:
         """Retrieve the MIDI key number of the note, e.g. C4 = 60.
 
         Returns
@@ -631,7 +655,7 @@ class Note(Event):
         int
             The MIDI key number of the note.
         """
-        return self.pitch.key_num
+        return self.pitch.num
 
 
     def enharmonic(self) -> "Pitch":
@@ -1544,7 +1568,7 @@ class Concurrence(EventGroup):
 
 class Chord(Concurrence):
     """A Chord is a collection of Notes, normally with onsets equal
-    to that of the chord and the same durations but distinct key_nums,
+    to that of the chord and the same durations but distinct pitches,
     but none of this is enforced.  The order of notes is arbitrary.
     Normally, a Chord is a member of a Measure. There is no requirement
     that simultaneous or overlapping notes be grouped into Chords,
@@ -1823,7 +1847,7 @@ class Score(Concurrence):
         >>> notes = score.content[0].content
         >>> len(notes)  # number of notes in first part
         8
-        >>> notes[0].key_num
+        >>> notes[0].num
         60
         >>> score.duration  # last note ends at t=8
         8.0
@@ -1978,8 +2002,8 @@ class Score(Concurrence):
         is not ideal, but we need to distinguish between part numbers
         (arbitrary labels) and part index. Initially, I used tuples,
         but they are error prone. E.g. part=(0) means part=0, so you
-        have to write key_num_list(part=((0))). With [n], you write
-        key_num_list(part=[0]) to indicate an index. This is
+        have to write collapse_part(part=((0))). With [n], you write
+        collapse_part(part=[0]) to indicate an index. This is
         prettier and less prone to error.
         """
         # Algorithm: Since we might be selecting individual Staffs and
@@ -2057,7 +2081,7 @@ class Score(Concurrence):
             for note in notes:
                 note.parent = new_part
             # notes with equal onset times are sorted in pitch from high to low
-            notes.sort(key=lambda x: (x.onset, -note.key_num))
+            notes.sort(key=lambda x: (x.onset, -note.num))
             new_part.content = notes  # content will have only Notes
 
             # set the Part duration so it ends at the max offset of all Parts:
@@ -2341,11 +2365,11 @@ class Part(Concurrence):
         group = [notes[i]]  # start the list
         while notes[i].tie == "start" or notes[i].tie == "continue":
             offset = notes[i].offset
-            key_num = notes[i].key_num  # allow ties to enharmonics
+            num = notes[i].num  # allow ties to enharmonics
             candidates = []  # save indices of possible tied notes
             j = i + 1  # search for candidates starting at i + 1
             while j < len(notes) and notes[j].onset < offset + 0.0001:
-                if (notes[j].key_num == key_num
+                if (notes[j].num == num
                     and (notes[j].tie == "stop" or notes[j].tie == "continue")
                     and notes[j].onset > offset - 0.0001):
                     candidates.append(j)  # found one!

@@ -251,7 +251,7 @@ def r_load_melody(melody: Score, name: str):
 
     # Extract onset, pitch, duration for each note
     onsets = FloatVector([note.onset for note in notes])
-    pitches = FloatVector([note.key_num for note in notes])
+    pitches = FloatVector([note.num for note in notes])
     durations = FloatVector([note.duration for note in notes])
 
     # Create R tibble using tibble::tibble()

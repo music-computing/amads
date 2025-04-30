@@ -115,7 +115,7 @@ def segment_gestalt(score: Score) -> tuple[list[float], list[float]]:
     cl_values = []
     # calculate clang distances here
     for note_pair in zip(notes[:-1], notes[1:]):
-        pitch_diff = note_pair[1].key_num - note_pair[0].key_num
+        pitch_diff = note_pair[1].num - note_pair[0].num
         onset_diff = note_pair[1].onset - note_pair[0].onset
         cl_values.append(2 * onset_diff + abs(pitch_diff))
 
@@ -154,7 +154,7 @@ def segment_gestalt(score: Score) -> tuple[list[float], list[float]]:
         local_seg_dist += notes[cl_indices[i + 1]].onset - notes[cl_indices[i]].onset
         # first of next clang to last of distance
         local_seg_dist += abs(
-            notes[cl_indices[i + 1]].key_num - notes[cl_indices[i + 1] - 1].key_num
+            notes[cl_indices[i + 1]].num - notes[cl_indices[i + 1] - 1].num
         )
         local_seg_dist += 2 * (
             notes[cl_indices[i + 1]].onset - notes[cl_indices[i + 1] - 1].onset

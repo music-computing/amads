@@ -31,7 +31,7 @@ def dir2coll(filenames):
     return scores
 
 
-def hz2key_num(hertz):
+def hz2num(hertz):
     """
     Converts a frequency in Hertz to the corresponding MIDI key number.
 
@@ -40,44 +40,44 @@ def hz2key_num(hertz):
     in Hertz.
 
     Returns:
-    key_num (Pitch or list of Pitch): The corresponding MIDI key number(s)
+    num (Pitch or list of Pitch): The corresponding MIDI key number(s)
     as Pitch objects.
     """
 
-    def hz_to_key_num_single(hz):
-        key_num = 69 + 12 * math.log2(hz / 440.0)
-        return Pitch(round(key_num))
+    def hz_to_num_single(hz):
+        num = 69 + 12 * math.log2(hz / 440.0)
+        return Pitch(round(num))
 
     if isinstance(hertz, list):
-        return [hz_to_key_num_single(hz) for hz in hertz]
+        return [hz_to_num_single(hz) for hz in hertz]
     else:
-        return hz_to_key_num_single(hertz)
+        return hz_to_num_single(hertz)
 
 
-def key_num2hz(key_num):
+def num2hz(num):
     """
     Converts a Pitch object or MIDI key number to the corresponding
     frequency in Hertz.
 
     Parameters:
-    key_num (Pitch or int or list of Pitch or ints): The Pitch object(s) or
+    num (Pitch or int or list of Pitch or ints): The Pitch object(s) or
     MIDI key number(s).
 
     Returns:
     hz (float or list of floats): The corresponding frequency in Hertz.
     """
 
-    def key_num_to_hz_single(k):
+    def num_to_hz_single(k):
         if isinstance(k, Pitch):
-            key_num = k.key_num
+            num = k.num
         else:
-            key_num = k
-        return 440.0 * 2 ** ((key_num - 69) / 12)
+            num = k
+        return 440.0 * 2 ** ((num - 69) / 12)
 
-    if isinstance(key_num, list):
-        return [key_num_to_hz_single(k) for k in key_num]
+    if isinstance(num, list):
+        return [num_to_hz_single(k) for k in num]
     else:
-        return key_num_to_hz_single(key_num)
+        return num_to_hz_single(num)
 
 
 def keyname(n, detail="nameoctave"):

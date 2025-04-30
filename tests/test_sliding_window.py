@@ -35,5 +35,5 @@ def test_sliding_window(twochan_score: Score, twochan_notes: Iterable[Note]):
 
     # The second slice should include the score's opening two notes
     assert len(windows[1].content) == 2
-    assert windows[1].content[0].key_num == 67 - 2 * 12
-    assert windows[1].content[1].key_num == 67
+    assert windows[1].content[0].num == 67 - 2 * 12
+    assert windows[1].content[1].num == 67

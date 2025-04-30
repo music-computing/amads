@@ -63,7 +63,7 @@ def boundary(score: Score):
     notes = score.get_sorted_notes()
 
     # profiles
-    pp = [abs(pair[1].key_num - pair[0].key_num) for pair in zip(notes, notes[1:])]
+    pp = [abs(pair[1].num - pair[0].num) for pair in zip(notes, notes[1:])]
     po = [pair[1].onset - pair[0].onset for pair in zip(notes, notes[1:])]
     pr = [max(0, pair[1].onset - pair[0].offset) for pair in zip(notes, notes[1:])]
 

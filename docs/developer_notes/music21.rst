@@ -24,7 +24,7 @@ derived from this are:
 * ``pitch_class``
 * ``frequency``
 * ``alter_name``
-* ``key_number`` (or maybe midi)
+* ``numor maybe midi)
 * ``unicode_name``
 * ``unicode_name_with_octave``
 
@@ -44,7 +44,7 @@ and derived are:
 * ``pitch_class``
 * ``frequency``
 * ``alter_name``
-* ``key_number`` (or maybe midi)
+* ``numor maybe midi)
 * ``unicode_name``
 * ``unicode_name_with_octave``
 

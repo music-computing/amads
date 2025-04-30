@@ -10,7 +10,7 @@ def test_pitch_comparison():
 
 def test_non_int_pitch():
     micro = Pitch(60.5)
-    assert micro.key_num == 60.5
+    assert micro.num == 60.5
     assert micro.alt == 0.5
 
 

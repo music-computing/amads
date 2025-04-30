@@ -92,7 +92,7 @@ def skyline(score: Score, threshold: float = 0.1):
         note = notes[i]
         # ignore notes that are below another existing note in skyline
         if any(
-            note.key_num < prev.key_num and note.onset < prev.offset - threshold
+            note.num < prev.num and note.onset < prev.offset - threshold
             for prev in skyline.content
         ):
             print("Skipping note ", end="")
@@ -108,7 +108,7 @@ def skyline(score: Score, threshold: float = 0.1):
 
         for j in reversed(range(len(skyline.content))):
             if (
-                skyline.content[j].key_num < note.key_num
+                skyline.content[j].num < note.num
                 and note.onset < skyline.content[j].offset
             ):
                 # remove low notes quickly followed by a higher note

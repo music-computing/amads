@@ -15,7 +15,7 @@ def pitch_mean(score, weighted=False):
         # = pitch * dur_1 + pitch * dur_2, so we can just treat the
         # components of tied notes separately.
         for note in score.find_all(Note):
-            sum += note.key_num * note.duration
+            sum += note.num * note.duration
             count += note.duration
     else:
         # Our problem is that we want to count only the first of any tied-note
@@ -27,6 +27,6 @@ def pitch_mean(score, weighted=False):
             if note.tie is not None:
                 tied_to.add(note.tie)
             if note not in tied_to:
-                sum += note.key_num
+                sum += note.num
                 count += 1
     return (sum / count) if sum > 0 else 0

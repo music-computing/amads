@@ -26,12 +26,12 @@ def update_id(id: list[list[float]], notes: list[Note], weighted: bool):
     for note in notes:
         if prev_note:
             if prev_prev_note:
-                key_num_curr = note.key_num
-                key_num_prev = prev_note.key_num
-                key_num_prev_prev = prev_prev_note.key_num
+                num_curr = note.num
+                num_prev = prev_note.num
+                num_prev_prev = prev_prev_note.num
 
-                diff = round(key_num_curr - key_num_prev)
-                prev_diff = round(key_num_prev - key_num_prev_prev)
+                diff = round(num_curr - num_prev)
+                prev_diff = round(num_prev - num_prev_prev)
 
                 # Ignore intervals greater than an octave
                 if abs(diff) <= 12 and abs(prev_diff) <= 12:
@@ -54,12 +54,12 @@ def update_id(id: list[list[float]], notes: list[Note], weighted: bool):
 
     # for i in range(2, len(notes)):
     #     if i >= 2:
-    #         key_num_curr = notes[i].key_num
-    #         key_num_prev = notes[i-1].key_num
-    #         key_num_prev_prev = notes[i-2].key_num
+    #         num_curr = notes[i].num
+    #         num_prev = notes[i-1].num
+    #         num_prev_prev = notes[i-2].num
 
-    #         diff = key_num_curr - key_num_prev
-    #         prev_diff = key_num_prev - key_num_prev_prev
+    #         diff = num_curr - num_prev
+    #         prev_diff = num_prev - num_prev_prev
 
     #         # Ignore intervals greater than an octave
     #         if abs(diff) <= 12 and abs(prev_diff) <= 12:

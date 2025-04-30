@@ -22,10 +22,10 @@ def update_id(id: list[float], notes: list[Note], weighted: bool):
     prev = None
     for note in notes:
         if prev:
-            key_num_curr = note.key_num
-            key_num_prev = prev.key_num
+            num_curr = note.num
+            num_prev = prev.num
 
-            diff = round(key_num_curr - key_num_prev)
+            diff = round(num_curr - num_prev)
 
             # Ignore intervals greater than an octave
             if abs(diff) <= 12:
