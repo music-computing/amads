@@ -2,7 +2,7 @@ import pretty_midi
 import pytest
 
 from amads.core.basics import Note, Score
-from amads.io.pt_midi_import import partitura_midi_import
+from amads.io.pt_midi_import import amads_midi_import
 from amads.music import example
 
 
@@ -28,7 +28,7 @@ def test_import_midi(midi_filename):
         Name of the MIDI file to test
     """
     midi_file = example.fullpath(f"midi/{midi_filename}")
-    score = partitura_midi_import(midi_file, ptprint=False)
+    score = amads_midi_import(midi_file, show=False)
     assert isinstance(score, Score)
 
     score_notes = score.list_all(Note)

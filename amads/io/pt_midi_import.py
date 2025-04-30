@@ -13,10 +13,10 @@ from .pt_xml_import import partitura_convert_part
 #      2nd pass (C): set ties attribute of Notes ?
 
 
-def partitura_midi_import(filename, ptprint=False):
+def partitura_midi_import(filename, show=False):
     """User Partitura to import a MIDI file."""
     ptscore = pt.load_score_midi(filename)
-    if ptprint:
+    if show:
         for ptpart in ptscore:
             print(ptpart.pretty())
     score = Score()

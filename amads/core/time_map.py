@@ -51,7 +51,7 @@ class TimeMap:
         if beat > last_beat:
             self.beats.append(MapBeat(self.beat_to_time(beat), beat))
         self.last_tempo = tempo
-        print("append_beat_tempo", tempo, self.beats[-1])
+        # print("append_beat_tempo", tempo, self.beats[-1])
 
     def locate_time(self, time):
         """find the insertion index for a 0-based beat at time in seconds"""

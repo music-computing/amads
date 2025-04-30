@@ -294,9 +294,9 @@ class Pitch:
         sharp_char = (accidental_chars[1] if len(accidental_chars) > 1 else "#")
         if round(self.alt) == self.alt:  # an integer value
             if self.alt > 0:
-                accidentals = sharp_char * self.alt
+                accidentals = sharp_char * round(self.alt)
             elif self.alt < 0:
-                accidentals = accidental_chars[0] * -self.alt
+                accidentals = accidental_chars[0] * round(-self.alt)
             else:
                 accidentals = ""  # natural
         return self.step + accidentals

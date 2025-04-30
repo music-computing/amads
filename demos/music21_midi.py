@@ -1,14 +1,14 @@
-# partitura_midi_test.py - some tests for partitura_midi_import.py
+# music21_midi_test.py - some tests for music21_midi_import.py
 
-from amads.all import partitura_midi_import, pitch_mean
+from amads.all import music21_midi_import, pitch_mean
 from amads.music import example
 
 # "midi/tones.mid"
 my_midi_file = example.fullpath("midi/twochan.mid")
 # "midi/tempo.mid"
 
-print("------- input from partitura")
-myscore = partitura_midi_import(my_midi_file, show=True)
+print("------- input from music21")
+myscore = music21_midi_import(my_midi_file, show=True)
 myscore.show()
 
 

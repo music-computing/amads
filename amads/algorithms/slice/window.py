@@ -72,14 +72,14 @@ class Window(Slice):
         for i in range(skip, len(candidate_notes)):
             note = candidate_notes[i]
 
-            if note.offset < onset:
+            if note.offset <= onset:
                 # The note finished before the window started.
                 # It'll definitely finish before future windows start,
                 # because they'll be even later, so we can skip it then too.
                 skip = i
                 continue
 
-            if note.onset > offset:
+            if note.onset >= offset:
                 # The note starts after the window finishes.
                 # All the remaining notes in candidate_notes will have even later onsets,
                 # so we don't need to check them for this window.

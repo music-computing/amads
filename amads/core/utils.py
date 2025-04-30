@@ -1,6 +1,6 @@
 import math
 
-from ..io.ptscoreread import score_read, score_read_extensions
+from ..io.scoreread import score_read, score_read_extensions
 from .basics import Pitch
 
 

@@ -18,6 +18,7 @@ Score (one per musical work or movement)
                     Note (one for each note of the chord)
                 KeySignature
                 TimeSignature
+                Clef
 
 A "flattened" score looks like this:
 
@@ -543,7 +544,7 @@ class Note(Event):
             duration = "NO DURATION"
         else:
             duration = f"{self.duration:0.3f}"
-        print(" " * indent, f"{tie_prefix}Note at {onset}:",
+        print(" " * indent, f"{tie_prefix}Note at {onset}: ",
               f"duration {duration} pitch ",
               self.name_with_octave, tie_info, dynamic_info, lyric_info, sep="")
         if self.tie:
@@ -757,8 +758,64 @@ class TimeSignature(Event):
 
 
 
+class Clef(Event):
+    """Clef is a zero-duration Event with clef info.
+
+    Parameters
+    ----------
+        parent : Optional[EventGroup], optional
+            The containing object or None. (Defaults to None)
+        onset : float, optional
+            The onset (start) time. An initial value of None might
+            be assigned when the TimeSignature is inserted into an EventGroup.
+            (Defaults to None)
+        clef : str, optional (Defaults to "treble")
+
+    Attributes
+    ----------
+        parent : Optional[EventGroup]
+            The containing object or None.
+        onset : float
+            The onset (start) time.
+        duration : float
+            Always zero for this subclass.
+        clef : str
+            The clef name, one of "treble", "bass", "alto", "tenor", 
+            "percussion", "treble8vb" (Other clefs may be added later.)
+    """
+    __slots__ = ["clef"]
+
+    def __init__(self,
+                 parent: Optional["EventGroup"] = None,
+                 onset: float = 0.0, clef: str = "treble"):
+        super().__init__(parent, 0, onset)
+        if clef not in ["treble", "bass", "alto", "tenor",
+                      "percussion", "treble8vb"]:
+            raise ValueError(f"Invalid clef: {clef}")
+        self.clef = clef
+
+
+    def show(self, indent: int = 0) -> "Clef":
+        """Display the Clef information.
+
+        Parameters
+        ----------
+        indent : int, optional
+            The indentation level for display. (Defaults to 0)
+
+        Returns
+        -------
+        Clef
+            The Clef instance itself.
+        """
+        print(" " * indent, f"Clef at {self.onset:0.3f}: ",
+              f"{self.clef}", sep="")
+        return self
+
+
+
 class KeySignature(Event):
-    """KeySignature is a zero-duration Event with keysig info.
+    """KeySignature is a zero-duration Event with key_sig info.
 
     Parameters
     ----------
@@ -768,7 +825,7 @@ class KeySignature(Event):
             The onset (start) time. An initial value of None might
             be assigned when the KeySignature is inserted into an EventGroup.
             (Defaults to None)
-        keysig : int, optional
+        key_sig : int, optional
             An integer representing the number of sharps (if positive)
             and flats (if negative), e.g. -3 for Eb major or C minor.
             (Defaults to 0)
@@ -781,15 +838,15 @@ class KeySignature(Event):
             The onset (start) time.
         duration : float
             Always zero for this subclass.
-        keysig : int
+        key_sig : int
             An integer representing the number of sharps and flats.
     """
-    __slots__ = ["keysig"]
+    __slots__ = ["key_sig"]
 
     def __init__(self, parent: Optional["EventGroup"] = None,
-                 onset: float = 0.0, keysig: int = 0):
+                 onset: float = 0.0, key_sig: int = 0):
         super().__init__(parent=parent, onset=onset, duration=0)
-        self.keysig = keysig
+        self.key_sig = key_sig
 
 
     def show(self, indent: int = 0) -> "KeySignature":
@@ -805,8 +862,8 @@ class KeySignature(Event):
         KeySignature
             The KeySignature instance itself.
         """
-        print(" " * indent, f"KeySignature at {self.onset:0.3f}:",
-              abs(self.keysig), " sharps" if self.keysig > 0 else " flats",
+        print(" " * indent, f"KeySignature at {self.onset:0.3f}: ",
+              abs(self.key_sig), " sharps" if self.key_sig > 0 else " flats",
               sep="")
         return self
 
@@ -1288,7 +1345,7 @@ class EventGroup(Event):
         EventGroup
             The EventGroup instance itself.
         """
-        print(" " * indent, label, f" at {self.onset:0.3f}:",
+        print(" " * indent, label, f" at {self.onset:0.3f}: ",
               f"duration {self.duration:0.3f}", sep="")
         for elem in self.content:
             elem.show(indent + 4)
@@ -2228,7 +2285,7 @@ class Score(Concurrence):
             The Score instance itself.
         """
 
-        print(" " * indent, f"Score at {self.onset:0.3f}:",
+        print(" " * indent, f"Score at {self.onset:0.3f}: ",
               f"duration {self.duration:0.3f}", sep="")
         self.time_map.show(indent + 4)
         for elem in self.content:
