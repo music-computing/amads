@@ -11,24 +11,24 @@ import pytest
 from amads.time.meter import grid
 
 
-def test_metrical_gcm_counter():
+def test_metrical_gcd_counter():
     with pytest.raises(ValueError):
-        grid.metrical_gcm(starts=Counter({0: 4, 1.5: 2}))
+        grid.metrical_gcd(starts=Counter({0: 4, 1.5: 2}))
 
 
-def test_metrical_gcm_bins():
+def test_metrical_gcd_bins():
     with pytest.raises(ValueError):
-        grid.metrical_gcm(starts=[0, 1, 2, 3], bins=1.6)
+        grid.metrical_gcd(starts=[0, 1, 2, 3], bins=1.6)
 
 
-def test_metrical_gcm_distance_threshold():
+def test_metrical_gcd_distance_threshold():
     with pytest.raises(ValueError):
-        grid.metrical_gcm(starts=[0, 1, 2, 3], distance_threshold=-1)
+        grid.metrical_gcd(starts=[0, 1, 2, 3], atol=-1)
 
 
-def test_metrical_gcm_proportion_threshold():
+def test_metrical_gcd_proportion_threshold():
     with pytest.raises(ValueError):
-        grid.metrical_gcm(
+        grid.metrical_gcd(
             starts=[0, 1, 2, 3],
             proportion_threshold=3,
         )
