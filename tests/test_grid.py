@@ -11,24 +11,33 @@ import pytest
 from amads.time.meter import grid
 
 
-def test_metrical_gcd_counter():
+def test_tatum_pulses_per_measure_counter():
     with pytest.raises(ValueError):
-        grid.metrical_gcd(starts=Counter({0: 4, 1.5: 2}))
+        grid.tatum_pulses_per_measure(starts=Counter({0: 4, 1.5: 2}))
 
 
-def test_metrical_gcd_bins():
+def test_tatum_pulses_per_measure_bins():
+    # Not a list
     with pytest.raises(ValueError):
-        grid.metrical_gcd(starts=[0, 1, 2, 3], bins=1.6)
+        grid.tatum_pulses_per_measure(starts=[0, 1, 2, 3], pulse_priority_list=1)
 
-
-def test_metrical_gcd_distance_threshold():
+    # List items not integers
     with pytest.raises(ValueError):
-        grid.metrical_gcd(starts=[0, 1, 2, 3], atol=-1)
+        grid.tatum_pulses_per_measure(starts=[0, 1, 2, 3], pulse_priority_list=[1.6])
 
-
-def test_metrical_gcd_proportion_threshold():
+    # List items negative integer
     with pytest.raises(ValueError):
-        grid.metrical_gcd(
+        grid.tatum_pulses_per_measure(starts=[0, 1, 2, 3], pulse_priority_list=[-1])
+
+
+def test_tatum_pulses_per_measure_distance_threshold():
+    with pytest.raises(ValueError):
+        grid.tatum_pulses_per_measure(starts=[0, 1, 2, 3], distance_threshold=-1)
+
+
+def test_tatum_pulses_per_measure_proportion_threshold():
+    with pytest.raises(ValueError):
+        grid.tatum_pulses_per_measure(
             starts=[0, 1, 2, 3],
             proportion_threshold=3,
         )

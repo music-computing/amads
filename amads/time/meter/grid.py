@@ -4,14 +4,20 @@ in response to a source and user tolerance settings.
 
 While we provide functionality for standard, general algorithms
 (greatest common denominator and fraction estimation),
-symbolic music tends to prioritise some metrical divisions over others.
-For example, 15/16 is a commonly used metrical position because 16 is a power of 2;
-14/15 is not.
+and while these tend to be more computationally efficient,
+they are not effective for the current use case.
+
+Your algorithm and its test cases can then be a useful benchmark for future work trying to improve on it.
+
+This is largely because symbolic music
+1) starts with fractional values,
+e.g., a note event 15/16th of the way from a measure (float representations of those fraction are secondary), and
+2) tends to prioritise certain metrical divisions over others,
+e.g., 15/16 is a commonly used metrical position (largely because 16 is a power of 2), but 14/15 is not.
 That being the case, while 14/15 might be a better mathematical fit for approximating a value,
 it is typically incorrect as the musical solution.
-And we can use the term "incorrect" advisedly here:
-ground truth values are often known as these floats are approximations from fractional values that are
-known from the symbolic source.
+And it bears repeating that we can use the term "incorrect" advisedly here because
+the floats are secondary representations of a known fractional ground truth.
 Doctests demonstrate some of these cases.
 """
 
@@ -192,7 +198,7 @@ def approximate_fraction(x, d: float = 0.001):
     return a, b
 
 
-def metrical_gcd(
+def tatum_pulses_per_measure(
     starts: Union[Iterable, Counter],
     pulse_priority_list: Optional[list] = None,
     distance_threshold: float = 1 / 24,
@@ -270,16 +276,16 @@ def metrical_gcd(
     ... 0.562: 28, 0.188: 14, 0.312: 14, 0.438: 14, 0.062: 12
     ... })
 
-    >>> metrical_gcd(bpsd_Op027No1, distance_threshold=1/24, proportion_threshold=0.999)
+    >>> tatum_pulses_per_measure(bpsd_Op027No1, distance_threshold=1/24) # proportion_threshold=0.999
     48
 
-    # Change the `distance_threshold`
-    # >>> metrical_gcd(bpsd_Op027No1, distance_threshold=1/12, proportion_threshold=0.999)
-    # 12
-    #
-    # Change the `proportion_threshold`
-    # >>> metrical_gcd(bpsd_Op027No1, distance_threshold=1/24, proportion_threshold=0.80)
-    # 24
+    Change the `distance_threshold`
+    >>> tatum_pulses_per_measure(bpsd_Op027No1, distance_threshold=1/6) # proportion_threshold=0.999
+    12
+
+    Change the `proportion_threshold`
+    >>> tatum_pulses_per_measure(bpsd_Op027No1, distance_threshold=1/24, proportion_threshold=0.80)
+    24
 
     """
 
@@ -314,6 +320,11 @@ def metrical_gcd(
         ]
 
     else:
+        if not isinstance(pulse_priority_list, list):
+            raise ValueError(
+                "The `pulse_priority_list` must consist entirely of integers."
+            )
+
         for i in pulse_priority_list:
             if not isinstance(i, int):
                 raise ValueError(
