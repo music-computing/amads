@@ -1,22 +1,44 @@
 """
-The module seeks an appropriate granular grid for the smallest metrical pulse level (broadly, "tatum")
+The module seeks to find the smallest metrical pulse level (broadly, "tatum")
 in response to a source and user tolerance settings.
 
-While we provide functionality for standard, general algorithms
-(greatest common denominator and fraction estimation),
-and while these tend to be more computationally efficient,
-they are not effective for the current use case.
+In the simplest case, a source records its metrical positions exactly,
+including fractional values as needed.
+We provide functionality for standard, general algorithms in these cases
+(greatest common denominator and fraction estimation)
+which are battle tested and computationally efficient.
 
-Your algorithm and its test cases can then be a useful benchmark for future work trying to improve on it.
+In metrically simple and regular cases like chorales, this value might be
+the eighth note, for instance.
+In other cases, it gets more complex.
+For example, Beethoven's Opus 10 Nr.2 Movement 1 is in 2/4 and from the start includes
+a triplet 16ths turn figure in measure 1
+(= 12x division, including float approximations of those position as 1.832, 1.916)
+and also dotted rhythms pairing a dotted 16th with 32nd note from measure 5
+(= 32x division, symbolic float approximation of 5.188).
+So to catch these cases in the first 5 measures, we need the
+lowest common multiple of 12 and 32, i.e., 96 bins.
 
-This is largely because symbolic music
-1) starts with fractional values,
-e.g., a note event 15/16th of the way from a measure (float representations of those fraction are secondary), and
-2) tends to prioritise certain metrical divisions over others,
-e.g., 15/16 is a commonly used metrical position (largely because 16 is a power of 2), but 14/15 is not.
+In cases of extreme complexity, there may be a "need" for a
+considerably greater number of bins per measure (shorter tatum).
+This is relevant for some modern music, as well as cases where
+grace notes are assigned a specific metrical position/duration
+(though in many encoded standards, grace notes are not assigned separate metrical positions).
+
+Moreover, there are musical sources that do not encode fractional time values, but rather approximation with floats.
+These include any:
+- frame-wise representations of time (including MIDI and any attempted transcription from audio),
+- processing via code libraries that likewise convert fractions to floats,
+- secondary representations like most CSVs.
+As division by 3 leads to rounding, approximation, and floating point errors,
+and as much music involves those divisions, this is widely relevant.
+
+The standard algorithms often fail in these contexts, largely because symbolic music
+tends to prioritise certain metrical divisions over others.
+For example, 15/16 is a commonly used metrical position (largely because 16 is a power of 2), but 14/15 is not.
 That being the case, while 14/15 might be a better mathematical fit for approximating a value,
 it is typically incorrect as the musical solution.
-And it bears repeating that we can use the term "incorrect" advisedly here because
+We can use the term "incorrect" advisedly here because
 the floats are secondary representations of a known fractional ground truth.
 Doctests demonstrate some of these cases.
 """
@@ -116,11 +138,13 @@ def approximate_fraction(x, d: float = 0.001):
     Takes a float and approximates the value as a fraction.
 
     Args:
-      x: Float to approximate.
-      d: Tolerance ratio.
+    -------
+    x: Input float to be approximated as a fraction.
+    d: Tolerance ratio.
 
-    Returns:
-      A tuple (numerator, denominator) representing the fraction.
+    Returns
+    -------
+    A tuple (numerator, denominator) representing the fraction.
 
     Based on the R function by Peter Harrison at DOI: 10.1080/17459737.2015.1033024
 
@@ -210,31 +234,8 @@ def tatum_pulses_per_measure(
     and with the length of those measures remaining constant.
     It serves use cases including the attempted retrieval of true metrical positions
     from rounded versions thereof (floats).
-    As even division by 3 leads to rounding, approximation, and floating point errors,
-    and as music involves many such divisons, this is widely relevant.
-
-    To create a grid accounting for every metrical position used in a source,
-    we need to find the greatest common divisor (GCD).
-    In metrically simple and regular cases like chorales, this value might be
-    the eighth note, for instance.
-    In other cases, it gets more complex.
-    For example, Beethoven's Opus 10 Nr.2 Movement 1 is in 2/4 and from the start includes
-    a triplet 16ths turn figure in measure 1
-    (= 12x division, including float approximations of those position as 1.832, 1.916)
-    and also dotted rhythms pairing a dotted 16th with 32nd note from measure 5
-    (= 32x division, symbolic float approximation of 5.188).
-    So to catch these cases in the first 5 measures, we need the
-    lowest common multiple of 12 and 32, i.e., 96 bins.
-    This is the default value of `bins`.
-    Moreover, we need to find that vlaue directly from the float approximtions, and in the general case.
-
-    See notes at `float_gcd` and `approximate_fraction` for why standard algorithms fail at this task.
-
-    In cases of extreme complexity, there may be a "need" for a
-    considerably greater number of bins (shorter GCD).
-    This is relevant for some modern music, as well as cases where
-    grace notes are assigned a specific metrical position/duration
-    (though in many encoded standards, grace notes are not assigned separate metrical positions).
+    See notes at the top of this module, as well as at
+    `float_gcd` and `approximate_fraction` for why standard algorithms fail at this task.
 
     This function serves those common cases where
     there is a need to balance between capturing event positions as accurately as possible while not
@@ -270,12 +271,8 @@ def tatum_pulses_per_measure(
 
     An example of values from the BPSD dataset (Zeilter et al.).
 
-    >>> bpsd_Op027No1 = Counter({
-    ... 0.0: 342, 0.5: 320, 0.25: 262, 0.75: 156, 0.375: 123, 0.125: 122, 0.875: 102, 0.625: 82, 0.833: 79,
-    ... 0.333: 70, 0.167: 56, 0.417: 44, 0.917: 39, 0.583: 37, 0.667: 37, 0.083: 36, 0.938: 33, 0.688: 32, 0.812: 32,
-    ... 0.562: 28, 0.188: 14, 0.312: 14, 0.438: 14, 0.062: 12
-    ... })
-
+    >>> from amads.time.meter import profiles
+    >>> bpsd_Op027No1 = profiles.BPSD().op027No1_01
     >>> tatum_pulses_per_measure(bpsd_Op027No1, distance_threshold=1/24) # proportion_threshold=0.999
     48
 
