@@ -48,7 +48,6 @@ __author__ = "Mark Gotham"
 
 # ------------------------------------------------------------------------------
 
-import logging
 import math
 from collections import Counter
 from typing import Iterable, Optional, Union
@@ -405,32 +404,22 @@ def tatum_pulses_per_measure(
     pulses_needed = [1]
 
     for x in counter_starts:
-        logging.debug(f"Start position {x}.")
-
         for p in pulses_needed:  # Try those we have first
-            logging.debug(f"... testing pulse {p}.")
             test_case = x * p
             diff = abs(round(test_case) - test_case)
             if diff < distance_threshold:
-                logging.debug(" ... within range, next ... ")
                 break
             # else try the rest of `pulses_needed` and then move on to the user alternatives.
 
         for p in pulse_priority_list:  # Then try those on the user list  # TODO DRY
-            logging.debug(f"... testing pulse {p}.")
             test_case = x * p
             diff = abs(round(test_case) - test_case)
             if diff < distance_threshold:
-                logging.debug(" ... within range, adding to pulse list ... ")
                 pulses_needed.append(p)
                 break
 
         cumulative_count += counter_starts[x] / total
-        logging.debug(f"Proportion covered = {cumulative_count}")
         if cumulative_count > proportion_threshold:
-            logging.debug(
-                f" ... over `proportion_threshold` of {proportion_threshold}. Done."
-            )
             break
 
     current_lcm = pulses_needed[0]
