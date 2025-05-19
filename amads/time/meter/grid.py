@@ -222,6 +222,65 @@ def approximate_fraction(x, d: float = 0.001):
     return a, b
 
 
+def generate_n_smooth_numbers(bases: list[int] = [2, 3], max_value: int = 100) -> list:
+    """
+    Generates a list of "N-smooth" numbers up to a specified maximum value.
+
+    An N-smooth number is a positive integer whose prime factors are all
+    less than or equal to the largest number in the 'bases' list.
+
+    Parameters
+    ----------
+    max_value : int, optional
+        The maximum value to generate numbers up to. Defaults to 100.
+    bases : list, optional
+        A list of base values (integers) representing the maximum allowed
+        prime factor. Defaults to [2, 3].
+
+    Returns
+    -------
+    list
+        A list of N-smooth numbers.
+
+    Examples
+    --------
+    Our metrical default:
+    >>> generate_n_smooth_numbers()  # all defaults `max_value=100`, `bases [2, 3]`
+    [1, 2, 3, 4, 6, 8, 9, 12, 16, 18, 24, 27, 32, 36, 48, 54, 64, 72, 81, 96]
+
+    Other cases:
+    >>> generate_n_smooth_numbers(max_value=10, bases=[2])
+    [1, 2, 4, 8]
+    >>> generate_n_smooth_numbers(max_value=20, bases=[2, 3])
+    [1, 2, 3, 4, 6, 8, 9, 12, 16, 18]
+    >>> generate_n_smooth_numbers(max_value=50, bases=[2, 3, 5])
+    [1, 2, 3, 4, 5, 6, 8, 9, 10, 12, 15, 16, 18, 20, 24, 25, 27, 30, 32, 36, 40, 45, 48, 50]
+
+    """
+    if not all(isinstance(b, int) and b > 1 for b in bases):
+        raise ValueError("Bases must be a list of integers greater than 1.")
+
+    if not isinstance(max_value, int) or max_value <= 0:
+        raise ValueError("max_value must be a positive integer.")
+
+    smooth_numbers = [1]
+    queue = [1]
+
+    while queue:
+        current = queue.pop(0)
+        for base in bases:
+            next_num = current * base
+            if next_num <= max_value:
+                if next_num not in smooth_numbers:
+                    smooth_numbers.append(next_num)
+                    queue.append(next_num)
+            else:
+                break
+
+    smooth_numbers.sort()
+    return smooth_numbers
+
+
 def tatum_pulses_per_measure(
     starts: Union[Iterable, Counter],
     pulse_priority_list: Optional[list] = None,
@@ -256,8 +315,7 @@ def tatum_pulses_per_measure(
         The point of this function is to encode musically common pulse values.
         This argument defaults to numbers under 100 with prime factors of only 2 and 3
         ("3-smooth"), in increasing order.
-        We may add a prime factorisation algorithm to support other bases later.
-        For now, it is for the user to define any alternative list.
+        The user can define any alternative list, optionally making use of `generate_n_smooth_numbers` for the purpose.
     distance_threshold
         The rounding tolerance between a temporal position multiplied by the bin value and the nearest integer.
         This is essential when working with floats, but can be set to any value the user prefers.

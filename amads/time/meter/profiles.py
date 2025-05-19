@@ -1,5 +1,6 @@
 """
-Profiles of metrical position usage provided or deduced from the literature.
+Profiles of metrical position usage provided or deduced from the literature,
+initial demonstration with Beethoven piano sonata dataset (BPSD) from their csvs.
 """
 
 __author__ = "Mark Gotham"
