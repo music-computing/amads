@@ -6,7 +6,7 @@ and also included in the FANTASTIC toolbox of Müllensiefen (2009) [2]
 
 __author__ = "Mark Gotham"
 
-from utils import sign
+from .utils import sign
 
 
 class HuronContour:

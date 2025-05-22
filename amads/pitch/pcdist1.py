@@ -30,7 +30,7 @@ def pcdist1(score: Score, weighted: bool = True) -> list[float]:
 
     if weighted:  # no need to merge ties due to weighting
         for note in score.find_all(Note):
-            pc = note.pitch.pitch_class
+            pc = note.pitch_class
             pcd[pc] += note.duration
     else:  # count tied notes as single notes
         score = score.merge_tied_notes()

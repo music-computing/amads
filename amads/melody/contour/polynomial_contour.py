@@ -2,6 +2,8 @@ import numpy as np
 
 from amads.core.basics import Note, Score
 
+__author__ = "David Whyatt"
+
 
 class PolynomialContour:
     """A class for computing polynomial contour, as described in the FANTASTIC toolbox [1].
@@ -119,7 +121,7 @@ class PolynomialContour:
         """
         flattened_score = score.flatten(collapse=True)
         notes = list(flattened_score.find_all(Note))
-        return [note.onset for note in notes], [note.keynum for note in notes]
+        return [note.onset for note in notes], [note.key_num for note in notes]
 
     def center_onset_times(self, onsets: list[float]) -> list[float]:
         """Center onset times around their midpoint. This produces a symmetric axis
