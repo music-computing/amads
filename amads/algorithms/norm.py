@@ -7,6 +7,8 @@ Example use cased include pitch class profile matching for 'best key' measuremen
 and the metrical equivalent.
 """
 
+from typing import Iterable
+
 import numpy as np
 
 __author__ = "Mark Gotham"
@@ -20,7 +22,7 @@ max_names = ["max", "maximum", "inf", "infinity"]
 
 
 def normalize(
-    profile: list,
+    profile: Iterable,
     method: str = "Euclidean",
     round_output: bool = False,
     round_places: int = 3,
@@ -89,7 +91,7 @@ def normalize(
         return norm_dist
 
 
-def shared_length(profile_1: list, profile_2: list) -> int:
+def shared_length(profile_1: Iterable, profile_2: Iterable) -> int:
     """
     Simple checks that two lists are of the same length.
     If so, returns the length of the list; if not, raises an error.
@@ -105,7 +107,9 @@ def shared_length(profile_1: list, profile_2: list) -> int:
         return ln1
 
 
-def manhattan_distance(profile_1: list, profile_2: list, norm_: bool = False) -> float:
+def manhattan_distance(
+    profile_1: Iterable, profile_2: Iterable, norm_: bool = False
+) -> float:
     """
     The 'l1' aka 'Manhattan' distance between two points in N dimensional space.
     List length checks are included.
@@ -127,10 +131,12 @@ def manhattan_distance(profile_1: list, profile_2: list, norm_: bool = False) ->
     if norm_:
         profile_1 = normalize(profile_1, "l1")
         profile_2 = normalize(profile_2, "l1")
-    return float(sum([abs(profile_1[n] - profile_2[n]) for n in range(len(profile_1))]))
+    return pnorm_distance(profile_1, profile_2, p=1)
 
 
-def euclidean_distance(profile_1: list, profile_2: list, norm_: bool = False) -> float:
+def euclidean_distance(
+    profile_1: Iterable, profile_2: Iterable, norm_: bool = False
+) -> float:
     """
     The Euclidean distance between two points
     is the length of the line segment connecting them in N dimensional space and
@@ -154,14 +160,12 @@ def euclidean_distance(profile_1: list, profile_2: list, norm_: bool = False) ->
     if norm_:
         profile_1 = normalize(profile_1, "l2")
         profile_2 = normalize(profile_2, "l2")
-    return float(
-        np.sqrt(
-            sum([(profile_1[n] - profile_2[n]) ** 2 for n in range(len(profile_1))])
-        )
-    )
+    return pnorm_distance(profile_1, profile_2, p=2)
 
 
-def pnorm_distance(profile_1: np.array, profile_2: np.array, p: int = 2):
+def pnorm_distance(
+    profile_1: np.array | Iterable, profile_2: np.array | Iterable, p: int = 2
+):
     """
     Calculate the p-norm distance between two vectors.
 
@@ -185,6 +189,9 @@ def pnorm_distance(profile_1: np.array, profile_2: np.array, p: int = 2):
     >>> profile_2 = [1, 2, 3, 4, 5]
     >>> pnorm_distance(profile_1, profile_2)
     2.23606797749979
+
+    >>> pnorm_distance(profile_1, profile_2, p=1)
+    5.0
 
     """
     vector1 = np.array(profile_1)
