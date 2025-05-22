@@ -1,0 +1,682 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Style &#8212; amads  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'developer_notes/style';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Making a release" href="making_a_release.html" />
+    <link rel="prev" title="Testing" href="testing.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">amads  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">User guide:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/installation.html">Installation</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Developer notes:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design.html">Design considerations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="music21.html">Music21</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Style</a></li>
+<li class="toctree-l1"><a class="reference internal" href="making_a_release.html">Making a release</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Examples:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../auto_examples/plot_durdist1.html">Duration distributions (I)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_examples/plot_durdist2.html">Duration distributions (II)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_examples/plot_parncutt_root_analysis.html">Root analysis (after Parncutt)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_examples/plot_boundary.html">Boundary detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_examples/plot_sliding_window.html">Sliding window analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_examples/plot_melsim.html">Melodic similarity</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">General algorithms:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.algorithms.entropy.html">amads.algorithms.entropy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.algorithms.nnotes.html">amads.algorithms.nnotes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.algorithms.scale.html">amads.algorithms.scale</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.algorithms.slice.salami.html">amads.algorithms.slice.salami</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.algorithms.slice.window.html">amads.algorithms.slice.window</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Pitch:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.hz2midi.html">amads.pitch.hz2midi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.ismonophonic.html">amads.pitch.ismonophonic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.ivdirdist1.html">amads.pitch.ivdirdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.ivdist1.html">amads.pitch.ivdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.ivdist2.html">amads.pitch.ivdist2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.ivsizedist1.html">amads.pitch.ivsizedist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.key.profiles.html">amads.pitch.key.profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.pcdist1.html">amads.pitch.pcdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.pcdist2.html">amads.pitch.pcdist2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.pitch_mean.html">amads.pitch.pitch_mean</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.pitch.transformations.html">amads.pitch.transformations</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Time:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.time.durdist1.html">amads.time.durdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.time.durdist2.html">amads.time.durdist2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.time.swing.html">amads.time.swing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.time.tempo.html">amads.time.tempo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.time.meter.break_it_up.html">amads.time.meter.break_it_up</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Melody:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.melody.boundary.html">amads.melody.boundary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.melody.segment_gestalt.html">amads.melody.segment_gestalt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.melody.contour.interpolation_contour.html">amads.melody.contour.interpolation_contour</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.melody.contour.step_contour.html">amads.melody.contour.step_contour</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.melody.similarity.melsim.html">amads.melody.similarity.melsim</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Polyphony:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.polyphony.skyline.html">amads.polyphony.skyline</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Core:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.core.basics.html">amads.core.basics</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">IO:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/amads.io.pianoroll.html">amads.io.pianoroll</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/developer_notes/style.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Style</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#code-style">Code style</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#author-attribution">Author attribution</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#code-organization">Code organization</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#function-naming">Function naming</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#code-structure">Code structure</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#types">Types</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#common-patterns">Common patterns</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="style">
+<h1>Style<a class="headerlink" href="#style" title="Link to this heading">#</a></h1>
+<section id="code-style">
+<h2>Code style<a class="headerlink" href="#code-style" title="Link to this heading">#</a></h2>
+<p>This document outlines the coding style guidelines for contributing to this project.</p>
+<section id="author-attribution">
+<h3>Author attribution<a class="headerlink" href="#author-attribution" title="Link to this heading">#</a></h3>
+<p>Author attribution should be included at the top of each module using <code class="docutils literal notranslate"><span class="pre">__author__</span></code>. Use only names, no email addresses:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Huw Cheston&quot;</span>
+</pre></div>
+</div>
+<p>For multiple authors, use a list:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">__author__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Huw Cheston&quot;</span><span class="p">,</span> <span class="s2">&quot;Mark Gotham&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="code-organization">
+<h3>Code organization<a class="headerlink" href="#code-organization" title="Link to this heading">#</a></h3>
+<p>Modules should be organized in a logical hierarchy that reflects their purpose. For example, complexity algorithms go in:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">algorithm</span><span class="o">/</span><span class="n">complexity</span><span class="o">/</span><span class="n">lz77</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>Note that functions will be importable in multiple ways:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">amads.harmony.root_finding.parncutt_1988</span><span class="w"> </span><span class="kn">import</span> <span class="n">root</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">amads.all</span><span class="w"> </span><span class="kn">import</span> <span class="n">root_parncutt_1988</span>
+</pre></div>
+</div>
+<p>The first style is more verbose, but it makes the logical organization of the package more explicit.
+The second style is more appropriate for interactive use.</p>
+<p>In order to support the second style, we add import statements to the <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> file of each module.
+For example, the <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> file for the <code class="docutils literal notranslate"><span class="pre">root_finding</span></code> module contains:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">.parncutt_1988</span><span class="w"> </span><span class="kn">import</span> <span class="n">root</span> <span class="k">as</span> <span class="n">root_parncutt_1988</span>
+</pre></div>
+</div>
+<p>Then the <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> file for the <code class="docutils literal notranslate"><span class="pre">harmony</span></code> module contains:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">.root_finding</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+</pre></div>
+</div>
+<p>Finally, the <code class="docutils literal notranslate"><span class="pre">all.py</span></code> file for the <code class="docutils literal notranslate"><span class="pre">amads</span></code> package contains:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">.harmony</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+</pre></div>
+</div>
+</section>
+<section id="function-naming">
+<h3>Function naming<a class="headerlink" href="#function-naming" title="Link to this heading">#</a></h3>
+<p>Be explicit about what functions return. Don’t make users guess:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Good</span>
+<span class="n">lz77_size</span><span class="p">()</span>
+<span class="n">lz77_compression_ratio</span><span class="p">()</span>
+
+<span class="c1"># Bad</span>
+<span class="n">lz77</span><span class="p">()</span>  <span class="c1"># Unclear what this returns</span>
+</pre></div>
+</div>
+</section>
+<section id="code-structure">
+<h3>Code structure<a class="headerlink" href="#code-structure" title="Link to this heading">#</a></h3>
+<p>Local function definitions should be avoided as they can negatively impact performance. Instead, define functions at module level:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Good</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">helper_function</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">x</span> <span class="o">*</span> <span class="mi">2</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main_function</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">helper_function</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+<span class="c1"># Bad</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">main_function</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">helper_function</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>  <span class="c1"># Defined locally - avoid this</span>
+        <span class="k">return</span> <span class="n">x</span> <span class="o">*</span> <span class="mi">2</span>
+    <span class="k">return</span> <span class="n">helper_function</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We plan to implement a pipeline for standardizing code formatting using <code class="docutils literal notranslate"><span class="pre">black</span></code>. This will ensure consistent code style across the project.</p>
+<p>Docstrings should use numpydoc formatting:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">calculate_entropy</span><span class="p">(</span><span class="n">pitches</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate the entropy of a pitch sequence.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pitches</span>
+<span class="sd">        List of MIDI pitch numbers</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        Entropy value between 0 and 1</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; calculate_entropy([60, 62, 64])</span>
+<span class="sd">    0.682</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>External package imports (except numpy) should be done locally within functions for efficiency. This avoids loading unused dependencies:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Good</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_histogram</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>  <span class="c1"># Import inside function</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1"># Bad</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>  <span class="c1"># Global import - avoid this</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_histogram</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="types">
+<h3>Types<a class="headerlink" href="#types" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Provide type hints for function parameters and return types</p></li>
+<li><p>If a function accepts either <cite>float</cite> or <cite>int</cite> you can use <cite>float</cite> as the type hint, <cite>int</cite> will be understood as being accepted too</p></li>
+<li><p>Functions should accept Python base types as inputs but can optionally support numpy arrays</p></li>
+<li><p>Return Python base types by default, use numpy types only when necessary</p></li>
+<li><p>For internal computations, either base Python or numpy is fine</p></li>
+<li><p>Where possible, only take simple singular input types and let users handle iteration</p></li>
+</ul>
+</section>
+<section id="common-patterns">
+<h3>Common patterns<a class="headerlink" href="#common-patterns" title="Link to this heading">#</a></h3>
+<p>When implementing algorithms, we distinguish between internal and external functions.
+Internal functions implement the core algorithm or equation.
+External functions wrap these internal implementations, handling input validation, type checking, and any necessary data conversion.
+This separation of concerns helps keep the core algorithmic logic clean and focused while ensuring robust input handling at the API level.</p>
+<p>For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># External function</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">calculate_entropy</span><span class="p">(</span><span class="n">pitches</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate the entropy of a pitch sequence.</span>
+
+<span class="sd">    Handles input validation and conversion before calling _calculate_entropy_core().</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">pitches</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Input pitch list cannot be empty&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Convert pitches to counts</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span>
+    <span class="n">counts</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">Counter</span><span class="p">(</span><span class="n">pitches</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+    <span class="k">return</span> <span class="n">_calculate_entropy</span><span class="p">(</span><span class="n">counts</span><span class="p">)</span>
+
+<span class="c1"># Internal function</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_calculate_entropy</span><span class="p">(</span><span class="n">counts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Core entropy calculation from Shannon (1948).</span>
+
+<span class="sd">    Internal function that implements the entropy formula.</span>
+<span class="sd">    Assumes input has been validated.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">counts</span><span class="p">)</span>
+    <span class="n">probabilities</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="o">/</span><span class="n">total</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">counts</span><span class="p">]</span>
+    <span class="k">return</span> <span class="o">-</span><span class="nb">sum</span><span class="p">(</span><span class="n">p</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">probabilities</span> <span class="k">if</span> <span class="n">p</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Put the external function at the beginning of the module, so that it’s the first thing the user sees.
+Note that we prefix the internal function with an underscore, to indicate that it’s not part of the public API.</p>
+</section>
+<section id="references">
+<h3>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h3>
+<p>Include references with DOIs/URLs where possible. Here are some examples:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>[1]: Ziv, J., &amp; Lempel, A. (1977). A universal algorithm for sequential data compression.
+     IEEE Transactions on Information Theory. 23/3 (pp. 337–343).
+     https://doi.org/10.1109/TIT.1977.1055714
+
+[2]: Cheston, H., Schlichting, J. L., Cross, I., &amp; Harrison, P. M. C. (2024).
+     Rhythmic qualities of jazz improvisation predict performer identity and style
+     in source-separated audio recordings. Royal Society Open Science. 11/11.
+     https://doi.org/10.1098/rsos.231023
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="testing.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Testing</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="making_a_release.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Making a release</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#code-style">Code style</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#author-attribution">Author attribution</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#code-organization">Code organization</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#function-naming">Function naming</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#code-structure">Code structure</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#types">Types</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#common-patterns">Common patterns</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The AMADS team
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, The AMADS team.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

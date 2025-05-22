@@ -1,0 +1,845 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>amads.melody.contour.interpolation_contour &#8212; amads  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/amads/melody/contour/interpolation_contour';</script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">amads  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">User guide:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/installation.html">Installation</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Developer notes:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../developer_notes/contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developer_notes/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developer_notes/design.html">Design considerations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developer_notes/modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developer_notes/music21.html">Music21</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developer_notes/testing.html">Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developer_notes/style.html">Style</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developer_notes/making_a_release.html">Making a release</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Examples:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../auto_examples/plot_durdist1.html">Duration distributions (I)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../auto_examples/plot_durdist2.html">Duration distributions (II)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../auto_examples/plot_parncutt_root_analysis.html">Root analysis (after Parncutt)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../auto_examples/plot_boundary.html">Boundary detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../auto_examples/plot_sliding_window.html">Sliding window analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../auto_examples/plot_melsim.html">Melodic similarity</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">General algorithms:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.algorithms.entropy.html">amads.algorithms.entropy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.algorithms.nnotes.html">amads.algorithms.nnotes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.algorithms.scale.html">amads.algorithms.scale</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.algorithms.slice.salami.html">amads.algorithms.slice.salami</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.algorithms.slice.window.html">amads.algorithms.slice.window</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Pitch:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.hz2midi.html">amads.pitch.hz2midi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.ismonophonic.html">amads.pitch.ismonophonic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.ivdirdist1.html">amads.pitch.ivdirdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.ivdist1.html">amads.pitch.ivdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.ivdist2.html">amads.pitch.ivdist2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.ivsizedist1.html">amads.pitch.ivsizedist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.key.profiles.html">amads.pitch.key.profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.pcdist1.html">amads.pitch.pcdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.pcdist2.html">amads.pitch.pcdist2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.pitch_mean.html">amads.pitch.pitch_mean</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.transformations.html">amads.pitch.transformations</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Time:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.time.durdist1.html">amads.time.durdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.time.durdist2.html">amads.time.durdist2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.time.swing.html">amads.time.swing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.time.tempo.html">amads.time.tempo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.time.meter.break_it_up.html">amads.time.meter.break_it_up</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Melody:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.melody.boundary.html">amads.melody.boundary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.melody.segment_gestalt.html">amads.melody.segment_gestalt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.melody.contour.interpolation_contour.html">amads.melody.contour.interpolation_contour</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.melody.contour.step_contour.html">amads.melody.contour.step_contour</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.melody.similarity.melsim.html">amads.melody.similarity.melsim</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Polyphony:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.polyphony.skyline.html">amads.polyphony.skyline</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Core:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.core.basics.html">amads.core.basics</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">IO:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.io.pianoroll.html">amads.io.pianoroll</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for amads.melody.contour.interpolation_contour</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Calculates the Interpolation Contour of a melody, along with related features, as</span>
+<span class="sd">implemented in the FANTASTIC toolbox of Müllensiefen (2009) [1]</span>
+<span class="sd">(features 23–27).</span>
+<span class="sd">Includes a modified version of the FANTASTIC method that is better suited to short melodies</span>
+<span class="sd">than the original implementation. This &#39;AMADS&#39; method defines turning points using reversals,</span>
+<span class="sd">and is the default method. All features are returned for either method.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;David Whyatt&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+
+<div class="viewcode-block" id="InterpolationContour">
+<a class="viewcode-back" href="../../../../_autosummary/amads.melody.contour.interpolation_contour.html#amads.melody.contour.interpolation_contour.InterpolationContour">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">InterpolationContour</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for calculating and analyzing the interpolated contours of melodies, according to</span>
+<span class="sd">    Müllensiefen (2009) [1]. This representation was first formalised by Steinbeck (1982)</span>
+<span class="sd">    [2], and informed a varient of the present implementation in Müllensiefen &amp; Frieler</span>
+<span class="sd">    (2004) [3].</span>
+<span class="sd">    An interpolation contour is produced by first identifying turning points in the melody,</span>
+<span class="sd">    and then interpolating a linear gradient between each turning point. The resulting list</span>
+<span class="sd">    of values represents the gradient of the melody at evenly spaced points in time.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pitches</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">times</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;amads&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize with pitch and time values.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        pitches : list[int]</span>
+<span class="sd">            Pitch values in any numeric format (e.g., MIDI numbers).</span>
+<span class="sd">        times : list[float]</span>
+<span class="sd">            Onset times in any consistent, proportional scheme (e.g., seconds, quarter notes, etc.)</span>
+<span class="sd">        method : str, optional</span>
+<span class="sd">            Method to use for contour calculation, either &quot;fantastic&quot; or &quot;amads&quot;.</span>
+<span class="sd">            Defaults to &quot;amads&quot;.</span>
+<span class="sd">            The FANTASTIC method is the original implementation, and identifies turning points</span>
+<span class="sd">            using contour extrema via a series of rules. The AMADS method instead identifies</span>
+<span class="sd">            reversals for all melody lengths, and is the default method.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the `times` and `pitches` parameters are not the same length.</span>
+<span class="sd">            If method is not &quot;fantastic&quot; or &quot;amads&quot;</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; happy_birthday_pitches = [</span>
+<span class="sd">        ...     60, 60, 62, 60, 65, 64, 60, 60, 62, 60, 67, 65,</span>
+<span class="sd">        ...     60, 60, 72, 69, 65, 64, 62, 70, 69, 65, 67, 65</span>
+<span class="sd">        ... ]</span>
+<span class="sd">        &gt;&gt;&gt; happy_birthday_times = [</span>
+<span class="sd">        ...     0, 0.75, 1, 2, 3, 4, 6, 6.75, 7, 8, 9, 10,</span>
+<span class="sd">        ...     12, 12.75, 13, 14, 15, 16, 17, 18, 18.75, 19, 20, 21</span>
+<span class="sd">        ... ]</span>
+<span class="sd">        &gt;&gt;&gt; ic = InterpolationContour(</span>
+<span class="sd">        ...     happy_birthday_pitches,</span>
+<span class="sd">        ...     happy_birthday_times,</span>
+<span class="sd">        ...     method=&quot;fantastic&quot;,</span>
+<span class="sd">        ... )</span>
+<span class="sd">        &gt;&gt;&gt; ic.direction_changes</span>
+<span class="sd">        0.6</span>
+<span class="sd">        &gt;&gt;&gt; ic.class_label</span>
+<span class="sd">        &#39;ccbc&#39;</span>
+<span class="sd">        &gt;&gt;&gt; ic.mean_gradient</span>
+<span class="sd">        2.702...</span>
+<span class="sd">        &gt;&gt;&gt; ic.gradient_std</span>
+<span class="sd">        5.655...</span>
+<span class="sd">        &gt;&gt;&gt; ic.global_direction</span>
+<span class="sd">        1</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+<span class="sd">        [1] Müllensiefen, D. (2009). Fantastic: Feature ANalysis Technology Accessing</span>
+<span class="sd">        STatistics (In a Corpus): Technical Report v1.5</span>
+<span class="sd">        [2] W. Steinbeck, Struktur und Ähnlichkeit: Methoden automatisierter</span>
+<span class="sd">            Melodieanalyse. Bärenreiter, 1982.</span>
+<span class="sd">        [3] Müllensiefen, D. &amp; Frieler, K. (2004). Cognitive Adequacy in the Measurement</span>
+<span class="sd">        of Melodic Similarity: Algorithmic vs. Human Judgments</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">times</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pitches</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Times and pitches must have the same length, got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">times</span><span class="p">)</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">pitches</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">method</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;fantastic&quot;</span><span class="p">,</span> <span class="s2">&quot;amads&quot;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Method must be either &#39;fantastic&#39; or &#39;amads&#39;, got </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">times</span> <span class="o">=</span> <span class="n">times</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pitches</span> <span class="o">=</span> <span class="n">pitches</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">contour</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_interpolation_contour</span><span class="p">(</span><span class="n">pitches</span><span class="p">,</span> <span class="n">times</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_is_turning_point_fantastic</span><span class="p">(</span><span class="n">pitches</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Helper method to determine if a point is a turning point in FANTASTIC method.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">(</span><span class="n">pitches</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">pitches</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">and</span> <span class="n">pitches</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">pitches</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]),</span>
+                <span class="p">(</span><span class="n">pitches</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">pitches</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">and</span> <span class="n">pitches</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">pitches</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]),</span>
+                <span class="p">(</span>
+                    <span class="n">pitches</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">pitches</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                    <span class="ow">and</span> <span class="n">pitches</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">2</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">pitches</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                    <span class="ow">and</span> <span class="n">pitches</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">pitches</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="n">pitches</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">pitches</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                    <span class="ow">and</span> <span class="n">pitches</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">pitches</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                    <span class="ow">and</span> <span class="n">pitches</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">pitches</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="n">pitches</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">pitches</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                    <span class="ow">and</span> <span class="n">pitches</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">2</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">pitches</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                    <span class="ow">and</span> <span class="n">pitches</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">pitches</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="n">pitches</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">pitches</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                    <span class="ow">and</span> <span class="n">pitches</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">pitches</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                    <span class="ow">and</span> <span class="n">pitches</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">pitches</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="p">),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="InterpolationContour.calculate_interpolation_contour">
+<a class="viewcode-back" href="../../../../_autosummary/amads.melody.contour.interpolation_contour.html#amads.melody.contour.interpolation_contour.InterpolationContour.calculate_interpolation_contour">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_interpolation_contour</span><span class="p">(</span>
+        <span class="n">pitches</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">times</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;amads&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate the interpolation contour representation of a melody [1].</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[float]</span>
+<span class="sd">            Array containing the interpolation contour representation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;fantastic&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">InterpolationContour</span><span class="o">.</span><span class="n">_calculate_fantastic_contour</span><span class="p">(</span><span class="n">pitches</span><span class="p">,</span> <span class="n">times</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">InterpolationContour</span><span class="o">.</span><span class="n">_calculate_amads_contour</span><span class="p">(</span><span class="n">pitches</span><span class="p">,</span> <span class="n">times</span><span class="p">)</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_fantastic_contour</span><span class="p">(</span>
+        <span class="n">pitches</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">times</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the interpolation contour using the FANTASTIC method.</span>
+<span class="sd">        Utilises the helper function _is_turning_point_fantastic to identify turning points.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Find candidate points</span>
+        <span class="n">candidate_points_pitch</span> <span class="o">=</span> <span class="p">[</span><span class="n">pitches</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>  <span class="c1"># Start with first pitch</span>
+        <span class="n">candidate_points_time</span> <span class="o">=</span> <span class="p">[</span><span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>  <span class="c1"># Start with first time</span>
+
+        <span class="c1"># Special case for very short melodies</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pitches</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">pitches</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">InterpolationContour</span><span class="o">.</span><span class="n">_is_turning_point_fantastic</span><span class="p">(</span><span class="n">pitches</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+                    <span class="n">candidate_points_pitch</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pitches</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                    <span class="n">candidate_points_time</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># For longer melodies</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">pitches</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">InterpolationContour</span><span class="o">.</span><span class="n">_is_turning_point_fantastic</span><span class="p">(</span><span class="n">pitches</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+                    <span class="n">candidate_points_pitch</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pitches</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                    <span class="n">candidate_points_time</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+        <span class="c1"># Initialize turning points with first note</span>
+        <span class="n">turning_points_pitch</span> <span class="o">=</span> <span class="p">[</span><span class="n">pitches</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="n">turning_points_time</span> <span class="o">=</span> <span class="p">[</span><span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+
+        <span class="c1"># Find turning points</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">candidate_points_pitch</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">pitches</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">times</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">in</span> <span class="n">candidate_points_time</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">pitches</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">pitches</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]:</span>
+                        <span class="n">turning_points_pitch</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pitches</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                        <span class="n">turning_points_time</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+        <span class="c1"># Add last note</span>
+        <span class="n">turning_points_pitch</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pitches</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">turning_points_time</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># Calculate gradients</span>
+        <span class="n">gradients</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">turning_points_pitch</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">turning_points_time</span><span class="p">)</span>
+
+        <span class="c1"># Calculate durations</span>
+        <span class="n">durations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">turning_points_time</span><span class="p">)</span>
+
+        <span class="c1"># Create weighted gradients vector</span>
+        <span class="n">sample_rate</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c1"># 10 samples per second</span>
+        <span class="n">samples_per_duration</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">durations</span> <span class="o">*</span> <span class="n">sample_rate</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span>
+        <span class="n">interpolation_contour</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">gradients</span><span class="p">,</span> <span class="n">samples_per_duration</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">interpolation_contour</span><span class="p">]</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_remove_repeated_notes</span><span class="p">(</span>
+        <span class="n">pitches</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">times</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Helper function to remove repeated notes, keeping only the middle occurrence.</span>
+<span class="sd">        This is used for the AMADS method to produce the interpolated gradient values</span>
+<span class="sd">        at the middle of a sequence of repeated notes, should there be a reversal</span>
+<span class="sd">        between the repeated notes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">unique_pitches</span><span class="p">,</span> <span class="n">unique_times</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">pitches</span><span class="p">):</span>
+            <span class="n">start_idx</span> <span class="o">=</span> <span class="n">i</span>
+            <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">pitches</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">pitches</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">pitches</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">mid_idx</span> <span class="o">=</span> <span class="n">start_idx</span> <span class="o">+</span> <span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="n">start_idx</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+            <span class="n">unique_pitches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pitches</span><span class="p">[</span><span class="n">mid_idx</span><span class="p">])</span>
+            <span class="n">unique_times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="n">mid_idx</span><span class="p">])</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">unique_pitches</span><span class="p">,</span> <span class="n">unique_times</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_amads_contour</span><span class="p">(</span><span class="n">pitches</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">times</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the interpolation contour using the AMADS method.</span>
+<span class="sd">        Utilises the helper function _remove_repeated_notes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">reversals_pitches</span> <span class="o">=</span> <span class="p">[</span><span class="n">pitches</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="n">reversals_time</span> <span class="o">=</span> <span class="p">[</span><span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+
+        <span class="c1"># Remove repeated notes</span>
+        <span class="n">pitches</span><span class="p">,</span> <span class="n">times</span> <span class="o">=</span> <span class="n">InterpolationContour</span><span class="o">.</span><span class="n">_remove_repeated_notes</span><span class="p">(</span><span class="n">pitches</span><span class="p">,</span> <span class="n">times</span><span class="p">)</span>
+
+        <span class="c1"># Find reversals</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">pitches</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">pitches</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">pitches</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">pitches</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">2</span><span class="p">]</span>
+                <span class="ow">or</span> <span class="n">pitches</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">pitches</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">pitches</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">2</span><span class="p">]</span>
+            <span class="p">):</span>
+                <span class="n">reversals_pitches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pitches</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+                <span class="n">reversals_time</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># Add last note</span>
+        <span class="n">reversals_pitches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pitches</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">reversals_time</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># Calculate gradients</span>
+        <span class="n">gradients</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">reversals_pitches</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">reversals_time</span><span class="p">)</span>
+
+        <span class="c1"># Calculate durations</span>
+        <span class="n">durations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">reversals_time</span><span class="p">)</span>
+
+        <span class="c1"># Create weighted gradients vector</span>
+        <span class="n">samples_per_duration</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">durations</span> <span class="o">*</span> <span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span>
+
+        <span class="c1"># Can&#39;t have a contour with less than 2 points</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">reversals_pitches</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span>
+
+        <span class="c1"># If there are only 2 points, just use the gradient between them</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">reversals_pitches</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">gradient</span> <span class="o">=</span> <span class="n">reversals_pitches</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">reversals_pitches</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">return</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">gradient</span> <span class="o">/</span> <span class="p">(</span><span class="n">reversals_time</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">reversals_time</span><span class="p">[</span><span class="mi">0</span><span class="p">]))]</span>
+
+        <span class="n">interpolation_contour</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">gradients</span><span class="p">,</span> <span class="n">samples_per_duration</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">interpolation_contour</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">global_direction</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate the global direction of the interpolation contour by taking</span>
+<span class="sd">        the sign of the sum of all contour values.</span>
+<span class="sd">        Can be invoked for either FANTASTIC or AMADS method.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            1 if sum is positive, 0 if sum is zero, -1 if sum is negative</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Flat overall contour direction (returns the same using FANTASTIC method)</span>
+<span class="sd">        &gt;&gt;&gt; ic = InterpolationContour([60, 62, 64, 62, 60], [0, 1, 2, 3, 4])</span>
+<span class="sd">        &gt;&gt;&gt; ic.global_direction</span>
+<span class="sd">        0</span>
+
+<span class="sd">        Upwards contour direction (returns the same using FANTASTIC method)</span>
+<span class="sd">        &gt;&gt;&gt; ic = InterpolationContour([60, 62, 64, 65, 67], [0, 1, 2, 3, 4])</span>
+<span class="sd">        &gt;&gt;&gt; ic.global_direction</span>
+<span class="sd">        1</span>
+
+<span class="sd">        Downwards contour direction (returns the same using FANTASTIC method)</span>
+<span class="sd">        &gt;&gt;&gt; ic = InterpolationContour([67, 65, 67, 62, 60], [0, 1, 2, 3, 4])</span>
+<span class="sd">        &gt;&gt;&gt; ic.global_direction</span>
+<span class="sd">        -1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">contour</span><span class="p">)))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mean_gradient</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate the absolute mean gradient of the interpolation contour.</span>
+<span class="sd">        Can be invoked for either FANTASTIC or AMADS method.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Mean of the absolute gradient values</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Steps of 2 semitones per second</span>
+<span class="sd">        &gt;&gt;&gt; ic = InterpolationContour([60, 62, 64, 62, 60], [0, 1, 2, 3, 4])</span>
+<span class="sd">        &gt;&gt;&gt; ic.mean_gradient</span>
+<span class="sd">        2.0</span>
+
+<span class="sd">        FANTASTIC method returns 0.0 for this example</span>
+<span class="sd">        &gt;&gt;&gt; ic = InterpolationContour([60, 62, 64, 62, 60], [0, 1, 2, 3, 4], method=&quot;fantastic&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; ic.mean_gradient</span>
+<span class="sd">        0.0</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">contour</span><span class="p">)))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">gradient_std</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate the standard deviation of the interpolation contour gradients.</span>
+<span class="sd">        Can be invoked for either FANTASTIC or AMADS method.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Standard deviation of the gradient values (by default, using Bessel&#39;s correction)</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; ic = InterpolationContour([60, 62, 64, 62, 60], [0, 1, 2, 3, 4])</span>
+<span class="sd">        &gt;&gt;&gt; ic.gradient_std</span>
+<span class="sd">        2.0254...</span>
+
+<span class="sd">        FANTASTIC method returns 0.0 for this example</span>
+<span class="sd">        &gt;&gt;&gt; ic = InterpolationContour([60, 62, 64, 62, 60], [0, 1, 2, 3, 4], method=&quot;fantastic&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; ic.gradient_std</span>
+<span class="sd">        0.0</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">contour</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">direction_changes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate the proportion of interpolated gradient values that consistute</span>
+<span class="sd">        a change in direction. For instance, a gradient value of</span>
+<span class="sd">        -0.5 to 0.25 is a change in direction.</span>
+<span class="sd">        Can be invoked for either FANTASTIC or AMADS method.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Ratio of the number of changes in contour direction relative to the number</span>
+<span class="sd">            of different interpolated gradient values</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; ic = InterpolationContour([60, 62, 64, 62, 60], [0, 1, 2, 3, 4])</span>
+<span class="sd">        &gt;&gt;&gt; ic.direction_changes</span>
+<span class="sd">        1.0</span>
+
+<span class="sd">        FANTASTIC method returns 0.0 for this example</span>
+<span class="sd">        &gt;&gt;&gt; ic = InterpolationContour([60, 62, 64, 62, 60], [0, 1, 2, 3, 4], method=&quot;fantastic&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; ic.direction_changes</span>
+<span class="sd">        0.0</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Convert contour to numpy array for element-wise multiplication</span>
+        <span class="n">contour_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">contour</span><span class="p">)</span>
+        <span class="c1"># Calculate products of consecutive gradients</span>
+        <span class="n">consecutive_products</span> <span class="o">=</span> <span class="n">contour_array</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">contour_array</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+
+        <span class="c1"># Get signs of products and count negative ones (direction changes)</span>
+        <span class="n">product_signs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">consecutive_products</span><span class="p">)</span>
+        <span class="n">direction_changes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">product_signs</span><span class="p">[</span><span class="n">product_signs</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+
+        <span class="c1"># Count total gradient changes (where consecutive values are different)</span>
+        <span class="n">total_changes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">contour_array</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">contour_array</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+
+        <span class="c1"># Avoid division by zero</span>
+        <span class="k">if</span> <span class="n">total_changes</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">0.0</span>
+
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">direction_changes</span> <span class="o">/</span> <span class="n">total_changes</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">class_label</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Classify an interpolation contour into gradient categories.</span>
+<span class="sd">        Can be invoked for either FANTASTIC or AMADS method.</span>
+
+<span class="sd">        The contour is sampled at 4 equally spaced points and each gradient is</span>
+<span class="sd">        normalized to units of pitch change per second</span>
+<span class="sd">        (expressed in units of semitones per 0.25 seconds.)</span>
+<span class="sd">        The result is then classified into one of 5 categories:</span>
+
+<span class="sd">        - &#39;a&#39;: Strong downward (-2) - normalized gradient &lt;= -1.45</span>
+<span class="sd">        - &#39;b&#39;: Downward (-1) - normalized gradient between -1.45 and -0.45</span>
+<span class="sd">        - &#39;c&#39;: Flat (0) - normalized gradient between -0.45 and 0.45</span>
+<span class="sd">        - &#39;d&#39;: Upward (1) - normalized gradient between 0.45 and 1.45</span>
+<span class="sd">        - &#39;e&#39;: Strong upward (2) - normalized gradient &gt;= 1.45</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            String of length 4 containing letters a-e representing the gradient</span>
+<span class="sd">            categories at 4 equally spaced points in the contour</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Upwards, then downwards contour</span>
+<span class="sd">        &gt;&gt;&gt; ic = InterpolationContour([60, 62, 64, 62, 60], [0, 1, 2, 3, 4])</span>
+<span class="sd">        &gt;&gt;&gt; ic.class_label</span>
+<span class="sd">        &#39;ddbb&#39;</span>
+
+<span class="sd">        FANTASTIC method returns &#39;cccc&#39; for this example, as though the contour is flat</span>
+<span class="sd">        &gt;&gt;&gt; ic = InterpolationContour([60, 62, 64, 62, 60], [0, 1, 2, 3, 4], method=&quot;fantastic&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; ic.class_label</span>
+<span class="sd">        &#39;cccc&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Sample the contour at 4 equally spaced points</span>
+        <span class="c1"># Get 4 equally spaced indices</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">contour</span><span class="p">)</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+        <span class="c1"># Sample the contour at those indices</span>
+        <span class="n">sampled_points</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">contour</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">]</span>
+
+        <span class="c1"># Normalize the gradients to a norm where value of 1 corresponds to a semitone</span>
+        <span class="c1"># change in pitch over 0.25 seconds.</span>
+        <span class="c1"># Given that base pitch and time units are 1 second and 1 semitone respectively,</span>
+        <span class="c1"># just divide by 4</span>
+        <span class="n">norm_gradients</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sampled_points</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.25</span>
+        <span class="n">classes</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">grad</span> <span class="ow">in</span> <span class="n">norm_gradients</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">grad</span> <span class="o">&lt;=</span> <span class="o">-</span><span class="mf">1.45</span><span class="p">:</span>
+                <span class="n">classes</span> <span class="o">+=</span> <span class="s2">&quot;a&quot;</span>  <span class="c1"># strong down</span>
+            <span class="k">elif</span> <span class="o">-</span><span class="mf">1.45</span> <span class="o">&lt;</span> <span class="n">grad</span> <span class="o">&lt;=</span> <span class="o">-</span><span class="mf">0.45</span><span class="p">:</span>
+                <span class="n">classes</span> <span class="o">+=</span> <span class="s2">&quot;b&quot;</span>  <span class="c1"># down</span>
+            <span class="k">elif</span> <span class="o">-</span><span class="mf">0.45</span> <span class="o">&lt;</span> <span class="n">grad</span> <span class="o">&lt;</span> <span class="mf">0.45</span><span class="p">:</span>
+                <span class="n">classes</span> <span class="o">+=</span> <span class="s2">&quot;c&quot;</span>  <span class="c1"># flat</span>
+            <span class="k">elif</span> <span class="mf">0.45</span> <span class="o">&lt;=</span> <span class="n">grad</span> <span class="o">&lt;</span> <span class="mf">1.45</span><span class="p">:</span>
+                <span class="n">classes</span> <span class="o">+=</span> <span class="s2">&quot;d&quot;</span>  <span class="c1"># up</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">classes</span> <span class="o">+=</span> <span class="s2">&quot;e&quot;</span>  <span class="c1"># strong up</span>
+
+        <span class="k">return</span> <span class="n">classes</span></div>
+
+</pre></div>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The AMADS team
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, The AMADS team.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
