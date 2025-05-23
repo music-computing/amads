@@ -1,13 +1,13 @@
 import matplotlib.pyplot as plt
 
-from amads.all import partitura_midi_import, pianoroll, segment_gestalt
+from amads.all import import_midi, pianoroll, segment_gestalt
 from amads.music import example
 
 my_midi_file = example.fullpath("midi/sarabande.mid")
 
 
 print("------- input from partitura")
-myscore = partitura_midi_import(my_midi_file, ptprint=False)
+myscore = import_midi(my_midi_file, show=False)
 print("------- finished input from partitura")
 
 fig = pianoroll(myscore)

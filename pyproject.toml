@@ -24,6 +24,8 @@ dependencies = [
     "matplotlib",
     "scipy<1.12.0",
     "partitura",
+    "music21",
+    "pretty_midi",
     "setuptools",  # required for partitura
     "pytest",
     "sphinx-gallery",

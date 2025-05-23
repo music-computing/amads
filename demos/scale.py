@@ -1,6 +1,6 @@
 # scale_test.py - simple test for scale() function
 
-from amads.all import partitura_midi_import, scale
+from amads.all import import_midi, scale
 from amads.music import example
 
 # "midi/tones.mid"
@@ -8,7 +8,7 @@ my_midi_file = example.fullpath("midi/twochan.mid")
 # "midi/tempo.mid"
 
 print("------- input from partitura")
-myscore = partitura_midi_import(my_midi_file, ptprint=False)
+myscore = import_midi(my_midi_file, show=False)
 print("------- finished input from partitura")
 
 print("------- scaling duration by 2")

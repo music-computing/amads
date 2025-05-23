@@ -11,14 +11,14 @@ Boundary detection
 import matplotlib.pyplot as plt
 
 from amads.algorithms import boundary
-from amads.io import partitura_midi_import, pianoroll
+from amads.io import import_midi, pianoroll
 from amads.music import example
 
 # Load example MIDI file
 my_midi_file = example.fullpath("midi/tempo.mid")
 
 # Import MIDI using partitura
-myscore = partitura_midi_import(my_midi_file, ptprint=False)
+myscore = import_midi(my_midi_file, show=False)
 
 # Create piano roll visualization
 fig = pianoroll(myscore)

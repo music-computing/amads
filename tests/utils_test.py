@@ -10,7 +10,7 @@ class TestUntils(unittest.TestCase):
         """Set up the test case with example music files"""
         # Example music files
         self.midi_file = example.fullpath("midi/sarabande.mid")
-        self.xml_file = example.fullpath("musicxml/ex1.xml")
+        self.xml_file = example.fullpath("musicxml/ex2.xml")
         self.filenames = [str(self.midi_file), str(self.xml_file)]
 
     def test_dir2coll(self):

@@ -1,6 +1,6 @@
 import math
 
-from ..io.ptscoreread import score_read, score_read_extensions
+from ..io.readscore import read_score, valid_score_extensions
 from .basics import Pitch
 
 
@@ -16,12 +16,11 @@ def dir2coll(filenames):
     scores (dict): A dictionary mapping filenames to Score objects.
     """
     scores = {}
-    valid_extensions = score_read_extensions()
 
     for file in filenames:
-        if any(file.endswith(ext) for ext in valid_extensions):
+        if any(file.endswith(ext) for ext in valid_score_extensions):
             try:
-                score = score_read(file)
+                score = read_score(file)
                 scores[file] = score
             except Exception as e:
                 print(f"Error processing file {file}: {e}")

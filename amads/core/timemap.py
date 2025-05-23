@@ -1,4 +1,4 @@
-# time_map.py -- map to convert between quarters and seconds
+# timemap.py -- map to convert between quarters and seconds
 #
 
 
@@ -33,7 +33,7 @@ class TimeMap:
         print("]")
 
     def deep_copy(self):
-        """make a full copy of this time_map"""
+        """make a full copy of this time map"""
         newtm = TimeMap(bpm=self.last_tempo * 60)
         for i in self.beats[1:]:
             newtm.beats.append(i.copy())
@@ -45,13 +45,20 @@ class TimeMap:
         change before the end of the TimeMap. tempo will hold forever
         beginning at beat unless you call append_beat_tempo again to
         change the tempo somewhere beyond beat.
+
+        Parameters
+        ----------
+        beat: float
+            The beat measured in quarters where the tempo changes
+        tempo: float
+            The new tempo at beat measured in beats per minute
         """
         last_beat = self.beats[-1].beat  # get the last beat
         assert beat >= last_beat
         if beat > last_beat:
             self.beats.append(MapBeat(self.beat_to_time(beat), beat))
-        self.last_tempo = tempo
-        print("append_beat_tempo", tempo, self.beats[-1])
+        self.last_tempo = tempo / 60.0  # from bpm to bps
+        # print("append_beat_tempo", tempo, self.beats[-1])
 
     def locate_time(self, time):
         """find the insertion index for a 0-based beat at time in seconds"""
@@ -140,7 +147,7 @@ class TimeMap:
         i = self.locate_time(time)
         if i == len(self.beats):  # beat is beyond last time map entry
             if self.last_tempo:  # extrapolate beyond last time map entry
-                mb0 = self.beats[i - 1].beat
+                mb0 = self.beats[i - 1]
                 return mb0.beat + (time - mb0.time) * self.last_tempo
             elif i == 1:  # only one time point and no last tempo!
                 return time * 100 / 60  # assume 100 bpm
@@ -213,7 +220,7 @@ class TimeMap:
     def cut(start, len, units_are_seconds):
         # remove portion of time map from start to start + len,
         # shifting the tail left by len. start and len are in whatever
-        # units the score is in. If you cut the time_map as well as cut
+        # units the score is in. If you cut the time map as well as cut
         # the tracks of the sequence, then sequences will preserve the
         # association between tempo changes and events
         // display "before cut", start, len, units_are_seconds

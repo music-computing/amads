@@ -126,6 +126,6 @@ class Distribution:
         plural = "" if len(self.dimensions) == 1 else "s"
         print(
             f'Distribution: "{self.name}" has dimension{plural}',
-            f'{self.dimensions}, x_label: "{self.x_label}",',
-            f'y_label: "{self.y_label}"',
+            f' {self.dimensions}, x_label: "{self.x_label}",'
+            f' y_label: "{self.y_label}"',
         )
