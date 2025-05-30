@@ -18,8 +18,9 @@ def fullpath(example):
 
     def trim_path(full):
         """remove first part of path to construct valid parameter value"""
-        index = full.find("amads/music")
-        return full if index == -1 else full[index + 14 :]
+        first_part = "amads/music/"
+        index = full.find(first_part)
+        return full if index == -1 else full[index + len(first_part) :]
 
     path = resources.files("amads").joinpath("music/" + example)
 

@@ -6,7 +6,9 @@ env:
 
 on:
   push:
-  workflow_dispatch:
+    branches:
+      - main
+  pull_request:
 
 permissions:
   contents: write

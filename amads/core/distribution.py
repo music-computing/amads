@@ -20,7 +20,7 @@ from typing import Any, List, Union
 
 # matplotlib.use('TkAgg') # We should not force this on users as it is not compatible with all backends
 import matplotlib.pyplot as plt
-from matplotlib import figure
+from matplotlib.figure import Figure
 
 DEFAULT_BAR_COLOR = "skyblue"
 
@@ -76,18 +76,21 @@ class Distribution:
         self.y_categories = y_categories
         self.y_label = y_label
 
-    def plot(self, color=DEFAULT_BAR_COLOR):
+    def plot(self, color=DEFAULT_BAR_COLOR, show: bool = True) -> Figure:
         if len(self.dimensions) == 1:
-            return (plt, self.plot_1d(color))
+            fig = self.plot_1d(color)
         elif len(self.dimensions) == 2:
-            return (plt, self.plot_2d(color))
+            fig = self.plot_2d(color)
         else:
             raise ValueError("Unsupported number of dimensions")
+        if show:
+            plt.show()
+        return fig
 
-    def plot_1d(self, color=DEFAULT_BAR_COLOR) -> figure.Figure:
+    def plot_1d(self, color=DEFAULT_BAR_COLOR) -> Figure:
         """Create a 1D plot of the distribution.
         Returns:
-            figure.Figure - A matplotlib figure object.
+            Figure - A matplotlib figure object.
         """
 
         fig, ax = plt.subplots()
@@ -97,10 +100,10 @@ class Distribution:
         fig.suptitle(self.name)
         return fig
 
-    def plot_2d(self, color=DEFAULT_BAR_COLOR) -> figure.Figure:
+    def plot_2d(self, color=DEFAULT_BAR_COLOR) -> Figure:
         """Create a 2D plot of the distribution.
         Returns:
-            figure.Figure - A matplotlib figure object.
+            Figure - A matplotlib figure object.
         """
         fig, ax = plt.subplots()
         cax = ax.imshow(self.data, cmap="gray_r", interpolation="nearest")
@@ -117,3 +120,12 @@ class Distribution:
 
         ax.invert_yaxis()
         return fig
+
+    def show(self) -> None:
+        """Print information about the distribution"""
+        plural = "" if len(self.dimensions) == 1 else "s"
+        print(
+            f'Distribution: "{self.name}" has dimension{plural}',
+            f'{self.dimensions}, x_label: "{self.x_label}",',
+            f'y_label: "{self.y_label}"',
+        )

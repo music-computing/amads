@@ -22,8 +22,8 @@ def update_pcd(pcd: list[list[float]], notes: list[Note], weighted: bool):
     prev = None
     for note in notes:
         if prev:
-            pc_curr = note.pitch.pitch_class
-            pc_prev = prev.pitch.pitch_class
+            pc_curr = note.pitch_class
+            pc_prev = prev.pitch_class
 
             if weighted:
                 pcd[pc_prev][pc_curr] += prev.duration * note.duration
@@ -51,6 +51,7 @@ def pcdist2(score: Score, weighted=True) -> list[list[float]]:
     """
     pcd = [[0] * 12 for _ in range(12)]
 
+    score = score.merge_tied_notes()
     for container in score.note_containers():
         notes = container.find_all(Note)
         update_pcd(pcd, notes, weighted)

@@ -1,5 +1,6 @@
 """Calculates the Interpolation Contour of a melody, along with related features, as
-implemented in the FANTASTIC toolbox of Müllensiefen (2009) [1].
+implemented in the FANTASTIC toolbox of Müllensiefen (2009) [1]
+(features 23–27).
 Includes a modified version of the FANTASTIC method that is better suited to short melodies
 than the original implementation. This 'AMADS' method defines turning points using reversals,
 and is the default method. All features are returned for either method.
@@ -26,9 +27,9 @@ class InterpolationContour:
         Parameters
         ----------
         pitches : list[int]
-            Array of pitch values
+            Pitch values in any numeric format (e.g., MIDI numbers).
         times : list[float]
-            Array of onset times in seconds
+            Onset times in any consistent, proportional scheme (e.g., seconds, quarter notes, etc.)
         method : str, optional
             Method to use for contour calculation, either "fantastic" or "amads".
             Defaults to "amads".
@@ -39,14 +40,14 @@ class InterpolationContour:
         Raises
         ------
         ValueError
-            If times and pitches are not the same length
+            If the `times` and `pitches` parameters are not the same length.
             If method is not "fantastic" or "amads"
 
         Examples
         --------
         >>> happy_birthday_pitches = [
         ...     60, 60, 62, 60, 65, 64, 60, 60, 62, 60, 67, 65,
-        ...     60, 60, 72, 69, 67, 65, 64, 70, 69, 65, 67, 65
+        ...     60, 60, 72, 69, 65, 64, 62, 70, 69, 65, 67, 65
         ... ]
         >>> happy_birthday_times = [
         ...     0, 0.75, 1, 2, 3, 4, 6, 6.75, 7, 8, 9, 10,
@@ -62,9 +63,9 @@ class InterpolationContour:
         >>> ic.class_label
         'ccbc'
         >>> ic.mean_gradient
-        2.512...
+        2.702...
         >>> ic.gradient_std
-        5.496...
+        5.655...
         >>> ic.global_direction
         1
 

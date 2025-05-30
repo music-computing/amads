@@ -6,7 +6,7 @@ Original Doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e0
 import matplotlib.pyplot as plt
 from matplotlib import figure, patches
 
-from ..core.basics import Note, Score
+from ..core.basics import Part, Score
 
 
 def midi_num_to_name(midi_num: int, accidental) -> str:
@@ -45,7 +45,12 @@ def midi_num_to_name(midi_num: int, accidental) -> str:
 
 
 def pianoroll(
-    score: Score, y_label="name", x_label="beat", color="skyblue", accidental="sharp"
+    score: Score,
+    y_label: str = "name",
+    x_label: str = "beat",
+    color: str = "skyblue",
+    accidental: str = "sharp",
+    show: bool = True,
 ) -> figure.Figure:
     """Converts a Score to a piano roll display of a musical score.
 
@@ -59,11 +64,15 @@ def pianoroll(
         x_label (str, optional):
             Determines whether the x-axis is labeled
             with beats or seconds. Valid input: 'beat' or 'sec'.
+        color (str, optional):
+            The color of the note rectangles. Defaults to 'skyblue'.
         accidental (str, optional):
             Determines whether the y-axis is
             labeled with sharps or flats. O nly useful if argument
             y_label is 'name'. Raises exception on inputs that's not
             'sharp' or 'flat'.
+        show (bool, optional):
+            If True, the plot is displayed. Defaults to True.
 
     Returns:
         A matplotlib.figure.Figure of a pianoroll diagram.
@@ -79,16 +88,19 @@ def pianoroll(
     fig, ax = plt.subplots()
 
     min_note, max_note = 127.0, 0.0
-    max_time = 0
-    for note in score.flatten(collapse=True).find_all(Note):
-        start_time = note.onset
-        pitch = note.keynum - 0.5
-        duration = note.duration
+    max_time = 1  # plot at least 1 second or beat
+    # remove ties and make a sorted list of all notes:
+    score = score.flatten(collapse=True)
+    # now score has one part that is all notes
+    for note in next(score.find_all(Part)).content:
+        onset_time = note.onset
+        offset_time = note.offset
+        pitch = note.key_num - 0.5  # to center note rectangle
 
         # Conditionally converts beat to sec
         if x_label == "sec":
-            start_time = score.time_map.beat_to_time(start_time)
-            duration = score.time_map.beat_to_time(duration)
+            onset_time = score.time_map.beat_to_time(onset_time)
+            offset_time = score.time_map.beat_to_time(offset_time)
 
         # Stores min and max note for y_axis labeling
         if pitch < min_note:
@@ -97,16 +109,25 @@ def pianoroll(
             max_note = pitch
 
         # Stores max note start time + note duration for x_axis limit
-        if start_time + duration > max_time:
-            max_time = start_time + duration
+        if offset_time > max_time:
+            max_time = offset_time
 
         # Draws the note
+        print("draw note from", onset_time, "to", offset_time, "at", pitch)
         rect = patches.Rectangle(
-            (start_time, pitch), duration, 1, edgecolor="black", facecolor=color
+            (onset_time, pitch),
+            offset_time - onset_time,
+            1,
+            edgecolor="black",
+            facecolor=color,
         )
         ax.add_patch(rect)
 
     # Determines correct axis labels
+    if min_note == 127 and max_note == 0:  # "fake" better axes:
+        min_note = 59
+        max_note = 59
+
     midi_numbers = list(range(int(min_note), int(max_note + 2)))
 
     match y_label:
@@ -126,6 +147,10 @@ def pianoroll(
 
     ax.set_xlim(0, max_time)
     ax.set_ylim(min(midi_numbers), max(midi_numbers) + 1)
+
     ax.grid(True)
+
+    if show:
+        plt.show()
 
     return fig

@@ -10,6 +10,6 @@ from .pitch.serial import *
 from .pitch.transformations import *
 from .polyphony import skyline
 from .schemata import *
-from .time.npvi import *
 from .time.swing import *
 from .time.tempo import *
+from .time.variability import *

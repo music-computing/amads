@@ -19,7 +19,7 @@ myscore = partitura_midi_import(my_midi_file, ptprint=False)
 
 # Calculate duration distribution
 dd = duration_distribution_2(myscore)
-plt, fig = dd.plot()
+fig = dd.plot()
 
 print(
     "Duration pair distribution:",
@@ -29,4 +29,3 @@ print(
     dd.x_label,
     dd.y_label,
 )
-plt.show()

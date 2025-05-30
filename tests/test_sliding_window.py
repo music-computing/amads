@@ -13,7 +13,7 @@ def test_sliding_window(twochan_score: Score, twochan_notes: Iterable[Note]):
     score = twochan_score.flatten(collapse=True)
 
     last_note = twochan_notes[-1]
-    last_note_off = last_note.delta + last_note.duration
+    last_note_off = last_note.offset
     assert last_note_off == approx(16.0)
 
     windows = sliding_window(
@@ -35,5 +35,5 @@ def test_sliding_window(twochan_score: Score, twochan_notes: Iterable[Note]):
 
     # The second slice should include the score's opening two notes
     assert len(windows[1].content) == 2
-    assert windows[1].content[0].keynum == 67 - 2 * 12
-    assert windows[1].content[1].keynum == 67
+    assert windows[1].content[0].key_num == 67 - 2 * 12
+    assert windows[1].content[1].key_num == 67
