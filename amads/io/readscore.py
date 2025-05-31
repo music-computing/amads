@@ -10,8 +10,52 @@ from amads.core.basics import Score
 # preferred_midi_reader is the subsystem to use for MIDI files.
 # It can be "music21", "partitura", or "prettymidi".
 preferred_midi_reader = "prettymidi"
+
 # preferred_xml_reader is the subsystem to use for MusicXML files.
 preferred_xml_reader = "music21"
+
+
+def set_preferred_midi_reader(reader: str) -> str:
+    """Set the preferred MIDI reader. Returns the previous reader
+    preference so you can restore it if desired.
+
+    Parameters
+    ----------
+    reader : str
+        The name of the preferred MIDI reader. Can be "music21", "partitura", or "prettymidi".
+
+    Returns
+    -------
+    str
+        The previous name of the preferred MIDI reader.
+    """
+    global preferred_midi_reader
+    previous_reader = preferred_midi_reader
+    if reader in ["music21", "partitura", "prettymidi"]:
+        preferred_midi_reader = reader
+    else:
+        raise ValueError(
+            "Invalid MIDI reader. Choose 'music21', 'partitura', or 'prettymidi'."
+        )
+    return previous_reader
+
+
+def set_preferred_xml_reader(reader: str) -> str:
+    """Set the preferred XML reader. Returns the previous reader
+    preference so you can restore it if desired.
+
+    Parameters
+    ----------
+    reader : str
+        The name of the preferred XML reader. Can be "music21" or "partitura".
+    """
+    global preferred_xml_reader
+    previous_reader = preferred_xml_reader
+    if reader in ["music21", "partitura"]:
+        preferred_xml_reader = reader
+    else:
+        raise ValueError("Invalid XML reader. Choose 'music21' or 'partitura'.")
+    return previous_reader
 
 
 def _check_for_subsystem(file_type: str) -> Optional[Callable[[str, bool], Score]]:

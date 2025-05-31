@@ -503,7 +503,7 @@ class Note(Event):
             The duration of the note in quarters or seconds. See the
             property tied_duration for the duration of an entire group
             if the note is the first of a tied group of notes.
-        pitch : Pitch
+        pitch :  Union["Pitch", float, int, str, None]
             The pitch of the note.
         dynamic : Optional[Union[int, str]]
             Dynamic level (MIDI velocity) or string.
@@ -518,7 +518,7 @@ class Note(Event):
                  parent: Optional["EventGroup"] = None,
                  onset: Optional[float] = None,
                  duration: float = 1,
-                 pitch: Union["Pitch", Number, str, None] = 60,
+                 pitch: Union["Pitch", float, int, str, None] = 60,
                  dynamic: Union[int, str, None] = None,
                  lyric: Optional[str] = None):
         """Initialize a Note instance.
@@ -1037,6 +1037,13 @@ class EventGroup(Event):
             A list of Event objects to be added to the group. The parent
             of each Event is set to this EventGroup, and it is an error
             if any Event already has a parent.
+        pack : bool, optional
+            If true, Events in content are adjusted to form a sequence
+            where the first event onset is the specified group onset
+            (which defaults to 0) and the onset of other events is
+            the offset of the previous event in the sequence.
+            (Defaults to False).
+
 
     Attributes
     ----------
@@ -1056,11 +1063,19 @@ class EventGroup(Event):
                  content: Optional[list[Event]], pack: bool = False):
 
         super().__init__(parent=parent, onset=onset, duration=duration)
+        max_offset = 0
         if content:
+            prev_offset = 0 if onset == None else onset
             for elem in content:
-                if elem.parent:
-                    raise Exception("Event already has a parent")
+                if elem.parent and elem.parent != self:
+                    raise Exception("Event already has a (different) parent")
                 elem.parent = self
+                if pack or (elem.onset == None):
+                    elem.onset = prev_offset
+                    prev_offset = elem.offset  # depends on e.onset
+                max_offset = max(max_offset, elem.offset)
+            if self.duration == None:
+                self.duration = max_offset - (0 if onset is None else onset)
         self.content = content if content else []
 
 
@@ -1078,7 +1093,7 @@ class EventGroup(Event):
         value will treat the content onsets as deltas and shift them by onset
         so that the resulting content has correct absolute onset times.
         """
-        if self._onset == None and self._onset != 0: # shift content
+        if self._onset == None and onset != 0: # shift content
             for elem in self.content:
                 elem._onset += onset
         self._onset = onset
@@ -1543,8 +1558,9 @@ class Sequence(EventGroup):
             (where None means 0) and the onsets of other events are
             the offsets of the previous events in the sequence. A
             pack=True value changes the default behavior by overriding
-            any existing onsets in the content and setting the onset of
-            the Sequence to the minimum onset of content. (Defaults to False)
+            any existing onsets in the content. (Defaults to False
+            because we do not want to automatically override onsets
+            when they are specified.)
 
     Attributes
     ----------
@@ -1565,33 +1581,7 @@ class Sequence(EventGroup):
                  content: list[Event] = None, pack: bool = False):
         """Sequence represents a temporal sequence of music events.
         """
-        # initialize (super) EventGroup with numbers for onset and duration
-        # but they will be adjusted before we return
-        temp_onset = 0 if onset == None else onset
-        # make a pass through the content. Compute onset values: If pack, onsets
-        # are sequentially set to the previous offset stored in prev_offset. If
-        # not pack, only replace onset when onset == None. Here again, prev_offset
-        # will be the previous offset. We also use the loop to compute the maximum
-        # overall offset (max_offset) in case we need to set self.duration. Note
-        # that max_offset is not necessarily the offset of the last Note due to
-        # possible note overlap.
-        prev_offset = temp_onset
-        max_offset = 0
-        if content:  # compute event onsets
-            for e in content:
-                assert isinstance(e, Event)
-                assert e.parent is self
-                if pack or (e.onset == None):
-                    e.onset = prev_offset
-                    prev_offset = e.offset  # depends on e.onset
-                max_offset = max(max_offset, e.offset)
-
-        if duration == None:  # compute duration from content
-            duration = max_offset - temp_onset
-        super().__init__(parent, temp_onset, duration, content, pack)
-
-        self.onset = onset  # restore onset to None if it was None. This will
-        # enable the adjustment of content if self.onset is set later.
+        super().__init__(parent, onset, duration, content, pack)
 
 
     @property
@@ -1688,12 +1678,12 @@ class Concurrence(EventGroup):
         # possible note overlap.
         max_offset = 0
         if duration == None and content:  # compute event onsets
-            for e in content:
-                assert isinstance(e, Event)
-                assert e.parent == None
-                if e.onset == None:
-                    e.onset = temp_onset
-                max_offset = max(max_offset, e.offset)
+            for elem in content:
+                assert isinstance(elem, Event)
+                assert elem.parent == None
+                if elem.onset == None:
+                    elem.onset = temp_onset
+                max_offset = max(max_offset, elem.offset)
         if duration == None:  # compute duration from content
             duration = max_offset - temp_onset
         super().__init__(parent, onset, duration, content)
@@ -2421,7 +2411,7 @@ class Score(Concurrence):
 
 
 
-class Part(Concurrence):
+class Part(EventGroup):
     """A Part models a staff or staff group such as a grand staff. For that
     reason, a Part contains one or more Staff objects. It should not contain
     any other object types. Parts are normally elements of a Score. Note that
@@ -2429,7 +2419,10 @@ class Part(Concurrence):
     should be organized more sequentially than concurrently, so the default
     assignment of onset times may not be appropriate.
 
-    See EventGroup documentation on construction styles.
+    See EventGroup documentation on construction styles. Part is an EventGroup
+    rather than a Sequence or Concurrence because in flattened scores, it acts
+    like a Sequence of notes, but in full scores, it is like a Concurrence of
+    Staff objects.
 
     Parameters
     ----------
@@ -2452,6 +2445,12 @@ class Part(Concurrence):
             A string representing the part number. (Defaults to None)
         instrument : Optional[str], optional
             A string representing the instrument name. (Defaults to None)
+        pack : bool, optional
+            If true, Events in *args are adjusted to form a sequence
+            where the first event onset is the specified group onset
+            (which defaults to 0) and the onset of other events is the
+            offset of the previous event in the sequence. Must be passed
+            as a keyword parameter due to *args. (Defaults to False)
 
     Attributes
     ----------
@@ -2475,8 +2474,15 @@ class Part(Concurrence):
                  onset: float = 0.0,
                  duration: Optional[float] = None,
                  number: Optional[str] = None,
-                 instrument: Optional[str] = None):
-        super().__init__(parent, onset, duration, list(args))
+                 instrument: Optional[str] = None,
+                 pack: bool = False):
+        super().__init__(parent, onset, duration, list(args), pack)
+        if self.duration is None:  # compute default duration
+            temp_onset = 0 if onset == None else onset
+            max_offset = temp_onset
+            for elem in self.content:
+                max_offset = max(max_offset, elem.offset)
+            self.duration = max_offset
         self.number = number
         self.instrument = instrument
 

@@ -1,9 +1,9 @@
 """
-Duration distributions (II)
+Duration pair distributions
 ===========================
 
-This example demonstrates how to calculate and visualize the duration distribution
-of notes in a MIDI file.
+This example demonstrates how to calculate and visualize the pair-wise
+duration distribution of notes in a MIDI file.
 """
 
 from amads.algorithms import duration_distribution_2
