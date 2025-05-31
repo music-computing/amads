@@ -7,6 +7,7 @@ using the AMADS library.
 """
 
 from amads.core.basics import Measure, Note, Part, Rest, Score, Staff
+from amads.core.timemap import TimeMap
 
 """
 Let's begin by creating the simplest kind of score:
@@ -165,3 +166,46 @@ for note in score.find_all(Note):
 print("Full score notes in time order:")
 for note in score.get_sorted_notes():
     note.show(indent=4)
+
+"""
+Sometimes, you want to use time in seconds rather than in quarters.
+You can convert a score to seconds easily. This is an *in-place*
+change, modifying the score object. You can revert to beats as shown.
+"""
+print("Is the score in quarters?", score.units_are_quarters)
+score.convert_to_seconds()
+print("Is the score now in seconds?", score.units_are_seconds)
+print("Full score notes in time order (seconds):")
+for note in score.get_sorted_notes():
+    note.show(indent=4)
+# revert to quarters
+score.convert_to_quarters()
+print("Is the score back in quarters?", score.units_are_quarters)
+
+"""
+You can change the tempo at any time and as often as you like.
+As in MIDI files, there are no continuous tempo changes, but you
+can get the effect by changing the tempo at every quarter or even
+finer division.
+
+Tempo changes do not affect times in the score, so if units are
+quarters, a faster tempo will make the notes shorter in seconds,
+but if units are seconds, the notes will remain the same length
+in seconds, so their durations in quarters will be increased.
+
+This example doubles the tempo of the score. When we convert to
+seconds, the notes will be half as long in seconds.
+"""
+
+# change the tempo
+tempo = score.time_map.beat_to_tempo(0)  # initial tempo
+print("Initial tempo:", tempo)
+score.time_map = TimeMap(tempo * 2)  # double the tempo
+print("New tempo:", score.time_map.beat_to_tempo(0))
+# convert to seconds
+score.convert_to_seconds()
+print("Full score notes in time order (seconds, after tempo change):")
+for note in score.get_sorted_notes():
+    note.show(indent=4)
+# revert to quarters
+score.convert_to_quarters()
