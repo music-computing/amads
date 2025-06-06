@@ -58,66 +58,65 @@ def normalized_pairwise_variability_index(
     durations: Iterable[float],
 ) -> float:
     r"""
-     Calculates the normalised pairwise variability index (nPVI).
+    Calculates the normalised pairwise variability index (nPVI).
 
-     The nPVI is a measure of variability between successive elements in a sequence.
+    The nPVI is a measure of variability between successive elements in a sequence.
 
-     The equation is:
+    The equation is:
 
-     .. math::
+    .. math::
 
         \text{nPVI} = \frac{100}{m-1} \times \sum\limits_{k=1}^{m-1}
         \left| \frac{d_k - d_{k+1}}{\frac{d_k + d_{k+1}}{2}} \right|
 
-     where :math:`m` is the number of intervals, and :math:`d_k` is the duration of the :math:`k^{th}` interval.
+    where :math:`m` is the number of intervals, and :math:`d_k` is the duration of the :math:`k^{th}` interval.
 
-     A completely regular stream of equal durations returns 0 variability.
-     High difference between successive items returns a high nPVI value
-     irrespective of other (e.g., metrical) considerations.
+    A completely regular stream of equal durations returns 0 variability.
+    High difference between successive items returns a high nPVI value
+    irrespective of other (e.g., metrical) considerations.
 
-     Parameters
-     ----------
-     durations (Iterable[float]): the durations to analyse
+    Parameters
+    ----------
+    durations (Iterable[float]): the durations to analyse
 
-     Returns
-     -------
-     float: the extracted nPVI value.
+    Returns
+    -------
+    float: the extracted nPVI value.
 
-     Examples
-     -------
+    Examples
+    -------
 
-     A completely regular stream of equal durations returns 0 variability.
+    A completely regular stream of equal durations returns 0 variability.
 
-     >>> normalized_pairwise_variability_index([1., 1., 1., 1.])
-     0.
+    >>> normalized_pairwise_variability_index([1., 1., 1., 1.])
+    0.
 
-     This example is from Daniele & Patel (2013, Appendix).
+    This example is from Daniele & Patel (2013, Appendix).
 
-     >>> durs = [1., 1/2, 1/2, 1., 1/2, 1/2, 1/3, 1/3, 1/3, 2., 1/3, 1/3, 1/3, 1/3, 1/3, 1/3, 3/2, 1., 1/2]
-     >>> x = normalized_pairwise_variability_index(durations=durs)
-     >>> round(x, 1)
-     42.2
+    >>> durs = [1., 1/2, 1/2, 1., 1/2, 1/2, 1/3, 1/3, 1/3, 2., 1/3, 1/3, 1/3, 1/3, 1/3, 1/3, 3/2, 1., 1/2]
+    >>> x = normalized_pairwise_variability_index(durations=durs)
+    >>> round(x, 1)
+    42.2
 
     These next examples are from Condit-Schultz's 2019 critique (Figure 2).
 
-     >>> normalized_pairwise_variability_index([0.25, 0.25, 0.25, 0.25, 1., 0.25, 0.25, 0.25, 0.25, 1.])
-     40.
+    >>> normalized_pairwise_variability_index([0.25, 0.25, 0.25, 0.25, 1., 0.25, 0.25, 0.25, 0.25, 1.])
+    40.
 
-     >>> normalized_pairwise_variability_index([0.25, 0.25, 0.5, 1., 0.25, 0.25, 0.5, 1.])
-     55.2
+    >>> normalized_pairwise_variability_index([0.25, 0.25, 0.5, 1., 0.25, 0.25, 0.5, 1.])
+    55.2
 
-     >>> normalized_pairwise_variability_index([0.5, 0.25, 0.25, 1., 0.5, 0.25, 0.25, 1.])
-     62.8
+    >>> normalized_pairwise_variability_index([0.5, 0.25, 0.25, 1., 0.5, 0.25, 0.25, 1.])
+    62.8
 
-     >>> normalized_pairwise_variability_index([2, 1, 2, 1])
-     66.66
+    >>> normalized_pairwise_variability_index([2, 1, 2, 1])
+    66.66
 
-     >>> normalized_pairwise_variability_index([0.5, 1, 2, 1, 0.5])
-     66.66
+    >>> normalized_pairwise_variability_index([0.5, 1, 2, 1, 0.5])
+    66.66
 
-     >>> normalized_pairwise_variability_index([2, 1, 0.5, 1, 0.5, 0.25])
-     66.66
-
+    >>> normalized_pairwise_variability_index([2, 1, 0.5, 1, 0.5, 0.25])
+    66.66
 
     """
 

@@ -38,8 +38,6 @@ For the source code, visit the `GitHub repository <https://github.com/music-comp
 
    auto_examples/index
 
-
-
 General algorithms
 ------------------
 
@@ -82,7 +80,7 @@ Time
 
    amads.time.durdist1
    amads.time.durdist2
-   amads.time.npvi
+   amads.time.variability
    amads.time.swing
    amads.time.tempo
    amads.time.meter.break_it_up
@@ -94,7 +92,7 @@ Harmony
    :toctree: _autosummary
    :caption: Harmony:
 
-   amads.harmony.root_finding.parncutt_1988
+   amads.harmony.root_finding.parncutt
 
 Melody
 ------
