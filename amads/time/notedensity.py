@@ -51,17 +51,21 @@ def notedensity(score: Score, timetype: Optional[str] = "beat") -> float:
 
     if timetype == "sec":
         if score.units_are_seconds:
-            onsets = [note.onset for note in notes]
+            start_onset = notes[0].onset
+            end_onset = notes[-1].onset
         else:
-            onsets = [score.time_map.beat_to_time(note.onset) for note in notes]
+            start_onset = score.time_map.beat_to_time(notes[0].onset)
+            end_onset = score.time_map.beat_to_time(notes[-1].onset)
     elif timetype == "beat":
         if score.units_are_seconds:
-            onsets = [score.time_map.time_to_beat(note.onset) for note in notes]
+            start_onset = score.time_map.time_to_beat(notes[0].onset)
+            end_onset = score.time_map.time_to_beat(notes[-1].onset)
         else:
-            onsets = [note.onset for note in notes]
+            start_onset = notes[0].onset
+            end_onset = notes[-1].onset
     else:
         raise ValueError(f"Invalid timetype: {timetype}. Use 'beat' or 'sec'.")
-    duration = onsets[-1] - onsets[0]
+    duration = end_onset - start_onset
     if duration <= 0:
         return 0.0
     return (len(notes) - 1) / duration
