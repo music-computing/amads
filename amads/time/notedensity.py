@@ -1,5 +1,5 @@
 """
-Number of notes per beat or second in a Score.
+Number of notes per quarter or second in a Score.
 
 Author:
     Tai Nakamura (2025)
@@ -14,9 +14,9 @@ from ..core.basics import Score
 __author__ = "Tai Nakamura"
 
 
-def notedensity(score: Score, timetype: Optional[str] = "beat") -> float:
+def notedensity(score: Score, timetype: Optional[str] = "quarters") -> float:
     """
-    Returns the number of notes per beat or second in a Score as a float.
+    Returns the number of notes per quarter or second in a Score as a float.
 
     Specifically, it computes note density as (number of notes - 1) divided by
     the time span from the first note onset to the last note onset.
@@ -27,10 +27,10 @@ def notedensity(score: Score, timetype: Optional[str] = "beat") -> float:
     Parameters
     ----------
     score (Score): The musical score to analyze.
-    timetype (str, optional, default='beat'):
+    timetype (str, optional, default='quarters'):
         Time unit for calculation:
-        - 'beat': notes per beat (default)
-        - 'sec' : notes per second
+        - 'quarters': notes per quarter (default)
+        - 'seconds' : notes per second
 
     Returns
     -------
@@ -42,21 +42,34 @@ def notedensity(score: Score, timetype: Optional[str] = "beat") -> float:
     Raises
     ------
     ValueError
-        If 'timetype' is not 'beat' or 'sec'.
+        If 'timetype' is not 'quarters' or 'seconds'.
 
+    Examples
+    --------
+    >>> score = Score.from_melody([60, 62, 64, 65])  # all quarter notes
+    >>> notedensity(score, timetype='quarters')
+    1.0
+    >>> from amads.core.timemap import TimeMap
+    >>> score = Score.from_melody([60, 62, 64, 65])  # all quarter notes
+    >>> score.time_map = TimeMap(bpm = 120)  # set BPM to 120
+    >>> notedensity(score, timetype='seconds')
+    2.0
+    >>> score = Score.from_melody([60, 62, 64, 65], durations = [1.0, 2.0, 3.0, 4.0])  # mixed durations
+    >>> notedensity(score, timetype='quarters')
+    0.5
     """
     notes = score.get_sorted_notes()
     if not notes:
         return 0.0
 
-    if timetype == "sec":
+    if timetype == "seconds":
         if score.units_are_seconds:
             start_onset = notes[0].onset
             end_onset = notes[-1].onset
         else:
             start_onset = score.time_map.beat_to_time(notes[0].onset)
             end_onset = score.time_map.beat_to_time(notes[-1].onset)
-    elif timetype == "beat":
+    elif timetype == "quarters":
         if score.units_are_seconds:
             start_onset = score.time_map.time_to_beat(notes[0].onset)
             end_onset = score.time_map.time_to_beat(notes[-1].onset)
@@ -64,7 +77,7 @@ def notedensity(score: Score, timetype: Optional[str] = "beat") -> float:
             start_onset = notes[0].onset
             end_onset = notes[-1].onset
     else:
-        raise ValueError(f"Invalid timetype: {timetype}. Use 'beat' or 'sec'.")
+        raise ValueError(f"Invalid timetype: {timetype}. Use 'quarters' or 'seconds'.")
     duration = end_onset - start_onset
     if duration <= 0:
         return 0.0
