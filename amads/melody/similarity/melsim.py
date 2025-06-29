@@ -1,7 +1,6 @@
 """
 This is a Python wrapper for the R package 'melsim' (https://github.com/sebsilas/melsim).
-This wrapper allows the user to easily interface with the melsim package using numpy arrays
-representing melodies.
+This wrapper allows the user to easily interface with the melsim package using the AMADS Score object.
 
 Melsim is a package for computing similarity between melodies, and is being developed by
 Sebastian Silas (https://sebsilas.com/) and Klaus Frieler
