@@ -30,6 +30,7 @@ dependencies = [
     "pytest",
     "sphinx-gallery",
     "tenacity",
+    "tqdm",
 ]
 
 [project.optional-dependencies]
@@ -47,7 +48,6 @@ test = [
 ]
 melsim = [
     "pandas",
-    "tqdm"
 ]
 
 [project.urls]
