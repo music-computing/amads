@@ -47,7 +47,7 @@ test = [
 ]
 melsim = [
     "pandas",
-    "rpy2"
+    "tqdm"
 ]
 
 [project.urls]
