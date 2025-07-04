@@ -104,7 +104,6 @@ r_cran_packages = [
     "dtw",
     "ggplot2",
     "cba",
-    "jsonlite",
 ]
 r_github_packages = ["melsim"]
 github_repos = {
@@ -114,11 +113,15 @@ github_repos = {
 
 def check_r_packages_installed(install_missing: bool = False, n_retries: int = 3):
     """Check if required R packages are installed."""
-    # Create R script to check package installation
+    # Create R script to check package installation using base R only
     check_script = """
     packages <- c({packages})
     missing <- packages[!sapply(packages, requireNamespace, quietly = TRUE)]
-    cat(jsonlite::toJSON(missing))
+    if (length(missing) > 0) {{
+        cat(paste0('"', missing, '"', collapse = ","))
+    }} else {{
+        cat("")
+    }}
     """
 
     # Format package list
@@ -130,7 +133,14 @@ def check_r_packages_installed(install_missing: bool = False, n_retries: int = 3
         result = subprocess.run(
             ["Rscript", "-e", check_script], capture_output=True, text=True, check=True
         )
-        missing_packages = json.loads(result.stdout.strip())
+        output = result.stdout.strip()
+
+        # Parse the output - if empty, no missing packages
+        if not output:
+            missing_packages = []
+        else:
+            # Parse comma-separated quoted strings
+            missing_packages = [pkg.strip('"') for pkg in output.split(",")]
 
         if missing_packages:
             if install_missing:
@@ -181,11 +191,15 @@ def install_r_package(package: str):
 
 def install_dependencies():
     """Install all required R packages."""
-    # Check which packages need to be installed
+    # Check which packages need to be installed using base R only
     check_script = """
     packages <- c({packages})
     missing <- packages[!sapply(packages, requireNamespace, quietly = TRUE)]
-    cat(jsonlite::toJSON(missing))  # Always return a JSON array, even if empty
+    if (length(missing) > 0) {{
+        cat(paste0('"', missing, '"', collapse = ","))
+    }} else {{
+        cat("")
+    }}
     """
 
     # Check CRAN packages
@@ -199,7 +213,14 @@ def install_dependencies():
             text=True,
             check=True,
         )
-        missing_cran = json.loads(result.stdout.strip())
+        output = result.stdout.strip()
+
+        # Parse the output - if empty, no missing packages
+        if not output:
+            missing_cran = []
+        else:
+            # Parse comma-separated quoted strings
+            missing_cran = [pkg.strip('"') for pkg in output.split(",")]
 
         if missing_cran:
             print("Installing missing CRAN packages...")
@@ -224,7 +245,14 @@ def install_dependencies():
             text=True,
             check=True,
         )
-        missing_github = json.loads(result.stdout.strip())
+        output = result.stdout.strip()
+
+        # Parse the output - if empty, no missing packages
+        if not output:
+            missing_github = []
+        else:
+            # Parse comma-separated quoted strings
+            missing_github = [pkg.strip('"') for pkg in output.split(",")]
 
         if missing_github:
             print("Installing missing GitHub packages...")
