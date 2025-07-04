@@ -5,8 +5,8 @@ Example usage of the melsim module.
 from amads.core.basics import Score
 from amads.melody.similarity.melsim import (
     check_r_packages_installed,
-    get_similarity_batch,
-    get_similarity_from_scores,
+    get_similarities,
+    get_similarity,
     install_dependencies,
 )
 
@@ -63,9 +63,7 @@ def demo_simple_similarity():
     c_major_scale = melodies["c_major_scale"]
     modified_scale = melodies["modified_scale"]
 
-    similarity = get_similarity_from_scores(
-        c_major_scale, modified_scale, "Jaccard", "pitch"
-    )
+    similarity = get_similarity(c_major_scale, modified_scale, "Jaccard", "pitch")
     return {
         "method": "Jaccard",
         "transformation": "pitch",
@@ -79,7 +77,7 @@ def demo_batch_similarity():
     melodies = create_test_melodies()
 
     # Perform pairwise comparisons using 'cosine' and 'Simpson' similarity measures
-    batch_results = get_similarity_batch(
+    batch_results = get_similarities(
         melodies, method=["cosine", "Simpson"], transformation="pitch"
     )
 
@@ -87,14 +85,15 @@ def demo_batch_similarity():
     organized_results = {}
     for method in ["cosine", "Simpson"]:
         organized_results[method] = {}
-        for (
-            name1,
-            name2,
-            sim_method,
-            transformation,
-        ), similarity in batch_results.items():
-            if sim_method == method:
-                organized_results[method][f"{name1}_vs_{name2}"] = similarity
+        # Get the matrix for this method
+        matrix = batch_results[(method, "pitch")]
+        # Convert matrix to pairwise comparisons
+        melody_names = list(melodies.keys())
+        for i, name1 in enumerate(melody_names):
+            for j, name2 in enumerate(melody_names):
+                if i < j:  # Only store upper triangle to avoid duplicates
+                    similarity = matrix[name1][name2]
+                    organized_results[method][f"{name1}_vs_{name2}"] = similarity
 
     return organized_results
 
@@ -108,22 +107,22 @@ def demo_transformations():
     results = {}
 
     # Intervallic similarity - should be different since we changed notes
-    results["intervallic"] = get_similarity_from_scores(
+    results["intervallic"] = get_similarity(
         c_major_scale, modified_scale, "Euclidean", "int"
     )
 
     # IOI class similarity - should be 1.0 since all durations are the same
-    results["ioi_class"] = get_similarity_from_scores(
+    results["ioi_class"] = get_similarity(
         c_major_scale, modified_scale, "Jaccard", "ioi_class"
     )
 
     # Parsons code similarity - compares up/down patterns
-    results["parsons"] = get_similarity_from_scores(
+    results["parsons"] = get_similarity(
         c_major_scale, modified_scale, "Jaccard", "parsons"
     )
 
     # Pitch class similarity - ignores octaves
-    results["pitch_class"] = get_similarity_from_scores(
+    results["pitch_class"] = get_similarity(
         c_major_scale, modified_scale, "Jaccard", "pc"
     )
 
@@ -137,7 +136,7 @@ def demo_comprehensive_comparison():
     modified_scale = melodies["modified_scale"]
 
     # Comprehensive comparison using multiple methods and transformations
-    comprehensive_results = get_similarity_batch(
+    comprehensive_results = get_similarities(
         {"melody1": c_major_scale, "melody2": modified_scale},
         method=["Jaccard", "Dice", "cosine"],
         transformation=["pitch", "int", "parsons"],
@@ -145,13 +144,9 @@ def demo_comprehensive_comparison():
 
     # Organize results in a more readable format
     organized = {}
-    for (
-        name1,
-        name2,
-        method,
-        transformation,
-    ), similarity in comprehensive_results.items():
+    for (method, transformation), matrix in comprehensive_results.items():
         key = f"{method}_{transformation}"
+        similarity = matrix["melody1"]["melody2"]
         organized[key] = similarity
 
     return organized

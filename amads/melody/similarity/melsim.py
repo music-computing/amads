@@ -78,6 +78,7 @@ Num:        Name:
 """
 
 import json
+import math
 import subprocess
 from itertools import combinations
 from pathlib import Path
@@ -325,9 +326,7 @@ def validate_transformation(transformation: str):
         )
 
 
-def get_similarity_from_scores(
-    melody_1, melody_2, method: str, transformation: str
-) -> float:
+def get_similarity(melody_1, melody_2, method: str, transformation: str) -> float:
     """Calculate similarity between two Score objects using the specified method.
     Parameters
     ----------
@@ -350,7 +349,7 @@ def get_similarity_from_scores(
     >>> melody_1 = Score.from_melody(pitches=[60, 62, 64, 65], durations=1.0)
     >>> melody_2 = Score.from_melody(pitches=[60, 62, 64, 67], durations=1.0)
     >>> # Calculate similarity using Jaccard method
-    >>> similarity = get_similarity_from_scores(melody_1, melody_2, 'Jaccard', 'pitch')
+    >>> similarity = get_similarity(melody_1, melody_2, 'Jaccard', 'pitch')
     """
     # Validate inputs
     validate_method(method)
@@ -654,18 +653,21 @@ def _batch_compute_similarities(args_list: List[Tuple]) -> List[float]:
         raise RuntimeError(f"Error calculating similarities: {e.stderr}")
 
 
-def get_similarity_batch(
+def get_similarities(
     scores: Dict[str, object],
     method: Union[str, List[str]] = "Jaccard",
     transformation: Union[str, List[str]] = "pitch",
     output_file: Union[str, Path] = None,
     n_cores: int = None,
     batch_size: int = 1000,
-) -> Dict[Tuple[str, str, str, str], float]:
+) -> Union[
+    Dict[str, Dict[str, float]], Dict[Tuple[str, str], Dict[str, Dict[str, float]]]
+]:
     """Calculate pairwise similarities between multiple Score objects.
+
     You can provide a single method and transformation, or a list of methods and transformations.
-    The function will return a dictionary mapping tuples of
-    (score1_name, score2_name, method, transformation) to their similarity values.
+    The function will return similarity matrices as nested dictionaries.
+
     Parameters
     ----------
     scores : Dict[str, Score]
@@ -680,11 +682,12 @@ def get_similarity_batch(
         Number of CPU cores to use for parallel processing. Defaults to all available cores.
     batch_size : int, default=1000
         Number of comparisons to process in each batch
+
     Returns
     -------
-    Dict[Tuple[str, str, str, str], float]
-        Dictionary mapping tuples of (score1_name, score2_name, method, transformation)
-        to their similarity values
+    Union[Dict[str, Dict[str, float]], Dict[Tuple[str, str], Dict[str, Dict[str, float]]]]
+        If single method and transformation: nested dictionary similarity matrix {row_name: {col_name: similarity}}
+        If multiple methods/transformations: dictionary mapping (method, transformation) tuples to similarity matrices
     """
     # Convert single method/transformation to lists
     methods = [method] if isinstance(method, str) else method
@@ -735,31 +738,73 @@ def get_similarity_batch(
     # Create dictionary of results
     similarities = dict(zip(score_pairs, similarities_list))
 
+    # Convert to matrix format using native Python types
+    score_names = list(scores.keys())
+
+    # Create similarity matrices as nested dictionaries
+    matrices = {}
+
+    for m in methods:
+        for t in transformations:
+            # Initialize matrix as nested dictionary with 1s on diagonal
+            sim_matrix = {}
+            for name1 in score_names:
+                sim_matrix[name1] = {}
+                for name2 in score_names:
+                    if name1 == name2:
+                        sim_matrix[name1][name2] = 1.0
+                    else:
+                        sim_matrix[name1][name2] = 0.0
+
+            # Fill matrix with pairwise similarities
+            # Since combinations() only gives us each pair once, set both directions
+            for (
+                name1,
+                name2,
+                method_key,
+                transformation_key,
+            ), similarity in similarities.items():
+                if method_key == m and transformation_key == t:
+                    # Handle NaN values consistently
+                    if (
+                        similarity == "NA"
+                        or similarity is None
+                        or (isinstance(similarity, float) and math.isnan(similarity))
+                    ):
+                        sim_value = float("nan")
+                    else:
+                        sim_value = float(similarity)
+
+                    # Set both directions to ensure perfect symmetry
+                    sim_matrix[name1][name2] = sim_value
+                    sim_matrix[name2][name1] = sim_value
+
+            matrices[(m, t)] = sim_matrix
+
     # Save to file if output file specified
     if output_file:
         print("Saving results...")
-        check_python_package_installed("pandas")
-        import pandas as pd
-
-        df = pd.DataFrame(
-            [
-                {
-                    "score1": s1,
-                    "score2": s2,
-                    "method": m,
-                    "transformation": t,
-                    "similarity": sim,
-                }
-                for (s1, s2, m, t), sim in similarities.items()
-            ]
-        )
 
         # Ensure output file has .json extension
         output_file = Path(output_file)
         if not output_file.suffix:
             output_file = output_file.with_suffix(".json")
 
-        df.to_json(output_file, orient="records", indent=2)
+        # Save matrices to JSON
+        output_data = {}
+        for (m, t), matrix in matrices.items():
+            output_data[f"{m}_{t}"] = matrix
+
+        import json
+
+        with open(output_file, "w") as f:
+            json.dump(output_data, f, indent=2)
         print(f"Results saved to {output_file}")
 
-    return similarities
+    # Return format depends on number of method/transformation combinations
+    if len(methods) == 1 and len(transformations) == 1:
+        # Single method and transformation: return just the matrix
+        return matrices[(methods[0], transformations[0])]
+    else:
+        # Multiple methods/transformations: return dictionary of matrices
+        return matrices
