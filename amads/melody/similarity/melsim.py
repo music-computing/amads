@@ -104,6 +104,7 @@ r_cran_packages = [
     "dtw",
     "ggplot2",
     "cba",
+    "jsonlite",
 ]
 r_github_packages = ["melsim"]
 github_repos = {
