@@ -24,7 +24,7 @@ from amads.melody.similarity.melsim import (
 def test_check_dependencies():
     """Check if R packages are installed."""
     try:
-        check_r_packages_installed(install_missing=False)
+        check_r_packages_installed(install_missing=True)
         print("All R packages are installed.")
     except ImportError:
         print(
