@@ -33,8 +33,14 @@ def test_array_attributes():
             # Every element of tuples should be a floating point number
             #  We should have 12 of them, one per key
             if isinstance(attr_val, tuple):
-                assert all(isinstance(element, float) for element in attr_val)
                 assert len(attr_val) == 12
+                if isinstance(attr_val[0], tuple):
+                    assert all(
+                        isinstance(element, tuple) and len(element) == 12
+                        for element in attr_val
+                    )
+                elif isinstance(attr_val[0], float):
+                    assert all(isinstance(element, float) for element in attr_val)
 
 
 def test_sum_attributes():
