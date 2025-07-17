@@ -1,6 +1,5 @@
 """
-Profiles of metrical position usage provided or deduced from the literature,
-initial demonstration with Beethoven piano sonata dataset (BPSD) from their csvs.
+Profiles of metrical position usage provided or deduced from the literature.
 """
 
 __author__ = "Mark Gotham"
@@ -47,13 +46,37 @@ class _MeterProfile:
 
 
 @dataclass
+class WorldSample16(_MeterProfile):
+    name: str = (
+        "A sample of rhythms from around the world, as: "
+        "1) encoded in binary (1/0),"
+        "2) on a 16 element grid, and"
+        "3) used in several studies."
+    )
+    literature: str = (
+        "Among the literature to use these values is Gomez, Melvin, Rappaport, Toussaint (2005). "
+        "Proceedings of the BRIDGES: Mathematical Connections in Art, Music and Science."
+    )
+    about: str = (
+        "This serves to compare function definitions here in AMADS with previous papers."
+    )
+
+    shiko = (1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0)
+    son = (1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0)
+    rumba = (1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0)
+    soukous = (1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0)
+    gahu = (1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0)
+    bossa_nova = (1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0)
+
+
+@dataclass
 class BPSD(_MeterProfile):
     name: str = "Beethoven piano sonata dataset"
     literature: str = (
         "Zeitler et al. (2024). Full paper (TISMIR): https://doi.org/10.5334/tismir.196"
     )
     about: str = (
-        "Measure_relative values of the BPSD dataset's csv files (example of rounded, float values)."
+        "Measure-relative values of the BPSD dataset's csv files (example of rounded, float values)."
     )
 
     op002No2_01 = Counter(
