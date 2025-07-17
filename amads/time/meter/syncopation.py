@@ -9,6 +9,8 @@ from typing import Optional
 
 from partitura import load_score
 
+from amads.core.vectors_sets import vector_to_multiset
+
 
 class SyncopationMetric:
     def __init__(self, path_to_score: Optional[str] = None):
@@ -82,19 +84,14 @@ class SyncopationMetric:
         (also available from the `meter.profiles` module),
         adpating to match presentation in the literature.
 
-        >>> son = [1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1]  # Final 1 for cycle rotation
-        >>> beat_unit_length = 2
-        >>> son_rhythm_onsets = tuple(i/beat_unit_length for i, count in enumerate(son) for _ in range(count))
-        >>> son_rhythm_onsets
-        (0.0, 1.5, 3.0, 5.0, 6.0, 8.0)
-
-        >>> son_onset_beats = son_rhythm_onsets[: -1]
-        >>> son_ends_beats = son_rhythm_onsets[1: ]
+        >>> son_onset_beats = (0.0, 1.5, 3.0, 5.0, 6.0)
+        >>> son_end_beats = (1.5, 2.0, 4.0, 6.0, 7.0) # This seems to be the rhythm they base the calculation on
         >>> sm = SyncopationMetric()
-        >>> sm.keith(onset_beats=son_onset_beats, end_beats=son_ends_beats)
+        >>> sm.keith(onset_beats=son_onset_beats, end_beats=son_end_beats)
         3
 
         This 3 consists of one on-to-off (count 2) and one off-to-on (count 1).
+        No idea how the WNBD paper gets 2.
         """
         if onset_beats is not None:  # Required for user-provided
             if end_beats is None:  # If no ends, then deduce from starts and durations
@@ -171,28 +168,23 @@ class SyncopationMetric:
         (also available from the `meter.profiles` module),
         adpating to match presentation in the literature.
 
-        >>> son = [1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1]  # Final 1 for cycle rotation
-        >>> beat_unit_length = 2
-        >>> son_rhythm_onsets = tuple(i/beat_unit_length for i, count in enumerate(son) for _ in range(count))
-        >>> son_rhythm_onsets
-        (0.0, 1.5, 3.0, 5.0, 6.0, 8.0)
+        >>> son = [1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0]
+        >>> onset_beats = vector_to_onset_beat(vector=son, beat_unit_length=4)
+        >>> onset_beats
+        (0.0, 0.75, 1.5, 2.5, 3.0)
 
-        >>> son_onset_beats = son_rhythm_onsets[: -1]
-        >>> son_ends_beats = son_rhythm_onsets[1: ]
         >>> sm = SyncopationMetric()
-        >>> sm.weighted_note_to_beat_distance(onset_beats=son_onset_beats)
-        Fraction(1, 1)
+        >>> sm.weighted_note_to_beat_distance(onset_beats=onset_beats)
+        Fraction(14, 5)
 
-        >>> beat_unit_length = 4
-        >>> son_rhythm_onsets = tuple(i/beat_unit_length for i, count in enumerate(son) for _ in range(count))
-        >>> son_rhythm_onsets
-        (0.0, 0.75, 1.5, 2.5, 3.0, 4.0)
+        >>> hesitation = [1, 0, 1, 0, 1, 0, 0, 1]
+        >>> onset_beats = vector_to_onset_beat(vector=hesitation, beat_unit_length=4)
+        >>> onset_beats
+        (0.0, 0.5, 1.0, 1.75)
 
-        >>> son_onset_beats = son_rhythm_onsets[: -1]
-        >>> son_ends_beats = son_rhythm_onsets[1: ]
         >>> sm = SyncopationMetric()
-        >>> sm.weighted_note_to_beat_distance(onset_beats=son_onset_beats)
-        Fraction(7, 2)
+        >>> sm.weighted_note_to_beat_distance(onset_beats=onset_beats)
+        Fraction(1, 2)
 
         """
         if (
@@ -229,7 +221,24 @@ class SyncopationMetric:
                     Fraction(numerator / distance_to_nearest_beat)
                 )
 
-        return sum(per_note_syncopation_values) / len(per_note_syncopation_values)
+        return sum(per_note_syncopation_values) / (len(per_note_syncopation_values) + 1)
+
+
+def vector_to_onset_beat(vector: list, beat_unit_length: int = 2):
+    """
+    Map from a vector to onset beat data via `vector_to_multiset`.
+
+    Examples
+    --------
+    >>> son = [1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1]  # Final 1 for cycle rotation
+    >>> vector_to_onset_beat(vector=son, beat_unit_length=4) # NB different beat value
+    (0.0, 0.75, 1.5, 2.5, 3.0, 4.0)
+
+    """
+    onsets = vector_to_multiset(
+        vector
+    )  # Stand alone: [i for i, count in enumerate(hesitation) for _ in range(count)]
+    return tuple(x / beat_unit_length for x in onsets)
 
 
 # -----------------------------------------------------------------------------
