@@ -352,6 +352,68 @@ class BellmanBudge(_KeyProfile):
         0.102,
     )
 
+@dataclass
+class Temperley(_KeyProfile):
+    name: str = "Temperley"
+    literature: str = "Temperley (1999). What's Key for Key? The Krumhansl-Schmuckler Key-Finding Algorithm Reconsidered. Music Perception, 17, 65-100."
+    about: str = "Psychological data revised - Temperley's revision of Krumhansl-Schmuckler profiles"
+    major: tuple[float] = (
+        5.0,
+        2.0,
+        3.5,
+        2.0,
+        4.5,
+        4.0,
+        2.0,
+        4.5,
+        2.0,
+        3.5,
+        1.5,
+        4.0,
+    )
+    major_sum: tuple[float] = (
+        0.139,
+        0.056,
+        0.097,
+        0.056,
+        0.125,
+        0.111,
+        0.056,
+        0.125,
+        0.056,
+        0.097,
+        0.042,
+        0.111,
+    )
+    minor: tuple[float] = (
+        5.0,
+        2.0,
+        3.5,
+        4.5,
+        2.0,
+        4.0,
+        2.0,
+        4.5,
+        3.5,
+        2.0,
+        1.5,
+        4.0,
+    )
+    minor_sum: tuple[float] = (
+        0.139,
+        0.056,
+        0.097,
+        0.125,
+        0.056,
+        0.111,
+        0.056,
+        0.125,
+        0.097,
+        0.056,
+        0.042,
+        0.111,
+    )
+
 
 @dataclass
 class TemperleyKostkaPayne(_KeyProfile):
@@ -414,6 +476,8 @@ class TemperleyKostkaPayne(_KeyProfile):
         0.032,
         0.079,
     )
+
+
 
 
 @dataclass
@@ -1228,7 +1292,6 @@ class VuvanHughes(_KeyProfile):
         0.063,
     )
 
-
 source_list = (
     AardenEssen,
     AlbrechtShanahan,
@@ -1239,6 +1302,7 @@ source_list = (
     PrinceSchumuckler,
     QuinnWhite,
     Sapp,
+    Temperley,
     TemperleyKostkaPayne,
     TemperleyDeClerq,
     Vuvan,
@@ -1255,6 +1319,7 @@ krumhansl_schmuckler = KrumhanslSchmuckler()
 prince_schmuckler = PrinceSchumuckler()
 quinn_white = QuinnWhite()
 sapp = Sapp()
+temperley = Temperley()
 temperley_kostka_payne = TemperleyKostkaPayne()
 temperley_de_clerq = TemperleyDeClerq()
 vuvan = Vuvan()
