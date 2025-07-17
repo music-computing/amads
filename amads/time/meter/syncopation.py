@@ -235,9 +235,7 @@ def vector_to_onset_beat(vector: list, beat_unit_length: int = 2):
     (0.0, 0.75, 1.5, 2.5, 3.0, 4.0)
 
     """
-    onsets = vector_to_multiset(
-        vector
-    )  # Stand alone: [i for i, count in enumerate(hesitation) for _ in range(count)]
+    onsets = vector_to_multiset(vector)
     return tuple(x / beat_unit_length for x in onsets)
 
 
