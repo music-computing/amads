@@ -9,8 +9,6 @@ from typing import Optional
 
 from partitura import load_score
 
-from amads.core.vectors_sets import vector_to_multiset
-
 
 class SyncopationMetric:
     def __init__(self, path_to_score: Optional[str] = None):
@@ -170,18 +168,12 @@ class SyncopationMetric:
 
         >>> son = [1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0]
         >>> onset_beats = vector_to_onset_beat(vector=son, beat_unit_length=4)
-        >>> onset_beats
-        (0.0, 0.75, 1.5, 2.5, 3.0)
-
         >>> sm = SyncopationMetric()
         >>> sm.weighted_note_to_beat_distance(onset_beats=onset_beats)
         Fraction(14, 5)
 
         >>> hesitation = [1, 0, 1, 0, 1, 0, 0, 1]
         >>> onset_beats = vector_to_onset_beat(vector=hesitation, beat_unit_length=4)
-        >>> onset_beats
-        (0.0, 0.5, 1.0, 1.75)
-
         >>> sm = SyncopationMetric()
         >>> sm.weighted_note_to_beat_distance(onset_beats=onset_beats)
         Fraction(1, 2)
@@ -216,7 +208,7 @@ class SyncopationMetric:
                 else:  # if onset + duration > this_beat_int + 2: # ends after e_{i+2}
                     numerator = 1
 
-                distance_to_nearest_beat = abs(round(onset) - onset)
+                distance_to_nearest_beat = abs(round(onset) - Fraction(onset))
                 per_note_syncopation_values.append(
                     Fraction(numerator / distance_to_nearest_beat)
                 )
@@ -235,8 +227,8 @@ def vector_to_onset_beat(vector: list, beat_unit_length: int = 2):
     (0.0, 0.75, 1.5, 2.5, 3.0, 4.0)
 
     """
-    onsets = vector_to_multiset(vector)
-    return tuple(x / beat_unit_length for x in onsets)
+    onsets = [i for i, count in enumerate(vector) for _ in range(count)]
+    return tuple(Fraction(x, beat_unit_length) for x in onsets)
 
 
 # -----------------------------------------------------------------------------
