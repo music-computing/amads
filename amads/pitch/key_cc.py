@@ -36,7 +36,7 @@ from ..core.basics import Score
 from .pcdist1 import pcdist1
 
 
-def kkcc(
+def key_cc(
     score: Score,
     profile: prof._KeyProfile,
     attribute_names: List[str],
