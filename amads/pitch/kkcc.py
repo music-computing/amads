@@ -2,7 +2,7 @@
 This is a wrapper for key_cc to mimic the functionality of kkcc from
 miditoolbox for convenience.
 
-Author:
+Author(s):
 Tai Nakamura
 Di Wang (diwang2)
 
@@ -24,9 +24,9 @@ def kkcc(score: Score, profile_name: str = "KRUMHANSL-KESSLER") -> Tuple[float]:
     from miditoolbox.
     Namely:
     (1) Provides 3 string options for profile names
-    (2) corresponds each string otpion to a relevant profile and attribute
+    (2) corresponds each string option to a relevant profile and attribute
     name list combination for key_cc that replicates the behavior of
-    the relevant kkcc function call
+    the relevant kkcc function call.
 
     Parameters
     ----------
@@ -40,7 +40,7 @@ def kkcc(score: Score, profile_name: str = "KRUMHANSL-KESSLER") -> Tuple[float]:
     This denotes the 12 major correlation coefficients and 12 minor correlation
     coefficients from C to B in both major and minor keys, respectively.
     """
-    # default is krumhansl kessler, so that's what we're setting our initial values to
+    # default is krumhansl kessler, and is what profile_name is set to by default
     profile = None
     attribute_list = None
     if profile_name == "KRUMHANSL-KESSLER":
@@ -58,6 +58,7 @@ def kkcc(score: Score, profile_name: str = "KRUMHANSL-KESSLER") -> Tuple[float]:
     # these checks are paranoia mainly to prevent future changes
     # from breaking the code after
     assert not (profile is None or attribute_list is None)
+    assert isinstance(profile, profiles._KeyProfile)
     assert len(attribute_list) == 2
 
     corrcoef_pairs = key_cc(score, profile, attribute_list)
