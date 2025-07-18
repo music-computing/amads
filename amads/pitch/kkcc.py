@@ -1,0 +1,77 @@
+"""
+This is a wrapper for key_cc to mimic the functionality of kkcc from
+miditoolbox for convenience.
+
+Author:
+Tai Nakamura
+Di Wang (diwang2)
+
+Original Doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=68
+"""
+
+import itertools
+from typing import Tuple
+
+import key.profiles as profiles
+from key_cc import key_cc
+
+from .core.basics import Score
+
+
+def kkcc(score: Score, profile_name: str = "KRUMHANSL-KESSLER") -> Tuple[float]:
+    """
+    kkcc wrapper on key_cc that provides the exact behavior of kkcc
+    from miditoolbox.
+    Namely:
+    (1) Provides 3 string options for profile names
+    (2) corresponds each string otpion to a relevant profile and attribute
+    name list combination for key_cc that replicates the behavior of
+    the relevant kkcc function call
+
+    Parameters
+    ----------
+    score (Score): The musical score to analyze.
+    profile_name (str): string argument denoting the relevant miditoolbox
+    string option for kkcc
+
+    Returns
+    -------
+    24-tuple of floats
+    This denotes the 12 major correlation coefficients and 12 minor correlation
+    coefficients from C to B in both major and minor keys, respectively.
+    """
+    # default is krumhansl kessler, so that's what we're setting our initial values to
+    profile = None
+    attribute_list = None
+    if profile_name == "KRUMHANSL-KESSLER":
+        profile = profiles.krumhansl_kessler
+        attribute_list = ["major", "minor"]
+    elif profile_name == "TEMPERLEY":
+        profile = profiles.temperley
+        attribute_list = ["major", "minor"]
+    elif profile_name == "ALBRECHT-SHANAHAN":
+        profile = profiles.albrecht_shanahan
+        attribute_list = ["major", "minor"]
+    else:
+        raise ValueError(f'profile_name = "{profile_name}" is not valid')
+
+    # these checks are paranoia mainly to prevent future changes
+    # from breaking the code after
+    assert not (profile is None or attribute_list is None)
+    assert len(attribute_list) == 2
+
+    corrcoef_pairs = key_cc(score, profile, attribute_list)
+    # check integrity of corrcoef correspondences and whether or not they abide
+    # to the output agreed on in key_cc
+    assert len(corrcoef_pairs) == len(attribute_list)
+    assert all(
+        attr_name == target_attr and len(coefs) == 12
+        for ((attr_name, coefs), target_attr) in zip(corrcoef_pairs, attribute_list)
+    )
+
+    # pattern match, then collect individual coefficients into
+    # a single tuple to get our final corrcoefs
+    nested_coefs = [coefs for (_, coefs) in corrcoef_pairs]
+    corrcoefs = tuple(itertools.chain.from_iterable(nested_coefs))
+
+    return corrcoefs
