@@ -70,6 +70,34 @@ class WorldSample16(_MeterProfile):
 
 
 @dataclass
+class WorldSample12(_MeterProfile):
+    name: str = (
+        "A sample of rhythms from around the world, as: "
+        "1) encoded in binary (1/0), "
+        "2) on a 12 element grid, and "
+        "3) used in several studies"
+    )
+    literature: str = (
+        "Among the literature to use these values is Gomez, Melvin, Rappaport, Toussaint (2005). "
+        "Proceedings of the BRIDGES: Mathematical Connections in Art, Music and Science."
+    )
+    about: str = (
+        "This serves to compare function definitions here in AMADS with previous papers."
+    )
+
+    soli = (1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1)
+    tambú = (1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1)
+    bembé = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)
+    bembé_2 = (1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0)
+    yoruba = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0)
+    tonada = (1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0)
+    asaadua = (1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0)
+    sorsonet = (1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0)
+    bemba = (1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0)
+    ashanti = (1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0)
+
+
+@dataclass
 class BPSD(_MeterProfile):
     name: str = "Beethoven piano sonata dataset"
     literature: str = (
