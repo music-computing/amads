@@ -67,16 +67,12 @@ def key_cc(
                 continue
             
             # Convert to numpy array or handle special cases
-            # Check if attr_value is a tuple of tuples(QuinnWhite)
+            # Check if attr_value is a tuple of tuples(non-transpositionally equivalent)
             if isinstance(attr_value, tuple) and len(attr_value) > 0 and isinstance(attr_value[0], tuple):
-                # Handle QuinnWhite asymmetric profiles (tuple of tuples)
-                if profile.name == "QuinnWhite" and attr_name.endswith("_assym"):
-                    profile_matrix = _handle_quinn_white_asymmetric(attr_value)
-                    correlations = _compute_correlations(pcd, profile_matrix)
-                    results.append((attr_name, correlations))
-                else:
-                    print(f"Warning: Nested tuple structure not supported for '{attr_name}' in profile '{profile.name}'")
-                    results.append((attr_name, None))
+                # Handle asymmetric profiles (tuple of tuples)
+                profile_matrix = _handle_asymmetric(attr_value)
+                correlations = _compute_correlations(pcd, profile_matrix)
+                results.append((attr_name, correlations))
                 continue
             
             attr_array = np.array(attr_value)
@@ -125,30 +121,41 @@ def _create_transposed_matrix(profile: np.ndarray) -> np.ndarray:
     return profile_matrix
 
 
-def _handle_quinn_white_asymmetric(attr_value) -> np.ndarray:
+def _handle_asymmetric(attr_value) -> np.ndarray:
     """
-    Handle QuinnWhite asymmetric profiles (major_assym, minor_assym).
+    Handle asymmetric profiles (e.g., QuinnWhite major_assym, minor_assym).
     
-    These profiles contain 12 separate key-specific profiles, one for each key.
+    These profiles contain separate key-specific profiles, one for each key.
+    (Not transpositionally equivalent)
     
     Parameters
     ----------
     attr_value : tuple of tuples
-        Nested tuple structure containing 12 key-specific profiles
+        Nested tuple structure containing key-specific profiles.
+        Expected structure: ((key0_profile), (key1_profile), ..., (key11_profile))
+        where each key_profile is a 12-element tuple/list.
         
     Returns
     -------
     np.ndarray
         12x12 matrix where each row is a key-specific profile
     """
-    # Convert tuple of tuples to numpy array
-    profile_matrix = np.array(attr_value)
-    
-    # Verify shape
-    if profile_matrix.shape != (12, 12):
-        raise ValueError(f"Expected shape (12, 12) for Quinn-White asymmetric profile, got {profile_matrix.shape}")
-    
-    return profile_matrix
+    try:
+        # Convert tuple of tuples to numpy array
+        profile_matrix = np.array(attr_value)
+        
+        # Verify it's a 2D array
+        if profile_matrix.ndim != 2:
+            raise ValueError(f"Expected 2D array from tuple of tuples, got {profile_matrix.ndim}D")
+        
+        # Verify each non-transpositional profile attribute has 12 pitch classes
+        if profile_matrix.shape[1] != 12:
+            raise ValueError(f"Each profile must have 12 pitch classes, got {profile_matrix.shape[1]}")
+        
+        return profile_matrix
+        
+    except Exception as e:
+        raise ValueError(f"Failed to process asymmetric profile: {e}")
 
 
 def _compute_correlations(pcd: np.ndarray, profile_matrix: np.ndarray) -> np.ndarray:
