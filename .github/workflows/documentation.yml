@@ -27,7 +27,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -e ".[dev, melsim]"
+          pip install -e ".[dev, melsim, examples]"
 
       - name: Sphinx build
         run: |
