@@ -1,5 +1,7 @@
 """
-Basic tests of the rhythmic/metrical profiles provided and two syncopation metrics (Keith and WNBD).
+Basic tests of rhythmic/metrical profiles and syncopation metrics
+exactly as reported in Figure 8 and 11 of
+Gomez et al. (the WNBD paper).
 """
 
 __author__ = "Mark Gotham"
@@ -13,7 +15,11 @@ from amads.time.rhythm import off_beatness, vector_to_onset_beat
 def test_profile_16():
     """
     Test the 16-unit rhythms against a beat pattern every 4th element
-    in any attempt to replicate the WNBD paper (which uses cut common time to notate all of these).
+    against the table "Figure 8: Binary rhythms" in Gomez et al. (the WNBD paper)
+
+    TODO attempt to resolve the divergences. Failing that:
+    We include all of this information as part of our mission to make prior work accessible:
+    readers navigating these papers should know about inconsistencies and errors.
     """
     for cycle, off_beat_metric, wnbd in [
         (
@@ -60,13 +66,9 @@ def test_profile_16():
 def test_profile_12():
     """
     Test the 12-unit cycle against a beat pattern every 3rd element
-    against the table "Figure 11: Ternary rhythms" in Gomez et al.
+    against the table "Figure 11: Ternary rhythms" in Gomez et al. (the WNBD paper)
 
-    Of the divergences at least some seem to be their error.
-    For instance, they note that Bembé has the maximum off-beatness value of 3.
-    This approach clearly _excludes_ onsets on position 1 (index 2),
-    yet in the two divergent test cases here, they clearly _include_ those onsets in the count.
-
+    TODO attempt to resolve the divergences. Failing that:
     We include all of this information as part of our mission to make prior work accessible:
     readers navigating these papers should know about inconsistencies and errors.
     """
