@@ -15,7 +15,7 @@ Where the function could be more widely applied, arguments are named accordingly
 
 __author__ = "Mark Gotham"
 
-from typing import Iterable, Union
+from typing import Iterable, Union, Optional
 
 
 def multiset_to_vector(
@@ -109,6 +109,37 @@ def vector_to_multiset(vector: tuple[int, ...]) -> tuple:
 
     """
     return tuple(i for i, count in enumerate(vector) for _ in range(count))
+
+
+def vector_to_set(vector: tuple[int, ...]) -> set:
+    """
+    Converts any "vector" (count of integers organised by index)
+    to a corresponding "set" of the distinct non-0 indices.
+    cf `vector_to_multiset`
+
+    Parameters
+    ----------
+    vector: The input vector.
+
+    Returns
+    -------
+    set: The corresponding set.
+
+    Examples
+    --------
+    >>> test_vector = (0, 3, 2, 1, 0, 0, 0)
+    >>> resulting_set = vector_to_set(test_vector)
+    >>> resulting_set
+    {1, 2, 3}
+    """
+    return set(vector_to_multiset(vector))
+    # TODO consider more direct route e.g.,
+    # proto_set = []
+    # for item in vector:
+    #     if item != 0:
+    #         proto_set.append(item)
+    # return set(proto_set)
+    #
 
 
 # Arithmetic operations: Addition/subtraction, multiplication, division
@@ -294,6 +325,8 @@ def is_set(input: Iterable) -> bool:
     a set (specified in the type) or
     a de facto set (not in type, but with no repeated elements).
 
+    Examples
+    --------
     >>> clear_set = {1, 2, 3}
     >>> is_set(clear_set)
     True
@@ -382,6 +415,175 @@ def complement(indicator_vector: tuple[int, ...]) -> tuple:
             "This is to be called only on binary tuples representing indicator vectors."
         )
     return tuple(1 - x for x in indicator_vector)
+
+
+def is_rotation_equivalent(vector_a: tuple, vector_b: tuple) -> bool:
+    """
+    Given two vectors, test for rotation equivalence.
+
+    Examples
+    --------
+    >>> is_rotation_equivalent((1, 0, 0), (0, 1, 0))
+    True
+
+    >>> is_rotation_equivalent((1, 0, 0), (1, 1, 0))
+    False
+    """
+    vector_length = len(vector_a)
+    if len(vector_b) != vector_length:
+        raise ValueError(f"The vectors msy be of the same length (currently {vector_length} and {len(vector_b)}.")
+
+    for steps in range(vector_length):
+        if vector_a == rotate(vector_b, steps):
+            return True
+
+    return False
+
+
+def rotation_distinct_patterns(indicator_vectors: tuple[tuple, ...]) -> tuple[tuple, ...]:
+    """
+    Given two or more vectors of the same length,
+    test rotation equivalence among them.
+    Return the list of rotation distinct pattens:
+    the returned patterns are not rotation equivalent to each other,
+    but all tested rhythms (in the argument) are rotation equivalent to at least one.
+
+    Examples
+    --------
+    Here are ten canonical 12-unit bell pattern rhythms:
+
+    >>> Soli = (2, 2, 2, 2, 1, 2, 1)
+    >>> Tambú = (2, 2, 2, 1, 2, 2, 1)
+    >>> Bembé = (2, 2, 1, 2, 2, 2, 1)
+    >>> Bembé_2 = (1, 2, 2, 1, 2, 2, 2)
+    >>> Yoruba = (2, 2, 1, 2, 2, 1, 2)
+    >>> Tonada = (2, 1, 2, 1, 2, 2, 2)
+    >>> Asaadua = (2, 2, 2, 1, 2, 1, 2)
+    >>> Sorsonet = (1, 1, 2, 2, 2, 2, 2)
+    >>> Bemba = (2, 1, 2, 2, 2, 1, 2)
+    >>> Ashanti = (2, 1, 2, 2, 1, 2, 2)
+    >>> ten_tuples = (Asaadua, Ashanti, Bemba, Bembé, Bembé_2, Soli, Sorsonet, Tambú, Tonada, Yoruba)
+
+    Collectively, they have 3 distinct patterns.
+
+    >>> len(rotation_distinct_patterns(ten_tuples))
+    3
+
+    """
+    return_values = [indicator_vectors[0]]  # At least one
+    for index in range(1, len(indicator_vectors)):
+        for prototype in return_values:
+            if is_rotation_equivalent(prototype, indicator_vectors[index]):
+                return_values.append(indicator_vectors[index])
+                break
+
+    return tuple(return_values)
+
+
+def indices_to_interval(
+        vector: Union[list[int], tuple[int, ...]],
+        wrap: bool = True
+) -> tuple:
+    """
+    Given a vector (assumed to be indicator)
+    convert from 1/0 at each index to the intervals between the 1s.
+
+    Examples
+    --------
+    >>> bembé = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)
+    >>> indices_to_interval(bembé)
+    (2, 2, 1, 2, 2, 2, 1)
+
+    """
+    if wrap:
+        vector = list(vector)
+        vector.append(vector[0])
+    set_as_list = list(vector_to_set(vector))
+    set_as_list.sort()
+    return tuple([set_as_list[i + 1] - set_as_list[i] for i in range(len(set_as_list) - 1)])
+
+
+def saturated_subsequence_repetition(
+        sequence: Union[list[int], tuple[int, ...]],
+        all_rotations: bool = True,
+        subsequence_period: Optional[int] = None
+):
+    """
+    Check if a sequence contains a repeated subsequence such that
+    the subsequence saturates the whole (no sequence items "left over").
+    This is broadly equivalent to a "periodic sequence", with the additional constraint of saturatation.
+
+    This property is a wrapper for an abstraction provided at `vectors_sets.saturated_sublist_repetition`
+
+    Parameters
+    ----------
+    sequence: A vector for event positions in the cycle time span.
+    all_rotations: If True, check all rotations of the sequence.
+    subsequence_period: If specified, check only that period length. Otherwise check all factors of n.
+
+    Returns
+    -------
+    If there is a repeated sub-rhythm, that is returned (the first, longest one found). None otherwise.
+
+    Examples
+    --------
+
+    >>> test_sequence = [1, 2, 1, 2, 1, 2, 1, 2]
+
+    All rotations, all subsequence lengths:
+
+    >>> saturated_subsequence_repetition(test_sequence, all_rotations=True)
+    [[1, 2], [2, 1], [1, 2, 1, 2], [2, 1, 2, 1]]
+
+    No rotations, all subsequence lengths:
+
+    >>> saturated_subsequence_repetition(test_sequence, all_rotations=False)
+    [[1, 2], [1, 2, 1, 2]]
+
+    All rotations, subsequence length fixed at 2:
+
+    >>> saturated_subsequence_repetition(test_sequence, subsequence_period=2, all_rotations=True)
+    [[1, 2], [2, 1]]
+
+    All rotations, subsequence length fixed at 4:
+
+    >>> saturated_subsequence_repetition(test_sequence, subsequence_period=4, all_rotations=True)
+    [[1, 2, 1, 2], [2, 1, 2, 1]]
+
+    No rotations, subsequence length fixed at 2:
+    >>> saturated_subsequence_repetition(test_sequence, subsequence_period=2, all_rotations=False)
+    [[1, 2]]
+
+    No rotations, subsequence length fixed at 4:
+    >>> saturated_subsequence_repetition(test_sequence, subsequence_period=4, all_rotations=False)
+    [[1, 2, 1, 2]]
+
+    """
+    subsequence_periods = []
+    subsequences = []
+
+    if subsequence_period is None:
+        for length in range(1, len(sequence) // 2 + 1):
+            if len(sequence) % length == 0: # Valid divisor
+                subsequence_periods.append(length)
+    else:
+        subsequence_periods = [subsequence_period]
+
+    for period in subsequence_periods:
+        subsequence = sequence[:period]
+        if subsequence not in subsequences:
+            if all(sequence[i:i + period] == subsequence for i in range(0, len(sequence), period)):
+                subsequences.append(subsequence)
+
+        if all_rotations:
+            for i in range(1, period):  # sic, from 1 (0 is done) and only up to the length of the subsequence
+                this_sequence = rotate(sequence, i)
+                subsequence = this_sequence[:period]
+                if subsequence not in subsequences:
+                    if all(this_sequence[i:i + period] == subsequence for i in range(0, len(this_sequence), period)):
+                        subsequences.append(subsequence)
+
+    return subsequences
 
 
 # ------------------------------------------------------------------------
