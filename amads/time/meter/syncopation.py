@@ -31,10 +31,15 @@ class SyncopationMetric:
             None  # TODO. TBC. May be redundant / better handled on a per-metric basis.
         )
 
-    def score_to_note_array(self):
+    def load_note_array_from_score(self):
         """
         Parse a score and return Partitura's `.note_array()` with `include_metrical_position=True`.
         This should cover the required information.
+        The note array's fields includes several fields of which methods here use the following (in their words):
+            * 'onset_beat': onset time of the note in beats
+            * 'duration_beat': duration of the note in beats
+        These values are called in the form `note_array["onset_beat"]`.
+
         """
         if self.note_array is not None:
             print("already retrieved, skipping")
@@ -105,7 +110,7 @@ class SyncopationMetric:
 
         else:  # seek a score on the class
             if self.path_to_score is not None:
-                self.score_to_note_array()
+                self.load_note_array_from_score()
                 onset_beats = [x["onset_beat"] for x in self.note_array]
                 duration_beats = [x["duration_beat"] for x in self.note_array]
                 end_beats = [
@@ -115,9 +120,8 @@ class SyncopationMetric:
             else:
                 raise ValueError("No score or user values provided.")
 
-        per_note_syncopation_values = (
-            []
-        )  # TODO. Currently, in case we want to report on the sequence, not just the sum
+        per_note_syncopation_values = []
+        # TODO. Currently, in case we want to report on the sequence, not just the sum
 
         for i in range(len(onset_beats)):
             start = onset_beats[i]
@@ -183,7 +187,7 @@ class SyncopationMetric:
             onset_beats is None
         ):  # Required for user-provided, if not seek a score on the class
             if self.path_to_score is not None:
-                self.score_to_note_array()
+                self.load_note_array_from_score()
                 onset_beats = [x["onset_beat"] for x in self.note_array]
                 # TODO revisit class handling of this retrieval when more algos are in
             else:
