@@ -47,18 +47,17 @@ class _MeterProfile:
 
 @dataclass
 class WorldSample16(_MeterProfile):
-    name: str = (
-        "A sample of rhythms from around the world, as: "
-        "1) encoded in binary (1/0),"
-        "2) on a 16 element grid, and"
-        "3) used in several studies."
-    )
+    name: str = "WorldSample16"
     literature: str = (
         "Among the literature to use these values is Gomez, Melvin, Rappaport, Toussaint (2005). "
         "Proceedings of the BRIDGES: Mathematical Connections in Art, Music and Science."
     )
     about: str = (
-        "This serves to compare function definitions here in AMADS with previous papers."
+        "A sample of rhythms from around the world, as: "
+        "1) encoded in binary (1/0),"
+        "2) on a 16 element grid, and"
+        "3) used in several studies."
+        "Currently, these rhythms are all 5-events on a 16-unit grid."
     )
 
     shiko = (1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0)
@@ -71,18 +70,17 @@ class WorldSample16(_MeterProfile):
 
 @dataclass
 class WorldSample12(_MeterProfile):
-    name: str = (
-        "A sample of rhythms from around the world, as: "
-        "1) encoded in binary (1/0), "
-        "2) on a 12 element grid, and "
-        "3) used in several studies"
-    )
+    name: str = "WorldSample12"
     literature: str = (
         "Among the literature to use these values is Gomez, Melvin, Rappaport, Toussaint (2005). "
         "Proceedings of the BRIDGES: Mathematical Connections in Art, Music and Science."
     )
     about: str = (
-        "This serves to compare function definitions here in AMADS with previous papers."
+        "A sample of rhythms from around the world, as: "
+        "1) encoded in binary (1/0), "
+        "2) on a 12 element grid, and "
+        "3) used in several studies. "
+        "Currently, these rhythms are all 7-events on a 12-unit grid."
     )
 
     soli = (1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1)
