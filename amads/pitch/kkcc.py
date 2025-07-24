@@ -9,7 +9,7 @@ Di Wang (diwang2)
 Original Doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=68
 """
 
-import itertools
+from itertools import chain
 from typing import Tuple
 
 import key.profiles as profiles
@@ -37,8 +37,8 @@ def kkcc(score: Score, profile_name: str = "KRUMHANSL-KESSLER") -> Tuple[float]:
     Returns
     -------
     24-tuple of floats
-    This denotes the 12 major correlation coefficients and 12 minor correlation
-    coefficients from C to B in both major and minor keys, respectively.
+        This denotes the 12 major correlation coefficients and 12 minor correlation
+        coefficients from C to B in both major and minor keys, respectively.
     """
     # default is krumhansl kessler, and is what profile_name is set to by default
     profile = None
@@ -72,7 +72,7 @@ def kkcc(score: Score, profile_name: str = "KRUMHANSL-KESSLER") -> Tuple[float]:
 
     # pattern match, then collect individual coefficients into
     # a single tuple to get our final corrcoefs
-    nested_coefs = [coefs for (_, coefs) in corrcoef_pairs]
-    corrcoefs = tuple(itertools.chain.from_iterable(nested_coefs))
+    nested_coefs_iter = (coefs for (_, coefs) in corrcoef_pairs)
+    corrcoefs = tuple(chain.from_iterable(nested_coefs_iter))
 
     return corrcoefs

@@ -34,6 +34,7 @@ def max_key_cc(
     Returns
     -------
     float
+        the maximum correlation value computed in key_cc
     """
     corrcoef_pairs = key_cc(score, profile, attribute_names, salience_flag)
     # I'm too lazy to write my own for loop
