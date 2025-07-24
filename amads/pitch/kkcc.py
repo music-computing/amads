@@ -12,10 +12,10 @@ Original Doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e0
 from itertools import chain
 from typing import Tuple
 
-import key.profiles as profiles
-from key_cc import key_cc
+from .key import profiles as profiles
+from .key_cc import key_cc
 
-from .core.basics import Score
+from ..core.basics import Score
 
 
 def kkcc(score: Score, profile_name: str = "KRUMHANSL-KESSLER") -> Tuple[float]:
