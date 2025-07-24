@@ -18,12 +18,12 @@ from ..core.basics import (
     Measure,
     Note,
     Part,
-    Pitch,
     Rest,
     Score,
     Staff,
     TimeSignature,
 )
+from ..core.pitch import Pitch
 
 
 def rectify_time_to_score(score: Score, timeval: int, timetype: str) -> int:

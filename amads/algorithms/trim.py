@@ -1,6 +1,5 @@
-from shift import shift
-
 from ..core.basics import Score
+from .shift import shift
 
 # TODO: comments!
 
