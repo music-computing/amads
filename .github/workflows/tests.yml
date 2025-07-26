@@ -40,7 +40,7 @@ jobs:
         python -c "from amads.ci import run_main_tests; run_main_tests()"
 
     - name: Upload coverage to Codecov
-      if: matrix.python-version == '3.11'
+      if: success() && matrix.python-version == '3.11'
       uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
@@ -70,6 +70,7 @@ jobs:
         python -c "from amads.ci import run_ci_group_tests; run_ci_group_tests('tests_melsim')"
 
     - name: Upload coverage to Codecov
+      if: success()
       uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
