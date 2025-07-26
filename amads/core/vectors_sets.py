@@ -15,7 +15,7 @@ Where the function could be more widely applied, arguments are named accordingly
 
 __author__ = "Mark Gotham"
 
-from typing import Iterable, Union, Optional
+from typing import Iterable, Optional, Union
 
 
 def multiset_to_vector(
@@ -431,7 +431,9 @@ def is_rotation_equivalent(vector_a: tuple, vector_b: tuple) -> bool:
     """
     vector_length = len(vector_a)
     if len(vector_b) != vector_length:
-        raise ValueError(f"The vectors msy be of the same length (currently {vector_length} and {len(vector_b)}.")
+        raise ValueError(
+            f"The vectors msy be of the same length (currently {vector_length} and {len(vector_b)}."
+        )
 
     for steps in range(vector_length):
         if vector_a == rotate(vector_b, steps):
@@ -440,7 +442,9 @@ def is_rotation_equivalent(vector_a: tuple, vector_b: tuple) -> bool:
     return False
 
 
-def rotation_distinct_patterns(indicator_vectors: tuple[tuple, ...]) -> tuple[tuple, ...]:
+def rotation_distinct_patterns(
+    indicator_vectors: tuple[tuple, ...]
+) -> tuple[tuple, ...]:
     """
     Given two or more vectors of the same length,
     test rotation equivalence among them.
@@ -481,8 +485,7 @@ def rotation_distinct_patterns(indicator_vectors: tuple[tuple, ...]) -> tuple[tu
 
 
 def indices_to_interval(
-        vector: Union[list[int], tuple[int, ...]],
-        wrap: bool = True
+    vector: Union[list[int], tuple[int, ...]], wrap: bool = True
 ) -> tuple:
     """
     Given a vector (assumed to be indicator)
@@ -500,13 +503,15 @@ def indices_to_interval(
         vector.append(vector[0])
     set_as_list = list(vector_to_set(vector))
     set_as_list.sort()
-    return tuple([set_as_list[i + 1] - set_as_list[i] for i in range(len(set_as_list) - 1)])
+    return tuple(
+        [set_as_list[i + 1] - set_as_list[i] for i in range(len(set_as_list) - 1)]
+    )
 
 
 def saturated_subsequence_repetition(
-        sequence: Union[list[int], tuple[int, ...]],
-        all_rotations: bool = True,
-        subsequence_period: Optional[int] = None
+    sequence: Union[list[int], tuple[int, ...]],
+    all_rotations: bool = True,
+    subsequence_period: Optional[int] = None,
 ):
     """
     Check if a sequence contains a repeated subsequence such that
@@ -564,7 +569,7 @@ def saturated_subsequence_repetition(
 
     if subsequence_period is None:
         for length in range(1, len(sequence) // 2 + 1):
-            if len(sequence) % length == 0: # Valid divisor
+            if len(sequence) % length == 0:  # Valid divisor
                 subsequence_periods.append(length)
     else:
         subsequence_periods = [subsequence_period]
@@ -572,15 +577,23 @@ def saturated_subsequence_repetition(
     for period in subsequence_periods:
         subsequence = sequence[:period]
         if subsequence not in subsequences:
-            if all(sequence[i:i + period] == subsequence for i in range(0, len(sequence), period)):
+            if all(
+                sequence[i : i + period] == subsequence
+                for i in range(0, len(sequence), period)
+            ):
                 subsequences.append(subsequence)
 
         if all_rotations:
-            for i in range(1, period):  # sic, from 1 (0 is done) and only up to the length of the subsequence
+            for i in range(
+                1, period
+            ):  # sic, from 1 (0 is done) and only up to the length of the subsequence
                 this_sequence = rotate(sequence, i)
                 subsequence = this_sequence[:period]
                 if subsequence not in subsequences:
-                    if all(this_sequence[i:i + period] == subsequence for i in range(0, len(this_sequence), period)):
+                    if all(
+                        this_sequence[i : i + period] == subsequence
+                        for i in range(0, len(this_sequence), period)
+                    ):
                         subsequences.append(subsequence)
 
     return subsequences

@@ -39,7 +39,7 @@ def update_dd(
     Args:
         dd (List[List[float]]): The duration distribution matrix to be updated.
         bin_boundaries (Union[None, List[float]]): The boundaries of the bins
-            or None to use default bins.
+        or None to use default bins.
         prev_bin (int): The previous bin index.
         note (Note): The note to be processed.
 
