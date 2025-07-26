@@ -82,9 +82,10 @@ Time
 
    amads.time.durdist1
    amads.time.durdist2
-   amads.time.npvi
+   amads.time.notedensity
    amads.time.swing
    amads.time.tempo
+   amads.time.variability
    amads.time.meter.break_it_up
 
 Harmony
@@ -94,7 +95,7 @@ Harmony
    :toctree: _autosummary
    :caption: Harmony:
 
-   amads.harmony.root_finding.parncutt_1988
+   amads.harmony.root_finding.parncutt
 
 Melody
 ------
