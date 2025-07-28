@@ -12,10 +12,9 @@ Original Doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e0
 from itertools import chain
 from typing import Tuple
 
+from ..core.basics import Score
 from .key import profiles as profiles
 from .key_cc import key_cc
-
-from ..core.basics import Score
 
 
 def kkcc(score: Score, profile_name: str = "KRUMHANSL-KESSLER") -> Tuple[float]:
@@ -40,6 +39,8 @@ def kkcc(score: Score, profile_name: str = "KRUMHANSL-KESSLER") -> Tuple[float]:
         This denotes the 12 major correlation coefficients and 12 minor correlation
         coefficients from C to B in both major and minor keys, respectively.
     """
+    if not isinstance(score, Score):
+        raise ValueError("invalid score type!")
     # default is krumhansl kessler, and is what profile_name is set to by default
     profile = None
     attribute_list = None
