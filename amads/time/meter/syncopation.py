@@ -182,13 +182,20 @@ class SyncopationMetric:
         >>> sm.weighted_note_to_beat_distance(onset_beats=onset_beats)
         Fraction(1, 2)
 
+        >>> sm = SyncopationMetric(path_to_score="../../music/musicxml/ex1.xml")
+        >>> sm.weighted_note_to_beat_distance()
+        Fraction(4, 3)
+
         """
         if (
             onset_beats is None
         ):  # Required for user-provided, if not seek a score on the class
             if self.path_to_score is not None:
                 self.load_note_array_from_score()
-                onset_beats = [x["onset_beat"] for x in self.note_array]
+                onset_beats = [
+                    Fraction(float(x["onset_beat"])) for x in self.note_array
+                ]
+                # Sic, Fraction via first: Partitura uses np.float32 and Fractions do not accept that type.
                 # TODO revisit class handling of this retrieval when more algos are in
             else:
                 raise ValueError("No score or user values provided.")
@@ -212,9 +219,11 @@ class SyncopationMetric:
                 else:  # if onset + duration > this_beat_int + 2: # ends after e_{i+2}
                     numerator = 1
 
-                distance_to_nearest_beat = abs(round(onset) - Fraction(onset))
+                distance_to_nearest_beat = abs(
+                    round(onset) - Fraction(onset)
+                )  # Fraction
                 per_note_syncopation_values.append(
-                    Fraction(numerator / distance_to_nearest_beat)
+                    Fraction(numerator, distance_to_nearest_beat)
                 )
 
         return sum(per_note_syncopation_values) / (len(per_note_syncopation_values) + 1)
@@ -228,7 +237,7 @@ def vector_to_onset_beat(vector: list, beat_unit_length: int = 2):
     --------
     >>> son = [1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1]  # Final 1 for cycle rotation
     >>> vector_to_onset_beat(vector=son, beat_unit_length=4) # NB different beat value
-    (0.0, 0.75, 1.5, 2.5, 3.0, 4.0)
+    (Fraction(0, 1), Fraction(3, 4), Fraction(3, 2), Fraction(5, 2), Fraction(3, 1), Fraction(4, 1))
 
     """
     onsets = [i for i, count in enumerate(vector) for _ in range(count)]
