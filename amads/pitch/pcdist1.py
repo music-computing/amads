@@ -35,6 +35,7 @@ def pcdist1(score: Score, weighted: bool = True) -> list[float]:
     else:  # count tied notes as single notes
         score = score.merge_tied_notes()
         for note in score.find_all(Note):
+            pc = note.pitch_class
             pcd[pc] += 1
     total = sum(pcd)
     if total > 0:
