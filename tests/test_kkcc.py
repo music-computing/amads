@@ -33,9 +33,7 @@ def test_empty_melody():
 def test_equal_prob_melody():
     """
     Equal prob melody containing 1 of each pitch.
-    Without salience this should return 12 coefficients
-    as equivalent for the 2 sets of 12 consecutive coefficients for
-    3 profiles of kkcc
+    Without salience this should return 24 NANs since variance is 0
     """
     pitches_in = list(range(56, 68))
     durations_in = [0.5] * len(pitches_in)
@@ -47,9 +45,8 @@ def test_equal_prob_melody():
 
 def test_crafted_nonempty_melody():
     """
-    These melodies are here to test the various codepaths
-    and are specific to the implementation itself...
-    I probably need some help with tests...
+    This is a sanity check nonempty crafted melody (so far)...
+    I probably need some help with these tests...
     """
     print("Warning! Test not implemented!")
     pitches_in = list(range(56, 68)) + list(range(56, 68, 2))
@@ -82,6 +79,9 @@ def test_crafted_nonempty_melody():
         0.007936807483930997,
         -0.007936807483930969,
     )
-    assert coefs == desired_coefs
+    assert all(
+        math.isclose(coef, desired_coef, rel_tol=1e-15)
+        for coef, desired_coef in zip(coefs, desired_coefs)
+    )
 
     return
