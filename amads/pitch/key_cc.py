@@ -10,21 +10,6 @@ Description:
 Usage:
     [Add basic usage examples or import statements]
 Original doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=68
-Reference(s):
-    Albrecht, J., & Shanahan, D. (2013). The Use of Large Corpora to
-        Train a New Type of Key-Finding Algorithm. Music Perception: An
-        Interdisciplinary Journal, 31(1), 59-67.
-
-    Krumhansl, C. L. (1990). Cognitive Foundations of Musical Pitch.
-        New York: Oxford University Press.
-
-    Huron, D., & Parncutt, R. (1993). An improved model of tonality
-        perception incorporating pitch salience and echoic memory.
-        Psychomusicology, 12, 152-169.
-
-    Temperley, D. (1999). What's key for key? The Krumhansl-Schmuckler
-        key-finding algorithm reconsidered. Music Perception: An Interdisciplinary
-        Journal, 17(1), 65-100.
 """
 
 from collections import deque
@@ -55,6 +40,10 @@ def key_cc(
             salm[i] = sal
             sal.rotate(1)
         pcd = np.matmul(pcd, salm)  # shape (1, 12)
+    
+    if np.all(pcd == 0):
+        #if the pitch-class distribution is all zeros, return None for each attribute
+        return[(attr_name, None) for attr_name in attribute_names]
 
     results = []
 
