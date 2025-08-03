@@ -242,56 +242,117 @@ def rotation_distinct_patterns(vector_patterns: tuple[tuple, ...]) -> tuple[tupl
     return tuple(return_values)
 
 
+def indicator_to_indices(
+    vector: Union[list[int], tuple[int, ...]], wrap: bool = False
+) -> tuple:
+    """
+    Simple mapping from an indicator vector for where events fall,
+    to a tuple of the corresponding indices.
+
+    Examples
+    --------
+    >>> bembé = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1) # adjacent only
+    >>> indicator_to_indices(bembé)
+    (0, 2, 4, 5, 7, 9, 11)
+
+    >>> indicator_to_indices(bembé, wrap=True)
+    (0, 2, 4, 5, 7, 9, 11, 12)
+
+    >>> shiko = (1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0) # adjacent only
+    >>> indicator_to_indices(shiko)
+    (0, 4, 6, 10, 12)
+
+    >>> indicator_to_indices(shiko, wrap=True)
+    (0, 4, 6, 10, 12, 16)
+
+    """
+    if wrap:
+        vector += (vector[0],)
+
+    set_as_list = list(vector_to_set(vector))
+    set_as_list.sort()
+    return tuple(set_as_list)
+
+
 def indices_to_interval(
     vector: Union[list[int], tuple[int, ...]],
     wrap: bool = True,
     adjacent_not_all: bool = True,
+    sequence_not_vector: bool = True,
 ) -> tuple:
     """
     Given a vector (assumed to be indicator)
     convert from 1/0 at each index to the intervals between the 1s.
 
+    Parameters
+    ----------
+    vector: an indicator vector for position usage.
+    wrap: wrap the cycle, duplicating the first element at the end to include that interval.
+    adjacent_not_all: intervals between pais of adjacent elements in the sequencs or between all pairs.
+    sequence_not_vector:
+        In the case of adjacent intervals, express the result as an interval sequence,
+        or as an interval vector.
+        (No such option in the ase of all intervals: hat must be a vector).
+
     Examples
     --------
-    >>> bembé = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1) # adjacent only
+
+    Example 1:
+    >>> bembé = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)
+
+     Adjacent intervals expressed as a sequence:
     >>> indices_to_interval(bembé)
     (2, 2, 1, 2, 2, 2, 1)
 
-    >>> indices_to_interval(bembé, adjacent_not_all=False) # all distances
+    Adjacent intervals expressed as an interval vector:
+    >>> indices_to_interval(bembé, sequence_not_vector=False)
+    (2, 5, 0, 0, 0, 0)
+
+    All distances (not just the adjacent pairs), which is necessarily expressed as an interval vector:
+    >>> indices_to_interval(bembé, adjacent_not_all=False)
     (2, 5, 4, 3, 6, 1)
 
-    >>> shiko = (1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0) # adjacent only
+    Example 2:
+    >>> shiko = (1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0)
+
+    Adjacent intervals expressed as a sequence:
     >>> indices_to_interval(shiko)
     (4, 2, 4, 2, 4)
 
-    >>> indices_to_interval(shiko, adjacent_not_all=False) # all distances
+    Adjacent intervals expressed as an interval vector:
+    >>> indices_to_interval(shiko, sequence_not_vector=False)
+    (0, 2, 0, 3, 0, 0, 0, 0)
+
+    All distances (not just the adjacent pairs), which is necessarily expressed as an interval vector:
+    >>> indices_to_interval(shiko, adjacent_not_all=False)
     (0, 2, 0, 3, 0, 4, 0, 1)
 
     """
     if adjacent_not_all and wrap:
-        vector = list(vector)
-        vector.append(vector[0])
+        vector += (vector[0],)  # TODO DRY
 
-    set_as_list = list(vector_to_set(vector))
-    set_as_list.sort()
+    indices = indicator_to_indices(vector)
 
     if adjacent_not_all:
-        return tuple(
-            [set_as_list[i + 1] - set_as_list[i] for i in range(len(set_as_list) - 1)]
-        )
+        sequence = tuple([indices[i + 1] - indices[i] for i in range(len(indices) - 1)])
+        if sequence_not_vector:
+            return sequence
+        else:
+            ics = sequence
     else:  # all
-        vector_length = len(vector)
-        half_vector_length = int(vector_length / 2)
-        non_adjacent_interval_vector = [0] * half_vector_length
+        ics = [p[1] - p[0] for p in combinations(indices, 2)]
 
-        for p in combinations(set_as_list, 2):
-            ic = p[1] - p[0]
-            if ic < 0:
-                ic *= -1
-            if ic > half_vector_length:
-                ic = vector_length - ic
-            non_adjacent_interval_vector[ic - 1] += 1
-        return tuple(non_adjacent_interval_vector)
+    vector_length = len(vector)
+    half_vector_length = int(vector_length / 2)
+    interval_vector = [0] * half_vector_length
+
+    for ic in ics:
+        if ic < 0:
+            ic *= -1
+        if ic > half_vector_length:
+            ic = vector_length - ic
+        interval_vector[ic - 1] += 1
+    return tuple(interval_vector)
 
 
 def saturated_subsequence_repetition(
