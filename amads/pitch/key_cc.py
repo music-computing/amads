@@ -12,6 +12,7 @@ Usage:
 Original doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=68
 """
 
+import math
 from collections import deque
 from typing import List, Optional, Tuple
 
@@ -29,6 +30,8 @@ def key_cc(
     salience_flag: bool = False,
 ) -> List[Tuple[str, Optional[Tuple[float]]]]:
     # TODO: comments for key_cc
+    # To Tai: Please finish the function docstring here...
+
     # Get pitch-class distribution
     pcd = np.array([pcdist1(score, False)])
 
@@ -40,52 +43,75 @@ def key_cc(
             salm[i] = sal
             sal.rotate(1)
         pcd = np.matmul(pcd, salm)  # shape (1, 12)
-    
-    if np.all(pcd == 0):
-        #if the pitch-class distribution is all zeros, return None for each attribute
-        return[(attr_name, None) for attr_name in attribute_names]
 
     results = []
 
     for attr_name in attribute_names:
+        # ! we should probably treat the special attributes as proper attribute names
+        if attr_name in ["name", "literature", "about"]:
+            print(f"Warning! Attempting to access metadata in profile '{profile.name}")
+            results.append((attr_name, None))
         # Get the attribute from the profile
-        attr_value = getattr(profile, attr_name)
+        attr_value = getattr(profile, attr_name, None)
 
         if attr_value is None:
             print(
-                f"Warning: Attribute '{attr_name}' exists but is None for profile '{profile.name}'"
+                f"Warning: Attribute '{attr_name}' is invalid in profile '{profile.name}'"
             )
             results.append((attr_name, None))
             continue
 
         # Convert to numpy array or handle special cases
         # Check if attr_value is a tuple of tuples(non-transpositionally equivalent)
-        if (
-            isinstance(attr_value, tuple)
-            and len(attr_value) > 0
-            and isinstance(attr_value[0], tuple)
-        ):
-            # Handle asymmetric profiles (tuple of tuples)
-            profile_matrix = _handle_asymmetric(attr_value)
-            correlations = _compute_correlations(pcd, profile_matrix)
-            results.append((attr_name, tuple(correlations)))
-            continue
-
-        attr_array = np.array(attr_value)
-
-        # Handle different profile types
-        if attr_array.ndim == 1 and len(attr_array) == 12:
-            # Standard transpositionally equivalent profile
-            profile_matrix = _create_transposed_matrix(attr_array)
-            correlations = _compute_correlations(pcd, profile_matrix)
-            results.append((attr_name, tuple(correlations)))
-        else:
-            print(
-                f"Warning: Attribute '{attr_name}' has unexpected shape {attr_array.shape} for profile '{profile.name}'"
+        profile_matrix = _get_profile_matrix(attr_value)
+        correlations = tuple(_compute_correlations(pcd, profile_matrix))
+        if any(math.isnan(val) for val in correlations):
+            raise RuntimeError(
+                "key_cc has encountered a score or key profile with equal pitch weights!"
             )
-            results.append((attr_name, None))
+        results.append((attr_name, correlations))
 
     return results
+
+
+def _get_profile_matrix(attr_value) -> np.ndarray:
+    """
+    Retrieves the profile matrix from a given attribute value
+
+    Parameters
+    ----------
+    attr_value
+        attribute value that is valid and within a profile
+
+    Returns
+    -------
+    np.ndarray
+        12x12 matrix where each row represents a key profile in a given pitch
+        with the following encoding:
+        0 -> C, 1 -> C#, ... , 11 -> B
+    """
+    # Convert to numpy array or handle special cases
+    # Check if attr_value is a tuple of tuples(non-transpositionally equivalent)
+    if (
+        isinstance(attr_value, tuple)
+        and len(attr_value) > 0
+        and isinstance(attr_value[0], tuple)
+    ):
+        # Handle asymmetric profiles (tuple of tuples)
+        profile_matrix = _handle_asymmetric(attr_value)
+        return profile_matrix
+
+    attr_array = np.array(attr_value)
+
+    # Handle different profile types
+    if attr_array.ndim == 1 and len(attr_array) == 12:
+        # Standard transpositionally equivalent profile
+        profile_matrix = _create_transposed_matrix(attr_array)
+        return profile_matrix
+    else:
+        raise ValueError(
+            f"attribute value is malformed with unexpected shape {attr_array.shape}"
+        )
 
 
 def _create_transposed_matrix(profile: np.ndarray) -> np.ndarray:

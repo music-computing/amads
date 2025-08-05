@@ -25,8 +25,8 @@ def test_error_handling():
 
 def test_empty_melody():
     melody = Score.from_melody([])
-    coefs = kkcc(melody)
-    assert all(math.isnan(coef) for coef in coefs)
+    with pytest.raises(RuntimeError):
+        kkcc(melody)
     return
 
 
@@ -36,10 +36,9 @@ def test_equal_prob_melody():
     Without salience this should return 24 NANs since variance is 0
     """
     pitches_in = list(range(56, 68))
-    durations_in = [0.5] * len(pitches_in)
-    melody = Score.from_melody(pitches=pitches_in, durations=durations_in)
-    coefs = kkcc(melody)
-    assert all(math.isnan(coef) for coef in coefs)
+    melody = Score.from_melody(pitches=pitches_in)
+    with pytest.raises(RuntimeError):
+        kkcc(melody)
     return
 
 
@@ -50,8 +49,7 @@ def test_crafted_nonempty_melody():
     """
     print("Warning! Test not implemented!")
     pitches_in = list(range(56, 68)) + list(range(56, 68, 2))
-    durations_in = [0.5] * len(pitches_in)
-    melody = Score.from_melody(pitches=pitches_in, durations=durations_in)
+    melody = Score.from_melody(pitches=pitches_in)
     coefs = kkcc(melody)
     desired_coefs = (
         0.06795243480111307,

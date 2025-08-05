@@ -4,6 +4,8 @@ Please note that all these tests assume that key_cc works as advertised
 
 import math
 
+import pytest
+
 from amads.core.basics import Score
 from amads.pitch.max_key_cc import max_key_cc
 
@@ -15,8 +17,8 @@ inherits the error handling of key_cc
 
 def test_empty_melody():
     melody = Score.from_melody([])
-    max_coef = max_key_cc(melody)
-    assert math.isnan(max_coef)
+    with pytest.raises(RuntimeError):
+        max_key_cc(melody)
     return
 
 
@@ -28,8 +30,8 @@ def test_equal_prob_melody():
     pitches_in = list(range(56, 68))
     durations_in = [0.5] * len(pitches_in)
     melody = Score.from_melody(pitches=pitches_in, durations=durations_in)
-    max_coef = max_key_cc(melody)
-    assert math.isnan(max_coef)
+    with pytest.raises(RuntimeError):
+        max_key_cc(melody)
     return
 
 
