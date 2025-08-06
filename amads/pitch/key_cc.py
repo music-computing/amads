@@ -56,7 +56,7 @@ def key_cc(
 
         if attr_value is None:
             print(
-                f"Warning: Attribute '{attr_name}' is invalid in profile '{profile.name}'"
+                f"Warning: Attribute '{attr_name}' is invalid or None in profile '{profile.name}'"
             )
             results.append((attr_name, None))
             continue
