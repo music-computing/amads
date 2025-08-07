@@ -352,11 +352,16 @@ class BellmanBudge(_KeyProfile):
         0.102,
     )
 
+
 @dataclass
 class Temperley(_KeyProfile):
     name: str = "Temperley"
-    literature: str = "Temperley (1999). What's Key for Key? The Krumhansl-Schmuckler Key-Finding Algorithm Reconsidered. Music Perception, 17, 65-100."
-    about: str = "Psychological data revised - Temperley's revision of Krumhansl-Schmuckler profiles"
+    literature: str = (
+        "Temperley (1999). What's Key for Key? The Krumhansl-Schmuckler Key-Finding Algorithm Reconsidered. Music Perception, 17, 65-100."
+    )
+    about: str = (
+        "Psychological data revised - Temperley's revision of Krumhansl-Schmuckler profiles"
+    )
     major: tuple[float] = (
         5.0,
         2.0,
@@ -476,8 +481,6 @@ class TemperleyKostkaPayne(_KeyProfile):
         0.032,
         0.079,
     )
-
-
 
 
 @dataclass
@@ -1291,6 +1294,7 @@ class VuvanHughes(_KeyProfile):
         0.067,
         0.063,
     )
+
 
 source_list = (
     AardenEssen,

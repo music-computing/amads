@@ -1,7 +1,7 @@
 """
 Correlations of pitch-class distribution with Krumhansl-Kessler tonal
 hierarchies
-Author(s): Tai Nakamura
+Author(s): Tai Nakamura, Di Wang
 Date: [2025-03-11]
 Description:
     Computes correlation coefficients of a score's pitch distribution
@@ -29,8 +29,27 @@ def key_cc(
     attribute_names: List[str] = ["major", "minor"],
     salience_flag: bool = False,
 ) -> List[Tuple[str, Optional[Tuple[float]]]]:
-    # TODO: comments for key_cc
-    # To Tai: Please finish the function docstring here...
+    """
+    Calculate the correlation coefficients of a score's pitch-class distribution
+    with any key profile in profiles.py.
+    The profile can be transpositionally equivalent or non-equivalent.
+    The function returns a list of tuples, each containing the attribute name
+    and the corresponding correlation coefficients.
+
+    Parameters
+    ----------
+    score (Score): The score to analyze.
+    profile (prof._KeyProfile): The key profile to use for analysis.
+    attribute_names (List[str]): List of attribute names to compute correlations for.
+    salience_flag (bool): If True, apply salience weighting to the pitch-class according to Huron & Parncutt (1993).
+
+    Returns
+    -------
+    List[Tuple[str, Optional[Tuple[float]]]]:
+        A list of tuples where each tuple contains the attribute name and the
+        corresponding correlation coefficients. If an attribute is invalid or None,
+        it will return (attribute_name, None).
+    """
 
     # Get pitch-class distribution
     pcd = np.array([pcdist1(score, False)])
@@ -67,7 +86,7 @@ def key_cc(
         correlations = tuple(_compute_correlations(pcd, profile_matrix))
         if any(math.isnan(val) for val in correlations):
             raise RuntimeError(
-                "key_cc has encountered a score or key profile with equal pitch weights!"
+                "key_cc has encountered a score or key profile with equal pitch weights(e.g., empty score or flat distribution)!"
             )
         results.append((attr_name, correlations))
 
