@@ -1,28 +1,27 @@
 """
-Maximal correlation value's attribute and index pair from key_cc algorithm.
-Corresponds to kkkey in miditoolbox
+Filters the list of attribute names to the ones that contain
+the maximal cross-correlation value for the scores in C,
+corresponds to keymode in miditoolbox.
 
-Original Doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=68
+Original Doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=65
 """
 
-from itertools import chain
-from typing import List, Tuple
+from typing import List
 
 from ..core.basics import Score
 from .key import profiles as prof
 from .key_cc import key_cc
 
 
-def kkkey(
+def keymode(
     score: Score,
     profile: prof._KeyProfile = prof.krumhansl_kessler,
     attribute_names: List[str] = ["major", "minor"],
     salience_flag: bool = False,
-) -> Tuple[str, int]:
+) -> List[str]:
     """
-    Calculates an index of an attribute name that corresponds to the
-    global maximum correlation value.
-    (see key_cc.py for more details)
+    Filters the list of attribute names so that their 0-crosscorrelation
+    value or C-crosscorrelation value are the maximal among all the attributes.
 
     The indices correspond to the following keys in ascending order:
     0 -> C, 1 -> C#, ..., 11 -> B
@@ -38,18 +37,17 @@ def kkkey(
 
     Returns
     -------
-    tuple[str, int]
-        the attribute name and key index of the corresponding maximum
-        correlation coefficient
+    List[str]
+        filtered list of attribute names
     """
     corrcoef_pairs = key_cc(score, profile, attribute_names, salience_flag)
 
     # I'm too lazy to write my own for loop so please forgive this
-    max_val_iter = (coefs for (_, coefs) in corrcoef_pairs if coefs is not None)
-    max_val = max(chain.from_iterable(max_val_iter))
-    nested_coefs_iter = (
-        (attr, coefs.index(max_val))
+    c_max_val_iter = (coefs[0] for (_, coefs) in corrcoef_pairs if coefs is not None)
+    c_max_val = max(c_max_val_iter)
+    keymode_attributes = [
+        attr
         for (attr, coefs) in corrcoef_pairs
-        if coefs is not None and max_val in coefs
-    )
-    return next(nested_coefs_iter)
+        if coefs is not None and coefs[0] == c_max_val
+    ]
+    return keymode_attributes
