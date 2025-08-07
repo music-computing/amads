@@ -17,7 +17,9 @@ from .key import profiles as profiles
 from .key_cc import key_cc
 
 
-def kkcc(score: Score, profile_name: str = "KRUMHANSL-KESSLER") -> Tuple[float]:
+def kkcc(
+    score: Score, profile_name: str = "KRUMHANSL-KESSLER", salience_flag: bool = False
+) -> Tuple[float]:
     """
     kkcc wrapper on key_cc that provides the exact behavior of kkcc
     from miditoolbox.
@@ -32,6 +34,8 @@ def kkcc(score: Score, profile_name: str = "KRUMHANSL-KESSLER") -> Tuple[float]:
     score (Score): The musical score to analyze.
     profile_name (str): string argument denoting the relevant miditoolbox
     string option for kkcc
+    salience_flag (bool): If True, apply salience weighting to the pitch-class
+    according to Huron & Parncutt (1993).
 
     Returns
     -------
@@ -62,7 +66,7 @@ def kkcc(score: Score, profile_name: str = "KRUMHANSL-KESSLER") -> Tuple[float]:
     assert isinstance(profile, profiles._KeyProfile)
     assert len(attribute_list) == 2
 
-    corrcoef_pairs = key_cc(score, profile, attribute_list)
+    corrcoef_pairs = key_cc(score, profile, attribute_list, salience_flag)
     # check integrity of corrcoef correspondences and whether or not they abide
     # to the output agreed on in key_cc
     assert len(corrcoef_pairs) == len(attribute_list)
