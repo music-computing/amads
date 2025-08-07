@@ -1,7 +1,8 @@
 """
-Maximal correlation value from key_cc algorithm.
+Maximal correlation value's attribute and index pair from key_cc algorithm.
+Corresponds to kkkey in miditoolbox
 
-Original Doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=69
+Original Doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=68
 """
 
 from itertools import chain
@@ -19,9 +20,13 @@ def kkkey(
     salience_flag: bool = False,
 ) -> Tuple[str, int]:
     """
-    provides the maximal correlation value for each attribute list
+    provides the associated attribute name and index of the
+    maximal correlation value for each attribute list
     from calling key_cc with relevant parameters
     (see key_cc.py for more details)
+
+    The indices correspond to the following keys in ascending order:
+    0 -> C, 1 -> C#, ..., 12 -> B
 
     Parameters
     ----------
@@ -35,8 +40,8 @@ def kkkey(
     Returns
     -------
     tuple[str, int]
-        the attribute name and index to the corresponding maximum
-        correlation value
+        the attribute name and key index of the corresponding maximum
+        correlation coefficient
     """
     corrcoef_pairs = key_cc(score, profile, attribute_names, salience_flag)
 
