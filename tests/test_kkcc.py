@@ -23,23 +23,15 @@ def test_error_handling():
     return
 
 
-def test_empty_melody():
+def test_zero_pitch_variance_melodies():
     melody = Score.from_melody([])
     with pytest.raises(RuntimeError):
         kkcc(melody)
-    return
 
-
-def test_equal_prob_melody():
-    """
-    Equal prob melody containing 1 of each pitch.
-    Without salience this should return 24 NANs since variance is 0
-    """
     pitches_in = list(range(56, 68))
     melody = Score.from_melody(pitches=pitches_in)
     with pytest.raises(RuntimeError):
         kkcc(melody)
-    return
 
 
 def test_crafted_nonempty_melody():

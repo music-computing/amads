@@ -5,22 +5,23 @@ Original Doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e0
 """
 
 from itertools import chain
-from typing import List
+from typing import List, Tuple
 
 from ..core.basics import Score
 from .key import profiles as prof
 from .key_cc import key_cc
 
 
-def max_key_cc(
+def kkkey(
     score: Score,
     profile: prof._KeyProfile = prof.krumhansl_kessler,
     attribute_names: List[str] = ["major", "minor"],
     salience_flag: bool = False,
-) -> float:
+) -> Tuple[str, int]:
     """
-    provides the maximal correlation value from calling key_cc
-    with relevant parameters (see key_cc.py for more details)
+    provides the maximal correlation value for each attribute list
+    from calling key_cc with relevant parameters
+    (see key_cc.py for more details)
 
     Parameters
     ----------
@@ -33,10 +34,18 @@ def max_key_cc(
 
     Returns
     -------
-    float
-        the maximum correlation value computed in key_cc
+    tuple[str, int]
+        the attribute name and index to the corresponding maximum
+        correlation value
     """
     corrcoef_pairs = key_cc(score, profile, attribute_names, salience_flag)
-    # I'm too lazy to write my own for loop
-    nested_coefs_iter = (coefs for (_, coefs) in corrcoef_pairs)
-    return max(chain.from_iterable(nested_coefs_iter))
+
+    # I'm too lazy to write my own for loop so please forgive this
+    max_val_iter = (coefs for (_, coefs) in corrcoef_pairs if coefs is not None)
+    max_val = max(chain.from_iterable(max_val_iter))
+    nested_coefs_iter = (
+        (attr, coefs.index(max_val))
+        for (attr, coefs) in corrcoef_pairs
+        if max_val in coefs
+    )
+    return next(nested_coefs_iter)
