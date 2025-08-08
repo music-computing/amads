@@ -39,7 +39,6 @@ def test_crafted_nonempty_melody():
     This is a sanity check nonempty crafted melody (so far)...
     I probably need some help with these tests...
     """
-    print("Warning! Test not implemented!")
     pitches_in = list(range(56, 68)) + list(range(56, 68, 2))
     melody = Score.from_melody(pitches=pitches_in)
     coefs = kkcc(melody)
@@ -69,6 +68,45 @@ def test_crafted_nonempty_melody():
         0.007936807483930997,
         -0.007936807483930969,
     )
+    assert all(
+        math.isclose(coef, desired_coef, rel_tol=1e-15)
+        for coef, desired_coef in zip(coefs, desired_coefs)
+    )
+
+    return
+
+
+def test_salience():
+    pitches_in = list(range(56, 68)) + list(range(56, 68, 2))
+    melody = Score.from_melody(pitches=pitches_in)
+    coefs = kkcc(melody, salience_flag=True)
+    desired_coefs = (
+        0.06795243480111307,
+        -0.06795243480111297,
+        0.06795243480111299,
+        -0.06795243480111306,
+        0.06795243480111308,
+        -0.0679524348011131,
+        0.06795243480111313,
+        -0.06795243480111308,
+        0.06795243480111315,
+        -0.06795243480111325,
+        0.06795243480111311,
+        -0.06795243480111306,
+        0.007936807483931043,
+        -0.007936807483930925,
+        0.00793680748393091,
+        -0.007936807483930879,
+        0.007936807483930955,
+        -0.007936807483930877,
+        0.00793680748393086,
+        -0.007936807483930962,
+        0.007936807483931012,
+        -0.00793680748393106,
+        0.007936807483931023,
+        -0.007936807483930984,
+    )
+
     assert all(
         math.isclose(coef, desired_coef, rel_tol=1e-15)
         for coef, desired_coef in zip(coefs, desired_coefs)
