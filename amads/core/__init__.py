@@ -1,5 +1,5 @@
 from .basics import *
 from .distribution import *
-from .time_map import *
+from .timemap import *
 
 # Don't export utils

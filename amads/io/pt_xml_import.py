@@ -1,3 +1,7 @@
+"""pt_xml_import.py - Partitura XML import and conversion to AMADS"""
+
+__author__ = "Roger B. Dannenberg"
+
 import partitura as pt
 
 from ..core.basics import (
@@ -40,10 +44,11 @@ DIV_TO_QUARTER_ROUNDING = 96
 #           has moved due to rounding
 #      4th pass: build Note and Rest objects, insert into Measures
 # measure_map: a list of indices into the Staff content list such that for any
-#     time t, staff.content[measure_map[int(t/10)]].onset >= t. Intuitively,
-#     we find index i = int(t/10), and we're guaranteed that measure i starts
-#     at or after time t. We can then search backwards to find the measure that
-#     contains t.
+#     time t, staff.content[measure_map[int(t/10)]].onset <= t and
+#     staff.content[measure_map[int(t/10) + 1]].onset > t. Intuitively,
+#     we find index i = int(t/10), and we're guaranteed that measure indexed by
+#     measure_map[i] starts at or before time t. We can then search forward to
+#     find the measure that contains t.
 # Besides the measures map, we have a map pt_note_to_note from partitura note id
 #     to both events and Note objects (as a list [event, note]) so we can find
 #     the notes to adjust when we process ties.
@@ -60,20 +65,16 @@ def find_measure_ending_after(staff: Staff, time: float) -> Measure:
     """
     i = int(time / 10)
     if i >= len(measure_map):
-        if len(staff.content) == 0:
-            return None  # there are no measures to search
-        i = len(staff.content) - 1
-        if staff.content[i].offset < time:
-            return None  # all measures end before time
-    else:
-        i = measure_map[int(time / 10)]
-        assert i < len(staff.content) and staff.content[i].onset >= time
-    # now i is a known upper bound on the result we want
-    i -= 1  # test if the previous measure also ends after time
-    while i >= 0 and staff.content[i].offset > time:
-        i -= 1
-    # either staff.content[i] does not exist or i is now too low
-    return staff.content[i + 1]
+        return None  # there are no measures to search
+    i = measure_map[int(time / 10)]
+    assert i < len(staff.content) and staff.content[i].onset <= time
+    # now i is a known lower bound on the result we want
+    i += 1
+    while i < len(staff.content) and staff.content[i].onset <= time:
+        i += 1
+    # either staff.content[i] does not exist or onset of measure i is too high
+    # either way, we want the previous measure:
+    return staff.content[i - 1]
 
 
 def div_to_quarter(durs, div, rnd=False):
@@ -95,7 +96,7 @@ def div_to_quarter(durs, div, rnd=False):
     qtrs += (div - durs[i][0]) / durs[i][1]
     if rnd and (DIV_TO_QUARTER_ROUNDING is not None):
         qtrs = round(qtrs * DIV_TO_QUARTER_ROUNDING) / DIV_TO_QUARTER_ROUNDING
-    print("div_to_quarter: div", div, "qtrs", qtrs)
+    # print("div_to_quarter: div", div, "qtrs", qtrs)
     return qtrs
 
 
@@ -187,6 +188,26 @@ def staff_for_note(part: Part, event: list) -> Staff:
         return part.content[event[3] - 1]  # find the staff
 
 
+def process_signatures(measure: Measure, signatures: list[list]):
+    """
+    If one or more signatures belong in measure, create them. This is
+    called here because sometimes signatures appear before the Partitura
+    measure, so we have to wait for the measure to be created before
+    putting signature in the Score.
+    """
+    while len(signatures) > 0:
+        sig = signatures[0]
+        if sig[1] >= measure.onset:
+            if sig[0] == "key_sig":
+                KeySignature(measure, sig[1], sig[2])
+                del signatures[0]
+            if sig[0] == "time_sig":
+                TimeSignature(measure, sig[1], sig[2], sig[3])
+                del signatures[0]
+        else:
+            return  # need to wait for measure to be created
+
+
 def partitura_convert_part(ppart, score):
     # these are globals so we don't have to pass to every
     # helper function that needs to do lookups:
@@ -195,112 +216,132 @@ def partitura_convert_part(ppart, score):
     part = Part(parent=score, instrument=ppart.part_name)
     durs = ppart.quarter_durations()
     staff_numbers = set()
-    measures = []
+    # data is stored in ppart in a different order than we want, so
+    # we first extract it into various lists, each of which will be
+    # accessed in order. (This also means only one iteration of ppart
+    # because iter_all() is currently extremely slow, so we only want
+    # to do it once.) We traverse measures and signatures for each
+    # staff in a subsequent pass.
+    measures = []  # list of (measure number, start time, end time) tuples
+    signatures = []  # list of ("time_sig", beats, beat_type) or
+    # ("key_sig", fifths) information
+    notes = []  # list of ("note", ...), ("rest", ...) or ("tempo", ...)
+    # information
     measure_map = []
     pt_note_to_note = {}
 
-    # pass 1: staves and measures
+    # T print("Starting iter_all")
+    # T for item in ppart.iter_all():
+    # T     pass
+    # T print("Done iter_all")
+
+    # T print("In partitura_convert_part")
+    # T timer = Timer("convert_part pass 1-begin")
+    # T timer2 = Timer("convert_part pass 1-next")
+    # T timer.start()
+    # T first_time = True
+    # pass 1: count staves and collect measure, signature, notes lists
     for item in ppart.iter_all():
+        # T if first_time:
+        # T     timer.stop(report=True) # DEBUG
+        # T     first_time = False
+        # T else:
+        # T     timer2.stop() # DEBUG
+
         if isinstance(item, pt.score.Note) or isinstance(item, pt.score.Rest):
             staff_numbers.add(item.staff)
-        elif isinstance(item, pt.score.Measure):
-            measures.append((item.number, item.start.t, item.end.t))
-        elif isinstance(item, pt.score.TimeSignature):
-            measures.append(("timesig", item.beats, item.beat_type))
-        elif isinstance(item, pt.score.KeySignature):
-            measures.append(("keysig", item.fifths))
 
-    print("partitura_convert_part: after pass 1, measures are")
-    print(measures)
+        onset = div_to_quarter(durs, item.start.t)
+        if isinstance(item, pt.score.Measure):
+            # convert divs duration to quarters
+            duration = div_to_quarter(durs, item.end.t, rnd=True) - div_to_quarter(
+                durs, item.start.t, rnd=True
+            )
+            if duration > 0:  # all staves have the same
+                # measure count and timing, so we only build the map for
+                # staff 0; do not append zero-length measures that arise
+                # from rounding errors in Partitura:
+                #
+                # When a measure onset will land on or exceed a 10-beat
+                # boundary, add a map entry. Use while in case measures are
+                # longer than 10 beats, which means we'll have multiple entries
+                # denoting to the same measure.
+                #
+                # we want staff.content[measure_map[int(t/10)]].onset <= t,
+                # i.e. measure_map[0].onset == 0, measure_map[1].onset <= 10,
+                # measure_map[2].onset <= 20, etc.
+                offset = onset + duration
+                while offset >= len(measure_map) * 10:
+                    measure_map.append(len(measures))
+                measures.append((onset, duration))
+        elif isinstance(item, pt.score.TimeSignature):
+            signatures.append(("time_sig", onset, item.beats, item.beat_type))
+        elif isinstance(item, pt.score.KeySignature):
+            signatures.append(("key_sig", onset, item.fifths))
+        elif isinstance(item, pt.score.Note):
+            duration = (item.end.t - item.start.t) / item.start.quarter
+            is_tied = if_tied(item)
+            notes.append(
+                [
+                    "note",
+                    onset,
+                    duration,
+                    item.staff,
+                    item.midi_pitch,
+                    item.id,
+                    is_tied,  # event[6]
+                    item,
+                ]
+            )  # event[7]
+            if is_tied:
+                pt_note_to_note[item] = [notes[-1]]
+        elif isinstance(item, pt.score.Rest):
+            duration = (item.end.t - item.start.t) / item.start.quarter
+            notes.append(["rest", onset, duration, item.staff])
+        elif isinstance(item, pt.score.Tempo):
+            # Note: partitura "bpm" is really beats per second!
+            score.time_map.append_beat_tempo(onset, item.bpm)
+        # T timer2.start()
+    # T timer2.report() # DEBUG
+    # print("partitura_convert_part: after pass 1, measures are")
+    # print(measures)
+
+    # T timer.init("convert_part pass 2")
+    # T timer.start()
 
     # for each staff, create measures
     for staff_num in range(0, len(staff_numbers)):
         staff = Staff(parent=part, number=staff_num + 1)
-        measure_onset = 0
-        for m in measures:
-            if m[0] == "timesig":
-                # assume timesig is inside a measure, which would be the last
-                # measure (so far) in this staff, and assume we are at the
-                # beginning of the measure
-                last_measure = staff.last()
-                assert last_measure is not None
-                TimeSignature(last_measure, last_measure.onset, m[1], m[2])
-            elif m[0] == "keysig":
-                # TODO: check for onset time of KeySignature:
-                last_measure = staff.last()
-                assert last_measure is not None
-                KeySignature(last_measure, last_measure.onset, m[1])
-            else:
-                # convert divs duration to quarters
-                duration = div_to_quarter(durs, m[2], rnd=True) - div_to_quarter(
-                    durs, m[1], rnd=True
-                )
-                if staff_num == 0 and duration > 0:  # all staves have the same
-                    # measure count and timing, so we only build the map for staff 0;
-                    # do not append zero-length measures that arise from rounding
-                    # errors in Partitura:
-                    #
-                    # When a measure onset will cross a 10-beat boundary,
-                    # add a map entry. Use while in case measures are longer than
-                    # 10 beats, which means we'll have multiple entries denoting
-                    # to the same measure.
-                    while measure_onset >= 10 + len(measure_map) * 10:
-                        measure_map.append(len(staff.content))
-                    Measure(parent=staff, onset=measure_onset, duration=duration)
-                    measure_onset += duration
+        # staff_signatures will be "consumed" by new measures, so make a copy:
+        staff_signatures = signatures.copy()
+        for m_info in measures:
+            m = Measure(parent=staff, onset=m_info[0], duration=m_info[1])
+            process_signatures(m, staff_signatures)
         staff.inherit_duration()
+    # T timer.stop(report=True) # DEBUG
 
-    # pass 2: gather notes and rests
-    # here, when we find a note tied to a previous or next note,
-    # we enter the partitura note as event[6]. In pass #4, we'll
-    # put the constructed notes that are tied to another note in a
-    # dictionary with the partitura note as key. Then when we create
-    # the tied-to note, we can find and "patch" the tied note.
-    events = []
-    for item in ppart.iter_all():
-        if isinstance(item, pt.score.Note) or isinstance(item, pt.score.Rest):
-            start = div_to_quarter(durs, item.start.t)
-            duration = (item.end.t - item.start.t) / item.start.quarter
-            if isinstance(item, pt.score.Note):
-                is_tied = if_tied(item)
-                events.append(
-                    [
-                        "Note",
-                        start,
-                        duration,
-                        item.staff,
-                        item.midi_pitch,
-                        item.id,
-                        is_tied,  # event[6]
-                        item,  # event[7]
-                    ]
-                )
-                if is_tied:
-                    pt_note_to_note[item] = [events[-1]]
-            elif isinstance(item, Rest):
-                events.append(["Rest", start, duration, item.staff])
-        elif isinstance(item, pt.score.Tempo):
-            start = div_to_quarter(durs, item.start.t)
-            print("Tempo start", start, "tempo", item.bpm / 60.0)
-            score.time_map.append_beat_tempo(start, item.bpm / 60.0)
-        else:
-            print("ignoring", item)
+    # T timer.init("convert_part pass 3")
+    # T timer.start()
 
     # Data formats (note that staff number is always event[3])
-    #    (Note, start, duration, staff, midi_pitch, id, tied, ptnote)
-    #    (Rest, start, duration, staff)
+    #    (Note, onset, duration, staff, midi_pitch, id, tied, ptnote)
+    #    (Rest, onset, duration, staff)
     # id_to_event = {}
 
     # pass 3: re-tie notes that cross measures in case measure times
     #         have changed due to rounding.
-    for i, event in enumerate(events):
+    for i, event in enumerate(notes):
         staff = staff_for_note(part, event)
         if event[6]:  # tied
             retie_notes(event, staff)
+    # T timer.stop(report=True) # DEBUG
+
+    # T timer.init("convert_part pass 4")
+    # T timer.start()
 
     # pass 4: insert notes and rests into score
     mindex = 0
-    for event in events:
+    for event in notes:
         staff = staff_for_note(part, event)
         measure = staff.content[mindex]
         while event[1] >= measure.offset:
@@ -309,7 +350,7 @@ def partitura_convert_part(ppart, score):
                 print("Something is wrong; could not find measure for", event)
                 break  # use previous measure, but probably there is a bug here
             measure = staff.content[mindex]
-        if event[0] == "Note":
+        if event[0] == "note":
             if event[2] > 0:  # zero duration means skip note
                 note = Note(
                     parent=measure, onset=event[1], duration=event[2], pitch=event[4]
@@ -329,14 +370,15 @@ def partitura_convert_part(ppart, score):
                         # patch the previous note
                         pt_note = pt_note.tie_prev
                         pt_note_to_note[pt_note][1].tie = note
-        elif event[0] == "Rest":
+        elif event[0] == "rest":
             Rest(parent=measure, onset=measure.onset, duration=event[2])
         else:
             assert False
+    # T timer.stop(report=True) # DEBUG
     return part
 
 
-def partitura_xml_import(filename, ptprint=False):
+def partitura_xml_import(filename, show=False):
     """Use Partitura to import a MusicXML file."""
     if filename is None:
         filename = pt.EXAMPLE_MUSICXML
@@ -346,7 +388,8 @@ def partitura_xml_import(filename, ptprint=False):
     filename = str(filename)
 
     ptscore = pt.load_score(filename)
-    if ptprint:
+    if show:
+        print(f"Partitura score structure from {filename}:")
         for ptpart in ptscore:
             print(ptpart.pretty())
     score = Score()

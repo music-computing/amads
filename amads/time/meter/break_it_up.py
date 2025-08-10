@@ -20,12 +20,12 @@ __author__ = "Mark Gotham"
 
 class MetricalSplitter:
     """
-    Split up notes and rest to reflect a specified metrical hierarchies.
+    Split up notes and/or rests to reflect a specified metrical hierarchy.
 
     This class
     takes in a representation of a note in terms of the start position and duration,
     along with a metrical context
-    and returns a list of start-duration pairs for the broken-up note value.
+    and returns a list of start-duration pairs for the constituent parts of the broken-up note.
 
     The metrical context should be expressed in the form of a `start_hierarchy`
     (effectively a list of lists for the hierarchy).
