@@ -1,5 +1,5 @@
 """
-Provides the function `ismonophonic`
+Determine if a musical score or its parts are monophonic.
 """
 
 from ..core.basics import Note, Part, Score
@@ -7,17 +7,21 @@ from ..core.basics import Note, Part, Score
 
 def _ismonophonic(notes: list[Note]):
     """
-    Returns if a list of notes is monophonic
+    Determine if a list of notes is monophonic.
 
-    A monophonic list of notes has no overlapping notes (e.g. chords)
+    A monophonic list of notes has no overlapping notes (e.g., chords).
     Serves as a helper function for `ismonophonic` and
     `parts_are_monophonic`.
 
-    Args:
-        note (list[Note]): The list of notes to analyze
+    Parameters
+    ----------
+    notes : list of Note
+        The list of notes to analyze.
 
-    Returns:
-        bool: True if the list of notes is monophonic
+    Returns
+    -------
+    bool
+        True if the list of notes is monophonic, False otherwise.
     """
     prev = None
     notes = list(notes)
@@ -35,22 +39,38 @@ def _ismonophonic(notes: list[Note]):
 
 def ismonophonic(score: Score):
     """
-    Returns if a musical score is monophonic
+    Determine if a musical score is monophonic.
 
-    A monophonic score has no overlapping notes (e.g. chords)
+    A monophonic score has no overlapping notes (e.g., chords).
 
-    Args:
-        score (Score): The musical score to analyze
+    Parameters
+    ----------
+    score : Score
+        The musical score to analyze.
 
-    Returns:
-        bool: True if the score is monophonic
+    Returns
+    -------
+    bool
+        True if the score is monophonic, False otherwise.
     """
     return _ismonophonic(score.find_all(Note))
 
 
-def parts_are_monophonic(score: Score):
+def parts_are_monophonic(score: Score) -> bool:
     """
-    Returns if all parts of a musical score are monophonic
+    Determine if all parts of a musical score are monophonic.
+
+    A monophonic part has no overlapping notes (e.g., chords).
+
+    Parameters
+    ----------
+    score : Score
+        The musical score to analyze.
+
+    Returns
+    -------
+    bool
+        True if all parts are monophonic, False otherwise.
     """
     for part in score.find_all(Part):
         if not _ismonophonic(part.find_all(Note)):

@@ -63,7 +63,7 @@ def pianoroll(
             Valid Input: 'name' or 'num'.
         x_label (str, optional):
             Determines whether the x-axis is labeled
-            with beats or seconds. Valid input: 'beat' or 'sec'.
+            with quarters or seconds. Valid input: 'quarter' or 'sec'.
         color (str, optional):
             The color of the note rectangles. Defaults to 'skyblue'.
         accidental (str, optional):
@@ -99,8 +99,8 @@ def pianoroll(
 
         # Conditionally converts beat to sec
         if x_label == "sec":
-            onset_time = score.time_map.beat_to_time(onset_time)
-            offset_time = score.time_map.beat_to_time(offset_time)
+            onset_time = score.time_map.quarter_to_time(onset_time)
+            offset_time = score.time_map.quarter_to_time(offset_time)
 
         # Stores min and max note for y_axis labeling
         if pitch < min_note:

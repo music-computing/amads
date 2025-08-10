@@ -81,7 +81,7 @@ Conversion to seconds is done in-place. This violates the immutable
 Score design (see next section) but note that if you convert back to
 beats, you can restore the original score, so changes are not
 *necessarily* visible even when scores are shared. Conversion involves
-using the score ``TimeMap`` to map between beats and seconds. The
+using the score ``TimeMap`` to map between quarters and seconds. The
 ``TimeMap`` is stored as an array of breakpoints, so a lookup involves
 a search, but since most accesses are in time order, it is possible to
 cache the location of the previous lookup in case the next one is

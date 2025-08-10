@@ -1,7 +1,7 @@
 """
-Provides the `hz2midi` function.
+Convert a frequency in Hertz to the corresponding (float) MIDI pitch number. (From MIDI Toolbox)
 
-Original doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=63
+Original doc: MIDI Tooolbox (https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=63)
 """
 
 import math
@@ -10,16 +10,30 @@ import math
 def hz2midi(hertz):
     """
     Convert a frequency in Hertz to the corresponding MIDI note number.
+
     Validates input to ensure all frequencies are non-negative.
 
-    Parameters:
-    hertz (float or list of floats): The frequency or list of frequencies in Hertz.
+    Parameters
+    ----------
+    hertz : Union[float, list[float]]
+        The frequency or list of frequencies in Hertz.
 
-    Returns:
-    m (float or list of floats): The corresponding MIDI note number(s).
+    Returns
+    -------
+    Union[float, list[float]]
+        The corresponding MIDI note number or list of numbers (A4 = 440Hz = 69).
 
-    Raises:
-    ValueError: If any frequency is negative.
+    Raises
+    ------
+    ValueError
+        If any frequency is negative.
+
+    Examples
+    --------
+    >>> hz2midi(440.0)
+    69.0
+    >>> hz2midi([440.0, 880.0])
+    [69.0, 81.0]
     """
 
     def validate_hz(hz):

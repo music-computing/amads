@@ -1,28 +1,33 @@
-# pitch.py -- the Pitch class
 # fmt: off
 # flake8: noqa E129,E303
-
+"""
+Pitch representation.
+"""
 
 import functools
 from dataclasses import dataclass
 from math import floor
-from numbers import Number
 from typing import Optional, Tuple, Union
 
 from amads.core.vectors_sets import multiset_to_vector, weighted_to_indicator
 
 LETTER_TO_NUMBER = {"C": 0, "D": 2, "E": 4, "F": 5, "G": 7, "A": 9, "B": 11}
 
+__author__ = "Roger B. Dannenberg"
 
 @functools.total_ordering
 class Pitch:
-    """A Pitch represents a symbolic musical pitch. It has two parts:
-    The `key_num` is a number that corresponds to the MIDI convention
-    where C4 is 60, C# is 61, etc. The alt is an alteration, where +1
-    represents a sharp and -1 represents a flat. Alterations can also
-    be, for example, 2 (double-sharp) or -0.5 (quarter-tone flat).
-    The symbolic note name is derived by *subtracting* `alt` from `key_num`.
-    e.g., C#4 has `key_num=61`, `alt=1`, so 61-1 gives us 60, corresponding
+    """Represents a symbolic musical pitch.
+
+    A pitch is represented by a `key_num` (MIDI number, generalized to float)
+    and an `alt` (alteration, e.g., -1 for flat, +1 for sharp). The `key_num`
+    is a number that corresponds to the MIDI convention where C4 is 60, C# is
+    61, etc. The alt is an alteration, where +1 represents a sharp and -1
+    represents a flat. Alterations can also be, for example, 2 (double-sharp)
+    or -0.5 (quarter-tone flat). The symbolic note name is derived by
+    *subtracting* `alt` from `key_num`.
+
+    E.g., C#4 has `key_num=61`, `alt=1`, so 61-1 gives us 60, corresponding
     to note name C. A Db has the same `key_num=61`, but alt=-1, and 61-(-1)
     gives us 62, corresponding to note name D. There is no representation
     for the "natural sign" (other than `alt=0`, which could imply no
@@ -34,11 +39,11 @@ class Pitch:
 
     Parameters
     ----------
-        pitch : Union[float, str, None], optional
+        pitch : Union[int, float, str, None], optional
             MIDI key_num or string Pitch name. Syntax is A-G followed by
             accidentals followed by octave number.
             (Defaults to 60)
-        alt: Union[float, None], optional
+        alt: Union[int, float, None], optional
             If pitch is a number, alt is an optional alteration (Defaults to 0).
             If `pitch - alt` does not result in a diatonic pitch number, alt is
             adjusted, normally choosing spellings C#, Eb, F#, Ab, and Bb.
@@ -103,10 +108,13 @@ class Pitch:
     2
     """
     __slots__ = ["key_num", "alt"]
+    key_num: float
+    alt: float
 
     def _fix_alteration(self) -> None:
-        """Fix the alteration to ensure it is a valid value, i.e.
-        that `(key_num - alt) % 12` denotes one of {C D E F G A B}.
+        """Fix the alteration to ensure it is a valid value.
+        
+        I.e., that `(key_num - alt) % 12` denotes one of {C D E F G A B}.
         """
         unaltered = self.key_num - self.alt
         if int(unaltered) != unaltered:  # not a whole number
@@ -123,15 +131,19 @@ class Pitch:
         # now `(key_num + alt) % 12` is in {C D E F G A B}
 
 
-    def __init__(self, pitch: Union["Pitch", Number, str] = 60,
-                 alt: Union[Number, None] = None,
+    def __init__(self,
+                 pitch: Union["Pitch", int, float, str] = 60,
+                 alt: Union[int, float, None] = None,
                  accidental_chars: Optional[str] = None):
         if isinstance(pitch, str):
             self.key_num, self.alt = Pitch.from_name(pitch, alt, accidental_chars)
         elif isinstance(pitch, Pitch):
             self.key_num = pitch.key_num
             self.alt = pitch.alt
-        else:
+        elif pitch is None:
+            self.key_num = None
+            self.alt = (0 if alt is None else alt)
+        else:  # pitch is a number (int or float)
             # this will raise a ValueError if pitch is not some kind of number:
             pitch = float(pitch)  # converts numpy.int64, nympy.floating, etc.
             if pitch.is_integer():  # for nicer printing, represent "exact" 12-TET
@@ -647,7 +659,7 @@ class PitchCollection:
     >>> pitches_gathered.pitch_class_indicator_vector
     (0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1)
     """
-
+    __slots__ = ["pitches"]
     pitches: list[Pitch]
 
     @property

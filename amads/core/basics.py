@@ -1,11 +1,14 @@
-# basics.py - basic symbolic music representation classes
 # fmt: off
 # flake8: noqa E129,E303
 """
-Quick overview: The basic hierarchy of a score is shown here.
-Each level of this hierarchy can contain 0
-or more instances of the next level. Levels are optional,
-allowing for more note-list-like representations:
+Basic Symbolic Music Representation Classes
+==========================================
+
+Overview
+--------
+The basic hierarchy of a score is shown here. Each level of this hierarchy can contain
+zero or more instances of the next level. Levels are optional, allowing for more
+note-list-like representations:
 
 Score (one per musical work or movement)
     Part (one per instrument)
@@ -26,42 +29,45 @@ Score (one per musical work or movement)
     Part (one per instrument)
         Note (no other instances allowed, no ties)
 
-Score, Part, Staff, Measure, and Chord are all EventGroups and
-their constructors can take a list of Events as their content.
+Score, Part, Staff, Measure, and Chord are all EventGroups and their constructors
+can take a list of Events as their content.
 
-The safe way to construct a score is to fully specify onsets
-for every Event. These onsets are absolute and will not be adjusted
-*provided that* the parent onset is also specified.
+Constructor Details
+-------------------
+
+The safe way to construct a score is to fully specify onsets for every Event.
+These onsets are absolute and will not be adjusted *provided that* the parent
+onset is also specified.
 
 However, for convenience and to support simple constructs such as
   Chord(Note(pitch=60), Note(pitch=64)),
-onsets are optional and default to None. To make this simple example
-work:
-1) Concurrences (Score, Part, and Chord) replace unspecified (None)
-   onsets in their immediate content with the parent's onset (or 0
-   if it is None).
-2) Sequences (Staff, Measure) replace unspecified (None) onsets in
-   their immediate content starting with the parent's onset (or 0 if
-   None) for the first event and the offset of the previous Event for
-   subsequent events.
-3) To handle the construction of nested Events, when an unspecified
-   (None) onset of an EventGroup is replaced, the entire subtree of
-   its content is shifted by the same amount. E.g. if a Chord is
-   constructed with Notes with unspecified onsets, the Notes onsets
-   will initially be replaced with zeros. Then, if the Chord onset is
-   unspecified (None) and the Chord is passed in the content of a
-   Measure and the Chord onset is replaced with 1.0, then the Notes
-   are shifted to 1.0. If the Measure is then passed in the content
-    of a Staff, the Measure and all its content might be shifted again.
+onsets are optional and default to None. To make this simple example work:
+1) Concurrences (Score, Part, and Chord) replace unspecified (None) onsets in
+   their immediate content with the parent's onset (or 0 if it is None).
+2) Sequences (Staff, Measure) replace unspecified (None) onsets in their immediate
+   content starting with the parent's onset (or 0 if None) for the first event and
+   the offset of the previous Event for subsequent events.
+3) To handle the construction of nested Events, when an unspecified (None) onset
+   of an EventGroup is replaced, the entire subtree of its content is shifted by
+   the same amount. E.g. if a Chord is constructed with Notes with unspecified
+   onsets, the Notes onsets will initially be replaced with zeros. Then, if the
+   Chord onset is unspecified (None) and the Chord is passed in the content of a
+   Measure and the Chord onset is replaced with 1.0, then the Notes are shifted
+   to 1.0. If the Measure is then passed in the content of a Staff, the Measure
+   and all its content might be shifted again.
+
+Author
+------
+Roger B. Dannenberg
 """
 
 import copy
-from math import floor
-from numbers import Number
-from typing import Generator, Optional, Type, Union
+from typing import Dict, Generator, List, Optional, Type, Union
 
 from amads.core.pitch import Pitch
 from amads.core.timemap import TimeMap
+
+__author__ = "Roger B. Dannenberg"
 
 
 class Event:
@@ -72,7 +78,7 @@ class Event:
     ----------
         parent : Optional[EventGroup]
             The containing object or None.
-        onset : float
+        onset : float | None
             The onset (start) time.
         duration : float
             The duration of the event in quarters or seconds.
@@ -81,7 +87,7 @@ class Event:
     ----------
         parent : Optional[Event]
             The containing object or None.
-        _onset : float
+        _onset : float | None
             The onset (start) time.
         duration : float
             The duration of the event in quarters or seconds.
@@ -89,13 +95,17 @@ class Event:
             Additional attribute/value information.
     """
     __slots__ = ["parent", "_onset", "duration", "info"]
+    parent: Optional["EventGroup"]
+    _onset: float | None
+    duration: float
+    info: Optional[Dict]
 
     def __init__(self, parent: Optional["EventGroup"],
-                 onset: float, duration: float):
+                 onset: float | None, duration: float):
         """
         Initialize an Event instance.
         """
-        self.parent = None
+        self.parent = None  # set below when inserted into parent
         self._onset = onset
         self.duration = duration
         self.info = None
@@ -103,6 +113,8 @@ class Event:
         if parent:
             assert isinstance(parent, EventGroup)
             parent.insert(self)
+        else:
+            self.parent = None
 
 
     def _event_onset(self) -> str:
@@ -111,7 +123,7 @@ class Event:
         return ("onset=None" if self.onset is None else
                 f"onset={self.onset:0.3f}")
 
-
+            
     def _event_times(self, dur: bool = True) -> str:
         """produce onset and duration string for __str__
         """
@@ -154,6 +166,8 @@ class Event:
         Any
             The value of the specified property.
         """
+        if self.info is None:
+            return default
         return self.info.get(property, default)
 
 
@@ -199,11 +213,18 @@ class Event:
     def onset(self) -> float:
         """Retrieve the onset (start) time.
 
+        If the onset is None, raise an exception. (Events can have None
+        onset times, but they must be set before retrieval. onsets that
+        are None are automatically set when the Event is added to an
+        EventGroup.)
+    
         Returns
         -------
-        float
+        float | None
             The onset (start) time.
         """
+        if self._onset is None:
+            raise ValueError("Onset time is not set.")
         return self._onset
 
 
@@ -220,12 +241,17 @@ class Event:
 
 
     def quantize(self, divisions: int) -> "Event":
-        """Modify onset and offset to a multiple of divisions
-        per quarter note, e.g., 4 for sixteenth notes. If a
+        """Modify onset and offset to a multiple of divisions per quarter note.
+
+        E.g., use divisions=4 for sixteenth notes. If a
         Note tied to or from other notes quantizes to a zero
         duration, reduce the chain of tied notes to eliminate
         zero-length notes. See Collection.quantize for
         additional details.
+
+        Preconditions
+        -------------
+        self.onset and self.duration must be non-None.
 
         Parameters
         ----------
@@ -233,6 +259,9 @@ class Event:
             The number of divisions per quarter note, e.g., 4 for
             sixteenths, to control quantization.
         """
+        if self.onset is None or self.duration is None:
+            raise ValueError(
+                "Cannot quantize Event with None onset or duration")
         self.onset = round(self.onset * divisions) / divisions
         quantized_offset = round(self.offset * divisions) / divisions
 
@@ -255,41 +284,42 @@ class Event:
 
         if (self.duration == 0 and
             (not isinstance(self, Note) or self.tie == None)):
-            return  # do not change duration if it is originally zero
+            return self  # do not change duration if it is originally zero
 
         while isinstance(self, Note) and self.tie:  # check tied-to note:
-            tied_to = self.tie  # the note our tie connects to
-            onset = round(tied_to.onset * divisions) / divisions
-            offset = round(tied_to.offset * divisions) / divisions
+            tie = self.tie  # the note our tie connects to
+            onset = round(tie.onset * divisions) / divisions  # type: ignore
+            offset = round(tie.offset * divisions) / divisions  # type: ignore
             duration = offset - onset  # quantized duration
             # if we tie from non-zero quantized duration to zero quantized
             # duration, eliminate the tied-to note
-            if quantized_offset - self.onset > 0 and duration == 0:
-                self.tie = tied_to.tie  # in case tie continues
+            if (quantized_offset - self.onset > 0 and   # type: ignore
+                duration == 0):                         # type: ignore
+                self.tie = tie.tie  # in case tie continues
                 # remove tied_to note from its parent
-                tied_to.parent.remove(tied_to)
+                if tie.parent:
+                    tie.parent.remove(tie)
                 # print("removed tied-to note", tied_to,
                 #       "because duration quantized to zero")
-            elif quantized_offset - self.onset == 0:
+            elif quantized_offset - self.onset == 0:    # type: ignore
                 # remove self from its parent; prefer tied_to note
                 # before removing, transfer duration from self to
                 # tied_to to avoid strange case where the tied group
                 # originally had a non-zero duration so we want the
                 # tied_to duration to be non-zero:
-                tied_to.duration += self.duration
-                self.parent.remove(self)
-                # print("removed note starting tie", self,
-                #      "because duration quantized to zero")
+                tie.duration += self.duration
+                if self.parent:
+                    self.parent.remove(self)
                 # tied_to will be revisited and quantized so no more work here
-                return
+                return self
             else:  # both notes have non-zero durations
                 break
 
         # now that potential ties are handled, set the duration of self
         if self.duration != 0:  # only modify non-zero durations
-            self.duration = quantized_offset - self.onset
+            self.duration = quantized_offset - self.onset  # type: ignore
             if self.duration == 0:  # do not allow duration to become zero:
-                self.duration = 1 / divisions
+                self.duration = 1 / divisions 
         # else: original zero duration remains zero after quantization
         return self
 
@@ -327,8 +357,11 @@ class Event:
         time_map : TimeMap
             The TimeMap object used for conversion.
         """
-        onset_time = time_map.beat_to_time(self.onset)
-        offset_time = time_map.beat_to_time(self.offset)
+        if self.onset is None or self.duration is None:
+            raise ValueError(
+                "Cannot convert Event with None onset or duration")
+        onset_time = time_map.quarter_to_time(self.onset)       # type: ignore
+        offset_time = time_map.quarter_to_time(self.offset)     # type: ignore
         self.onset = onset_time
         self.duration = offset_time - onset_time
 
@@ -342,8 +375,11 @@ class Event:
         time_map : TimeMap
             The TimeMap object used for conversion.
         """
-        onset_quarters = time_map.time_to_beat(self.onset)
-        offset_quarters = time_map.time_to_beat(self.offset)
+        if self.onset is None or self.duration is None:
+            raise ValueError(
+                "Cannot convert Event with None onset or duration")
+        onset_quarters = time_map.time_to_quarter(self.onset)
+        offset_quarters = time_map.time_to_quarter(self.offset)
         self.onset = onset_quarters
         self.duration = offset_quarters - onset_quarters
 
@@ -357,6 +393,9 @@ class Event:
         float
             The global offset (stop) time.
         """
+        if self.onset is None or self.duration is None:
+            raise ValueError(
+                "Event offset undefined (onset or duration is None)")
         return self.onset + self.duration
 
 
@@ -369,6 +408,8 @@ class Event:
         offset : float
             The new global offset (stop) time.
         """
+        if self.onset is None:
+            raise ValueError("Event offset undefined (onset is None)")
         self.duration = offset - self.onset
 
 
@@ -485,7 +526,7 @@ class Note(Event):
             (Defaults to None)
         duration : float, optional
             The duration of the note in quarters or seconds. (Defaults to 1)
-        pitch : Union[Pitch, int], optional
+        pitch : Union[Pitch, int, float], optional
             A Pitch object or an integer MIDI key number that will be
             converted to a Pitch object. (Defaults to C4)
         dynamic : Optional[Union[int, str]], optional
@@ -503,8 +544,8 @@ class Note(Event):
             The duration of the note in quarters or seconds. See the
             property tied_duration for the duration of an entire group
             if the note is the first of a tied group of notes.
-        pitch :  Union["Pitch", float, int, str, None]
-            The pitch of the note.
+        pitch :  Pitch | None
+            The pitch of the note. Unpitched notes have a pitch of None.
         dynamic : Optional[Union[int, str]]
             Dynamic level (MIDI velocity) or string.
         lyric : Optional[str]
@@ -513,49 +554,34 @@ class Note(Event):
             The note that this note is tied to, if any.
     """
     __slots__ = ["pitch", "dynamic", "lyric", "tie"]
+    pitch: Optional[Pitch]
+    dynamic: Optional[Union[int, str]]
+    lyric: Optional[str]
+    tie: Optional["Note"]
 
     def __init__(self,
                  parent: Optional["EventGroup"] = None,
                  onset: Optional[float] = None,
-                 duration: float = 1,
-                 pitch: Union["Pitch", float, int, str, None] = 60,
+                 duration: float = 1.0,
+                 pitch: Union["Pitch", int, float, str, None] = 60,
                  dynamic: Union[int, str, None] = None,
                  lyric: Optional[str] = None):
         """Initialize a Note instance.
         pitch is normally a Pitch, but can be an integer MIDI key number
         that will be converted to a Pitch object.
         """
-        super().__init__(parent, onset, duration)
+        super().__init__(parent, onset, float(duration))
         if isinstance(pitch, Pitch):
             self.pitch = pitch
-        else:
+        elif pitch is not None:
             self.pitch = Pitch(pitch)
+        # else pitch is None, unpitched note
         self.dynamic = dynamic
         self.lyric = lyric
         self.tie = None
 
 
-    def __deepcopy__(self, memo: bool = None) -> "Note":
-        """Return a deep copy of the Note instance. The pitch is
-        shallow copied to avoid copying the entire Pitch object.
-
-        Parameters
-        ----------
-        memo : bool, optional
-            A dictionary to keep track of already copied objects.
-            (Defaults to None)
-
-        Returns
-        -------
-        Note
-            A deep copy of the Note instance with a shallow copy of the pitch.
-        """
-        cls = self.__class__
-        result = cls.__new__(cls)
-        memo[id(self)] = result
-
-
-    def __deepcopy__(self, memo):
+    def __deepcopy__(self, memo: dict) -> "Note":
         """Return a deep copy of the Note instance. The pitch is
         shallow copied to avoid copying the entire Pitch object.
 
@@ -594,7 +620,7 @@ class Note(Event):
         return result
 
     @property
-    def tied_duration(self) -> float:
+    def tied_duration(self) -> Union[float, int]:
         """Retrieve the duration of the note in quarters or seconds.
         If the note is the first note of a group of tied notes,
         return the duration of the entire group.
@@ -605,9 +631,9 @@ class Note(Event):
             The duration of the note in quarters or seconds.
         """
         duration = self.duration
-        if self.tie is not None:
-            duration += self.tie.tied_duration  # recursively sum all tied durations
-        return duration
+        if self.tie is not None:  # recursively sum all tied durations:
+            duration += self.tie.tied_duration
+        return duration  # type: ignore (Note duration is always float)
 
 
     def __str__(self) -> str:
@@ -659,43 +685,57 @@ class Note(Event):
     def step(self) -> str:
         """Retrieve the name of the pitch, e.g. A, B, C, D, E, F, G
         corresponding to letter names without accidentals.
+
+        If the note is unpitched (pitch is None), return the empty string.
         """
-        return self.pitch.step
+        return self.pitch.step if self.pitch else ""
 
 
     @property
     def name(self) -> str:
         """Retrieve the string representation of the pitch name,
         including accidentals, e.g. A# or Bb.
+
+        If the note is unpitched (pitch is None), return the empty string.
         """
-        return self.pitch.name
+        return self.pitch.name if self.pitch else ""
 
 
     @property
     def name_with_octave(self) -> str:
         """Retrieve the string representation of the pitch name
         with octave, e.g. A4 or Bb3.
+
+        If the note is unpitched (pitch is None), return the empty string.
         """
-        return self.pitch.name_with_octave
+        return self.pitch.name_with_octave if self.pitch else ""
 
 
     @property
     def pitch_class(self) -> int:
-        """Retrieve the pitch class of the note, e.g. 0, 1, 2, ..., 11."""
+        """Retrieve the pitch class of the note, e.g. 0, 1, 2, ..., 11.
+
+        If the note is unpitched (pitch is None), raise ValueError.
+        """
+        if self.pitch is None:
+            raise ValueError("Unpitched note has no pitch class.")
         return self.pitch.pitch_class
 
 
     @pitch_class.setter
     def pitch_class(self, pc: int) -> None:
-        """Set the pitch class of the note. Keep the same octave, but
-        not necessarily the same register.
+        """Set the pitch class of the note. 
+        
+        Keep the same octave, but not necessarily the same register.
+        The alt (accidental) is preserved.
 
         Parameters
         ----------
         pc : int
             The new pitch class value.
         """
-        self.pitch = Pitch(pc + 12 * (self.octave + 1), self.pitch.alt)
+        self.pitch = Pitch(pc + 12 * (self.octave + 1), 
+                           self.pitch.alt if self.pitch else 0)
 
 
     @property
@@ -705,17 +745,25 @@ class Note(Event):
         pitch, but BOTH have an octave of 4. On the other hand name()
         will return "C4" and "B#3", respectively.
 
+        If the note is unpitched (pitch is None), raise ValueError.
+
         Returns
         -------
         int
             The octave number of the note.
         """
-        return self.octave
+        if self.pitch is None:
+            raise ValueError("Unpitched note has no octave.")
+        else:
+            return self.pitch.octave
 
 
     @octave.setter
     def octave(self, oct: int) -> None:
         """Set the octave number of the note.
+
+        The alt (accidental) is preserved.
+        If the note is unpitched (pitch is None), raise ValueError.
 
         Parameters
         ----------
@@ -723,18 +771,22 @@ class Note(Event):
             The new octave number.
         """
         self.pitch = Pitch(self.key_num + (oct - self.octave) * 12,
-                           self.pitch.alt)
+                           self.pitch.alt if self.pitch else 0)
 
 
     @property
-    def key_num(self) -> int:
+    def key_num(self) -> float | int:
         """Retrieve the MIDI key number of the note, e.g. C4 = 60.
+
+        If the note is unpitched (pitch is None), raise ValueError.
 
         Returns
         -------
         int
             The MIDI key number of the note.
         """
+        if self.pitch is None:
+            raise ValueError("Unpitched note has no key number.")
         return self.pitch.key_num
 
 
@@ -744,11 +796,15 @@ class Note(Event):
         (not B-flat). If alt is zero, return a Pitch with alt of +1 or -1
         if possible. Otherwise, return a Pitch with alt of -2.
 
+        If the note is unpitched (pitch is None), raise ValueError.
+
         Returns
         -------
         Pitch
             A Pitch object representing the enharmonic equivalent of the note.
         """
+        if self.pitch is None:
+            raise ValueError("Unpitched note has no enharmonic equivalent.")
         return self.pitch.enharmonic()
 
 
@@ -756,12 +812,17 @@ class Note(Event):
         """Return a valid Pitch with alt decreased by 1 or 2, e.g. C#->Db,
         C##->D, C###->D#.
 
+        If the note is unpitched (pitch is None), raise ValueError.
+
         Returns
         -------
         Pitch
             A Pitch object representing the upper enharmonic
             equivalent of the note.
         """
+        if self.pitch is None:
+            raise ValueError(
+                      "Unpitched note has no upper enharmonic equivalent.")
         return self.pitch.upper_enharmonic()
 
 
@@ -769,16 +830,21 @@ class Note(Event):
         """Return a valid Pitch with alt increased by 1 or 2, e.g. Db->C#,
         D->C##, D#->C###.
 
+        If the note is unpitched (pitch is None), raise ValueError.
+
         Returns
         -------
         Pitch
             A Pitch object representing the lower enharmonic
             equivalent of the note.
         """
+        if self.pitch is None:
+            raise ValueError(
+                      "Unpitched note has no lower enharmonic equivalent.")
         return self.pitch.lower_enharmonic()
 
 
-    def simplest_enharmonic(self,
+    def simplest_enharmonic(self, 
             sharp_or_flat: Optional[str] = "default") -> "Pitch":
         """Return a valid Pitch with the simplest enharmonic representation.
         (see Pitch.simplest_enharmonic)
@@ -791,11 +857,16 @@ class Note(Event):
             flats), and otherwise use the same enharmonic choice as the Pitch
             constructor.
 
+        If the note is unpitched (pitch is None), raise ValueError.
+
         Returns
         -------
         Pitch
             A Pitch object representing the enharmonic equivalent.
         """
+        if self.pitch is None:
+            raise ValueError(
+                      "Unpitched note has no simplest enharmonic equivalent.")
         return self.pitch.simplest_enharmonic(sharp_or_flat)
 
 
@@ -833,6 +904,8 @@ class TimeSignature(Event):
             The "denominator" of the key signature: a whole number power of 2.
     """
     __slots__ = ["upper", "lower"]
+    upper: float
+    lower: int
 
     def __init__(self,
                  parent: Optional["EventGroup"] = None,
@@ -889,10 +962,11 @@ class Clef(Event):
         duration : float
             Always zero for this subclass.
         clef : str
-            The clef name, one of "treble", "bass", "alto", "tenor",
+            The clef name, one of "treble", "bass", "alto", "tenor", 
             "percussion", "treble8vb" (Other clefs may be added later.)
     """
     __slots__ = ["clef"]
+    clef: str
 
     def __init__(self,
                  parent: Optional["EventGroup"] = None,
@@ -956,6 +1030,7 @@ class KeySignature(Event):
             An integer representing the number of sharps and flats.
     """
     __slots__ = ["key_sig"]
+    key_sig: int
 
     def __init__(self, parent: Optional["EventGroup"] = None,
                  onset: float = 0.0, key_sig: int = 0):
@@ -1003,11 +1078,9 @@ class EventGroup(Event):
 
     Alternatively, you can provide content when the group is constructed.
     Chord, Measure, Staff, Part, and Score all have *args parameters so that
-    you can write something like::
-
+    you can write something like
         Score(Part(Staff(Measure(Note(...), Note(...)),
                          Measure(Note(...), Note(...)))))
-
     In this case, it is recommended that you leave the onsets of content
     and chord unknown (None, the default). Then, as each event or group
     becomes content for a parent, the onsets will be set automatically,
@@ -1031,9 +1104,9 @@ class EventGroup(Event):
     ----------
         parent : Optional[EventGroup]
             The containing object or None.
-        onset : float
+        onset : float | None
             The onset (start) time.
-        duration : float
+        duration : Optional[float]
             The duration in quarters or seconds.
         content : Optional[list]
             A list of Event objects to be added to the group. The parent
@@ -1059,30 +1132,48 @@ class EventGroup(Event):
             Elements contained within this collection.
     """
     __slots__ = ["content"]
+    duration: float
+    content: list[Event]
+
 
     def __init__(self, parent: Optional["EventGroup"],
-                 onset: float, duration: Optional[float],
+                 onset: Optional[float], duration: Optional[float],
                  content: Optional[list[Event]], pack: bool = False):
 
-        super().__init__(parent=parent, onset=onset, duration=duration)
+        # pass 0 for duration because Event constructor wants a number,
+        # but we will set duration later based on duration parameter or
+        # based on content if duration is None:
+        super().__init__(parent=parent, onset=onset, duration=0.0)
         max_offset = 0
         if content:
             prev_offset = 0 if onset == None else onset
             for elem in content:
                 if elem.parent and elem.parent != self:
                     raise Exception("Event already has a (different) parent")
+                # Not sure why Pylance thinks this is a problem:
                 elem.parent = self
                 if pack or (elem.onset == None):
                     elem.onset = prev_offset
                     prev_offset = elem.offset  # depends on e.onset
                 max_offset = max(max_offset, elem.offset)
-            if self.duration == None:
-                self.duration = max_offset - (0 if onset is None else onset)
+            if duration == None:
+                duration = max_offset - (0 if onset is None else onset)
+        self.duration = duration if duration is not None else 0.0
         self.content = content if content else []
 
 
     @property
     def onset(self) -> float:
+        """Return the onset time of the event.
+
+        If the onset is None, raise an exception. (Events can have None
+        onset times, but these onsets are computed relative to the parent
+        EventGroup when the Event is added to a parent. Accessing the onset
+        before it is set is considered an error so that users can assume
+        that the onset property always returns a float.)
+        """
+        if self._onset is None:
+            raise ValueError("Onset time is not set.")
         return self._onset
 
 
@@ -1097,7 +1188,7 @@ class EventGroup(Event):
         """
         if self._onset == None and onset != 0: # shift content
             for elem in self.content:
-                elem._onset += onset
+                elem._onset += onset  # type: ignore
         self._onset = onset
 
 
@@ -1124,8 +1215,8 @@ class EventGroup(Event):
         time_map : TimeMap
             The TimeMap object used for conversion.
         """
-        onset_quarters = time_map.time_to_beat(self.onset)
-        offset_quarters = time_map.time_to_beat(self.onset + self.duration)
+        onset_quarters = time_map.time_to_quarter(self.onset)
+        offset_quarters = time_map.time_to_quarter(self.onset + self.duration)
         self.onset = onset_quarters
         self.duration = offset_quarters - onset_quarters
         for elem in self.content:
@@ -1152,19 +1243,19 @@ class EventGroup(Event):
         # rather than customize __deepcopy__, we "hide" the content to avoid
         # copying it. Then we restore it after copying and fix parent.
         original_content = self.content
-        self.content = None
+        self.content = []
         c = self.copy(parent)
         self.content = original_content
-        c.content = []  # change None to (valid) empty content
-        return c
+        return c  #type: ignore (c will always be an EventGroup)
 
 
-    def expand_chords(self, parent: "EventGroup" = None) -> "EventGroup":
+    def expand_chords(self, parent: Optional["EventGroup"] = None) -> "EventGroup":
         """Replace chords with the multiple notes they contain.
+
         Returns a deep copy with no parent unless parent is provided.
         Normally, you will call score.expand_chords() which returns a deep
         copy of Score with notes moved from each chord to the copy of the
-        chord's parent (a Measure or a Part). The parent parameter is
+        chord's parent (a Measure or a Part). The parent parameter is 
         primarily for internal use when expand_chords is called recursively
         on score content.
 
@@ -1415,7 +1506,7 @@ class EventGroup(Event):
         return group
 
 
-    def quantize(self, divisions: int) -> "Collection":
+    def quantize(self, divisions: int) -> "EventGroup":
         """Modify all times and durations to a multiple of divisions
         per quarter note, e.g., 4 for sixteenth notes. Onsets and offsets
         are moved to the nearest quantized time. Any resulting duration
@@ -1476,7 +1567,8 @@ class EventGroup(Event):
         return self
 
 
-    def remove_rests(self, parent: "EventGroup" = None) -> "EventGroup":
+    def remove_rests(self, parent: Union["EventGroup", 
+                                         None] = None) -> "EventGroup":
         """Remove all Rest objects. Returns a deep copy with no parent,
         unless parent is provided.
 
@@ -1528,7 +1620,7 @@ class EventGroup(Event):
         """
         print(" " * indent, self, sep="")
         for elem in self.content:
-            elem.show(indent + 4)
+            elem.show(indent + 4)  # type: ignore (show exists)
         return self
 
 
@@ -1580,21 +1672,21 @@ class Sequence(EventGroup):
 
     def __init__(self, parent: Optional[EventGroup],
                  onset: Optional[float] = None, duration: Optional[float] = None,
-                 content: list[Event] = None, pack: bool = False):
+                 content: Optional[list[Event]] = None, pack: bool = False):
         """Sequence represents a temporal sequence of music events.
         """
         super().__init__(parent, onset, duration, content, pack)
 
 
     @property
-    def last_offset(self):
+    def last_offset(self) -> float:
         """return the offset (end) time of the last element,
         or the onset (start) time if the Sequence is empty
         """
         if len(self.content) == 0:
             return self.onset
-        else:
-            return self.last.offset
+        else:  # last() is not None because len(content) > 0
+            return self.last().offset  # type: ignore
 
 
     def pack(self, onset: float = 0.0) -> float:
@@ -1619,8 +1711,8 @@ class Sequence(EventGroup):
         self.onset = onset
         for elem in self.content:
             elem.onset = onset
-            if isinstance(elem, EventGroup):
-                elem.duration = elem.pack()
+            if isinstance(elem, EventGroup):  # either Sequence or Concurrence
+                elem.duration = elem.pack()   # type: ignore
             onset += elem.duration
         self.duration = onset
         return self.duration
@@ -1663,6 +1755,7 @@ class Concurrence(EventGroup):
         content : list[Event]
             Elements contained within this collection.
     """
+    __slots__ = []
 
     def __init__(self, parent: Optional["EventGroup"] = None,
                  onset: Optional[float] = None,
@@ -1683,15 +1776,15 @@ class Concurrence(EventGroup):
             for elem in content:
                 assert isinstance(elem, Event)
                 assert elem.parent == None
-                if elem.onset == None:
+                if elem._onset == None:
                     elem.onset = temp_onset
                 max_offset = max(max_offset, elem.offset)
         if duration == None:  # compute duration from content
             duration = max_offset - temp_onset
         super().__init__(parent, onset, duration, content)
+ 
 
-
-    def pack(self, onset: float = 0.0) -> None:
+    def pack(self, onset: float = 0.0) -> float:
         """Adjust the content to onsets starting with the onset parameter
         (defaults to 0). The duration of self is set to the maximum offset
         of the content. This method essentially arranges the content to
@@ -1712,8 +1805,8 @@ class Concurrence(EventGroup):
         self.duration = 0
         for elem in self.content:
             elem.onset = onset
-            if isinstance(elem, EventGroup):
-                elem.duration = elem.pack(onset)
+            if isinstance(elem, EventGroup):   # either Sequence or Concurrence
+                elem.duration = elem.pack(onset)  # type: ignore
             self.duration = max(self.duration, elem.duration)
         return self.duration
 
@@ -1842,9 +1935,10 @@ class Measure(Sequence):
             A string representing the measure number if any.
     """
     __slots__ = ["number"]
+    number: Optional[str]
 
     def __init__(self, *args: Event, parent: Optional[EventGroup] = None,
-                 onset: float = None, duration: float = 4,
+                 onset: Optional[float] = None, duration: float = 4,
                  number: Optional[str] = None,
                  pack: bool = False):
         super().__init__(parent, onset, duration, list(args), pack)
@@ -1923,7 +2017,9 @@ class Score(Concurrence):
     Additional attributes may be assigned, e.g. 'title', 'source_file',
     'composer', etc.
     """
-    __slots__ = ["time_map"]
+    __slots__ = ["time_map", "_units_are_seconds"]
+    time_map: TimeMap
+    _units_are_seconds: bool
 
     def __init__(self, *args: Event,
                  onset: Optional[float] = 0,
@@ -2101,14 +2197,14 @@ class Score(Concurrence):
         Staff, it may do extra work. It might save some computation by
         performing a one-time
             score = score.merge_tied_notes()
-        and calling this method with the parameter has_ties=False.
+        and calling this method with the parameter has_ties=False. 
         If has_ties is False, it is assumed without checking that
         each part.has_ties() is False, allowing this method to skip
         calls to part.merge_tied_notes() for each selected part.
 
         Parameters
         ----------
-        part : Union[Number, str, list[int], None], optional
+        part : Union[int, str, list[int], None], optional
             If part is not None, only notes from the selected part are
             included.
             part may be an integer to match a part number, or
@@ -2139,8 +2235,8 @@ class Score(Concurrence):
         # Parts, we want to do selection first, then copy to avoid
         # modifying the source Score (self).
         content = []  # collect selected Parts/Staffs here
-        score = self.emptycopy()
-        parts = self.find_all(Part)
+        score : Score = self.emptycopy()  # type: ignore
+        parts : Generator = self.find_all(Part)
         for i, p in enumerate(parts):
             if (part is None
                 or (isinstance(part, int) and part == p.number)
@@ -2200,7 +2296,8 @@ class Score(Concurrence):
             part, and notes are ordered according to onset times. The resulting
             score contains one or more Parts, each containing only Notes.
         """
-        score = self.merge_tied_notes()  # also copies score
+        # make a deep copy of the score, merging tied notes in the process.
+        score : Score = self.merge_tied_notes()  # type: ignore
         # it is now safe to modify score because it has been copied
         if collapse:  # similar to Part.flatten() but we have to sort and
             # do some other extra work to put all notes into score
@@ -2222,14 +2319,14 @@ class Score(Concurrence):
 
             new_part = Part(parent=score, onset=score.onset,
                             instrument=instrument)
-            notes = score.list_all(Note)  # force iterator into list to sort
+            notes : list[Note] = score.list_all(Note)  # type: ignore
             score.content = [new_part]  # remove all other parts and events
             for note in notes:
                 note.parent = new_part
             # notes with equal onset times are sorted in pitch from high to low
             notes.sort(key=lambda x: (x.onset, x.pitch))
 
-            new_part.content = notes  # content will have only Notes
+            new_part.content = notes  # type: ignore (List[Note] < List[Event])
 
             # set the Part duration so it ends at the max offset of all Parts:
             offset = max((part.offset for part in self.find_all(Part)), default=0)
@@ -2237,7 +2334,7 @@ class Score(Concurrence):
 
         else:  # flatten each part separately
             for part in score.find_all(Part):
-                part.flatten(in_place=True)
+                part.flatten(in_place=True)  # type: ignore (part is a Part)
         return score
 
 
@@ -2341,7 +2438,8 @@ class Score(Concurrence):
         # flat scores. If the Part has a Staff, the Staffs are the
         # containers we want. If the Part has a Note, the Part itself is
         # the container. Other event classes can exist and are ignored.
-        for part in self.find_all(Part):
+        for part in self.find_all(Part):  # type: ignore (Part is an Event)
+            part : Part
             for event in part.content:
                 if isinstance(event, Staff):
                     containers += part.list_all(Staff)
@@ -2375,11 +2473,12 @@ class Score(Concurrence):
         Score
             A new Score instance with all Measures removed.
         """
-        score = self.emptycopy()
-        for part in self.content:
+        score : Score = self.emptycopy()  # type: ignore
+        for part in self.content:  # type: ignore (score contains Parts)
             if isinstance(part, Part):
-                part = part.merge_tied_notes(score)
+                part : Part = part.merge_tied_notes(score)  # type: ignore
                 part.remove_measures(score, has_ties=False)
+                part.copy(score)
             else:  # non-Part objects are simply copied
                 part.copy(score)
         return score
@@ -2402,14 +2501,14 @@ class Score(Concurrence):
         print(" " * indent, self, sep="")
         self.time_map.show(indent + 4)
         for elem in self.content:
-            elem.show(indent + 4)
+            elem.show(indent + 4)  # type: ignore (all Events have show())
         return self
 
 
     def get_sorted_notes(self):
         """Return a list of sorted notes with merged ties"""
         # score will have one Part, content of which is all Notes:
-        return self.flatten(collapse=True).content[0].content
+        return self.flatten(collapse=True).content[0].content  # type: ignore
 
 
 
@@ -2470,6 +2569,8 @@ class Part(EventGroup):
             A string representing the instrument name (if any).
     """
     __slots__ = ["number", "instrument"]
+    number: Optional[str]
+    instrument: Optional[str]
 
     def __init__(self, *args: Event,
                  parent: Optional[Score] = None,
@@ -2501,18 +2602,19 @@ class Part(EventGroup):
         """Test if Part is measured. Conforms to strict hierarchy of:
         Part-Staff-Measure-(Note or Rest or Chord) and Chord-Note.
         """
-        for staff in self.content:
+        for staff in self.content:  # type: ignore (Part contains Staffs)
+            staff : Staff
             # only Staffs are expected, but things outside of the hierarchy
             # are allowed, so we only rule out violations of the hierarchy:
             if isinstance(staff, (Score, Part, Measure, Note, Rest, Chord)):
                 return False
-            if isinstance(staff, staff) and not staff.is_measured():
+            if isinstance(staff, Staff) and not staff.is_measured():
                 return False
         return True
 
 
     @classmethod
-    def _find_tied_group(self, notes, i):
+    def _find_tied_group(cls, notes, i):
         """find notes tied to notes[i]"""
         group = [notes[i]]  # start the list
         while notes[i].tie == "start" or notes[i].tie == "continue":
@@ -2555,11 +2657,11 @@ class Part(EventGroup):
             tied notes are merged.
         """
         part = self if in_place else self.merge_tied_notes()
-        notes = part.list_all(Note)  # need list so we can sort
+        notes : List[Note] = part.list_all(Note)  # type: ignore (Notes < Events)
         for note in notes:
             note.parent = part
         notes.sort(key=lambda x: (x.onset, x.pitch))
-        part.content = notes
+        part.content = notes  # type: ignore (List[Note] < List[Event])
         return part
 
 
@@ -2599,7 +2701,8 @@ class Part(EventGroup):
         Part
             A Part with all Measures removed.
         """
-        part = self.merge_tied_notes(score) if has_ties else self
+        part : Part = (self.merge_tied_notes(score) 
+                       if has_ties else self)  # type: ignore
         for staff in part.content:
             if isinstance(staff, Staff):
                 staff.remove_measures()
@@ -2657,6 +2760,7 @@ class Staff(Sequence):
             where 1 is the top staff of the part, 2 is the 2nd, etc.
     """
     __slots__ = ["number"]
+    number: Optional[int]
 
     def __init__(self, *args: Event,
                  parent: Optional[EventGroup] = None,
