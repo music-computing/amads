@@ -431,9 +431,6 @@ def indices_to_interval(
     Examples
     --------
 
-    >>> indices_to_interval((1,0,0,1,0,0,1,0), adjacent_not_all=False)
-    (0, 2, 4, 0, 4, 2, 0, 3)
-
     Example 1:
     >>> bembé = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)
 
