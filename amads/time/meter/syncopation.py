@@ -92,7 +92,9 @@ class SyncopationMetric:
         >>> sm.weighted_note_to_beat_distance(onset_beats=onset_beats)
         Fraction(1, 2)
 
-        >>> sm = SyncopationMetric(path_to_score="../../music/musicxml/ex1.xml")
+        >>> from amads.music import example
+        >>> test_xml_file = str(example.fullpath("musicxml/ex1.xml"))
+        >>> sm = SyncopationMetric(path_to_score=test_xml_file)
         >>> sm.weighted_note_to_beat_distance()
         Fraction(4, 3)
 
