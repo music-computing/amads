@@ -8,7 +8,6 @@ checks (e.g., `is_rotation_equivalent`) on vectors.
 
 __author__ = "Mark Gotham"
 
-from collections import Counter
 from itertools import combinations
 from typing import Optional, Union
 
@@ -123,22 +122,43 @@ def complement(indicator_vector: tuple[int, ...]) -> tuple:
 def is_rotation_equivalent(vector_a: tuple, vector_b: tuple) -> bool:
     """
     Given two vectors, test for rotation equivalence.
+    This is applicable to indicator vectors, interval sequences, and more
+    as long as the user compares like with like.
 
     Examples
     --------
+
+    Indicator:
+
     >>> is_rotation_equivalent((1, 0, 0), (0, 1, 0))
     True
 
     >>> is_rotation_equivalent((1, 0, 0), (1, 1, 0))
     False
+
+    Intervals:
+
+    >>> is_rotation_equivalent((3, 3, 2), (3, 2, 3))
+    True
+
+    >>> is_rotation_equivalent((3, 3, 2), (2, 3, 2))
+    False
+
+    Trivial case:
+    >>> is_rotation_equivalent((1, 0, 0), (1, 0, 0))
+    True
+
     """
+    if vector_a == vector_b:
+        return True
+
     vector_length = len(vector_a)
     if len(vector_b) != vector_length:
         raise ValueError(
-            f"The vectors msy be of the same length (currently {vector_length} and {len(vector_b)}."
+            f"The vectors must be of the same length (currently {vector_length} and {len(vector_b)}."
         )
 
-    for steps in range(vector_length):
+    for steps in range(1, vector_length):
         if vector_a == rotate(vector_b, steps):
             return True
 
@@ -176,30 +196,88 @@ def is_maximally_even(indicator_vector: tuple) -> bool:
     False
     >>> is_maximally_even((0, 1, 0, 1, 0, 1))
     True
+
+    This works with the `indices_to_interval` function.
+    Let's look at those representations for the bembé cycle and a comparison case.
+
+    >>> bembé = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)
+    >>> indices_to_interval(bembé, adjacent_not_all=True)
+    (2, 2, 1, 2, 2, 2, 1)
+
+    >>> indices_to_interval(bembé, adjacent_not_all=True, sequence_not_vector=False)
+    (2, 5, 0, 0, 0, 0)
+
+    >>> indices_to_interval(bembé, adjacent_not_all=False)
+    (2, 5, 4, 3, 6, 1)
+
+    >>> is_maximally_even(bembé)
+    True
+
+    For our comparison case, we create a another cycle that also has:
+    a) 7 elements in a 12-unit cycle,
+
+    >>> not_bembé =  (1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1)
+    >>> not_bembé.count(1)
+    7
+
+    >>> len(not_bembé)
+    12
+
+    b) the same first-order interval set of 5 x 2s and 2 x 1s,
+
+    >>> indices_to_interval(not_bembé, adjacent_not_all=True, sequence_not_vector=False)
+    (2, 5, 0, 0, 0, 0)
+
+    ... but for which the those 2 x 1s are together
+
+    >>> indices_to_interval(bembé, adjacent_not_all=True)
+    (2, 2, 1, 2, 2, 2, 1)
+
+    ... making it not maximally even.
+
+    >>> is_maximally_even(not_bembé)
+    False
+
     """
     if not is_indicator_vector(indicator_vector):
         raise ValueError(
             f"The `indicator_vector` argument (set as {indicator_vector}) should be an indicator vector."
         )
 
-    interval_pattern = indices_to_interval(indicator_vector)
-    interval_pattern_counter = Counter(interval_pattern)
+    k = indicator_vector.count(1)
+    n = len(indicator_vector)
 
-    if len(interval_pattern_counter) > 2:
-        return False
-    elif len(interval_pattern_counter) == 1:
-        return True
-    else:  # len(interval_pattern_counter) == 2: # Cannot be 0 or negenative.
-        intervals = list(interval_pattern_counter.keys())
-        if abs(intervals[0] - intervals[1]) == 1:
-            return True
-        else:
-            return False
+    prototype_k_in_n = indices_to_indicator(tuple(max_even_k_in_n(k, n)), n)
+
+    return is_rotation_equivalent(prototype_k_in_n, indicator_vector)
 
 
 # ----------------------------------------------------------------------------
 
 # Other
+
+
+def max_even_k_in_n(k: int, n: int) -> set[int]:
+    """
+    Make a maximally even pattern of k elements in an n-length cycle.
+    Normally, we would expect k to be less than n, but this is not strictly required.
+    Larger values of k simply produce duplicate entries in n that are ignored in the
+    returned set.
+
+    Examples
+    --------
+
+    >>> max_even_k_in_n(3, 8)
+    {0, 3, 5}
+
+    >>> max_even_k_in_n(7, 12)
+    {0, 2, 3, 5, 7, 9, 10}
+
+    >>> max_even_k_in_n(5, 16)
+    {0, 3, 6, 10, 13}
+
+    """
+    return set([round(n * i / k) for i in range(k)])
 
 
 def rotation_distinct_patterns(vector_patterns: tuple[tuple, ...]) -> tuple[tuple, ...]:
@@ -274,6 +352,35 @@ def indicator_to_indices(
     return tuple(set_as_list)
 
 
+# TODO in vectors_sets?
+def indices_to_indicator(
+    indices_vector: Union[list[int], tuple[int, ...]], indicator_length: int
+) -> tuple:
+    """
+    Simple mapping from indices to indicator vector.
+
+    Examples
+    --------
+    Round trip
+    >>> bembé = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)
+    >>> indices = indicator_to_indices(bembé)
+    >>> indices
+    (0, 2, 4, 5, 7, 9, 11)
+
+    >>> indices_to_indicator(indices, indicator_length=12)
+    (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)
+
+    """
+    out = []
+    for i in range(indicator_length):
+        if i in indices_vector:
+            out.append(1)
+        else:
+            out.append(0)
+
+    return tuple(out)
+
+
 def indices_to_interval(
     vector: Union[list[int], tuple[int, ...]],
     wrap: bool = True,
@@ -296,6 +403,9 @@ def indices_to_interval(
 
     Examples
     --------
+
+    >>> indices_to_interval((1,0,0,1,0,0,1,0), adjacent_not_all=False)
+    (0, 2, 4, 0, 4, 2, 0, 3)
 
     Example 1:
     >>> bembé = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)
