@@ -114,6 +114,33 @@ def complement(indicator_vector: tuple[int, ...]) -> tuple:
     return tuple(1 - x for x in indicator_vector)
 
 
+def change_cycle_length(
+    start_vector: tuple,
+    destination_length: int,
+    return_indices_not_indicator: bool = True,
+) -> tuple:
+    """
+    Change the cycle length of a vector by mapping each point to the nearest equivalent in the new length.
+    >>> tresillo = (1, 0, 0, 1, 0, 0, 1, 0)
+    >>> change_cycle_length(tresillo, 9)
+    (0, 3, 7)
+
+    >>> change_cycle_length(tresillo, 12)
+    (0, 4, 9)
+
+    >>> change_cycle_length(start_vector=tresillo, destination_length=9, return_indices_not_indicator=False)
+    (1, 0, 0, 1, 0, 0, 0, 1, 0)
+
+    """
+    start_indices = indicator_to_indices(start_vector)
+    start_len = len(start_vector)
+    new_indices = [round(destination_length * i / start_len) for i in start_indices]
+    if return_indices_not_indicator:
+        return tuple(new_indices)
+    else:
+        return indices_to_indicator(new_indices, indicator_length=destination_length)
+
+
 # ----------------------------------------------------------------------------
 
 # Checks
