@@ -14,6 +14,7 @@ Original doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e0
 
 import math
 from collections import deque
+from dataclasses import fields
 from typing import List, Optional, Tuple
 
 import numpy as np
@@ -26,7 +27,7 @@ from .pcdist1 import pcdist1
 def key_cc(
     score: Score,
     profile: prof._KeyProfile = prof.krumhansl_kessler,
-    attribute_names: List[str] = ["major", "minor"],
+    attribute_names: Optional[List[str]] = None,
     salience_flag: bool = False,
 ) -> List[Tuple[str, Optional[Tuple[float]]]]:
     """
@@ -64,6 +65,13 @@ def key_cc(
         pcd = np.matmul(pcd, salm)  # shape (1, 12)
 
     results = []
+
+    if attribute_names is None:
+        attribute_names = [
+            f.name
+            for f in fields(profile)
+            if f.name not in ["name", "literature", "about"]
+        ]
 
     for attr_name in attribute_names:
         # ! we should probably treat the special attributes as proper attribute names

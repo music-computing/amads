@@ -36,6 +36,16 @@ def test_equal_prob_melody():
     return
 
 
+# TODO: need to change after chaning profiles.py
+def test_none_input():
+    score = Score.from_melody([60, 62, 64])
+    result = key_cc(score, prof.krumhansl_kessler)
+    names = [name for name, _ in result]
+    assert "major" in names and "minor" in names and len(result) == 4
+    for _, corr in result:
+        assert corr is None or (len(corr) == 12)
+
+
 def test_crafted_nonempty_melodies():
     """
     These melodies are here to test the various codepaths and are specific
