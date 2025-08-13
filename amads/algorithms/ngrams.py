@@ -26,7 +26,7 @@ class NGramCounter:
         Examples
         --------
         >>> tresillo = [3, 3, 2]
-        >>> ten_tresillo = tresillo * 100
+        >>> ten_tresillo = tresillo * 10
         >>> ngc = NGramCounter()
         >>> ngc.count_ngrams(tokens=ten_tresillo, n=3)
         >>> ngc.ngram_counts
