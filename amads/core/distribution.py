@@ -3,7 +3,7 @@ Distributions Module
 
 The Distribution class represents distributions and distribution metadata.
 
-Author: [Roger Dannenberg]
+Author(s): [Roger Dannenberg, Tai Nakamura]
 Date: [2024-12-04]
 
 Description:
@@ -25,6 +25,8 @@ from matplotlib.figure import Figure
 DEFAULT_BAR_COLOR = "skyblue"
 
 
+# legit think distribution class is too ambitious and contains too much information...
+# hell even
 class Distribution:
     """
     Represents a probability distribution and its metadata.
@@ -76,18 +78,49 @@ class Distribution:
         self.y_categories = y_categories
         self.y_label = y_label
 
+    def normalize(self):
+        if len(self.dimensions) == 1:
+            return self._normalize_1d()
+        elif len(self.dimensions) == 2:
+            return self._noramlize_2d()
+        else:
+            raise ValueError("Unsupported number of dimensions for Distribution class")
+
+    def _normalize_1d(self):
+        """
+        returns a normalized distribution if the distribution is 1-dimensional
+        """
+        data_sum = sum(self.data)
+        normalized_data = [datum / data_sum for datum in self.data]
+        return Distribution(
+            self.name,
+            normalized_data,
+            self.distribution_type,
+            self.dimensions,
+            self.x_categories,
+            self.x_label,
+            self.y_categories,
+            self.y_label,
+        )
+
+    def _normalize_2d(self):
+        """
+        returns a normalized distribution if the distribution is 2-dimensional
+        """
+        raise RuntimeError("not implemented yet!")
+
     def plot(self, color=DEFAULT_BAR_COLOR, show: bool = True) -> Figure:
         if len(self.dimensions) == 1:
-            fig = self.plot_1d(color)
+            fig = self._plot_1d(color)
         elif len(self.dimensions) == 2:
-            fig = self.plot_2d(color)
+            fig = self._plot_2d(color)
         else:
-            raise ValueError("Unsupported number of dimensions")
+            raise ValueError("Unsupported number of dimensions for Distribution class")
         if show:
             plt.show()
         return fig
 
-    def plot_1d(self, color=DEFAULT_BAR_COLOR) -> Figure:
+    def _plot_1d(self, color=DEFAULT_BAR_COLOR) -> Figure:
         """Create a 1D plot of the distribution.
         Returns:
             Figure - A matplotlib figure object.
@@ -100,7 +133,7 @@ class Distribution:
         fig.suptitle(self.name)
         return fig
 
-    def plot_2d(self, color=DEFAULT_BAR_COLOR) -> Figure:
+    def _plot_2d(self, color=DEFAULT_BAR_COLOR) -> Figure:
         """Create a 2D plot of the distribution.
         Returns:
             Figure - A matplotlib figure object.
