@@ -25,6 +25,8 @@ __author__ = "Mark Gotham"
 
 from typing import Iterable, Union
 
+import numpy as np
+
 # ----------------------------------------------------------------------------
 
 # Conversions (vectors <> sets)
@@ -193,14 +195,7 @@ def weighted_to_indicator(weighted_vector: tuple, threshold: float = 0.0) -> tup
     >>> weighted_to_indicator(weighted_vector2, threshold=0.1)
     (1, 0, 1, 0, 0)
     """
-    indicator_vector = []
-    for weight in weighted_vector:
-        if weight > threshold:
-            indicator_vector.append(1)
-        else:
-            indicator_vector.append(0)
-    return tuple(indicator_vector)
-    # TODO consider np.where(weighted_vector > threshold, 1, 0)
+    return tuple(np.where(np.array(weighted_vector) > threshold, 1, 0))
 
 
 # ----------------------------------------------------------------------------
@@ -291,9 +286,7 @@ def scalar_multiply(input: tuple, scale_factor: int = 2) -> tuple:
     (0, 2, 4)
 
     """
-    return tuple(
-        x * scale_factor for x in input
-    )  # TODO np would be better in cases like this)
+    return tuple(np.array(input) * scale_factor)
 
 
 # ----------------------------------------------------------------------------
