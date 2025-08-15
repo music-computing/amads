@@ -61,22 +61,35 @@ from dataclasses import dataclass
 from amads.core.distribution import Distribution
 
 
-def _get_key_profile_distribution(profile_tuple):
-    x_cats = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
-    x_label = "pitches"
+class PitchProfiles(Distribution):
+    def __init__(self, name, profile_tuple):
+        assert len(profile_tuple) == 12
+        assert all(isinstance(elem, float) for elem in profile_tuple)
+        x_cats = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
+        x_label = "pitches"
 
-    y_cats = None
-    y_label = "weights"
-    return Distribution(
-        "key_profile_distribution",
-        list(profile_tuple),
-        ["pitch_class"],
-        [12],
-        x_cats,
-        x_label,
-        y_cats,
-        y_label,
-    )
+        y_cats = None
+        y_label = "weights"
+        super.__init__(
+            name,
+            list(profile_tuple),
+            "pitch_class",
+            [len(profile_tuple)],
+            x_cats,
+            x_label,
+            y_cats,
+            y_label,
+        )
+
+    def getProfileTuple(self):
+        return tuple(self.data)
+
+    def getNormalizedProfileTuple(self):
+        return tuple(self.normalize().data)
+
+
+def _key_profile_dist_wrapper(profile_tuple):
+    return PitchProfiles("PitchProfile", profile_tuple)
 
 
 @dataclass
@@ -126,33 +139,37 @@ class KrumhanslKessler(_KeyProfile):
     about: str = (
         "Early PCP from psychological 'goodness of fit' tests using probe-tones"
     )
-    major: Distribution = _get_key_profile_distribution(
-        6.35,
-        2.23,
-        3.48,
-        2.33,
-        4.38,
-        4.09,
-        2.52,
-        5.19,
-        2.39,
-        3.66,
-        2.29,
-        2.88,
+    major: PitchProfiles = _key_profile_dist_wrapper(
+        (
+            6.35,
+            2.23,
+            3.48,
+            2.33,
+            4.38,
+            4.09,
+            2.52,
+            5.19,
+            2.39,
+            3.66,
+            2.29,
+            2.88,
+        )
     )
-    minor: Distribution = _get_key_profile_distribution(
-        6.33,
-        2.68,
-        3.52,
-        5.38,
-        2.6,
-        3.53,
-        2.54,
-        4.75,
-        3.98,
-        2.69,
-        3.34,
-        3.17,
+    minor: PitchProfiles = _key_profile_dist_wrapper(
+        (
+            6.33,
+            2.68,
+            3.52,
+            5.38,
+            2.6,
+            3.53,
+            2.54,
+            4.75,
+            3.98,
+            2.69,
+            3.34,
+            3.17,
+        )
     )
 
 
@@ -161,33 +178,37 @@ class KrumhanslSchmuckler(_KeyProfile):
     name: str = "KrumhanslSchmuckler"
     literature: str = "Krumhansl (1990)"
     about: str = "Early case of key-estimation through matching usage with profiles"
-    major: Distribution = _get_key_profile_distribution(
-        6.35,
-        2.33,
-        3.48,
-        2.33,
-        4.38,
-        4.09,
-        2.52,
-        5.19,
-        2.39,
-        3.66,
-        2.29,
-        2.88,
+    major: PitchProfiles = _key_profile_dist_wrapper(
+        (
+            6.35,
+            2.33,
+            3.48,
+            2.33,
+            4.38,
+            4.09,
+            2.52,
+            5.19,
+            2.39,
+            3.66,
+            2.29,
+            2.88,
+        )
     )
-    minor: Distribution = _get_key_profile_distribution(
-        6.33,
-        2.68,
-        3.52,
-        5.38,
-        2.6,
-        3.53,
-        2.54,
-        4.75,
-        3.98,
-        2.69,
-        3.34,
-        3.17,
+    minor: PitchProfiles = _key_profile_dist_wrapper(
+        (
+            6.33,
+            2.68,
+            3.52,
+            5.38,
+            2.6,
+            3.53,
+            2.54,
+            4.75,
+            3.98,
+            2.69,
+            3.34,
+            3.17,
+        )
     )
 
 
@@ -196,33 +217,37 @@ class AardenEssen(_KeyProfile):
     name: str = "AardenEssen"
     literature: str = "Aarden (2003) based on Schaffrath (1995)"
     about: str = "Folk melody transcriptions from the Essen collection"
-    major: Distribution = _get_key_profile_distribution(
-        17.7661,
-        0.145624,
-        14.9265,
-        0.160186,
-        19.8049,
-        11.3587,
-        0.291248,
-        22.062,
-        0.145624,
-        8.15494,
-        0.232998,
-        4.95122,
+    major: PitchProfiles = _key_profile_dist_wrapper(
+        (
+            17.7661,
+            0.145624,
+            14.9265,
+            0.160186,
+            19.8049,
+            11.3587,
+            0.291248,
+            22.062,
+            0.145624,
+            8.15494,
+            0.232998,
+            4.95122,
+        )
     )
-    minor: Distribution = _get_key_profile_distribution(
-        18.2648,
-        0.737619,
-        14.0499,
-        16.8599,
-        0.702494,
-        14.4362,
-        0.702494,
-        18.6161,
-        4.56621,
-        1.93186,
-        7.37619,
-        1.75623,
+    minor: PitchProfiles = _key_profile_dist_wrapper(
+        (
+            18.2648,
+            0.737619,
+            14.0499,
+            16.8599,
+            0.702494,
+            14.4362,
+            0.702494,
+            18.6161,
+            4.56621,
+            1.93186,
+            7.37619,
+            1.75623,
+        )
     )
 
 
@@ -231,33 +256,37 @@ class BellmanBudge(_KeyProfile):
     name: str = "BellmanBudge"
     literature: str = "Bellman (2005, sometimes given as 2006) after Budge (1943)"
     about: str = "Chords in Western common practice tonality"
-    major: Distribution = _get_key_profile_distribution(
-        16.8,
-        0.86,
-        12.95,
-        1.41,
-        13.49,
-        11.93,
-        1.25,
-        20.28,
-        1.8,
-        8.04,
-        0.62,
-        10.57,
+    major: PitchProfiles = _key_profile_dist_wrapper(
+        (
+            16.8,
+            0.86,
+            12.95,
+            1.41,
+            13.49,
+            11.93,
+            1.25,
+            20.28,
+            1.8,
+            8.04,
+            0.62,
+            10.57,
+        )
     )
-    minor: Distribution = _get_key_profile_distribution(
-        18.16,
-        0.69,
-        12.99,
-        13.34,
-        1.07,
-        11.15,
-        1.38,
-        21.07,
-        7.49,
-        1.53,
-        0.92,
-        10.21,
+    minor: PitchProfiles = _key_profile_dist_wrapper(
+        (
+            18.16,
+            0.69,
+            12.99,
+            13.34,
+            1.07,
+            11.15,
+            1.38,
+            21.07,
+            7.49,
+            1.53,
+            0.92,
+            10.21,
+        )
     )
 
 
@@ -270,33 +299,37 @@ class Temperley(_KeyProfile):
     about: str = (
         "Psychological data revised - Temperley's revision of Krumhansl-Schmuckler profiles"
     )
-    major: Distribution = _get_key_profile_distribution(
-        5.0,
-        2.0,
-        3.5,
-        2.0,
-        4.5,
-        4.0,
-        2.0,
-        4.5,
-        2.0,
-        3.5,
-        1.5,
-        4.0,
+    major: PitchProfiles = _key_profile_dist_wrapper(
+        (
+            5.0,
+            2.0,
+            3.5,
+            2.0,
+            4.5,
+            4.0,
+            2.0,
+            4.5,
+            2.0,
+            3.5,
+            1.5,
+            4.0,
+        )
     )
-    minor: Distribution = _get_key_profile_distribution(
-        5.0,
-        2.0,
-        3.5,
-        4.5,
-        2.0,
-        4.0,
-        2.0,
-        4.5,
-        3.5,
-        2.0,
-        1.5,
-        4.0,
+    minor: PitchProfiles = _key_profile_dist_wrapper(
+        (
+            5.0,
+            2.0,
+            3.5,
+            4.5,
+            2.0,
+            4.0,
+            2.0,
+            4.5,
+            3.5,
+            2.0,
+            1.5,
+            4.0,
+        )
     )
 
 
@@ -305,33 +338,37 @@ class TemperleyKostkaPayne(_KeyProfile):
     name: str = "TemperleyKostkaPayne"
     literature: str = "Temperley (2007 and 2008)"
     about: str = "Usage by section and excerpts from a textbook (Kostka & Payne)"
-    major: Distribution = _get_key_profile_distribution(
-        0.748,
-        0.06,
-        0.488,
-        0.082,
-        0.67,
-        0.46,
-        0.096,
-        0.715,
-        0.104,
-        0.366,
-        0.057,
-        0.4,
+    major: PitchProfiles = _key_profile_dist_wrapper(
+        (
+            0.748,
+            0.06,
+            0.488,
+            0.082,
+            0.67,
+            0.46,
+            0.096,
+            0.715,
+            0.104,
+            0.366,
+            0.057,
+            0.4,
+        )
     )
-    minor: Distribution = _get_key_profile_distribution(
-        0.712,
-        0.084,
-        0.474,
-        0.618,
-        0.049,
-        0.46,
-        0.105,
-        0.747,
-        0.404,
-        0.067,
-        0.133,
-        0.33,
+    minor: PitchProfiles = _key_profile_dist_wrapper(
+        (
+            0.712,
+            0.084,
+            0.474,
+            0.618,
+            0.049,
+            0.46,
+            0.105,
+            0.747,
+            0.404,
+            0.067,
+            0.133,
+            0.33,
+        )
     )
 
 
@@ -342,11 +379,11 @@ class Sapp(_KeyProfile):
     about: str = (
         "Simple set of scale degree intended for use with Krumhansl Schmuckler (above)"
     )
-    major: Distribution = _get_key_profile_distribution(
-        2.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 2.0, 0.0, 1.0, 0.0, 1.0
+    major: PitchProfiles = _key_profile_dist_wrapper(
+        (2.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 2.0, 0.0, 1.0, 0.0, 1.0)
     )
-    minor: Distribution = _get_key_profile_distribution(
-        2.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 2.0, 1.0, 0.0, 1.0, 0.0
+    minor: PitchProfiles = _key_profile_dist_wrapper(
+        (2.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 2.0, 1.0, 0.0, 1.0, 0.0)
     )
 
 
@@ -355,47 +392,53 @@ class Vuvan(_KeyProfile):
     name: str = "Vuvan"
     literature: str = "Vuvan et al. (2011)"
     about: str = "Different profiles for natural, harmonic, and melodic minors"
-    natural_minor: Distribution = _get_key_profile_distribution(
-        5.08,
-        3.03,
-        3.73,
-        4.23,
-        3.64,
-        3.85,
-        3.13,
-        5.29,
-        4.43,
-        3.95,
-        5.26,
-        3.99,
+    natural_minor: PitchProfiles = _key_profile_dist_wrapper(
+        (
+            5.08,
+            3.03,
+            3.73,
+            4.23,
+            3.64,
+            3.85,
+            3.13,
+            5.29,
+            4.43,
+            3.95,
+            5.26,
+            3.99,
+        )
     )
-    harmonic_minor: Distribution = _get_key_profile_distribution(
-        4.62,
-        2.63,
-        3.74,
-        4.23,
-        3.63,
-        3.81,
-        4.15,
-        5.21,
-        4.77,
-        3.95,
-        3.79,
-        5.3,
+    harmonic_minor: PitchProfiles = _key_profile_dist_wrapper(
+        (
+            4.62,
+            2.63,
+            3.74,
+            4.23,
+            3.63,
+            3.81,
+            4.15,
+            5.21,
+            4.77,
+            3.95,
+            3.79,
+            5.3,
+        )
     )
-    melodic_minor: Distribution = _get_key_profile_distribution(
-        4.75,
-        3.26,
-        3.76,
-        4.46,
-        3.49,
-        4.09,
-        3.67,
-        5.08,
-        4.14,
-        4.43,
-        4.51,
-        4.91,
+    melodic_minor: PitchProfiles = _key_profile_dist_wrapper(
+        (
+            4.75,
+            3.26,
+            3.76,
+            4.46,
+            3.49,
+            4.09,
+            3.67,
+            5.08,
+            4.14,
+            4.43,
+            4.51,
+            4.91,
+        )
     )
 
 
@@ -404,19 +447,21 @@ class DeClerqTemperley(_KeyProfile):
     name: str = "DeClerqTemperley"
     literature: str = "deClerq and Temperley (Popular Music, 2011)"
     about: str = "Chord roots (specifically) in rock harmony."
-    roots: Distribution = _get_key_profile_distribution(
-        0.328,
-        0.005,
-        0.036,
-        0.026,
-        0.019,
-        0.226,
-        0.003,
-        0.163,
-        0.04,
-        0.072,
-        0.081,
-        0.004,
+    roots: PitchProfiles = _key_profile_dist_wrapper(
+        (
+            0.328,
+            0.005,
+            0.036,
+            0.026,
+            0.019,
+            0.226,
+            0.003,
+            0.163,
+            0.04,
+            0.072,
+            0.081,
+            0.004,
+        )
     )
 
 
@@ -425,63 +470,71 @@ class TemperleyDeClerq(_KeyProfile):
     name: str = "TemperleyDeClerq"
     literature: str = "Temperley and deClerq (JNMR, 2013)"
     about: str = """Rock music and a distinction between melody and harmony.
-               Distributions as reported in Vuvan and Hughes (2021, see below)
+               distributions as reported in Vuvan and Hughes (2021, see below)
                following personal correspondence with Temperley."""
-    major: Distribution = _get_key_profile_distribution(
-        0.223,
-        0.001,
-        0.158,
-        0.015,
-        0.194,
-        0.071,
-        0.002,
-        0.169,
-        0.003,
-        0.119,
-        0.008,
-        0.035,
+    major: PitchProfiles = _key_profile_dist_wrapper(
+        (
+            0.223,
+            0.001,
+            0.158,
+            0.015,
+            0.194,
+            0.071,
+            0.002,
+            0.169,
+            0.003,
+            0.119,
+            0.008,
+            0.035,
+        )
     )
-    minor: Distribution = _get_key_profile_distribution(
-        0.317,
-        0.001,
-        0.09,
-        0.159,
-        0.046,
-        0.097,
-        0.007,
-        0.131,
-        0.009,
-        0.047,
-        0.087,
-        0.009,
+    minor: PitchProfiles = _key_profile_dist_wrapper(
+        (
+            0.317,
+            0.001,
+            0.09,
+            0.159,
+            0.046,
+            0.097,
+            0.007,
+            0.131,
+            0.009,
+            0.047,
+            0.087,
+            0.009,
+        )
     )
-    harmony_major: Distribution = _get_key_profile_distribution(
-        0.231,
-        0.002,
-        0.091,
-        0.004,
-        0.149,
-        0.111,
-        0.004,
-        0.193,
-        0.004,
-        0.126,
-        0.011,
-        0.076,
+    harmony_major: PitchProfiles = _key_profile_dist_wrapper(
+        (
+            0.231,
+            0.002,
+            0.091,
+            0.004,
+            0.149,
+            0.111,
+            0.004,
+            0.193,
+            0.004,
+            0.126,
+            0.011,
+            0.076,
+        )
     )
-    harmony_minor: Distribution = _get_key_profile_distribution(
-        0.202,
-        0.006,
-        0.102,
-        0.127,
-        0.047,
-        0.113,
-        0.005,
-        0.177,
-        0.046,
-        0.051,
-        0.09,
-        0.034,
+    harmony_minor: PitchProfiles = _key_profile_dist_wrapper(
+        (
+            0.202,
+            0.006,
+            0.102,
+            0.127,
+            0.047,
+            0.113,
+            0.005,
+            0.177,
+            0.046,
+            0.051,
+            0.09,
+            0.034,
+        )
     )
 
 
@@ -491,33 +544,37 @@ class AlbrechtShanahan(_KeyProfile):
     literature: str = "Albrecht and Shanahan (Music Perception, 2013)"
     about: str = """Partial pieces for more stable within-key environment.
                Note that the two pairs of distributions reported in the appendix are identical"""
-    major: Distribution = _get_key_profile_distribution(
-        0.238,
-        0.006,
-        0.111,
-        0.006,
-        0.137,
-        0.094,
-        0.016,
-        0.214,
-        0.009,
-        0.08,
-        0.008,
-        0.081,
+    major: PitchProfiles = _key_profile_dist_wrapper(
+        (
+            0.238,
+            0.006,
+            0.111,
+            0.006,
+            0.137,
+            0.094,
+            0.016,
+            0.214,
+            0.009,
+            0.08,
+            0.008,
+            0.081,
+        )
     )
-    minor: Distribution = _get_key_profile_distribution(
-        0.220,
-        0.006,
-        0.104,
-        0.123,
-        0.019,
-        0.103,
-        0.012,
-        0.214,
-        0.062,
-        0.022,
-        0.061,
-        0.052,
+    minor: PitchProfiles = _key_profile_dist_wrapper(
+        (
+            0.220,
+            0.006,
+            0.104,
+            0.123,
+            0.019,
+            0.103,
+            0.012,
+            0.214,
+            0.062,
+            0.022,
+            0.061,
+            0.052,
+        )
     )
 
 
@@ -527,61 +584,69 @@ class PrinceSchumuckler(_KeyProfile):
     literature: str = "Prince and Schmuckler (Music Perception, 2014)"
     about: str = """Distinction between downbeat and all beats.
                Note they also provide profiles for metrical position usage."""
-    downbeat_major: Distribution = _get_key_profile_distribution(
-        1.0,
-        0.088610811,
-        0.569205361,
-        0.140888014,
-        0.615384615,
-        0.481864956,
-        0.140888014,
-        0.976815092,
-        0.156831608,
-        0.433398971,
-        0.122721209,
-        0.427237502,
+    downbeat_major: PitchProfiles = _key_profile_dist_wrapper(
+        (
+            1.0,
+            0.088610811,
+            0.569205361,
+            0.140888014,
+            0.615384615,
+            0.481864956,
+            0.140888014,
+            0.976815092,
+            0.156831608,
+            0.433398971,
+            0.122721209,
+            0.427237502,
+        )
     )
-    downbeat_minor: Distribution = _get_key_profile_distribution(
-        1.0,
-        0.127885863,
-        0.516472114,
-        0.640207523,
-        0.174189364,
-        0.537483787,
-        0.160311284,
-        0.989883268,
-        0.426588846,
-        0.172114137,
-        0.430350195,
-        0.286381323,
+    downbeat_minor: PitchProfiles = _key_profile_dist_wrapper(
+        (
+            1.0,
+            0.127885863,
+            0.516472114,
+            0.640207523,
+            0.174189364,
+            0.537483787,
+            0.160311284,
+            0.989883268,
+            0.426588846,
+            0.172114137,
+            0.430350195,
+            0.286381323,
+        )
     )
-    major: Distribution = _get_key_profile_distribution(
-        0.919356471,
-        0.114927991,
-        0.729198287,
-        0.144709771,
-        0.697021822,
-        0.525970522,
-        0.214762724,
-        1.0,
-        0.156143546,
-        0.542952545,
-        0.142399406,
-        0.541215555,
+    major: PitchProfiles = _key_profile_dist_wrapper(
+        (
+            0.919356471,
+            0.114927991,
+            0.729198287,
+            0.144709771,
+            0.697021822,
+            0.525970522,
+            0.214762724,
+            1.0,
+            0.156143546,
+            0.542952545,
+            0.142399406,
+            0.541215555,
+        )
     )
-    minor: Distribution = _get_key_profile_distribution(
-        0.874192439,
-        0.150655606,
-        0.637256776,
-        0.697274361,
-        0.162238618,
-        0.62471807,
-        0.167131771,
-        1.0,
-        0.47788524,
-        0.212622807,
-        0.467754884,
-        0.298711724,
+    minor: PitchProfiles = _key_profile_dist_wrapper(
+        (
+            0.874192439,
+            0.150655606,
+            0.637256776,
+            0.697274361,
+            0.162238618,
+            0.62471807,
+            0.167131771,
+            1.0,
+            0.47788524,
+            0.212622807,
+            0.467754884,
+            0.298711724,
+        )
     )
 
 
@@ -592,375 +657,427 @@ class QuinnWhite(_KeyProfile):
     about: str = "Separate profiles for each key"
     # this used to be major_all, but is the symmetrical version of
     # the major key profile in QuinnWhite
-    major: Distribution = _get_key_profile_distribution(
-        0.172,
-        0.014,
-        0.107,
-        0.011,
-        0.160,
-        0.099,
-        0.018,
-        0.231,
-        0.017,
-        0.059,
-        0.016,
-        0.093,
+    major: PitchProfiles = _key_profile_dist_wrapper(
+        (
+            0.172,
+            0.014,
+            0.107,
+            0.011,
+            0.160,
+            0.099,
+            0.018,
+            0.231,
+            0.017,
+            0.059,
+            0.016,
+            0.093,
+        )
     )
     # instead of ordering them by circle of fifths, we order the distributions by
     # incrementing key number the non-transpositionally equivalent distributions
     # represent instead
-    major_assym: tuple[Distribution] = (
-        _get_key_profile_distribution(
-            0.174,
-            0.014,
-            0.112,
-            0.010,
-            0.160,
-            0.100,
-            0.016,
-            0.230,
-            0.015,
-            0.058,
-            0.016,
-            0.096,
+    major_assym: tuple[PitchProfiles] = (
+        _key_profile_dist_wrapper(
+            (
+                0.174,
+                0.014,
+                0.112,
+                0.010,
+                0.160,
+                0.100,
+                0.016,
+                0.230,
+                0.015,
+                0.058,
+                0.016,
+                0.096,
+            )
         ),
-        _get_key_profile_distribution(
-            0.173,
-            0.016,
-            0.103,
-            0.014,
-            0.165,
-            0.091,
-            0.020,
-            0.234,
-            0.018,
-            0.055,
-            0.018,
-            0.093,
+        _key_profile_dist_wrapper(
+            (
+                0.173,
+                0.016,
+                0.103,
+                0.014,
+                0.165,
+                0.091,
+                0.020,
+                0.234,
+                0.018,
+                0.055,
+                0.018,
+                0.093,
+            )
         ),
-        _get_key_profile_distribution(
-            0.175,
-            0.013,
-            0.113,
-            0.010,
-            0.155,
-            0.102,
-            0.017,
-            0.227,
-            0.017,
-            0.061,
-            0.015,
-            0.094,
+        _key_profile_dist_wrapper(
+            (
+                0.175,
+                0.013,
+                0.113,
+                0.010,
+                0.155,
+                0.102,
+                0.017,
+                0.227,
+                0.017,
+                0.061,
+                0.015,
+                0.094,
+            )
         ),
-        _get_key_profile_distribution(
-            0.173,
-            0.015,
-            0.108,
-            0.011,
-            0.160,
-            0.098,
-            0.019,
-            0.231,
-            0.016,
-            0.059,
-            0.015,
-            0.094,
+        _key_profile_dist_wrapper(
+            (
+                0.173,
+                0.015,
+                0.108,
+                0.011,
+                0.160,
+                0.098,
+                0.019,
+                0.231,
+                0.016,
+                0.059,
+                0.015,
+                0.094,
+            )
         ),
-        _get_key_profile_distribution(
-            0.171,
-            0.013,
-            0.108,
-            0.010,
-            0.161,
-            0.106,
-            0.015,
-            0.229,
-            0.019,
-            0.059,
-            0.016,
-            0.092,
+        _key_profile_dist_wrapper(
+            (
+                0.171,
+                0.013,
+                0.108,
+                0.010,
+                0.161,
+                0.106,
+                0.015,
+                0.229,
+                0.019,
+                0.059,
+                0.016,
+                0.092,
+            )
         ),
-        _get_key_profile_distribution(
-            0.173,
-            0.014,
-            0.108,
-            0.009,
-            0.161,
-            0.096,
-            0.018,
-            0.231,
-            0.016,
-            0.063,
-            0.016,
-            0.095,
+        _key_profile_dist_wrapper(
+            (
+                0.173,
+                0.014,
+                0.108,
+                0.009,
+                0.161,
+                0.096,
+                0.018,
+                0.231,
+                0.016,
+                0.063,
+                0.016,
+                0.095,
+            )
         ),
-        _get_key_profile_distribution(
-            0.166,
-            0.018,
-            0.096,
-            0.014,
-            0.170,
-            0.085,
-            0.019,
-            0.240,
-            0.019,
-            0.062,
-            0.020,
-            0.091,
+        _key_profile_dist_wrapper(
+            (
+                0.166,
+                0.018,
+                0.096,
+                0.014,
+                0.170,
+                0.085,
+                0.019,
+                0.240,
+                0.019,
+                0.062,
+                0.020,
+                0.091,
+            )
         ),
-        _get_key_profile_distribution(
-            0.175,
-            0.013,
-            0.108,
-            0.011,
-            0.156,
-            0.102,
-            0.017,
-            0.233,
-            0.016,
-            0.058,
-            0.019,
-            0.091,
+        _key_profile_dist_wrapper(
+            (
+                0.175,
+                0.013,
+                0.108,
+                0.011,
+                0.156,
+                0.102,
+                0.017,
+                0.233,
+                0.016,
+                0.058,
+                0.019,
+                0.091,
+            )
         ),
-        _get_key_profile_distribution(
-            0.171,
-            0.014,
-            0.099,
-            0.013,
-            0.164,
-            0.099,
-            0.018,
-            0.235,
-            0.016,
-            0.064,
-            0.015,
-            0.093,
+        _key_profile_dist_wrapper(
+            (
+                0.171,
+                0.014,
+                0.099,
+                0.013,
+                0.164,
+                0.099,
+                0.018,
+                0.235,
+                0.016,
+                0.064,
+                0.015,
+                0.093,
+            )
         ),
-        _get_key_profile_distribution(
-            0.174,
-            0.014,
-            0.108,
-            0.012,
-            0.160,
-            0.101,
-            0.017,
-            0.232,
-            0.018,
-            0.059,
-            0.014,
-            0.093,
+        _key_profile_dist_wrapper(
+            (
+                0.174,
+                0.014,
+                0.108,
+                0.012,
+                0.160,
+                0.101,
+                0.017,
+                0.232,
+                0.018,
+                0.059,
+                0.014,
+                0.093,
+            )
         ),
-        _get_key_profile_distribution(
-            0.169,
-            0.016,
-            0.107,
-            0.013,
-            0.158,
-            0.099,
-            0.020,
-            0.230,
-            0.017,
-            0.060,
-            0.017,
-            0.096,
+        _key_profile_dist_wrapper(
+            (
+                0.169,
+                0.016,
+                0.107,
+                0.013,
+                0.158,
+                0.099,
+                0.020,
+                0.230,
+                0.017,
+                0.060,
+                0.017,
+                0.096,
+            )
         ),
-        _get_key_profile_distribution(
-            0.167,
-            0.014,
-            0.106,
-            0.014,
-            0.164,
-            0.100,
-            0.018,
-            0.233,
-            0.021,
-            0.054,
-            0.020,
-            0.089,
+        _key_profile_dist_wrapper(
+            (
+                0.167,
+                0.014,
+                0.106,
+                0.014,
+                0.164,
+                0.100,
+                0.018,
+                0.233,
+                0.021,
+                0.054,
+                0.020,
+                0.089,
+            )
         ),
     )
-    minor: Distribution = _get_key_profile_distribution(
-        0.170,
-        0.012,
-        0.115,
-        0.149,
-        0.013,
-        0.095,
-        0.027,
-        0.211,
-        0.074,
-        0.024,
-        0.026,
-        0.085,
+    minor: PitchProfiles = _key_profile_dist_wrapper(
+        (
+            0.170,
+            0.012,
+            0.115,
+            0.149,
+            0.013,
+            0.095,
+            0.027,
+            0.211,
+            0.074,
+            0.024,
+            0.026,
+            0.085,
+        )
     )
     minor_assym: tuple[tuple[float]] = (
-        _get_key_profile_distribution(
-            0.170,
-            0.012,
-            0.118,
-            0.141,
-            0.011,
-            0.098,
-            0.026,
-            0.212,
-            0.074,
-            0.024,
-            0.023,
-            0.091,
+        _key_profile_dist_wrapper(
+            (
+                0.170,
+                0.012,
+                0.118,
+                0.141,
+                0.011,
+                0.098,
+                0.026,
+                0.212,
+                0.074,
+                0.024,
+                0.023,
+                0.091,
+            )
         ),
-        _get_key_profile_distribution(
-            0.168,
-            0.014,
-            0.112,
-            0.152,
-            0.014,
-            0.093,
-            0.028,
-            0.212,
-            0.078,
-            0.022,
-            0.026,
-            0.082,
+        _key_profile_dist_wrapper(
+            (
+                0.168,
+                0.014,
+                0.112,
+                0.152,
+                0.014,
+                0.093,
+                0.028,
+                0.212,
+                0.078,
+                0.022,
+                0.026,
+                0.082,
+            )
         ),
-        _get_key_profile_distribution(
-            0.172,
-            0.010,
-            0.118,
-            0.158,
-            0.012,
-            0.092,
-            0.023,
-            0.211,
-            0.067,
-            0.027,
-            0.027,
-            0.084,
+        _key_profile_dist_wrapper(
+            (
+                0.172,
+                0.010,
+                0.118,
+                0.158,
+                0.012,
+                0.092,
+                0.023,
+                0.211,
+                0.067,
+                0.027,
+                0.027,
+                0.084,
+            )
         ),
-        _get_key_profile_distribution(
-            0.168,
-            0.014,
-            0.111,
-            0.152,
-            0.015,
-            0.087,
-            0.032,
-            0.213,
-            0.073,
-            0.025,
-            0.027,
-            0.082,
+        _key_profile_dist_wrapper(
+            (
+                0.168,
+                0.014,
+                0.111,
+                0.152,
+                0.015,
+                0.087,
+                0.032,
+                0.213,
+                0.073,
+                0.025,
+                0.027,
+                0.082,
+            )
         ),
-        _get_key_profile_distribution(
-            0.174,
-            0.012,
-            0.114,
-            0.149,
-            0.013,
-            0.098,
-            0.029,
-            0.202,
-            0.076,
-            0.025,
-            0.023,
-            0.087,
+        _key_profile_dist_wrapper(
+            (
+                0.174,
+                0.012,
+                0.114,
+                0.149,
+                0.013,
+                0.098,
+                0.029,
+                0.202,
+                0.076,
+                0.025,
+                0.023,
+                0.087,
+            )
         ),
-        _get_key_profile_distribution(
-            0.167,
-            0.011,
-            0.117,
-            0.141,
-            0.012,
-            0.093,
-            0.026,
-            0.217,
-            0.077,
-            0.024,
-            0.025,
-            0.089,
+        _key_profile_dist_wrapper(
+            (
+                0.167,
+                0.011,
+                0.117,
+                0.141,
+                0.012,
+                0.093,
+                0.026,
+                0.217,
+                0.077,
+                0.024,
+                0.025,
+                0.089,
+            )
         ),
-        _get_key_profile_distribution(
-            0.172,
-            0.013,
-            0.109,
-            0.149,
-            0.014,
-            0.091,
-            0.029,
-            0.215,
-            0.075,
-            0.025,
-            0.028,
-            0.081,
+        _key_profile_dist_wrapper(
+            (
+                0.172,
+                0.013,
+                0.109,
+                0.149,
+                0.014,
+                0.091,
+                0.029,
+                0.215,
+                0.075,
+                0.025,
+                0.028,
+                0.081,
+            )
         ),
-        _get_key_profile_distribution(
-            0.174,
-            0.011,
-            0.116,
-            0.152,
-            0.014,
-            0.094,
-            0.028,
-            0.208,
-            0.069,
-            0.027,
-            0.026,
-            0.081,
+        _key_profile_dist_wrapper(
+            (
+                0.174,
+                0.011,
+                0.116,
+                0.152,
+                0.014,
+                0.094,
+                0.028,
+                0.208,
+                0.069,
+                0.027,
+                0.026,
+                0.081,
+            )
         ),
-        _get_key_profile_distribution(
-            0.168,
-            0.014,
-            0.106,
-            0.151,
-            0.014,
-            0.093,
-            0.028,
-            0.212,
-            0.076,
-            0.022,
-            0.030,
-            0.085,
+        _key_profile_dist_wrapper(
+            (
+                0.168,
+                0.014,
+                0.106,
+                0.151,
+                0.014,
+                0.093,
+                0.028,
+                0.212,
+                0.076,
+                0.022,
+                0.030,
+                0.085,
+            )
         ),
-        _get_key_profile_distribution(
-            0.175,
-            0.010,
-            0.114,
-            0.149,
-            0.012,
-            0.096,
-            0.025,
-            0.217,
-            0.073,
-            0.021,
-            0.026,
-            0.083,
+        _key_profile_dist_wrapper(
+            (
+                0.175,
+                0.010,
+                0.114,
+                0.149,
+                0.012,
+                0.096,
+                0.025,
+                0.217,
+                0.073,
+                0.021,
+                0.026,
+                0.083,
+            )
         ),
-        _get_key_profile_distribution(
-            0.164,
-            0.011,
-            0.113,
-            0.150,
-            0.014,
-            0.095,
-            0.033,
-            0.205,
-            0.078,
-            0.027,
-            0.027,
-            0.083,
+        _key_profile_dist_wrapper(
+            (
+                0.164,
+                0.011,
+                0.113,
+                0.150,
+                0.014,
+                0.095,
+                0.033,
+                0.205,
+                0.078,
+                0.027,
+                0.027,
+                0.083,
+            )
         ),
-        _get_key_profile_distribution(
-            0.164,
-            0.012,
-            0.120,
-            0.144,
-            0.013,
-            0.102,
-            0.024,
-            0.208,
-            0.074,
-            0.022,
-            0.028,
-            0.088,
+        _key_profile_dist_wrapper(
+            (
+                0.164,
+                0.012,
+                0.120,
+                0.144,
+                0.013,
+                0.102,
+                0.024,
+                0.208,
+                0.074,
+                0.022,
+                0.028,
+                0.088,
+            )
         ),
     )
 
@@ -970,33 +1087,37 @@ class VuvanHughes(_KeyProfile):
     name: str = "VuvanHughes"
     literature: str = "Vuvan and Hughes (Music Perception 2021)"
     about: str = "A comparison of Classical and Rock music."
-    classical: Distribution = _get_key_profile_distribution(
-        5.38,
-        2.65,
-        3.39,
-        3.01,
-        3.62,
-        3.96,
-        2.83,
-        4.93,
-        2.9,
-        3.38,
-        2.91,
-        3.03,
+    classical: PitchProfiles = _key_profile_dist_wrapper(
+        (
+            5.38,
+            2.65,
+            3.39,
+            3.01,
+            3.62,
+            3.96,
+            2.83,
+            4.93,
+            2.9,
+            3.38,
+            2.91,
+            3.03,
+        )
     )
-    rock: Distribution = _get_key_profile_distribution(
-        5.34,
-        3.33,
-        3.73,
-        3.39,
-        3.95,
-        3.99,
-        2.82,
-        4.54,
-        2.9,
-        3.21,
-        2.88,
-        2.71,
+    rock: PitchProfiles = _key_profile_dist_wrapper(
+        (
+            5.34,
+            3.33,
+            3.73,
+            3.39,
+            3.95,
+            3.99,
+            2.82,
+            4.54,
+            2.9,
+            3.21,
+            2.88,
+            2.71,
+        )
     )
 
 
