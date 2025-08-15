@@ -82,7 +82,7 @@ class Distribution:
         if len(self.dimensions) == 1:
             return self._normalize_1d()
         elif len(self.dimensions) == 2:
-            return self._noramlize_2d()
+            return self._normalize_2d()
         else:
             raise ValueError("Unsupported number of dimensions for Distribution class")
 

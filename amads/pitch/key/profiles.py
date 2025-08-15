@@ -61,7 +61,7 @@ from dataclasses import dataclass
 from amads.core.distribution import Distribution
 
 
-class PitchProfiles(Distribution):
+class PitchProfile(Distribution):
     def __init__(self, name, profile_tuple):
         assert len(profile_tuple) == 12
         assert all(isinstance(elem, float) for elem in profile_tuple)
@@ -89,7 +89,7 @@ class PitchProfiles(Distribution):
 
 
 def _key_profile_dist_wrapper(profile_tuple):
-    return PitchProfiles("PitchProfile", profile_tuple)
+    return PitchProfile("PitchProfile", profile_tuple)
 
 
 @dataclass
@@ -139,7 +139,7 @@ class KrumhanslKessler(_KeyProfile):
     about: str = (
         "Early PCP from psychological 'goodness of fit' tests using probe-tones"
     )
-    major: PitchProfiles = _key_profile_dist_wrapper(
+    major: PitchProfile = _key_profile_dist_wrapper(
         (
             6.35,
             2.23,
@@ -155,7 +155,7 @@ class KrumhanslKessler(_KeyProfile):
             2.88,
         )
     )
-    minor: PitchProfiles = _key_profile_dist_wrapper(
+    minor: PitchProfile = _key_profile_dist_wrapper(
         (
             6.33,
             2.68,
@@ -178,7 +178,7 @@ class KrumhanslSchmuckler(_KeyProfile):
     name: str = "KrumhanslSchmuckler"
     literature: str = "Krumhansl (1990)"
     about: str = "Early case of key-estimation through matching usage with profiles"
-    major: PitchProfiles = _key_profile_dist_wrapper(
+    major: PitchProfile = _key_profile_dist_wrapper(
         (
             6.35,
             2.33,
@@ -194,7 +194,7 @@ class KrumhanslSchmuckler(_KeyProfile):
             2.88,
         )
     )
-    minor: PitchProfiles = _key_profile_dist_wrapper(
+    minor: PitchProfile = _key_profile_dist_wrapper(
         (
             6.33,
             2.68,
@@ -217,7 +217,7 @@ class AardenEssen(_KeyProfile):
     name: str = "AardenEssen"
     literature: str = "Aarden (2003) based on Schaffrath (1995)"
     about: str = "Folk melody transcriptions from the Essen collection"
-    major: PitchProfiles = _key_profile_dist_wrapper(
+    major: PitchProfile = _key_profile_dist_wrapper(
         (
             17.7661,
             0.145624,
@@ -233,7 +233,7 @@ class AardenEssen(_KeyProfile):
             4.95122,
         )
     )
-    minor: PitchProfiles = _key_profile_dist_wrapper(
+    minor: PitchProfile = _key_profile_dist_wrapper(
         (
             18.2648,
             0.737619,
@@ -256,7 +256,7 @@ class BellmanBudge(_KeyProfile):
     name: str = "BellmanBudge"
     literature: str = "Bellman (2005, sometimes given as 2006) after Budge (1943)"
     about: str = "Chords in Western common practice tonality"
-    major: PitchProfiles = _key_profile_dist_wrapper(
+    major: PitchProfile = _key_profile_dist_wrapper(
         (
             16.8,
             0.86,
@@ -272,7 +272,7 @@ class BellmanBudge(_KeyProfile):
             10.57,
         )
     )
-    minor: PitchProfiles = _key_profile_dist_wrapper(
+    minor: PitchProfile = _key_profile_dist_wrapper(
         (
             18.16,
             0.69,
@@ -299,7 +299,7 @@ class Temperley(_KeyProfile):
     about: str = (
         "Psychological data revised - Temperley's revision of Krumhansl-Schmuckler profiles"
     )
-    major: PitchProfiles = _key_profile_dist_wrapper(
+    major: PitchProfile = _key_profile_dist_wrapper(
         (
             5.0,
             2.0,
@@ -315,7 +315,7 @@ class Temperley(_KeyProfile):
             4.0,
         )
     )
-    minor: PitchProfiles = _key_profile_dist_wrapper(
+    minor: PitchProfile = _key_profile_dist_wrapper(
         (
             5.0,
             2.0,
@@ -338,7 +338,7 @@ class TemperleyKostkaPayne(_KeyProfile):
     name: str = "TemperleyKostkaPayne"
     literature: str = "Temperley (2007 and 2008)"
     about: str = "Usage by section and excerpts from a textbook (Kostka & Payne)"
-    major: PitchProfiles = _key_profile_dist_wrapper(
+    major: PitchProfile = _key_profile_dist_wrapper(
         (
             0.748,
             0.06,
@@ -354,7 +354,7 @@ class TemperleyKostkaPayne(_KeyProfile):
             0.4,
         )
     )
-    minor: PitchProfiles = _key_profile_dist_wrapper(
+    minor: PitchProfile = _key_profile_dist_wrapper(
         (
             0.712,
             0.084,
@@ -379,10 +379,10 @@ class Sapp(_KeyProfile):
     about: str = (
         "Simple set of scale degree intended for use with Krumhansl Schmuckler (above)"
     )
-    major: PitchProfiles = _key_profile_dist_wrapper(
+    major: PitchProfile = _key_profile_dist_wrapper(
         (2.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 2.0, 0.0, 1.0, 0.0, 1.0)
     )
-    minor: PitchProfiles = _key_profile_dist_wrapper(
+    minor: PitchProfile = _key_profile_dist_wrapper(
         (2.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 2.0, 1.0, 0.0, 1.0, 0.0)
     )
 
@@ -392,7 +392,7 @@ class Vuvan(_KeyProfile):
     name: str = "Vuvan"
     literature: str = "Vuvan et al. (2011)"
     about: str = "Different profiles for natural, harmonic, and melodic minors"
-    natural_minor: PitchProfiles = _key_profile_dist_wrapper(
+    natural_minor: PitchProfile = _key_profile_dist_wrapper(
         (
             5.08,
             3.03,
@@ -408,7 +408,7 @@ class Vuvan(_KeyProfile):
             3.99,
         )
     )
-    harmonic_minor: PitchProfiles = _key_profile_dist_wrapper(
+    harmonic_minor: PitchProfile = _key_profile_dist_wrapper(
         (
             4.62,
             2.63,
@@ -424,7 +424,7 @@ class Vuvan(_KeyProfile):
             5.3,
         )
     )
-    melodic_minor: PitchProfiles = _key_profile_dist_wrapper(
+    melodic_minor: PitchProfile = _key_profile_dist_wrapper(
         (
             4.75,
             3.26,
@@ -447,7 +447,7 @@ class DeClerqTemperley(_KeyProfile):
     name: str = "DeClerqTemperley"
     literature: str = "deClerq and Temperley (Popular Music, 2011)"
     about: str = "Chord roots (specifically) in rock harmony."
-    roots: PitchProfiles = _key_profile_dist_wrapper(
+    roots: PitchProfile = _key_profile_dist_wrapper(
         (
             0.328,
             0.005,
@@ -472,7 +472,7 @@ class TemperleyDeClerq(_KeyProfile):
     about: str = """Rock music and a distinction between melody and harmony.
                distributions as reported in Vuvan and Hughes (2021, see below)
                following personal correspondence with Temperley."""
-    major: PitchProfiles = _key_profile_dist_wrapper(
+    major: PitchProfile = _key_profile_dist_wrapper(
         (
             0.223,
             0.001,
@@ -488,7 +488,7 @@ class TemperleyDeClerq(_KeyProfile):
             0.035,
         )
     )
-    minor: PitchProfiles = _key_profile_dist_wrapper(
+    minor: PitchProfile = _key_profile_dist_wrapper(
         (
             0.317,
             0.001,
@@ -504,7 +504,7 @@ class TemperleyDeClerq(_KeyProfile):
             0.009,
         )
     )
-    harmony_major: PitchProfiles = _key_profile_dist_wrapper(
+    harmony_major: PitchProfile = _key_profile_dist_wrapper(
         (
             0.231,
             0.002,
@@ -520,7 +520,7 @@ class TemperleyDeClerq(_KeyProfile):
             0.076,
         )
     )
-    harmony_minor: PitchProfiles = _key_profile_dist_wrapper(
+    harmony_minor: PitchProfile = _key_profile_dist_wrapper(
         (
             0.202,
             0.006,
@@ -544,7 +544,7 @@ class AlbrechtShanahan(_KeyProfile):
     literature: str = "Albrecht and Shanahan (Music Perception, 2013)"
     about: str = """Partial pieces for more stable within-key environment.
                Note that the two pairs of distributions reported in the appendix are identical"""
-    major: PitchProfiles = _key_profile_dist_wrapper(
+    major: PitchProfile = _key_profile_dist_wrapper(
         (
             0.238,
             0.006,
@@ -560,7 +560,7 @@ class AlbrechtShanahan(_KeyProfile):
             0.081,
         )
     )
-    minor: PitchProfiles = _key_profile_dist_wrapper(
+    minor: PitchProfile = _key_profile_dist_wrapper(
         (
             0.220,
             0.006,
@@ -584,7 +584,7 @@ class PrinceSchumuckler(_KeyProfile):
     literature: str = "Prince and Schmuckler (Music Perception, 2014)"
     about: str = """Distinction between downbeat and all beats.
                Note they also provide profiles for metrical position usage."""
-    downbeat_major: PitchProfiles = _key_profile_dist_wrapper(
+    downbeat_major: PitchProfile = _key_profile_dist_wrapper(
         (
             1.0,
             0.088610811,
@@ -600,7 +600,7 @@ class PrinceSchumuckler(_KeyProfile):
             0.427237502,
         )
     )
-    downbeat_minor: PitchProfiles = _key_profile_dist_wrapper(
+    downbeat_minor: PitchProfile = _key_profile_dist_wrapper(
         (
             1.0,
             0.127885863,
@@ -616,7 +616,7 @@ class PrinceSchumuckler(_KeyProfile):
             0.286381323,
         )
     )
-    major: PitchProfiles = _key_profile_dist_wrapper(
+    major: PitchProfile = _key_profile_dist_wrapper(
         (
             0.919356471,
             0.114927991,
@@ -632,7 +632,7 @@ class PrinceSchumuckler(_KeyProfile):
             0.541215555,
         )
     )
-    minor: PitchProfiles = _key_profile_dist_wrapper(
+    minor: PitchProfile = _key_profile_dist_wrapper(
         (
             0.874192439,
             0.150655606,
@@ -657,7 +657,7 @@ class QuinnWhite(_KeyProfile):
     about: str = "Separate profiles for each key"
     # this used to be major_all, but is the symmetrical version of
     # the major key profile in QuinnWhite
-    major: PitchProfiles = _key_profile_dist_wrapper(
+    major: PitchProfile = _key_profile_dist_wrapper(
         (
             0.172,
             0.014,
@@ -676,7 +676,7 @@ class QuinnWhite(_KeyProfile):
     # instead of ordering them by circle of fifths, we order the distributions by
     # incrementing key number the non-transpositionally equivalent distributions
     # represent instead
-    major_assym: tuple[PitchProfiles] = (
+    major_assym: tuple[PitchProfile] = (
         _key_profile_dist_wrapper(
             (
                 0.174,
@@ -870,7 +870,7 @@ class QuinnWhite(_KeyProfile):
             )
         ),
     )
-    minor: PitchProfiles = _key_profile_dist_wrapper(
+    minor: PitchProfile = _key_profile_dist_wrapper(
         (
             0.170,
             0.012,
@@ -1087,7 +1087,7 @@ class VuvanHughes(_KeyProfile):
     name: str = "VuvanHughes"
     literature: str = "Vuvan and Hughes (Music Perception 2021)"
     about: str = "A comparison of Classical and Rock music."
-    classical: PitchProfiles = _key_profile_dist_wrapper(
+    classical: PitchProfile = _key_profile_dist_wrapper(
         (
             5.38,
             2.65,
@@ -1103,7 +1103,7 @@ class VuvanHughes(_KeyProfile):
             3.03,
         )
     )
-    rock: PitchProfiles = _key_profile_dist_wrapper(
+    rock: PitchProfile = _key_profile_dist_wrapper(
         (
             5.34,
             3.33,
