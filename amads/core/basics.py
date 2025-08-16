@@ -37,11 +37,11 @@ However, for convenience and to support simple constructs such as
   Chord(Note(pitch=60), Note(pitch=64)),
 onsets are optional and default to None. To make this simple example
 work:
-1) Concurrences (Score, Part, and Chord) replace unspecified (None) 
+1) Concurrences (Score, Part, and Chord) replace unspecified (None)
    onsets in their immediate content with the parent's onset (or 0
    if it is None).
 2) Sequences (Staff, Measure) replace unspecified (None) onsets in
-   their immediate content starting with the parent's onset (or 0 if 
+   their immediate content starting with the parent's onset (or 0 if
    None) for the first event and the offset of the previous Event for
    subsequent events.
 3) To handle the construction of nested Events, when an unspecified
@@ -111,7 +111,7 @@ class Event:
         return ("onset=None" if self.onset is None else
                 f"onset={self.onset:0.3f}")
 
-            
+
     def _event_times(self, dur: bool = True) -> str:
         """produce onset and duration string for __str__
         """
@@ -289,7 +289,7 @@ class Event:
         if self.duration != 0:  # only modify non-zero durations
             self.duration = quantized_offset - self.onset
             if self.duration == 0:  # do not allow duration to become zero:
-                self.duration = 1 / divisions 
+                self.duration = 1 / divisions
         # else: original zero duration remains zero after quantization
         return self
 
@@ -778,7 +778,7 @@ class Note(Event):
         return self.pitch.lower_enharmonic()
 
 
-    def simplest_enharmonic(self, 
+    def simplest_enharmonic(self,
             sharp_or_flat: Optional[str] = "default") -> "Pitch":
         """Return a valid Pitch with the simplest enharmonic representation.
         (see Pitch.simplest_enharmonic)
@@ -889,7 +889,7 @@ class Clef(Event):
         duration : float
             Always zero for this subclass.
         clef : str
-            The clef name, one of "treble", "bass", "alto", "tenor", 
+            The clef name, one of "treble", "bass", "alto", "tenor",
             "percussion", "treble8vb" (Other clefs may be added later.)
     """
     __slots__ = ["clef"]
@@ -1003,9 +1003,11 @@ class EventGroup(Event):
 
     Alternatively, you can provide content when the group is constructed.
     Chord, Measure, Staff, Part, and Score all have *args parameters so that
-    you can write something like
+    you can write something like::
+
         Score(Part(Staff(Measure(Note(...), Note(...)),
                          Measure(Note(...), Note(...)))))
+
     In this case, it is recommended that you leave the onsets of content
     and chord unknown (None, the default). Then, as each event or group
     becomes content for a parent, the onsets will be set automatically,
@@ -1162,7 +1164,7 @@ class EventGroup(Event):
         Returns a deep copy with no parent unless parent is provided.
         Normally, you will call score.expand_chords() which returns a deep
         copy of Score with notes moved from each chord to the copy of the
-        chord's parent (a Measure or a Part). The parent parameter is 
+        chord's parent (a Measure or a Part). The parent parameter is
         primarily for internal use when expand_chords is called recursively
         on score content.
 
@@ -1687,7 +1689,7 @@ class Concurrence(EventGroup):
         if duration == None:  # compute duration from content
             duration = max_offset - temp_onset
         super().__init__(parent, onset, duration, content)
- 
+
 
     def pack(self, onset: float = 0.0) -> None:
         """Adjust the content to onsets starting with the onset parameter
@@ -2099,7 +2101,7 @@ class Score(Concurrence):
         Staff, it may do extra work. It might save some computation by
         performing a one-time
             score = score.merge_tied_notes()
-        and calling this method with the parameter has_ties=False. 
+        and calling this method with the parameter has_ties=False.
         If has_ties is False, it is assumed without checking that
         each part.has_ties() is False, allowing this method to skip
         calls to part.merge_tied_notes() for each selected part.
