@@ -3,9 +3,9 @@ AMADS Documentation
 
 This package collects together a variety of algorithms for symbolic
 music analysis, offering:
-  - reference implementations of algorithms from the literature,
-  - access to all from a single language (Python),
-  - compatibility and interoperability through common data representations.
+- reference implementations of algorithms from the literature,
+- access to all from a single language (Python),
+- compatibility and interoperability through common data representations.
 
 **The package is evolving. The API is subject to change, and many algorithms are not yet implemented, tested, or documented!**
 
@@ -19,8 +19,9 @@ Users
 ~~~~~
 
 A good place to start is to study some examples (see the navigation
-sidebar). You will certainly want to read music data: See Section :ref:`io-section` below. Then, you can browse or search the list of algorithms below
-to see what is available in AMADS.
+sidebar). You will certainly want your programs to read music data:
+See Section :ref:`io-section` below. To learn about AMADS analysis
+functions, browse or search the list of algorithms below.
 
 
 Developers
@@ -77,14 +78,15 @@ Core
 .. autosummary::
    :toctree: _autosummary
 
-   amads.core.basics
-   amads.core.pitch
-   amads.core.timemap
+  amads.core.basics
+  amads.core.pitch
+  amads.core.timemap
 
+.. general-algorithms-sec:
 
 General algorithms
 ------------------
-
+ 
 .. autosummary::
    :toctree: _autosummary
    :caption: General algorithms:
@@ -124,7 +126,7 @@ Time
 
    amads.time.durdist1
    amads.time.durdist2
-   amads.time.npvi
+   amads.time.variability
    amads.time.swing
    amads.time.tempo
    amads.time.meter.break_it_up
@@ -136,7 +138,7 @@ Harmony
    :toctree: _autosummary
    :caption: Harmony:
 
-   amads.harmony.root_finding.parncutt_1988
+   amads.harmony.root_finding.parncutt
 
 Melody
 ------
@@ -162,6 +164,7 @@ Polyphony
 
 
 .. _io-section:
+
 IO
 --
 
@@ -170,3 +173,4 @@ IO
    :caption: IO:
 
    amads.io.pianoroll
+

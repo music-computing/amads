@@ -11,6 +11,9 @@ or more instances of the next level. There are two representations: a
 notation, while a "flattened" score is a more abstracted
 representation emphasizing notes.
 
+Full Scores
+~~~~~~~~~~~
+
 A "full" score looks like this:
 
     | **Score** - one per musical work or movement
@@ -26,6 +29,9 @@ A "full" score looks like this:
     |                 **TimeSignature**
     |                 **Clef**
 
+Flattened Scores
+~~~~~~~~~~~~~~~~
+
 A "flattened" score looks like this:
 
     | **Score** - one per musical work or movement
@@ -35,14 +41,17 @@ A "flattened" score looks like this:
 Well-Formed Scores
 ~~~~~~~~~~~~~~~~~~
 
-Score structure is not enforced (it is up to the developer), but AMADS functions will return well-formed scores in either of the "full" score or the "flattened" score forms shown above.
+Score structure is not enforced (it is up to the developer), but AMADS
+functions expect well-formed scores in either of the "full" score or
+the "flattened" score forms shown above.
 
-A well-formed score will have events belonging to a parent (EventGroup) in time order.
+A well-formed score will have events belonging to a parent
+(EventGroup) in time order.
 
 Rests objects are created when scores are read from MusicXML, but MIDI
 has no representation for rests and the MIDI file reader does not
 insert Rest objects. Generally, you should ignore Rests since Notes
-all have ``onset``\s, so Rests are not needed for timing.
+all have ``onset``\s. Rests are not needed for timing.
 
 
 Tempo, Time, Duration
@@ -65,7 +74,9 @@ time or real time. (See
 Events and EventGroups
 ----------------------
 
-To implement this hierarchical representation, we have *one* superclass, which is :py:class:`~amads.core.basics.Event`. Every Event has the following attributes:
+To implement this hierarchical representation, we have an abstract
+superclass, which is :py:class:`~amads.core.basics.Event`. Every Event
+has the following attributes:
 
 .. container:: attributes
 
@@ -74,7 +85,11 @@ To implement this hierarchical representation, we have *one* superclass, which i
    :parent: (EventGroup) The object containing this event
    :info: a dictionary with (optional) additional information
 
-Anything that can be a ``parent`` is an :py:class:`~amads.core.basics.EventGroup`. EventGroups including Part, Staff, Measure and Chord are also children, so you would expect them to be Events. There is no conflict because EventGroup *inherits from* Event.  Everything is an Event! But not every Event is an EventGroup.
+Anything that can be a ``parent`` is an
+:py:class:`~amads.core.basics.EventGroup`. EventGroups including Part,
+Staff, Measure and Chord are also children, so you would also expect them
+to be Events. There is no conflict because EventGroup *inherits from*
+Event.  Everything is an Event! But not every Event is an EventGroup.
 
 Onset Times
 -----------

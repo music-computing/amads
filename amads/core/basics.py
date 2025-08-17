@@ -2,32 +2,31 @@
 # flake8: noqa E129,E303
 """
 Basic Symbolic Music Representation Classes
-==========================================
 
 Overview
 --------
 The basic hierarchy of a score is shown here. Each level of this hierarchy can contain
 zero or more instances of the next level. Levels are optional, allowing for more
-note-list-like representations:
+note-list-like representations::
 
-Score (one per musical work or movement)
-    Part (one per instrument)
-        Staff (usually 1, but e.g. 2 for grand staff)
-            Measure (one for each measure)
-                (Measure can contain multiple instances of the following)
-                Note
-                Rest
-                Chord
-                    Note (one for each note of the chord)
-                KeySignature
-                TimeSignature
-                Clef
+    Score (one per musical work or movement)
+        Part (one per instrument)
+            Staff (usually 1, but e.g. 2 for grand staff)
+                Measure (one for each measure)
+                    (Measure can contain multiple instances of the following)
+                    Note
+                    Rest
+                    Chord
+                        Note (one for each note of the chord)
+                    KeySignature
+                    TimeSignature
+                    Clef
 
-A "flattened" score looks like this:
+A "flattened" score looks like this::
 
-Score (one per musical work or movement)
-    Part (one per instrument)
-        Note (no other instances allowed, no ties)
+    Score (one per musical work or movement)
+        Part (one per instrument)
+            Note (no other instances allowed, no ties)
 
 Score, Part, Staff, Measure, and Chord are all EventGroups and their constructors
 can take a list of Events as their content.
@@ -40,25 +39,29 @@ These onsets are absolute and will not be adjusted *provided that* the parent
 onset is also specified.
 
 However, for convenience and to support simple constructs such as
-  Chord(Note(pitch=60), Note(pitch=64)),
-onsets are optional and default to None. To make this simple example work:
-1) Concurrences (Score, Part, and Chord) replace unspecified (None) onsets in
-   their immediate content with the parent's onset (or 0 if it is None).
-2) Sequences (Staff, Measure) replace unspecified (None) onsets in their immediate
-   content starting with the parent's onset (or 0 if None) for the first event and
-   the offset of the previous Event for subsequent events.
-3) To handle the construction of nested Events, when an unspecified (None) onset
-   of an EventGroup is replaced, the entire subtree of its content is shifted by
-   the same amount. E.g. if a Chord is constructed with Notes with unspecified
-   onsets, the Notes onsets will initially be replaced with zeros. Then, if the
-   Chord onset is unspecified (None) and the Chord is passed in the content of a
-   Measure and the Chord onset is replaced with 1.0, then the Notes are shifted
-   to 1.0. If the Measure is then passed in the content of a Staff, the Measure
-   and all its content might be shifted again.
 
-Author
-------
-Roger B. Dannenberg
+  Chord(Note(pitch=60), Note(pitch=64)),
+
+onsets are optional and default to None. To make this simple example work:
+
+- Concurrences (Score, Part, and Chord) replace unspecified (None)
+  onsets in their immediate content with the parent's onset (or 0 if
+  it is None).
+
+- Sequences (Staff, Measure) replace unspecified (None) onsets in
+  their immediate content starting with the parent's onset (or 0 if
+  None) for the first event and the offset of the previous Event for
+  subsequent events.
+
+- To handle the construction of nested Events, when an unspecified
+  (None) onset of an EventGroup is replaced, the entire subtree of
+  its content is shifted by the same amount. E.g. if a Chord is
+  constructed with Notes with unspecified onsets, the Notes onsets
+  will initially be replaced with zeros. Then, if the Chord onset is
+  unspecified (None) and the Chord is passed in the content of a
+  Measure and the Chord onset is replaced with 1.0, then the Notes
+  are shifted to 1.0. If the Measure is then passed in the content of
+  a Staff, the Measure and all its content might be shifted again.
 """
 
 import copy
@@ -243,14 +246,14 @@ class Event:
     def quantize(self, divisions: int) -> "Event":
         """Modify onset and offset to a multiple of divisions per quarter note.
 
+        This method modifies the Event in place. It also handles tied notes.
+
         E.g., use divisions=4 for sixteenth notes. If a
         Note tied to or from other notes quantizes to a zero
         duration, reduce the chain of tied notes to eliminate
         zero-length notes. See Collection.quantize for
         additional details.
 
-        Preconditions
-        -------------
         self.onset and self.duration must be non-None.
 
         Parameters
@@ -258,8 +261,13 @@ class Event:
         divisions : int
             The number of divisions per quarter note, e.g., 4 for
             sixteenths, to control quantization.
+
+        Returns
+        -------
+        Event
+            self, after quantization.
         """
-        if self.onset is None or self.duration is None:
+        if self._onset is None or self.duration is None:
             raise ValueError(
                 "Cannot quantize Event with None onset or duration")
         self.onset = round(self.onset * divisions) / divisions
@@ -357,7 +365,7 @@ class Event:
         time_map : TimeMap
             The TimeMap object used for conversion.
         """
-        if self.onset is None or self.duration is None:
+        if self._onset is None or self.duration is None:
             raise ValueError(
                 "Cannot convert Event with None onset or duration")
         onset_time = time_map.quarter_to_time(self.onset)       # type: ignore
@@ -375,7 +383,7 @@ class Event:
         time_map : TimeMap
             The TimeMap object used for conversion.
         """
-        if self.onset is None or self.duration is None:
+        if self._onset is None or self.duration is None:
             raise ValueError(
                 "Cannot convert Event with None onset or duration")
         onset_quarters = time_map.time_to_quarter(self.onset)
@@ -393,7 +401,7 @@ class Event:
         float
             The global offset (stop) time.
         """
-        if self.onset is None or self.duration is None:
+        if self._onset is None or self.duration is None:
             raise ValueError(
                 "Event offset undefined (onset or duration is None)")
         return self.onset + self.duration
@@ -408,7 +416,7 @@ class Event:
         offset : float
             The new global offset (stop) time.
         """
-        if self.onset is None:
+        if self._onset is None:
             raise ValueError("Event offset undefined (onset is None)")
         self.duration = offset - self.onset
 
@@ -475,7 +483,7 @@ class Rest(Event):
     ----------
         parent : Optional[EventGroup]
             The containing object or None.
-        onset : float, optional
+        _onset : float, optional
             The onset (start) time. None represents an unspecified onset.
         duration : float
             The duration of the rest in quarters or seconds.
@@ -538,7 +546,7 @@ class Note(Event):
     ----------
         parent : Optional[EventGroup]
             The containing object or None.
-        onset : Optional[float]
+        _onset : Optional[float]
             The onset (start) time. None represents an unspecified onset.
         duration : float
             The duration of the note in quarters or seconds. See the
@@ -894,7 +902,7 @@ class TimeSignature(Event):
     ----------
         parent : Optional[EventGroup]
             The containing object or None.
-        onset : float
+        _onset : float
             The onset (start) time.
         duration : float
             Always zero for this subclass.
@@ -957,7 +965,7 @@ class Clef(Event):
     ----------
         parent : Optional[EventGroup]
             The containing object or None.
-        onset : float
+        _onset : float
             The onset (start) time.
         duration : float
             Always zero for this subclass.
@@ -1022,7 +1030,7 @@ class KeySignature(Event):
     ----------
         parent : Optional[EventGroup]
             The containing object or None.
-        onset : float
+        _onset : float
             The onset (start) time.
         duration : float
             Always zero for this subclass.
@@ -1065,22 +1073,26 @@ class KeySignature(Event):
 
 
 class EventGroup(Event):
-    """An EventGroup is a collection of Event objects. This is an abstract
-    class. Use one of the subclasses: Score, Part, Staff, Measure or Chord.
+    """A collection of Event objects. (An abstract class.)
 
-    Normally, you create any EventGroup (Chord, Measure, Staff, Part, Score)
-    with no content, then add content, either in bulk by simply setting the
-    content attribute to a list where list elements are Events whose parent
-    attributes have been set to the group, or one event at a time, by calling
-    the group's insert method. (This will change the event parent from None
-    to the group.) In this style, it is recommended to specify all onsets
-    and durations explicitly, including the onset of the group itself.
+    Use one of the subclasses: Score, Part, Staff, Measure or Chord.
 
-    Alternatively, you can provide content when the group is constructed.
-    Chord, Measure, Staff, Part, and Score all have *args parameters so that
-    you can write something like
+    Normally, you create any EventGroup (Chord, Measure, Staff, Part,
+    Score) with no content, then add content. You can add content in
+    bulk by simply setting the `content` attribute to a list of Events
+    whose `parent` attributes have been set to the EventGroup. You can
+    also add one event at a time, by calling the EventGroup's insert
+    method. (This will change the event parent from None to the group.)
+    It is recommended to specify all onsets and durations explicitly,
+    including the onset of the group itself.
+
+    Alternatively, you can provide content when the group is
+    constructed.  Chord, Measure, Staff, Part, and Score all have
+    `*args` parameters so that you can write something like:
+
         Score(Part(Staff(Measure(Note(...), Note(...)),
-                         Measure(Note(...), Note(...)))))
+        Measure(Note(...), Note(...)))))
+
     In this case, it is recommended that you leave the onsets of content
     and chord unknown (None, the default). Then, as each event or group
     becomes content for a parent, the onsets will be set automatically,
@@ -1098,7 +1110,6 @@ class EventGroup(Event):
     from None to a number. Subsequent changes to the group onset will
     not adjust the content onsets, which are considered absolute times
     once the group onset is known.
-
 
     Parameters
     ----------
@@ -1124,7 +1135,7 @@ class EventGroup(Event):
     ----------
         parent : Optional[EventGroup]
             The containing object or None.
-        onset : Optional[float]
+        _onset : Optional[float]
             The onset (start) time.
         duration : float
             The duration in quarters or seconds.
@@ -1160,21 +1171,6 @@ class EventGroup(Event):
                 duration = max_offset - (0 if onset is None else onset)
         self.duration = duration if duration is not None else 0.0
         self.content = content if content else []
-
-
-    @property
-    def onset(self) -> float:
-        """Return the onset time of the event.
-
-        If the onset is None, raise an exception. (Events can have None
-        onset times, but these onsets are computed relative to the parent
-        EventGroup when the Event is added to a parent. Accessing the onset
-        before it is set is considered an error so that users can assume
-        that the onset property always returns a float.)
-        """
-        if self._onset is None:
-            raise ValueError("Onset time is not set.")
-        return self._onset
 
 
     @onset.setter
@@ -1416,7 +1412,7 @@ class EventGroup(Event):
             The EventGroup instance (self) with the event inserted.
         """
         assert not event.parent
-        assert event.onset != None  # must be a number
+        assert event._onset != None  # must be a number
         atend = self.last()
         if atend and event.onset < atend.onset:
             # search in reverse from end
@@ -1513,8 +1509,18 @@ class EventGroup(Event):
         change is less than one quantum. Any non-zero duration that would
         quantize to zero duration gets a duration of one quantum since
         zero duration is almost certainly going to cause notation and
-        visualization problems. On the other hand, if the original duration
-        is zero as in metadata or possibly grace notes, we preserve that.
+        visualization problems.
+        
+        Special cases for zero duration: 
+            1. If the original duration is zero as in metadata or possibly
+               grace notes, we preserve that.
+            2. If a tied note durations quantizes to zero, we remove the
+               tied note entirely provided some other note in the tied
+               sequence has non-zero duration. If all tied notes quantize
+               to zero, we keep the first one and set its duration to
+               one quantum.
+
+        This method modifies this EventGroup and all its content in place.
 
         Note that there is no way to specify "sixteenths or eighth triplets"
         because 6 would not allow sixteenths and 12 would admit sixteenth
@@ -1531,6 +1537,12 @@ class EventGroup(Event):
         divisions : int
             The number of divisions per quarter note, e.g., 4 for
             sixteenths, to control quantization.
+
+        Returns
+        -------
+        EventGroup
+            The EventGroup instance (self) with (modified in place) 
+            quantized times.
         """
 
         super().quantize(divisions)
@@ -1660,7 +1672,7 @@ class Sequence(EventGroup):
     ----------
         parent : Optional[EventGroup]
             The containing object or None.
-        onset : Optional[float]
+        _onset : Optional[float]
             The onset (start) time. None represents "unknown" and to
             be determined when this object is added to a parent.
         duration : float
@@ -1744,10 +1756,10 @@ class Concurrence(EventGroup):
             concurrence, or zero if onset is None. (Defaults to None)
 
     Attributes
-    ---------
+    ----------
         parent : Optional[EventGroup]
             The containing object or None.
-        onset : Optional[float]
+        _onset : Optional[float]
             The onset (start) time. None represents "unknown" and to
             be determined when this object is added to a parent.
         duration : float
@@ -1812,15 +1824,19 @@ class Concurrence(EventGroup):
 
 
 class Chord(Concurrence):
-    """A Chord is a collection of Notes, normally with onsets equal
-    to that of the chord and the same durations but distinct key_nums,
-    but none of this is enforced.  The order of notes is arbitrary.
+    """A collection of notes played together.
+
+    Typically, chords represent notes that would share a stem, and note
+    start times and durations match the start time and duration of the
+    chord, but none of this is enforced.  The order of notes is arbitrary.
+
     Normally, a Chord is a member of a Measure. There is no requirement
     that simultaneous or overlapping notes be grouped into Chords,
     so the Chord class is merely an optional element of music structure
     representation.
 
-    See EventGroup documentation on construction styles.
+    See :class:`~amads.core.basics.EventGroup` documentation on
+    construction styles.
 
     Representation note: An alternative representation would be to
     subclass Note and allow a list of pitches, which has the advantage
@@ -1833,32 +1849,32 @@ class Chord(Concurrence):
     ----------
         *args : Event
             The Event objects to be added to the group. Content
-            events with onsets of None are set to the offset of the
+            events with onsets of None are set to the onset of the
             chord, or zero if onset is None. (Defaults to None)
         parent : Optional[EventGroup], optional
             The containing object or None. Must be passed as a keyword
-            parameter due to *args. (Defaults to None)
+            parameter due to `*args`. (Defaults to None)
         onset : Optional[float], optional
             The onset (start) time. None means unknown, to be
             set when Sequence is added to a parent.  Must be passed
-            as a keyword parameter due to *args. (Defaults to None)
+            as a keyword parameter due to `*args`. (Defaults to None)
         duration : Optional[float], optional
             The duration in quarters or seconds. (Defaults to None)
             (If duration is omitted or None, the duration is set so
             that self.offset ends at the max offset of args, or 0
             if there is no content.) Must be passed as a keyword
-            parameter due to *args. (Defaults to None)
+            parameter due to `*args`. (Defaults to None)
         content : Optional[list[Event]], optional
             A list of Event objects to be added to the group. Content
             events with onsets of None are set to the offset of the
             chord, or zero if onset is None.  Must be passed as a
-            keyword parameter due to *args. (Defaults to None)
+            keyword parameter due to `*args`. (Defaults to None)
 
     Attributes
     ----------
         parent : Optional[EventGroup]
             The containing object or None.
-        onset : Optional[float]
+        _onset : Optional[float]
             The onset (start) time.
         duration : float
             The duration in quarters or seconds.
@@ -1902,29 +1918,29 @@ class Measure(Sequence):
             A variable number of Event objects to be added to the group.
         parent : Optional[EventGroup], optional
             The containing object or None. Must be passed as a keyword
-            parameter due to *args. (Defaults to None)
+            parameter due to `*args`. (Defaults to None)
         onset : Optional[float], optional
             The onset (start) time. None means unknown, to be set when
             Sequence is added to a parent. Must be passed as a keyword
-            parameter due to *args. (Defaults to None)
+            parameter due to `*args`. (Defaults to None)
         duration : Optional[float], optional
             The duration in quarters or seconds. Must be passed as a
-            keyword parameter due to *args. (Defaults to 4)
+            keyword parameter due to `*args`. (Defaults to 4)
         number : Optional[str], optional
             A string representing the measure number. Must be passed as
-            a keyword parameter due to *args. (Defaults to None)
+            a keyword parameter due to `*args`. (Defaults to None)
         pack : bool, optional
-            If true, Events in *args are adjusted to form a sequence
+            If true, Events in `*args` are adjusted to form a sequence
             where the first event onset is the specified group onset
             (which defaults to 0) and the onset of other events is the
             offset of the previous event in the sequence. Must be passed
-            as a keyword parameter due to *args. (Defaults to False).
+            as a keyword parameter due to `*args`. (Defaults to False).
 
     Attributes
     -----------
         parent : Optional[EventGroup]
             The containing object or None.
-        onset : Optional[float]
+        _onset : Optional[float]
             The onset (start) time. None represents "unknown" and to
             be determined when this object is added to a parent.
         duration : float
@@ -1986,16 +2002,16 @@ class Score(Concurrence):
             The onset (start) time. If unknown (None), onset will be set
             when the score is added to a parent, but normally, Scores do
             not have parents, so the default onset is 0. You can override
-            this using keyword parameter (due to *args).
+            this using keyword parameter (due to `*args`).
         duration : Optional[float], optional
             The duration in quarters or seconds.
             (If duration is omitted or None, the duration is set so
             that self.offset ends at the max offset of args, or 0
             if there is no content.) Must be passed as a keyword
-            parameter due to *args. (Defaults to None)
+            parameter due to `*args`. (Defaults to None)
         time_map : TimeMap, optional
             A map from quarters to seconds (or seconds to quarters).
-            Must be passed as a keyword parameter due to *args.
+            Must be passed as a keyword parameter due to `*args`.
             (Defaults to None)
 
 
@@ -2003,7 +2019,7 @@ class Score(Concurrence):
     ----------
         parent : Optional[EventGroup]
             The containing object or None.
-        onset : float
+        _onset : float
             The onset (start) time.
         duration : float
             The duration in quarters or seconds.
@@ -2196,7 +2212,9 @@ class Score(Concurrence):
         If you are calling this method to extract notes separately for each
         Staff, it may do extra work. It might save some computation by
         performing a one-time
+
             score = score.merge_tied_notes()
+
         and calling this method with the parameter has_ties=False. 
         If has_ties is False, it is assumed without checking that
         each part.has_ties() is False, allowing this method to skip
@@ -2221,6 +2239,10 @@ class Score(Concurrence):
             is raised.
             If staff is given and this is a flattened score (no staves),
             an exception is raised.
+        has_ties : bool, optional
+            Indicates the possibility of tied notes, which must be merged
+            as part of flattening. If the parts are flattened already,
+            setting has_ties=False will save some computation.
 
         Note: The use of lists like [1] for part and staff index notation
         is not ideal, but parts can be assigned a designated number that
@@ -2230,7 +2252,9 @@ class Score(Concurrence):
         so you would have to write collapse_parts(part=((0))). With [n]
         notation, you write collapse_parts(part=[0]) to indicate an index.
         This is prettier and less prone to error.
+
         """
+
         # Algorithm: Since we might be selecting individual Staffs and
         # Parts, we want to do selection first, then copy to avoid
         # modifying the source Score (self).
@@ -2531,33 +2555,33 @@ class Part(EventGroup):
             A variable number of Event objects to be added to the group.
         parent : Optional[EventGroup], optional
             The containing object or None. Must be passed as a keyword
-            parameter due to *args. (Defaults to None)
+            parameter due to `*args`. (Defaults to None)
         onset : Optional[float], optional
             The onset (start) time. If unknown (None), it will be set
             when this Part is added to a parent. Must be passed as a
-            keyword parameter due to *args. (Defaults to None)
+            keyword parameter due to `*args`. (Defaults to None)
         duration : Optional[float], optional
             The duration in quarters or seconds.
             (If duration is omitted or None, the duration is set so
             that self.offset ends at the max offset of args, or 0
             if there is no content.)  Must be passed as a keyword
-            parameter due to *args. (Defaults to None)
+            parameter due to `*args`. (Defaults to None)
         number : Optional[str], optional
             A string representing the part number. (Defaults to None)
         instrument : Optional[str], optional
             A string representing the instrument name. (Defaults to None)
         pack : bool, optional
-            If true, Events in *args are adjusted to form a sequence
+            If true, Events in `*args` are adjusted to form a sequence
             where the first event onset is the specified group onset
             (which defaults to 0) and the onset of other events is the
             offset of the previous event in the sequence. Must be passed
-            as a keyword parameter due to *args. (Defaults to False)
+            as a keyword parameter due to `*args`. (Defaults to False)
 
     Attributes
     ----------
         parent : Optional[EventGroup]
             The containing object or None.
-        onset : float
+        _onset : float
             The onset (start) time.
         duration : float
             The duration in quarters or seconds.
@@ -2725,31 +2749,31 @@ class Staff(Sequence):
         onset : Optional[float], optional
             The onset (start) time. If unknown (None), it will be set
             when this Staff is added to a parent. Must be passed as a
-            keyword parameter due to *args. (Defaults to None)
+            keyword parameter due to `*args`. (Defaults to None)
         duration : Optional[float], optional
             The duration in quarters or seconds.
             (If duration is omitted or None, the duration is set so
             that self.offset ends at the max offset of args, or 0
             if there is no content.) Must be passed as a keyword
-            parameter due to *args. (Defaults to None)
+            parameter due to `*args`. (Defaults to None)
         number : Optional[int], optional
             The staff number. Normally, a Staff is given an integer
             number where 1 is the top staff of the part, 2 is the 2nd,
-            etc. Must be passed as a keyword parameter due to *args.
+            etc. Must be passed as a keyword parameter due to `*args`.
             (Defaults to None)
         pack : bool, optional
-            If true, Events in *args are adjusted to form a sequence
+            If true, Events in `*args` are adjusted to form a sequence
             where the first event onset is the specified group onset
             (which defaults to 0) and the onset of other events is
             the offset of the previous event in the sequence.
-            Must be passed as a keyword parameter due to *args.
+            Must be passed as a keyword parameter due to `*args`.
             (Defaults to False).
 
     Attributes
     ----------
         parent : Optional[EventGroup]
             The containing object or None.
-        onset : float
+        _onset : float
             The onset (start) time.
         duration : float
             The duration in quarters or seconds.

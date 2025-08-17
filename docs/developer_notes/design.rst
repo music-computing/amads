@@ -149,7 +149,7 @@ All this hierarchy can get in the way, so we allow various
 simplifications:
 
 - Tied notes can be replaced by single notes, with durations that may
-extend beyond a measure boundary (``merge_tied_notes()`` method)
+  extend beyond a measure boundary (``merge_tied_notes()`` method)
 
 - Rests can be removed (``remove_rests()`` method)
 

@@ -37,6 +37,7 @@ Where a profile does not sum to 1, an additional
 
 The profiles appear below in approximately chronological order.
 For reference, the alphabetical ordering is:
+
     AardenEssen,
     AlbrechtShanahan,
     BellmanBudge,
