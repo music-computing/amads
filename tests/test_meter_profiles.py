@@ -19,18 +19,31 @@ from amads.time.meter import profiles, syncopation
 from amads.time.rhythm import (
     has_deep_property,
     has_oddity_property,
-    keith,
+    keith_via_toussaint,
     off_beatness,
     vector_to_onset_beat,
 )
 from amads.time.variability import normalized_pairwise_variability_index
 
+# 16
 SHIKO = profiles.WorldSample16.shiko
 SON = profiles.WorldSample16.son
 SOUKOUS = profiles.WorldSample16.soukous
 RUMBA = profiles.WorldSample16.rumba
 BOSSA = profiles.WorldSample16.bossa_nova
 GAHU = profiles.WorldSample16.gahu
+
+# 12
+SOLI = profiles.WorldSample12.soli
+TAMBU = profiles.WorldSample12.tambú
+BEMBE = profiles.WorldSample12.bembé
+BEMBE_2 = profiles.WorldSample12.bembé_2
+YORUBA = profiles.WorldSample12.yoruba
+TONADA = profiles.WorldSample12.tonada
+ASAADUA = profiles.WorldSample12.asaadua
+SORSONET = profiles.WorldSample12.sorsonet
+BEMBA = profiles.WorldSample12.bemba
+ASHANTI = profiles.WorldSample12.ashanti
 
 
 def count_non_zero(data):
@@ -165,7 +178,7 @@ def test_wnbd_16():
         ),
     ]:
 
-        assert keith(cycle) == keith_value
+        assert keith_via_toussaint(cycle) == keith_value
 
         assert off_beat_metric == off_beatness(cycle)
 
@@ -185,52 +198,52 @@ def test_wnbd_12():
     """
     for cycle, off_beat_metric, wnbd in [
         (
-            profiles.WorldSample12.soli,
+            SOLI,
             1,
             Fraction(12, 7),  # TODO divergence. Paper has 2.142 (15/7, rounded down)
         ),
         (
-            profiles.WorldSample12.tambú,
+            TAMBU,
             2,
             Fraction(12, 7),  # TODO divergence. Paper has 2.142 (15/7, rounded down)
         ),
         (
-            profiles.WorldSample12.bembé,
+            BEMBE,
             3,
             Fraction(18, 7),  # TODO divergence. Paper has 3 (21/7)
         ),
         (
-            profiles.WorldSample12.bembé_2,
+            BEMBE_2,
             2,
             Fraction(12, 7),  # TODO divergence. Paper has 2.142 (15/7, rounded down)
         ),
         (
-            profiles.WorldSample12.yoruba,
+            YORUBA,
             2,
             Fraction(18, 7),  # TODO divergence. Paper has 3 (21/7)
         ),
         (
-            profiles.WorldSample12.tonada,
+            TONADA,
             1,
             Fraction(12, 7),  # TODO divergence. Paper has 2.142 (15/7, rounded down)
         ),
         (
-            profiles.WorldSample12.asaadua,
+            ASAADUA,
             1,
             Fraction(12, 7),  # TODO divergence. Paper has 2.142 (15/7, rounded down)
         ),
         (
-            profiles.WorldSample12.sorsonet,
+            SORSONET,
             1,
             Fraction(18, 7),  # TODO divergence. Paper has 3 (21/7)
         ),
         (
-            profiles.WorldSample12.bemba,
+            BEMBA,
             2,
             Fraction(12, 7),  # TODO divergence. Paper has 2.142 (15/7, rounded down)
         ),
         (
-            profiles.WorldSample12.ashanti,
+            ASHANTI,
             2,
             Fraction(
                 18, 7
@@ -245,3 +258,30 @@ def test_wnbd_12():
         onset_beats = vector_to_onset_beat(cycle, beat_unit_length=3)
         sm = syncopation.SyncopationMetric()
         assert sm.weighted_note_to_beat_distance(onset_beats=onset_beats) == wnbd
+
+
+def test_oddity_12():
+    tested_profile_order = [
+        SOLI,
+        TAMBU,
+        BEMBE,
+        BEMBE_2,
+        YORUBA,
+        TONADA,
+        ASAADUA,
+        SORSONET,
+        BEMBA,
+        ASHANTI,
+    ]
+    assert [has_oddity_property(profile) for profile in tested_profile_order] == [
+        False,
+        False,
+        False,
+        False,
+        False,
+        False,
+        False,
+        False,
+        False,
+        False,
+    ]
