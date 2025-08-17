@@ -76,7 +76,7 @@ def has_oddity_property(vector: Union[list[int], tuple[int, ...]]) -> bool:
     return True
 
 
-def keith(vector):
+def keith_via_toussaint(vector):
     """
     Although Keith's measures is described in terms of beats,
     it is inflexible to metric structure and fully defined by the onset pattern.
@@ -99,7 +99,6 @@ def keith(vector):
     for i in range(len(indices)):
         this_case = indices[i] / powers_of_2[i]
         if int(this_case) != this_case:
-            # print(i, this_case)
             count += 1
     return count
 
