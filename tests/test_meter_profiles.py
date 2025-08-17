@@ -14,7 +14,7 @@ __author__ = "Mark Gotham"
 
 from fractions import Fraction
 
-from amads.core.vector_transforms_checks import indices_to_interval, is_maximally_even
+from amads.core.vector_transforms_checks import indicator_to_interval, is_maximally_even
 from amads.time.meter import profiles, syncopation
 from amads.time.rhythm import (
     has_deep_property,
@@ -71,13 +71,13 @@ def test_toussaint_17_13():
 
     # Distinct Distances
     assert [
-        count_non_zero(indices_to_interval(profile, adjacent_not_all=False))
+        count_non_zero(indicator_to_interval(profile, adjacent_not_all=False))
         for profile in tested_profile_order
     ] == [4, 5, 7, 6, 7, 4]
 
     # nPVI
     assert [
-        round(normalized_pairwise_variability_index(indices_to_interval(profile)), 1)
+        round(normalized_pairwise_variability_index(indicator_to_interval(profile)), 1)
         for profile in tested_profile_order
     ] == [66.7, 40.5, 70.5, 41.0, 23.8, 14.3]
 
@@ -113,7 +113,7 @@ def test_toussaint_37_11():
     # Distinct _adjacent_ distances. Note: _all_ distinct distances already tested above.
     assert [
         count_non_zero(
-            indices_to_interval(
+            indicator_to_interval(
                 profile, adjacent_not_all=True, sequence_not_vector=False
             )
         )

@@ -18,7 +18,7 @@ from typing import Union
 
 from amads.core.vector_transforms_checks import (
     indicator_to_indices,
-    indices_to_interval,
+    indicator_to_interval,
 )
 from amads.core.vectors_sets import vector_to_multiset
 
@@ -82,7 +82,7 @@ def keith_via_toussaint(vector):
     it is inflexible to metric structure and fully defined by the onset pattern.
 
     >>> son = [1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0]
-    >>> keith(son)
+    >>> keith_via_toussaint(son)
     2
 
     """
@@ -93,7 +93,7 @@ def keith_via_toussaint(vector):
         )
 
     indices = indicator_to_indices(vector)  # Keith/Toussaint's `S`
-    deltas = indices_to_interval(vector, wrap=True)  # Keith/Toussaint also `delta`
+    deltas = indicator_to_interval(vector, wrap=True)  # Keith/Toussaint also `delta`
     powers_of_2 = [2 ** int(math.log2(x)) for x in deltas]  # Keith/Toussaint's big D
     count = 0
     for i in range(len(indices)):
@@ -107,13 +107,13 @@ def has_deep_property(vector: Union[list[int], tuple[int, ...]]) -> bool:
     """
     So-called "Deep" rhythms have distinct numbers of each interval class among all
     (not-necessarily adjacent) intervals.
-    See `indices_to_interval` with the arguments `wrap=True`, `adjacent_not_all=False`
+    See `indicator_to_interval` with the arguments `wrap=True`, `adjacent_not_all=False`
 
     Examples
     --------
 
     >>> shiko = (1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0)
-    >>> indices_to_interval(shiko, wrap=True, adjacent_not_all=False)
+    >>> indicator_to_interval(shiko, wrap=True, adjacent_not_all=False)
     (0, 2, 0, 3, 0, 4, 0, 1)
 
     Note the distinct numbers in the above.
@@ -124,7 +124,7 @@ def has_deep_property(vector: Union[list[int], tuple[int, ...]]) -> bool:
     TODO false case
 
     """
-    intervals = indices_to_interval(vector, wrap=True, adjacent_not_all=False)
+    intervals = indicator_to_interval(vector, wrap=True, adjacent_not_all=False)
     non_zero_uses = [x for x in intervals if x != 0]
     if len(non_zero_uses) == len(set(non_zero_uses)):
         return True
