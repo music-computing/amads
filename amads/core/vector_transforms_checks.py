@@ -489,6 +489,56 @@ def indices_to_interval(
     return tuple(interval_vector)
 
 
+def interval_sequence_to_indices(interval_sequence_vector, wrap: bool = False) -> tuple:
+    """
+    Given an interval sequence vector, convert to indices.
+
+    Parameters
+    ----------
+    interval_sequence_vector: an indicator vector for position usage.
+    wrap: If True, include the index after the end of the sequence
+
+    Examples
+    --------
+    >>> interval_sequence_to_indices((3, 3, 2), wrap=False)  # Default
+    (0, 3, 6)
+
+    >>> interval_sequence_to_indices((3, 3, 2), wrap=True)
+    (0, 3, 6, 8)
+
+    """
+    indices = [0]
+    count = 0
+    if not wrap:
+        interval_sequence_vector = interval_sequence_vector[:-1]
+    for i in interval_sequence_vector:
+        count += i
+        indices.append(count)
+    return tuple(indices)
+
+
+def interval_sequence_to_indicator(interval_sequence_vector) -> tuple:
+    """
+    Given an interval sequence vector, convert to indicator.
+
+    Parameters
+    ----------
+    interval_sequence_vector: the interval sequence
+    wrap: If True, include the index after the end of the sequence
+
+    Examples
+    --------
+    >>> interval_sequence_to_indicator((3, 3, 2))
+    (1, 0, 0, 1, 0, 0, 1, 0)
+
+    """
+    indices = interval_sequence_to_indices(interval_sequence_vector, wrap=False)
+    indicator = indices_to_indicator(
+        indices, indicator_length=sum(interval_sequence_vector)
+    )
+    return tuple(indicator)
+
+
 def saturated_subsequence_repetition(
     sequence: Union[list[int], tuple[int, ...]],
     all_rotations: bool = True,
