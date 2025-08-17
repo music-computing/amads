@@ -11,7 +11,112 @@ __author__ = "Mark Gotham"
 from itertools import combinations
 from typing import Optional, Union
 
-from .vectors_sets import is_indicator_vector, vector_to_set
+from .vectors_sets import is_indicator_vector, vector_to_set, weighted_to_indicator
+
+# ----------------------------------------------------------------------------
+
+
+class Vector:
+    def __init__(self, data: Union[list, tuple], as_intervals: bool = False):
+        """
+        Initializes a Vector object to support the storing of several corresponding representations
+        and mapping between them.
+
+        Parameters
+        ----------
+        data:  The input data can be
+            a weighted vector like (2, 0, 0, 1, 0)
+            or a _wrapped_ interval sequence, in this case (3, 2).
+            Nothing else.
+        as_intervals:
+            If True, the user inputs a wrapped interval sequence; if False, a weighted vector.
+
+        Raises
+        ------
+        TypeError: if data is not a list/tuple.
+
+        Examples
+        --------
+
+        From weighted
+
+        >>> v = Vector((2, 0, 0, 1, 0), as_intervals=False)
+
+        >>> v.weighted_vector
+        (2, 0, 0, 1, 0)
+
+        >>> v.indicator_vector
+        (1, 0, 0, 1, 0)
+
+        >>> v.indicator_length
+        5
+
+        >>> v.wrapped_interval_sequence
+        (3, 2)
+
+        >>> v.interval_sequence
+        (3,)
+
+
+        Now the same, from wrapped interval sequence
+
+        >>> v = Vector((3, 2), as_intervals=True)
+
+        >>> v.weighted_vector is None  # NB undefine for this case
+        True
+
+        >>> v.indicator_vector
+        (1, 0, 0, 1, 0)
+
+        >>> v.indicator_length
+        5
+
+        >>> v.wrapped_interval_sequence
+        (3, 2)
+
+        >>> v.interval_sequence
+        (3,)
+
+        """
+        if not isinstance(data, (list, tuple)):
+            raise TypeError("Data must be a list, tuple, or string.")
+
+        self.data = data  # Whatever the user puts in, interval or weighted seq
+        self.as_intervals = as_intervals
+        self.weighted_vector = None
+        self.indicator_vector = None
+        self.wrapped_interval_sequence = None
+        self.interval_sequence = None
+        self.indices = None
+        self._process_input()
+
+    def _process_input(self):
+
+        if self.as_intervals:
+
+            self.wrapped_interval_sequence = self.data
+            self.interval_sequence = self.wrapped_interval_sequence[:-1]
+
+            self.indicator_vector = interval_sequence_to_indicator(
+                self.wrapped_interval_sequence
+            )
+            self.indicator_length = len(self.indicator_vector)
+
+            self.indices = interval_sequence_to_indices(self.interval_sequence)
+
+        else:  # weighted
+
+            self.weighted_vector = self.data
+            self.indicator_vector = weighted_to_indicator(self.weighted_vector)
+            self.indicator_length = len(self.indicator_vector)
+
+            self.indices = indicator_to_indices(self.indicator_vector)
+
+            self.wrapped_interval_sequence = indicator_to_interval(
+                self.indicator_vector
+            )
+            self.interval_sequence = self.wrapped_interval_sequence[:-1]
+
 
 # ----------------------------------------------------------------------------
 
@@ -224,17 +329,17 @@ def is_maximally_even(indicator_vector: tuple) -> bool:
     >>> is_maximally_even((0, 1, 0, 1, 0, 1))
     True
 
-    This works with the `indices_to_interval` function.
+    This works with the `indicator_to_interval` function.
     Let's look at those representations for the bembé cycle and a comparison case.
 
     >>> bembé = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)
-    >>> indices_to_interval(bembé, adjacent_not_all=True)
+    >>> indicator_to_interval(bembé, adjacent_not_all=True)
     (2, 2, 1, 2, 2, 2, 1)
 
-    >>> indices_to_interval(bembé, adjacent_not_all=True, sequence_not_vector=False)
+    >>> indicator_to_interval(bembé, adjacent_not_all=True, sequence_not_vector=False)
     (2, 5, 0, 0, 0, 0)
 
-    >>> indices_to_interval(bembé, adjacent_not_all=False)
+    >>> indicator_to_interval(bembé, adjacent_not_all=False)
     (2, 5, 4, 3, 6, 1)
 
     >>> is_maximally_even(bembé)
@@ -252,12 +357,12 @@ def is_maximally_even(indicator_vector: tuple) -> bool:
 
     b) the same first-order interval set of 5 x 2s and 2 x 1s,
 
-    >>> indices_to_interval(not_bembé, adjacent_not_all=True, sequence_not_vector=False)
+    >>> indicator_to_interval(not_bembé, adjacent_not_all=True, sequence_not_vector=False)
     (2, 5, 0, 0, 0, 0)
 
     ... but for which the those 2 x 1s are together
 
-    >>> indices_to_interval(bembé, adjacent_not_all=True)
+    >>> indicator_to_interval(bembé, adjacent_not_all=True)
     (2, 2, 1, 2, 2, 2, 1)
 
     ... making it not maximally even.
@@ -408,7 +513,7 @@ def indices_to_indicator(
     return tuple(out)
 
 
-def indices_to_interval(
+def indicator_to_interval(
     vector: Union[list[int], tuple[int, ...]],
     wrap: bool = True,
     adjacent_not_all: bool = True,
@@ -435,30 +540,30 @@ def indices_to_interval(
     >>> bembé = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)
 
      Adjacent intervals expressed as a sequence:
-    >>> indices_to_interval(bembé)
+    >>> indicator_to_interval(bembé)
     (2, 2, 1, 2, 2, 2, 1)
 
     Adjacent intervals expressed as an interval vector:
-    >>> indices_to_interval(bembé, sequence_not_vector=False)
+    >>> indicator_to_interval(bembé, sequence_not_vector=False)
     (2, 5, 0, 0, 0, 0)
 
     All distances (not just the adjacent pairs), which is necessarily expressed as an interval vector:
-    >>> indices_to_interval(bembé, adjacent_not_all=False)
+    >>> indicator_to_interval(bembé, adjacent_not_all=False)
     (2, 5, 4, 3, 6, 1)
 
     Example 2:
     >>> shiko = (1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0)
 
     Adjacent intervals expressed as a sequence:
-    >>> indices_to_interval(shiko)
+    >>> indicator_to_interval(shiko)
     (4, 2, 4, 2, 4)
 
     Adjacent intervals expressed as an interval vector:
-    >>> indices_to_interval(shiko, sequence_not_vector=False)
+    >>> indicator_to_interval(shiko, sequence_not_vector=False)
     (0, 2, 0, 3, 0, 0, 0, 0)
 
     All distances (not just the adjacent pairs), which is necessarily expressed as an interval vector:
-    >>> indices_to_interval(shiko, adjacent_not_all=False)
+    >>> indicator_to_interval(shiko, adjacent_not_all=False)
     (0, 2, 0, 3, 0, 4, 0, 1)
 
     """
