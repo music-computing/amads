@@ -15,7 +15,6 @@ def test_error_handling():
     assert result == [("invalid_attribute", None)]
 
 
-# TODO: maybe squish into one test
 def test_empty_melody():
     score = Score.from_melody([])
     with pytest.raises(RuntimeError):
@@ -36,12 +35,12 @@ def test_equal_prob_melody():
     return
 
 
-# TODO: need to change after chaning profiles.py
 def test_none_input():
     score = Score.from_melody([60, 62, 64])
     result = key_cc(score, prof.krumhansl_kessler)
     names = [name for name, _ in result]
-    assert "major" in names and "minor" in names and len(result) == 4
+    # _sum options removed, len(result) changed from 4 to 2
+    assert "major" in names and "minor" in names and len(result) == 2
     for _, corr in result:
         assert corr is None or (len(corr) == 12)
 

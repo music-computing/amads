@@ -18,7 +18,7 @@ from .kkcc import kkcc
 def transpose2c(score: Score, profile_name: str = "KRUMHANSL-KESSLER") -> Score:
     """
     returns a copy of score transposed to C-major/minor with the key from the
-    krumhansl-kessler algorithm (kkcc with default parameters).
+    original krumhansl-kessler algorithm (kkcc with default parameters).
 
     Parameters
     ----------
@@ -38,8 +38,6 @@ def transpose2c(score: Score, profile_name: str = "KRUMHANSL-KESSLER") -> Score:
     corr_vals = kkcc(score, profile_name)
 
     key_idx = corr_vals.index(max(corr_vals)) % 12
-    # TODO: please change this to shift later on when shift is implemented
-    # i.e. return shift(score, "pitch", -key_idx)
     score_copy = score.deepcopy()
     for note in score_copy.find_all(Note):
         keynum, alt = note.pitch.as_tuple()

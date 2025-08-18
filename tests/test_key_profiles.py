@@ -1,8 +1,10 @@
 """Test suite for key profiles in `pitch.key.profiles.py`"""
 
+from dataclasses import fields
+
 import pytest
 
-from amads.pitch.key.profiles import source_list
+from amads.pitch.key.profiles import PitchProfile, source_list
 
 
 def test_string_attributes():
@@ -20,40 +22,27 @@ def test_string_attributes():
             assert getattr(profile, attr) != ""
 
 
-def test_array_attributes():
-    """Check list attributes provided for each class"""
+def test_data_attributes():
+    """Check attributes provided for each dataclass"""
     for profile in source_list:
+        attribute_names = [f.name for f in fields(profile)]
         # Iterate over every attribute for this profile
-        for attr_key in profile.__dict__.keys():
+        for attr_key in attribute_names:
             # Skip over this attribute, which gives us a tuple
             if attr_key == "__match_args__":
                 continue
             # Get the values of attribute
             attr_val = getattr(profile, attr_key)
+            # Skip over reserved metadata attribute names
+            if attr_key in ["name", "literature", "about"]:
+                assert isinstance(attr_val, str)
             # Every element of tuples should be a floating point number
             #  We should have 12 of them, one per key
-            if isinstance(attr_val, tuple):
+            elif isinstance(attr_val, tuple):
                 assert len(attr_val) == 12
-                if isinstance(attr_val[0], tuple):
-                    assert all(
-                        isinstance(element, tuple) and len(element) == 12
-                        for element in attr_val
-                    )
-                elif isinstance(attr_val[0], float):
-                    assert all(isinstance(element, float) for element in attr_val)
-
-
-def test_sum_attributes():
-    """If we provide a `_sum` attribute, this should be normalised to sum to 1."""
-    # Iterate over all the key profiles we've defined
-    for profile in source_list:
-        # Iterate over all the attributes in this class
-        for attr in profile.__dict__.keys():
-            # If we've defined an attribute ending with `_sum`
-            if attr.endswith("_sum"):
-                # We'd expect the sum of this attribute to approximately equal 1.
-                summed = sum(getattr(profile, attr))
-                assert pytest.approx(summed, rel=1e-2) == 1.0
+                assert all(isinstance(elem, PitchProfile) for elem in attr_val)
+            else:
+                assert isinstance(attr_val, PitchProfile)
 
 
 def test_missing_attributes():

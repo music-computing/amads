@@ -15,7 +15,7 @@ Original doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e0
 import math
 from collections import deque
 from dataclasses import fields
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Union
 
 import numpy as np
 
@@ -53,6 +53,9 @@ def key_cc(
     """
 
     # Get pitch-class distribution
+    # NOTE: pcdist1 still returns a pitch-class distribution in the form of
+    # a 12-tuple of floats.
+    # Eventually, need to make the transition to returning a distribution object
     pcd = np.array([pcdist1(score, False)])
 
     # Apply salience weighting if requested
@@ -78,6 +81,7 @@ def key_cc(
         if attr_name in ["name", "literature", "about"]:
             print(f"Warning! Attempting to access metadata in profile '{profile.name}")
             results.append((attr_name, None))
+            continue
         # Get the attribute from the profile
         attr_value = getattr(profile, attr_name, None)
 
@@ -94,69 +98,67 @@ def key_cc(
         correlations = tuple(_compute_correlations(pcd, profile_matrix))
         if any(math.isnan(val) for val in correlations):
             raise RuntimeError(
-                "key_cc has encountered a score or key profile with equal pitch weights(e.g., empty score or flat distribution)!"
+                "key_cc has encountered a score or key profile with equal pitch weights!"
             )
         results.append((attr_name, correlations))
 
     return results
 
 
-def _get_profile_matrix(attr_value) -> np.ndarray:
+def _get_profile_matrix(
+    attr_value: Union[Tuple[prof.PitchProfile], prof.PitchProfile]
+) -> np.ndarray:
     """
     Retrieves the profile matrix from a given attribute value
 
     Parameters
     ----------
     attr_value
-        attribute value that is valid and within a profile
+        attribute value that is a valid profile value within a profile dataclass
 
     Returns
     -------
     np.ndarray
         12x12 matrix where each row represents a key profile in a given pitch
-        with the following encoding:
+        with the following encoding (row and column-wise):
         0 -> C, 1 -> C#, ... , 11 -> B
     """
-    # Convert to numpy array or handle special cases
-    # Check if attr_value is a tuple of tuples(non-transpositionally equivalent)
-    if (
-        isinstance(attr_value, tuple)
-        and len(attr_value) > 0
-        and isinstance(attr_value[0], tuple)
-    ):
+    # check the only two valid pitch profile cases
+    if isinstance(attr_value, prof.PitchProfile):
+        profile_tuple = attr_value.as_tuple()
         # Handle asymmetric profiles (tuple of tuples)
-        profile_matrix = _handle_asymmetric(attr_value)
+        profile_matrix = _create_transposed_profile_matrix(profile_tuple)
         return profile_matrix
-
-    attr_array = np.array(attr_value)
-
-    # Handle different profile types
-    if attr_array.ndim == 1 and len(attr_array) == 12:
-        # Standard transpositionally equivalent profile
-        profile_matrix = _create_transposed_matrix(attr_array)
+    elif (
+        isinstance(attr_value, Tuple)
+        and len(attr_value) == 12
+        and all(isinstance(elem, prof.PitchProfile) for elem in attr_value)
+    ):
+        assym_profile_tuple = tuple(elem.as_tuple() for elem in attr_value)
+        profile_matrix = _handle_asymmetric(assym_profile_tuple)
         return profile_matrix
     else:
-        raise ValueError(
-            f"attribute value is malformed with unexpected shape {attr_array.shape}"
-        )
+        raise ValueError("attribute value is invalid to a _KeyProfile dataclass")
 
 
-def _create_transposed_matrix(profile: np.ndarray) -> np.ndarray:
+def _create_transposed_profile_matrix(profile_tuple: Tuple[float]) -> np.ndarray:
     """
     Create a 12x12 matrix with transposed versions of the profile.
     Assumes that profile is transpositionally equivalent.
 
     Parameters
     ----------
-    profile : np.ndarray
-        12-element profile array
+    profile_tuple : tuple[float]
+        12-float tuple representation of a pitch-class distribution
 
     Returns
     -------
     np.ndarray
         12x12 matrix where each row is the profile transposed to a different key
+        with the following encoding (row and column-wise):
+        0 -> C, 1 -> C#, ... , 11 -> B
     """
-    profile_deque = deque(profile)
+    profile_deque = deque(profile_tuple)
     profile_matrix = np.zeros((12, 12))
     for i in range(12):
         profile_matrix[i] = profile_deque
@@ -164,7 +166,7 @@ def _create_transposed_matrix(profile: np.ndarray) -> np.ndarray:
     return profile_matrix
 
 
-def _handle_asymmetric(attr_value) -> np.ndarray:
+def _handle_asymmetric(assym_profile_tuple: Tuple[Tuple[float]]) -> np.ndarray:
     """
     Handle asymmetric profiles (e.g., QuinnWhite major_assym, minor_assym).
 
@@ -173,30 +175,26 @@ def _handle_asymmetric(attr_value) -> np.ndarray:
 
     Parameters
     ----------
-    attr_value : tuple of tuples
+    assym_profile_tuple : tuple of tuples
         Nested tuple structure containing key-specific profiles.
-        Expected structure: ((key0_profile), (key1_profile), ..., (key11_profile))
+        Expected structure: ((C_profile_tuple), (C#_profile_tuple), ..., (B_profile_tuple))
         where each key_profile is a 12-element tuple/list.
 
     Returns
     -------
     np.ndarray
         12x12 matrix where each row is a key-specific profile
+        with the following encoding (row and column-wise):
+        0 -> C, 1 -> C#, ... , 11 -> B
     """
     try:
         # Convert tuple of tuples to numpy array
-        profile_matrix = np.array(attr_value)
-
-        # Verify it's a 2D array
-        if profile_matrix.ndim != 2:
-            raise ValueError(
-                f"Expected 2D array from tuple of tuples, got {profile_matrix.ndim}D"
-            )
+        profile_matrix = np.array(assym_profile_tuple)
 
         # Verify each non-transpositional profile attribute has 12 pitch classes
-        if profile_matrix.shape[1] != 12:
+        if profile_matrix.shape != (12, 12):
             raise ValueError(
-                f"Each profile must have 12 pitch classes, got {profile_matrix.shape[1]}"
+                f"malformed profile matrix with shape {profile_matrix.shape}, expected (12, 12)"
             )
 
         return profile_matrix

@@ -6,7 +6,7 @@ Original Doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e0
 """
 
 from itertools import chain
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 from ..core.basics import Score
 from .key import profiles as prof
@@ -16,7 +16,7 @@ from .key_cc import key_cc
 def kkkey(
     score: Score,
     profile: prof._KeyProfile = prof.krumhansl_kessler,
-    attribute_names: List[str] = ["major", "minor"],
+    attribute_names: Optional[List[str]] = ["major", "minor"],
     salience_flag: bool = False,
 ) -> Tuple[str, int]:
     """

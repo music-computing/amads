@@ -6,7 +6,7 @@ corresponds to keymode in miditoolbox.
 Original Doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=65
 """
 
-from typing import List
+from typing import List, Optional
 
 from ..core.basics import Score
 from .key import profiles as prof
@@ -16,7 +16,7 @@ from .key_cc import key_cc
 def keymode(
     score: Score,
     profile: prof._KeyProfile = prof.krumhansl_kessler,
-    attribute_names: List[str] = ["major", "minor"],
+    attribute_names: Optional[List[str]] = ["major", "minor"],
     salience_flag: bool = False,
 ) -> List[str]:
     """

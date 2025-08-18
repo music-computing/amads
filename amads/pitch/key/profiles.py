@@ -70,7 +70,7 @@ class PitchProfile(Distribution):
 
         y_cats = None
         y_label = "weights"
-        super.__init__(
+        super().__init__(
             name,
             list(profile_tuple),
             "pitch_class",
@@ -81,10 +81,10 @@ class PitchProfile(Distribution):
             y_label,
         )
 
-    def getProfileTuple(self):
+    def as_tuple(self):
         return tuple(self.data)
 
-    def getNormalizedProfileTuple(self):
+    def as_normalized_tuple(self):
         return tuple(self.normalize().data)
 
 
