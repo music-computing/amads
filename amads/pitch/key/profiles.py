@@ -88,10 +88,6 @@ class PitchProfile(Distribution):
         return tuple(self.normalize().data)
 
 
-def _key_profile_dist_wrapper(profile_tuple):
-    return PitchProfile("PitchProfile", profile_tuple)
-
-
 @dataclass
 class _KeyProfile:
     """This is the base class for all key profiles.
@@ -139,7 +135,8 @@ class KrumhanslKessler(_KeyProfile):
     about: str = (
         "Early PCP from psychological 'goodness of fit' tests using probe-tones"
     )
-    major: PitchProfile = _key_profile_dist_wrapper(
+    major: PitchProfile = PitchProfile(
+        "KrumhanslKessler.major",
         (
             6.35,
             2.23,
@@ -153,9 +150,10 @@ class KrumhanslKessler(_KeyProfile):
             3.66,
             2.29,
             2.88,
-        )
+        ),
     )
-    minor: PitchProfile = _key_profile_dist_wrapper(
+    minor: PitchProfile = PitchProfile(
+        "KrumhanslKessler.minor",
         (
             6.33,
             2.68,
@@ -169,7 +167,7 @@ class KrumhanslKessler(_KeyProfile):
             2.69,
             3.34,
             3.17,
-        )
+        ),
     )
 
 
@@ -178,7 +176,8 @@ class KrumhanslSchmuckler(_KeyProfile):
     name: str = "KrumhanslSchmuckler"
     literature: str = "Krumhansl (1990)"
     about: str = "Early case of key-estimation through matching usage with profiles"
-    major: PitchProfile = _key_profile_dist_wrapper(
+    major: PitchProfile = PitchProfile(
+        "KrumhanslSchmuckler.major",
         (
             6.35,
             2.33,
@@ -192,9 +191,10 @@ class KrumhanslSchmuckler(_KeyProfile):
             3.66,
             2.29,
             2.88,
-        )
+        ),
     )
-    minor: PitchProfile = _key_profile_dist_wrapper(
+    minor: PitchProfile = PitchProfile(
+        "KrumhanslSchmuckler.minor",
         (
             6.33,
             2.68,
@@ -208,7 +208,7 @@ class KrumhanslSchmuckler(_KeyProfile):
             2.69,
             3.34,
             3.17,
-        )
+        ),
     )
 
 
@@ -217,7 +217,8 @@ class AardenEssen(_KeyProfile):
     name: str = "AardenEssen"
     literature: str = "Aarden (2003) based on Schaffrath (1995)"
     about: str = "Folk melody transcriptions from the Essen collection"
-    major: PitchProfile = _key_profile_dist_wrapper(
+    major: PitchProfile = PitchProfile(
+        "AardenEssen.major",
         (
             17.7661,
             0.145624,
@@ -231,9 +232,10 @@ class AardenEssen(_KeyProfile):
             8.15494,
             0.232998,
             4.95122,
-        )
+        ),
     )
-    minor: PitchProfile = _key_profile_dist_wrapper(
+    minor: PitchProfile = PitchProfile(
+        "AardenEssen.minor",
         (
             18.2648,
             0.737619,
@@ -247,7 +249,7 @@ class AardenEssen(_KeyProfile):
             1.93186,
             7.37619,
             1.75623,
-        )
+        ),
     )
 
 
@@ -256,7 +258,8 @@ class BellmanBudge(_KeyProfile):
     name: str = "BellmanBudge"
     literature: str = "Bellman (2005, sometimes given as 2006) after Budge (1943)"
     about: str = "Chords in Western common practice tonality"
-    major: PitchProfile = _key_profile_dist_wrapper(
+    major: PitchProfile = PitchProfile(
+        "BellmanBudge.major",
         (
             16.8,
             0.86,
@@ -270,9 +273,10 @@ class BellmanBudge(_KeyProfile):
             8.04,
             0.62,
             10.57,
-        )
+        ),
     )
-    minor: PitchProfile = _key_profile_dist_wrapper(
+    minor: PitchProfile = PitchProfile(
+        "BellmanBudge.minor",
         (
             18.16,
             0.69,
@@ -286,7 +290,7 @@ class BellmanBudge(_KeyProfile):
             1.53,
             0.92,
             10.21,
-        )
+        ),
     )
 
 
@@ -299,7 +303,8 @@ class Temperley(_KeyProfile):
     about: str = (
         "Psychological data revised - Temperley's revision of Krumhansl-Schmuckler profiles"
     )
-    major: PitchProfile = _key_profile_dist_wrapper(
+    major: PitchProfile = PitchProfile(
+        "Temperley.major",
         (
             5.0,
             2.0,
@@ -313,9 +318,10 @@ class Temperley(_KeyProfile):
             3.5,
             1.5,
             4.0,
-        )
+        ),
     )
-    minor: PitchProfile = _key_profile_dist_wrapper(
+    minor: PitchProfile = PitchProfile(
+        "Temperley.minor",
         (
             5.0,
             2.0,
@@ -329,7 +335,7 @@ class Temperley(_KeyProfile):
             2.0,
             1.5,
             4.0,
-        )
+        ),
     )
 
 
@@ -338,7 +344,8 @@ class TemperleyKostkaPayne(_KeyProfile):
     name: str = "TemperleyKostkaPayne"
     literature: str = "Temperley (2007 and 2008)"
     about: str = "Usage by section and excerpts from a textbook (Kostka & Payne)"
-    major: PitchProfile = _key_profile_dist_wrapper(
+    major: PitchProfile = PitchProfile(
+        "TemperleyKostkaPayne.major",
         (
             0.748,
             0.06,
@@ -352,9 +359,10 @@ class TemperleyKostkaPayne(_KeyProfile):
             0.366,
             0.057,
             0.4,
-        )
+        ),
     )
-    minor: PitchProfile = _key_profile_dist_wrapper(
+    minor: PitchProfile = PitchProfile(
+        "TemperleyKostkaPayne.minor",
         (
             0.712,
             0.084,
@@ -368,7 +376,7 @@ class TemperleyKostkaPayne(_KeyProfile):
             0.067,
             0.133,
             0.33,
-        )
+        ),
     )
 
 
@@ -379,11 +387,11 @@ class Sapp(_KeyProfile):
     about: str = (
         "Simple set of scale degree intended for use with Krumhansl Schmuckler (above)"
     )
-    major: PitchProfile = _key_profile_dist_wrapper(
-        (2.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 2.0, 0.0, 1.0, 0.0, 1.0)
+    major: PitchProfile = PitchProfile(
+        "Sapp.major", (2.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 2.0, 0.0, 1.0, 0.0, 1.0)
     )
-    minor: PitchProfile = _key_profile_dist_wrapper(
-        (2.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 2.0, 1.0, 0.0, 1.0, 0.0)
+    minor: PitchProfile = PitchProfile(
+        "Sapp.minor", (2.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 2.0, 1.0, 0.0, 1.0, 0.0)
     )
 
 
@@ -392,7 +400,8 @@ class Vuvan(_KeyProfile):
     name: str = "Vuvan"
     literature: str = "Vuvan et al. (2011)"
     about: str = "Different profiles for natural, harmonic, and melodic minors"
-    natural_minor: PitchProfile = _key_profile_dist_wrapper(
+    natural_minor: PitchProfile = PitchProfile(
+        "Vuvan.natural_minor",
         (
             5.08,
             3.03,
@@ -406,9 +415,10 @@ class Vuvan(_KeyProfile):
             3.95,
             5.26,
             3.99,
-        )
+        ),
     )
-    harmonic_minor: PitchProfile = _key_profile_dist_wrapper(
+    harmonic_minor: PitchProfile = PitchProfile(
+        "Vuvan.harmonic_minor",
         (
             4.62,
             2.63,
@@ -422,9 +432,10 @@ class Vuvan(_KeyProfile):
             3.95,
             3.79,
             5.3,
-        )
+        ),
     )
-    melodic_minor: PitchProfile = _key_profile_dist_wrapper(
+    melodic_minor: PitchProfile = PitchProfile(
+        "Vuvan.melodic_minor",
         (
             4.75,
             3.26,
@@ -438,7 +449,7 @@ class Vuvan(_KeyProfile):
             4.43,
             4.51,
             4.91,
-        )
+        ),
     )
 
 
@@ -447,7 +458,8 @@ class DeClerqTemperley(_KeyProfile):
     name: str = "DeClerqTemperley"
     literature: str = "deClerq and Temperley (Popular Music, 2011)"
     about: str = "Chord roots (specifically) in rock harmony."
-    roots: PitchProfile = _key_profile_dist_wrapper(
+    roots: PitchProfile = PitchProfile(
+        "DeClerqTemperley.roots",
         (
             0.328,
             0.005,
@@ -461,7 +473,7 @@ class DeClerqTemperley(_KeyProfile):
             0.072,
             0.081,
             0.004,
-        )
+        ),
     )
 
 
@@ -472,7 +484,8 @@ class TemperleyDeClerq(_KeyProfile):
     about: str = """Rock music and a distinction between melody and harmony.
                distributions as reported in Vuvan and Hughes (2021, see below)
                following personal correspondence with Temperley."""
-    major: PitchProfile = _key_profile_dist_wrapper(
+    major: PitchProfile = PitchProfile(
+        "TemperleyDeClerq.major",
         (
             0.223,
             0.001,
@@ -486,9 +499,10 @@ class TemperleyDeClerq(_KeyProfile):
             0.119,
             0.008,
             0.035,
-        )
+        ),
     )
-    minor: PitchProfile = _key_profile_dist_wrapper(
+    minor: PitchProfile = PitchProfile(
+        "TemperleyDeClerq.minor",
         (
             0.317,
             0.001,
@@ -502,9 +516,10 @@ class TemperleyDeClerq(_KeyProfile):
             0.047,
             0.087,
             0.009,
-        )
+        ),
     )
-    harmony_major: PitchProfile = _key_profile_dist_wrapper(
+    harmony_major: PitchProfile = PitchProfile(
+        "TemperleyDeClerq.harmony_major",
         (
             0.231,
             0.002,
@@ -518,9 +533,10 @@ class TemperleyDeClerq(_KeyProfile):
             0.126,
             0.011,
             0.076,
-        )
+        ),
     )
-    harmony_minor: PitchProfile = _key_profile_dist_wrapper(
+    harmony_minor: PitchProfile = PitchProfile(
+        "TemperleyDeClerq.harmony_minor",
         (
             0.202,
             0.006,
@@ -534,7 +550,7 @@ class TemperleyDeClerq(_KeyProfile):
             0.051,
             0.09,
             0.034,
-        )
+        ),
     )
 
 
@@ -544,7 +560,8 @@ class AlbrechtShanahan(_KeyProfile):
     literature: str = "Albrecht and Shanahan (Music Perception, 2013)"
     about: str = """Partial pieces for more stable within-key environment.
                Note that the two pairs of distributions reported in the appendix are identical"""
-    major: PitchProfile = _key_profile_dist_wrapper(
+    major: PitchProfile = PitchProfile(
+        "AlbrechtShanahan.major",
         (
             0.238,
             0.006,
@@ -558,9 +575,10 @@ class AlbrechtShanahan(_KeyProfile):
             0.08,
             0.008,
             0.081,
-        )
+        ),
     )
-    minor: PitchProfile = _key_profile_dist_wrapper(
+    minor: PitchProfile = PitchProfile(
+        "AlbrechtShanahan.minor",
         (
             0.220,
             0.006,
@@ -574,7 +592,7 @@ class AlbrechtShanahan(_KeyProfile):
             0.022,
             0.061,
             0.052,
-        )
+        ),
     )
 
 
@@ -584,7 +602,8 @@ class PrinceSchumuckler(_KeyProfile):
     literature: str = "Prince and Schmuckler (Music Perception, 2014)"
     about: str = """Distinction between downbeat and all beats.
                Note they also provide profiles for metrical position usage."""
-    downbeat_major: PitchProfile = _key_profile_dist_wrapper(
+    downbeat_major: PitchProfile = PitchProfile(
+        "PrinceSchumuckler.downbeat_major",
         (
             1.0,
             0.088610811,
@@ -598,9 +617,10 @@ class PrinceSchumuckler(_KeyProfile):
             0.433398971,
             0.122721209,
             0.427237502,
-        )
+        ),
     )
-    downbeat_minor: PitchProfile = _key_profile_dist_wrapper(
+    downbeat_minor: PitchProfile = PitchProfile(
+        "PrinceSchumuckler.downbeat_minor",
         (
             1.0,
             0.127885863,
@@ -614,9 +634,10 @@ class PrinceSchumuckler(_KeyProfile):
             0.172114137,
             0.430350195,
             0.286381323,
-        )
+        ),
     )
-    major: PitchProfile = _key_profile_dist_wrapper(
+    major: PitchProfile = PitchProfile(
+        "PrinceSchumuckler.major",
         (
             0.919356471,
             0.114927991,
@@ -630,9 +651,10 @@ class PrinceSchumuckler(_KeyProfile):
             0.542952545,
             0.142399406,
             0.541215555,
-        )
+        ),
     )
-    minor: PitchProfile = _key_profile_dist_wrapper(
+    minor: PitchProfile = PitchProfile(
+        "PrinceSchumuckler.minor",
         (
             0.874192439,
             0.150655606,
@@ -646,7 +668,7 @@ class PrinceSchumuckler(_KeyProfile):
             0.212622807,
             0.467754884,
             0.298711724,
-        )
+        ),
     )
 
 
@@ -657,7 +679,8 @@ class QuinnWhite(_KeyProfile):
     about: str = "Separate profiles for each key"
     # this used to be major_all, but is the symmetrical version of
     # the major key profile in QuinnWhite
-    major: PitchProfile = _key_profile_dist_wrapper(
+    major: PitchProfile = PitchProfile(
+        "QuinnWhite.major",
         (
             0.172,
             0.014,
@@ -671,13 +694,14 @@ class QuinnWhite(_KeyProfile):
             0.059,
             0.016,
             0.093,
-        )
+        ),
     )
     # instead of ordering them by circle of fifths, we order the distributions by
     # incrementing key number the non-transpositionally equivalent distributions
     # represent instead
     major_assym: tuple[PitchProfile] = (
-        _key_profile_dist_wrapper(
+        PitchProfile(
+            "QuinnWhite.major_assym.C",
             (
                 0.174,
                 0.014,
@@ -691,9 +715,10 @@ class QuinnWhite(_KeyProfile):
                 0.058,
                 0.016,
                 0.096,
-            )
+            ),
         ),
-        _key_profile_dist_wrapper(
+        PitchProfile(
+            "QuinnWhite.major_assym.C#",
             (
                 0.173,
                 0.016,
@@ -707,9 +732,10 @@ class QuinnWhite(_KeyProfile):
                 0.055,
                 0.018,
                 0.093,
-            )
+            ),
         ),
-        _key_profile_dist_wrapper(
+        PitchProfile(
+            "QuinnWhite.major_assym.D",
             (
                 0.175,
                 0.013,
@@ -723,9 +749,10 @@ class QuinnWhite(_KeyProfile):
                 0.061,
                 0.015,
                 0.094,
-            )
+            ),
         ),
-        _key_profile_dist_wrapper(
+        PitchProfile(
+            "QuinnWhite.major_assym.Eb",
             (
                 0.173,
                 0.015,
@@ -739,9 +766,10 @@ class QuinnWhite(_KeyProfile):
                 0.059,
                 0.015,
                 0.094,
-            )
+            ),
         ),
-        _key_profile_dist_wrapper(
+        PitchProfile(
+            "QuinnWhite.major_assym.E",
             (
                 0.171,
                 0.013,
@@ -755,9 +783,10 @@ class QuinnWhite(_KeyProfile):
                 0.059,
                 0.016,
                 0.092,
-            )
+            ),
         ),
-        _key_profile_dist_wrapper(
+        PitchProfile(
+            "QuinnWhite.major_assym.F",
             (
                 0.173,
                 0.014,
@@ -771,9 +800,10 @@ class QuinnWhite(_KeyProfile):
                 0.063,
                 0.016,
                 0.095,
-            )
+            ),
         ),
-        _key_profile_dist_wrapper(
+        PitchProfile(
+            "QuinnWhite.major_assym.F#",
             (
                 0.166,
                 0.018,
@@ -787,9 +817,10 @@ class QuinnWhite(_KeyProfile):
                 0.062,
                 0.020,
                 0.091,
-            )
+            ),
         ),
-        _key_profile_dist_wrapper(
+        PitchProfile(
+            "QuinnWhite.major_assym.G",
             (
                 0.175,
                 0.013,
@@ -803,9 +834,10 @@ class QuinnWhite(_KeyProfile):
                 0.058,
                 0.019,
                 0.091,
-            )
+            ),
         ),
-        _key_profile_dist_wrapper(
+        PitchProfile(
+            "QuinnWhite.major_assym.Ab",
             (
                 0.171,
                 0.014,
@@ -819,9 +851,10 @@ class QuinnWhite(_KeyProfile):
                 0.064,
                 0.015,
                 0.093,
-            )
+            ),
         ),
-        _key_profile_dist_wrapper(
+        PitchProfile(
+            "QuinnWhite.major_assym.A",
             (
                 0.174,
                 0.014,
@@ -835,9 +868,10 @@ class QuinnWhite(_KeyProfile):
                 0.059,
                 0.014,
                 0.093,
-            )
+            ),
         ),
-        _key_profile_dist_wrapper(
+        PitchProfile(
+            "QuinnWhite.major_assym.Bb",
             (
                 0.169,
                 0.016,
@@ -851,9 +885,10 @@ class QuinnWhite(_KeyProfile):
                 0.060,
                 0.017,
                 0.096,
-            )
+            ),
         ),
-        _key_profile_dist_wrapper(
+        PitchProfile(
+            "QuinnWhite.major_assym.B",
             (
                 0.167,
                 0.014,
@@ -867,10 +902,11 @@ class QuinnWhite(_KeyProfile):
                 0.054,
                 0.020,
                 0.089,
-            )
+            ),
         ),
     )
-    minor: PitchProfile = _key_profile_dist_wrapper(
+    minor: PitchProfile = PitchProfile(
+        "QuinnWhite.minor",
         (
             0.170,
             0.012,
@@ -884,10 +920,11 @@ class QuinnWhite(_KeyProfile):
             0.024,
             0.026,
             0.085,
-        )
+        ),
     )
     minor_assym: tuple[tuple[float]] = (
-        _key_profile_dist_wrapper(
+        PitchProfile(
+            "QuinnWhite.minor_assym.C",
             (
                 0.170,
                 0.012,
@@ -901,9 +938,10 @@ class QuinnWhite(_KeyProfile):
                 0.024,
                 0.023,
                 0.091,
-            )
+            ),
         ),
-        _key_profile_dist_wrapper(
+        PitchProfile(
+            "QuinnWhite.minor_assym.C#",
             (
                 0.168,
                 0.014,
@@ -917,9 +955,10 @@ class QuinnWhite(_KeyProfile):
                 0.022,
                 0.026,
                 0.082,
-            )
+            ),
         ),
-        _key_profile_dist_wrapper(
+        PitchProfile(
+            "QuinnWhite.minor_assym.D",
             (
                 0.172,
                 0.010,
@@ -933,9 +972,10 @@ class QuinnWhite(_KeyProfile):
                 0.027,
                 0.027,
                 0.084,
-            )
+            ),
         ),
-        _key_profile_dist_wrapper(
+        PitchProfile(
+            "QuinnWhite.minor_assym.Eb",
             (
                 0.168,
                 0.014,
@@ -949,9 +989,10 @@ class QuinnWhite(_KeyProfile):
                 0.025,
                 0.027,
                 0.082,
-            )
+            ),
         ),
-        _key_profile_dist_wrapper(
+        PitchProfile(
+            "QuinnWhite.minor_assym.E",
             (
                 0.174,
                 0.012,
@@ -965,9 +1006,10 @@ class QuinnWhite(_KeyProfile):
                 0.025,
                 0.023,
                 0.087,
-            )
+            ),
         ),
-        _key_profile_dist_wrapper(
+        PitchProfile(
+            "QuinnWhite.minor_assym.F",
             (
                 0.167,
                 0.011,
@@ -981,9 +1023,10 @@ class QuinnWhite(_KeyProfile):
                 0.024,
                 0.025,
                 0.089,
-            )
+            ),
         ),
-        _key_profile_dist_wrapper(
+        PitchProfile(
+            "QuinnWhite.minor_assym.F#",
             (
                 0.172,
                 0.013,
@@ -997,9 +1040,10 @@ class QuinnWhite(_KeyProfile):
                 0.025,
                 0.028,
                 0.081,
-            )
+            ),
         ),
-        _key_profile_dist_wrapper(
+        PitchProfile(
+            "QuinnWhite.minor_assym.G",
             (
                 0.174,
                 0.011,
@@ -1013,9 +1057,10 @@ class QuinnWhite(_KeyProfile):
                 0.027,
                 0.026,
                 0.081,
-            )
+            ),
         ),
-        _key_profile_dist_wrapper(
+        PitchProfile(
+            "QuinnWhite.minor_assym.Ab",
             (
                 0.168,
                 0.014,
@@ -1029,9 +1074,10 @@ class QuinnWhite(_KeyProfile):
                 0.022,
                 0.030,
                 0.085,
-            )
+            ),
         ),
-        _key_profile_dist_wrapper(
+        PitchProfile(
+            "QuinnWhite.minor_assym.A",
             (
                 0.175,
                 0.010,
@@ -1045,9 +1091,10 @@ class QuinnWhite(_KeyProfile):
                 0.021,
                 0.026,
                 0.083,
-            )
+            ),
         ),
-        _key_profile_dist_wrapper(
+        PitchProfile(
+            "QuinnWhite.minor_assym.Bb",
             (
                 0.164,
                 0.011,
@@ -1061,9 +1108,10 @@ class QuinnWhite(_KeyProfile):
                 0.027,
                 0.027,
                 0.083,
-            )
+            ),
         ),
-        _key_profile_dist_wrapper(
+        PitchProfile(
+            "QuinnWhite.minor_assym.B",
             (
                 0.164,
                 0.012,
@@ -1077,7 +1125,7 @@ class QuinnWhite(_KeyProfile):
                 0.022,
                 0.028,
                 0.088,
-            )
+            ),
         ),
     )
 
@@ -1087,7 +1135,8 @@ class VuvanHughes(_KeyProfile):
     name: str = "VuvanHughes"
     literature: str = "Vuvan and Hughes (Music Perception 2021)"
     about: str = "A comparison of Classical and Rock music."
-    classical: PitchProfile = _key_profile_dist_wrapper(
+    classical: PitchProfile = PitchProfile(
+        "VuvanHughes.classical",
         (
             5.38,
             2.65,
@@ -1101,9 +1150,10 @@ class VuvanHughes(_KeyProfile):
             3.38,
             2.91,
             3.03,
-        )
+        ),
     )
-    rock: PitchProfile = _key_profile_dist_wrapper(
+    rock: PitchProfile = PitchProfile(
+        "VuvanHughes.rock",
         (
             5.34,
             3.33,
@@ -1117,7 +1167,7 @@ class VuvanHughes(_KeyProfile):
             3.21,
             2.88,
             2.71,
-        )
+        ),
     )
 
 
