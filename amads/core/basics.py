@@ -5,31 +5,7 @@ Basic Symbolic Music Representation Classes
 
 Overview
 --------
-The basic hierarchy of a score is shown here. Each level of this hierarchy can contain
-zero or more instances of the next level. Levels are optional, allowing for more
-note-list-like representations::
-
-    Score (one per musical work or movement)
-        Part (one per instrument)
-            Staff (usually 1, but e.g. 2 for grand staff)
-                Measure (one for each measure)
-                    (Measure can contain multiple instances of the following)
-                    Note
-                    Rest
-                    Chord
-                        Note (one for each note of the chord)
-                    KeySignature
-                    TimeSignature
-                    Clef
-
-A "flattened" score looks like this::
-
-    Score (one per musical work or movement)
-        Part (one per instrument)
-            Note (no other instances allowed, no ties)
-
-Score, Part, Staff, Measure, and Chord are all EventGroups and their constructors
-can take a list of Events as their content.
+The basic hierarchy of a score is [described here](../core.md).
 
 Constructor Details
 -------------------
@@ -79,12 +55,14 @@ class Event:
 
     Parameters
     ----------
-        parent : Optional[EventGroup]
-            The containing object or None.
-        onset : float | None
-            The onset (start) time.
-        duration : float
-            The duration of the event in quarters or seconds.
+    `parent` : Optional[`EventGroup`]
+        The containing object or None.
+
+    `onset` : float | None
+        The onset (start) time.
+
+    `duration` : float
+        The duration of the event in quarters or seconds.
 
     Attributes
     ----------
@@ -107,6 +85,32 @@ class Event:
                  onset: float | None, duration: float):
         """
         Initialize an Event instance.
+
+        Parameters
+        ----------
+        `parent` : Optional[`EventGroup`]
+            The containing object or None.
+
+        `onset` : float | None
+            The onset (start) time.
+
+        `duration` : float
+            The duration of the event in quarters or seconds.
+
+        Attributes
+        ----------
+        `parent` : Optional[Event]
+            The containing object or None.
+
+        `_onset` : float | None
+            The onset (start) time.
+
+       `duration` : float
+            The duration of the event in quarters or seconds.
+
+        `info` : Optional[Dict]
+            Additional attribute/value information.
+
         """
         self.parent = None  # set below when inserted into parent
         self._onset = onset
@@ -158,15 +162,16 @@ class Event:
 
         Parameters
         ----------
-        property : str
+        `property` : str.
             The name of the property to get.
-        default : Any, optional
+
+        `default` : Any, optional.
             The default value to return if the property is not found.
             (Defaults to None)
 
         Returns
         -------
-        Any
+        `Any`
             The value of the specified property.
         """
         if self.info is None:
@@ -192,7 +197,7 @@ class Event:
 
     def copy(self, parent: Optional["EventGroup"] = None) -> "Event":
         """
-        Return a deep copy of the Event instance except for the parent,
+        Return a deep copy of the `Event` instance except for the parent,
         which may be provided as an argument. See also copyempty to copy
         an EventGroup without the content.
 

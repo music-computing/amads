@@ -1,0 +1,39 @@
+site_name: AMADS
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.expand
+    - navigation.tabs
+
+markdown_extensions:
+  - toc:
+      permalink: true
+      toc_depth: 2
+
+plugins:
+  - search
+  - mkdocstrings
+#      handlers:
+#        python:
+#          setup_commands:
+#            - import sys; sys.path.append(".")
+
+nav:
+  - Home: index.md
+  - Install: user_guide/installation.md
+  - Developer:
+      - Documentation: developer_notes/documentation.md
+      - Making a Release: developer_notes/making_a_release.md
+      - Modules: developer_notes/modules.md
+      - Testing: developer_notes/testing.md
+      - Contributing: developer_notes/contributing.md
+      - Style: developer_notes/style.md
+      - Music21: developer_notes/music21.md
+  - API Reference:
+      - Core Data Structures: core.md
+      - Core Classes:
+        - reference/event.md
+        - reference/chord.md
+        - reference/pitch.md
+      - Melody: reference/melody.md
