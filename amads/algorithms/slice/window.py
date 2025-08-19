@@ -25,7 +25,7 @@ class Window(Slice):
     but zero-length notes representing grace notes are one possibility to
     consider; there may be others.)
 
-    Additionoal details that you may not need: For very short notes, the
+    Additional details that you may not need: For very short notes, the
     window is considered closed on the left and open on the right, so
     that the window is considered to contain the note if it starts at
     the same time as the window, and a note is not in the window if it
@@ -98,7 +98,7 @@ class Window(Slice):
                 # The note finished before the window starts.
                 continue
             else:  # note overlaps window, start no later than this
-                # when searching for overlaps with the next winodow
+                # when searching for overlaps with the next window
                 self.skip = min(self.skip, i)
 
             if note.onset >= offset:
