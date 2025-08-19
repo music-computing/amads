@@ -8,7 +8,7 @@ my_midi_file = example.fullpath("midi/twochan.mid")
 # "midi/tempo.mid"
 
 print("------- input from partitura")
-myscore = partitura_midi_import(my_midi_file, ptprint=True)
+myscore = partitura_midi_import(my_midi_file, show=True)
 myscore.show()
 
 

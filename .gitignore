@@ -173,3 +173,6 @@ docs/auto_examples
 
 /.vscode/
 docs/sg_execution_times.rst
+
+# local stuff to keep out of repo
+/ignore/

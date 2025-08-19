@@ -4,13 +4,13 @@ from amads.all import partitura_xml_import
 from amads.music import example
 
 my_xml_file = None  # defaults to pt.EXAMPLE_MUSICXML
-# my_xml_file = "../music/musicxml/ex1.xml"
-# my_xml_file = "../music/musicxml/ex2.xml"
-my_xml_file = example.fullpath("musicxml/ex3.xml")
+# my_xml_file = example.fullpath("music/musicxml/ex1.xml")
+my_xml_file = example.fullpath("musicxml/ex2.xml")
+# my_xml_file = example.fullpath("musicxml/ex3.xml")
 
 
 print("------- input from partitura")
-myscore = partitura_xml_import(my_xml_file, ptprint=True)
+myscore = partitura_xml_import(my_xml_file, show=True)
 myscore.show()
 
 print("------- result of score copy")

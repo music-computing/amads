@@ -9,7 +9,7 @@ of notes in a MIDI file.
 import matplotlib.pyplot as plt
 
 from amads.algorithms import duration_distribution_2
-from amads.io import partitura_midi_import
+from amads.io import music21_midi_import
 from amads.music import example
 
 # %%
@@ -18,7 +18,7 @@ my_midi_file = example.fullpath("midi/sarabande.mid")
 
 # %%
 # Import MIDI using partitura
-myscore = partitura_midi_import(my_midi_file, ptprint=False)
+myscore = music21_midi_import(my_midi_file, show=False)
 myscore.show()
 
 # %%
