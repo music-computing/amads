@@ -1,16 +1,16 @@
 """
-Inner Metrical Analysis (IMA).
-Given a tatum (fastest metrical grid)
-and a list of indices from that list of positions which are used (e.g., typically note starts)
-deduce local and spectral meters.
+Prepare a grid
+based on the tatum (smallest value needed to fully express all event positions).
+This will be a monotonically increasing sequence of integers
+where each integer expresses the event position relative in multiples of the tatum.
 
-Currently, this module simply prepares the data for IMA,
-the IMA algorithm itself will follow.
+This is needed for algorithms including the
+Inner Metrical Analysis (IMA) which takes this list of integers indices
+and deduced local and spectral meters.
 
 """
 
 __author__ = "Mark Gotham"
-# And TODO soon, "Brian Bemman"
 
 
 # ------------------------------------------------------------------------------
@@ -74,14 +74,6 @@ def starts_to_indices(list_of_starts: list):
     """
     tatum = get_tatum(list_of_starts)
     return [round(x / tatum) for x in list_of_starts]
-
-
-def inner_metric(list_of_indices: list[int]):
-    """
-    Inner Metric Analysis algorithm goes here.
-    # TODO over to you Brian ;)
-    """
-    pass
 
 
 # -----------------------------------------------------------------------------
