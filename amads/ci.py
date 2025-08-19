@@ -9,8 +9,10 @@ import pytest
 ci_groups = {
     "tests_melsim": [
         "tests/test_melsim.py",
+        "tests/test_melsim_demos.py",
         "amads/melody/similarity/melsim.py",
         "examples/plot_melsim.py",
+        "demos/melsim.py",
     ]
 }
 
