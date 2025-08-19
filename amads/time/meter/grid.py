@@ -51,6 +51,7 @@ __author__ = "Mark Gotham"
 from collections import Counter
 from fractions import Fraction
 from math import floor, gcd
+from numbers import Number
 from typing import Iterable, Optional, Union
 
 
@@ -69,7 +70,7 @@ def starts_to_int_relative_counter(starts: Iterable[float]):
     Counter({0.0: 5, 0.5: 2, 0.75: 1, 0.33333: 1, 0.66667: 1})
     """
     for item in starts:
-        if not isinstance(item, (int, float, Fraction)):
+        if not isinstance(item, Number):  # int, float, Fraction, np.float32 etc.
             raise TypeError(
                 f"All items in `starts` must be numeric (int or float). Found: {type(item)}"
             )
