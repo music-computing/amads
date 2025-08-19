@@ -130,7 +130,7 @@ def _get_profile_matrix(
         profile_matrix = _create_transposed_profile_matrix(profile_tuple)
         return profile_matrix
     elif (
-        isinstance(attr_value, Tuple)
+        isinstance(attr_value, tuple)
         and len(attr_value) == 12
         and all(isinstance(elem, prof.PitchProfile) for elem in attr_value)
     ):
