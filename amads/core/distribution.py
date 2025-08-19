@@ -3,7 +3,7 @@ Distributions Module
 
 The Distribution class represents distributions and distribution metadata.
 
-Author(s): [Roger Dannenberg, Tai Nakamura]
+Author(s): [Roger Dannenberg, Di Wang, Tai Nakamura]
 Date: [2024-12-04]
 
 Description:
