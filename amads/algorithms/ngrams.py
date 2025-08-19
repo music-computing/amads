@@ -22,6 +22,16 @@ class NGramCounter:
             If int, count n-grams of that specific length.
                 If list, count n-grams of the specified lengths.
                 If None, count n-grams of all possible lengths.
+
+        Examples
+        --------
+        >>> tresillo = [3, 3, 2]
+        >>> ten_tresillo = tresillo * 10
+        >>> ngc = NGramCounter()
+        >>> ngc.count_ngrams(tokens=ten_tresillo, n=3)
+        >>> ngc.ngram_counts
+        {('3', '3', '2'): 10, ('3', '2', '3'): 9, ('2', '3', '3'): 9}
+
         """
         # Determine n-gram lengths to count
         if n is None:
@@ -81,7 +91,7 @@ class NGramCounter:
 
     @property
     def yules_k(self) -> float:
-        """Calculate Yule's K statistic for the n-gram counts.
+        """Calculate Yule's K statistic [1] for the n-gram counts.
 
         Yule's K is a measure of the rate at which tokens are repeated in a sequence.
         It is calculated according to the formula:
@@ -97,6 +107,8 @@ class NGramCounter:
         - Higher K values indicate more repetitive sequences
         - Lower K values indicate more diverse sequences with less repetition
         - K is scaled by 1000 to make values more readable
+
+        [1] Yule, G. U. 1944. The Statistical Study of Literary Vocabulary. Cambridge University Press.
 
         Returns
         -------
@@ -125,7 +137,7 @@ class NGramCounter:
 
     @property
     def simpsons_d(self) -> float:
-        """Compute mean Simpson's D diversity index over n-grams. This is closely
+        """Compute mean Simpson's D [1] diversity index over n-grams. This is closely
         mathematically related to the definition of Yule's K.
         Simpson's D is a measure of diversity in a sequence:
         :math:`D = 1 - sum(n_i * (n_i - 1)) / (N * (N - 1))`
@@ -137,6 +149,8 @@ class NGramCounter:
         Interpretation:
         - Higher D values indicate more repetitive sequences where tokens are often repeated
         - Lower D values indicate more diverse sequences with many different tokens
+
+        [1] Simpson, E. H. 1949. Measurement of diversity. Nature, 163:688
 
         Returns
         -------
@@ -219,7 +233,7 @@ class NGramCounter:
     def honores_h(self) -> float:
         """Compute Honore's H statistic over n-grams.
         Honore's H is based on the assumption that the proportion of tokens
-        occuring exactly once is logarithmically related to the total number
+        occurring exactly once is logarithmically related to the total number
         of tokens in the sequence.
         It is defined as:
         :math:`H = 100 * (log(N) / (1.01 - (V1/V(N))))`
