@@ -25,8 +25,6 @@ from matplotlib.figure import Figure
 DEFAULT_BAR_COLOR = "skyblue"
 
 
-# legit think distribution class is too ambitious and contains too much information...
-# hell even
 class Distribution:
     """
     Represents a probability distribution and its metadata.

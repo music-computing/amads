@@ -116,7 +116,7 @@ def test_salience():
     ]
     for (attr, corr), (expected_attr, expected_corr) in zip(result, desired_result):
         assert attr == expected_attr
-        assert np.allclose(corr, expected_corr, atol=1e-15)
+        assert np.allclose(corr, expected_corr, rtol=1e-15)
 
 
 def test_sarabande():
@@ -177,7 +177,7 @@ def test_sarabande():
 
     for (attr, corr), (expected_attr, expected_corr) in zip(result, desired_result):
         assert attr == expected_attr
-        assert np.allclose(corr, expected_corr, atol=1e-15)
+        assert np.allclose(corr, expected_corr, rtol=1e-15)
 
 
 def test_random_generated_melodies():

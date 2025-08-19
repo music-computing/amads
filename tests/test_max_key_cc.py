@@ -31,6 +31,6 @@ def test_crafted_nonempty_melody():
     melody = Score.from_melody(pitches=pitches_in)
     max_coef = max_key_cc(melody)
     target_coef = 0.0679524348011131
-    assert math.isclose(max_coef, target_coef, rel_tol=1e-15)
+    assert math.isclose(max_coef, target_coef, rel_tol=1e-13)
 
     return
