@@ -128,15 +128,17 @@ useful functions have no public implementation, else an implementation in an all
 Pointing users to those sources would be a limited use.
 Much better instead, to provide an implementation in those cases.
 
-Where existing code is 
+Where existing code packages are
 publicly available and clearly maintained by a named and currently active person or team,
 we aim to avoid re-implementation,
-and focus instead on providing an ecosystem that incorporates that code as is.
-As such, we aim for AMADS to be a kind of meta-package, a synthesis of music21, Partitura, IDyoM and more.
+and focus instead on providing an ecosystem that incorporates those packages as dependencies via an API.
+As such, AMADS serves as a kind of meta-package,
+with a unified Python API for acessing 
+both new code and other relevant packages in one place.
 
 There are trade-offs here.
-This meta-package design necessarily makes the overall design less consistent than it might be if we reimplemented everything from scratch.
-Overall, we consider this an acceptable balance; we consider the current approach the best way to invest time in serving the field.
+This meta-package scope necessarily makes the overall design less consistent than it might be if we reimplemented everything from scratch.
+Overall, we consider this an acceptable balance; we consider the current approach the best way to invest time in serving the field and building on what has been accomplished already.
 
 In keeping with the above, we will gladly consider PR contributions
 that build on any of those packages (IDyoM, music21, Partitura, ...).
