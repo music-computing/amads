@@ -49,6 +49,11 @@ test = [
 melsim = [
     "pandas",
 ]
+examples = [
+    # Temporary fix while we wait for mirdata > 0.3.9 to be released
+    "mirdata @ git+https://github.com/mir-dataset-loaders/mirdata.git@82b9710a0cc3e4b27a6522f0ec8a92ea03f23c41",
+    "scikit-learn"
+]
 
 [project.urls]
 "GitHub" = "https://github.com/music-computing/amads"  # Update with your repo URL
