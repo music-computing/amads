@@ -54,6 +54,9 @@ class SyncopationMetric:
         self, onset_beats: Optional[list] = None
     ) -> float:
         """
+
+        TODO: WIP - does not currently replicate answers in the literature; further investigation to follow
+
         The weighted note-to-beat distance measure (WNBD)
         measures the distance between note starts and
         records the traversing of beats, and the distance to the nearest beat.
@@ -78,7 +81,7 @@ class SyncopationMetric:
         --------
         We use the example of the son clave
         (also available from the `meter.profiles` module),
-        adpating to match presentation in the literature.
+        adapting to match presentation in the literature.
 
         >>> son = [1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0]
         >>> onset_beats = vector_to_onset_beat(vector=son, beat_unit_length=4)
