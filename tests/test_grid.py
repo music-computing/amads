@@ -8,6 +8,7 @@ from collections import Counter
 
 import pytest
 
+from amads.harmony.consonance import approximate_fraction_consonance
 from amads.time.meter import grid, profiles
 
 
@@ -84,7 +85,7 @@ def test_BPSD():
         these_keys = getattr(bpsd, file_name).keys()
         all_positions += list(these_keys)
         for k in these_keys:
-            n, d = grid.approximate_fraction(k)
+            n, d = approximate_fraction_consonance(k)
             assert n < 200
             assert d < 600
 
