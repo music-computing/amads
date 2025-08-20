@@ -8,7 +8,6 @@ checks (e.g., `is_rotation_equivalent`) on vectors.
 
 __author__ = "Mark Gotham"
 
-from collections import Counter
 from itertools import combinations
 from typing import Optional, Union
 
@@ -115,6 +114,33 @@ def complement(indicator_vector: tuple[int, ...]) -> tuple:
     return tuple(1 - x for x in indicator_vector)
 
 
+def change_cycle_length(
+    start_vector: tuple,
+    destination_length: int,
+    return_indices_not_indicator: bool = True,
+) -> tuple:
+    """
+    Change the cycle length of a vector by mapping each point to the nearest equivalent in the new length.
+    >>> tresillo = (1, 0, 0, 1, 0, 0, 1, 0)
+    >>> change_cycle_length(tresillo, 9)
+    (0, 3, 7)
+
+    >>> change_cycle_length(tresillo, 12)
+    (0, 4, 9)
+
+    >>> change_cycle_length(start_vector=tresillo, destination_length=9, return_indices_not_indicator=False)
+    (1, 0, 0, 1, 0, 0, 0, 1, 0)
+
+    """
+    start_indices = indicator_to_indices(start_vector)
+    start_len = len(start_vector)
+    new_indices = [round(destination_length * i / start_len) for i in start_indices]
+    if return_indices_not_indicator:
+        return tuple(new_indices)
+    else:
+        return indices_to_indicator(new_indices, indicator_length=destination_length)
+
+
 # ----------------------------------------------------------------------------
 
 # Checks
@@ -123,22 +149,43 @@ def complement(indicator_vector: tuple[int, ...]) -> tuple:
 def is_rotation_equivalent(vector_a: tuple, vector_b: tuple) -> bool:
     """
     Given two vectors, test for rotation equivalence.
+    This is applicable to indicator vectors, interval sequences, and more
+    as long as the user compares like with like.
 
     Examples
     --------
+
+    Indicator:
+
     >>> is_rotation_equivalent((1, 0, 0), (0, 1, 0))
     True
 
     >>> is_rotation_equivalent((1, 0, 0), (1, 1, 0))
     False
+
+    Intervals:
+
+    >>> is_rotation_equivalent((3, 3, 2), (3, 2, 3))
+    True
+
+    >>> is_rotation_equivalent((3, 3, 2), (2, 3, 2))
+    False
+
+    Trivial case:
+    >>> is_rotation_equivalent((1, 0, 0), (1, 0, 0))
+    True
+
     """
+    if vector_a == vector_b:
+        return True
+
     vector_length = len(vector_a)
     if len(vector_b) != vector_length:
         raise ValueError(
-            f"The vectors msy be of the same length (currently {vector_length} and {len(vector_b)}."
+            f"The vectors must be of the same length (currently {vector_length} and {len(vector_b)}."
         )
 
-    for steps in range(vector_length):
+    for steps in range(1, vector_length):
         if vector_a == rotate(vector_b, steps):
             return True
 
@@ -176,30 +223,88 @@ def is_maximally_even(indicator_vector: tuple) -> bool:
     False
     >>> is_maximally_even((0, 1, 0, 1, 0, 1))
     True
+
+    This works with the `indicator_to_interval` function.
+    Let's look at those representations for the bembé cycle and a comparison case.
+
+    >>> bembé = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)
+    >>> indicator_to_interval(bembé, adjacent_not_all=True)
+    (2, 2, 1, 2, 2, 2, 1)
+
+    >>> indicator_to_interval(bembé, adjacent_not_all=True, sequence_not_vector=False)
+    (2, 5, 0, 0, 0, 0)
+
+    >>> indicator_to_interval(bembé, adjacent_not_all=False)
+    (2, 5, 4, 3, 6, 1)
+
+    >>> is_maximally_even(bembé)
+    True
+
+    For our comparison case, we create another cycle that also has:
+    a) 7 elements in a 12-unit cycle,
+
+    >>> not_bembé =  (1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1)
+    >>> not_bembé.count(1)
+    7
+
+    >>> len(not_bembé)
+    12
+
+    b) the same first-order interval set of 5 x 2s and 2 x 1s,
+
+    >>> indicator_to_interval(not_bembé, adjacent_not_all=True, sequence_not_vector=False)
+    (2, 5, 0, 0, 0, 0)
+
+    ... but for which the those 2 x 1s are together
+
+    >>> indicator_to_interval(bembé, adjacent_not_all=True)
+    (2, 2, 1, 2, 2, 2, 1)
+
+    ... making it not maximally even.
+
+    >>> is_maximally_even(not_bembé)
+    False
+
     """
     if not is_indicator_vector(indicator_vector):
         raise ValueError(
             f"The `indicator_vector` argument (set as {indicator_vector}) should be an indicator vector."
         )
 
-    interval_pattern = indices_to_interval(indicator_vector)
-    interval_pattern_counter = Counter(interval_pattern)
+    k = indicator_vector.count(1)
+    n = len(indicator_vector)
 
-    if len(interval_pattern_counter) > 2:
-        return False
-    elif len(interval_pattern_counter) == 1:
-        return True
-    else:  # len(interval_pattern_counter) == 2: # Cannot be 0 or negenative.
-        intervals = list(interval_pattern_counter.keys())
-        if abs(intervals[0] - intervals[1]) == 1:
-            return True
-        else:
-            return False
+    prototype_k_in_n = indices_to_indicator(tuple(max_even_k_in_n(k, n)), n)
+
+    return is_rotation_equivalent(prototype_k_in_n, indicator_vector)
 
 
 # ----------------------------------------------------------------------------
 
 # Other
+
+
+def max_even_k_in_n(k: int, n: int) -> set[int]:
+    """
+    Make a maximally even pattern of k elements in an n-length cycle.
+    Normally, we would expect k to be less than n, but this is not strictly required.
+    Larger values of k simply produce duplicate entries in n that are ignored in the
+    returned set.
+
+    Examples
+    --------
+
+    >>> max_even_k_in_n(3, 8)
+    {0, 3, 5}
+
+    >>> max_even_k_in_n(7, 12)
+    {0, 2, 3, 5, 7, 9, 10}
+
+    >>> max_even_k_in_n(5, 16)
+    {0, 3, 6, 10, 13}
+
+    """
+    return set([round(n * i / k) for i in range(k)])
 
 
 def rotation_distinct_patterns(vector_patterns: tuple[tuple, ...]) -> tuple[tuple, ...]:
@@ -242,56 +347,223 @@ def rotation_distinct_patterns(vector_patterns: tuple[tuple, ...]) -> tuple[tupl
     return tuple(return_values)
 
 
-def indices_to_interval(
+def indicator_to_indices(
+    vector: Union[list[int], tuple[int, ...]], wrap: bool = False
+) -> tuple:
+    """
+    Simple mapping from an indicator vector for where events fall,
+    to a tuple of the corresponding indices.
+
+    Examples
+    --------
+    >>> bembé = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1) # adjacent only
+    >>> indicator_to_indices(bembé)
+    (0, 2, 4, 5, 7, 9, 11)
+
+    >>> indicator_to_indices(bembé, wrap=True)
+    (0, 2, 4, 5, 7, 9, 11, 12)
+
+    >>> shiko = (1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0) # adjacent only
+    >>> indicator_to_indices(shiko)
+    (0, 4, 6, 10, 12)
+
+    >>> indicator_to_indices(shiko, wrap=True)
+    (0, 4, 6, 10, 12, 16)
+
+    """
+    if wrap:
+        vector += (vector[0],)
+
+    set_as_list = list(vector_to_set(vector))
+    set_as_list.sort()
+    return tuple(set_as_list)
+
+
+# TODO in vectors_sets?
+def indices_to_indicator(
+    indices_vector: Union[list[int], tuple[int, ...]],
+    indicator_length: Optional[int] = None,
+) -> tuple:
+    """
+    Simple mapping from indices to indicator vector.
+
+    Parameters
+    ----------
+    indices_vector: A vector of indices (0, 2, 4, 5, 7, 9, 11).
+        Monotonic increase is expected but not required.
+    indicator_length: optionally specify the length of the output indicator vector.
+        If not specified, we use the highest index in the indices vector.
+
+    Examples
+    --------
+    Round trip
+    >>> bembé = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)
+    >>> indices = indicator_to_indices(bembé)
+    >>> indices
+    (0, 2, 4, 5, 7, 9, 11)
+
+    No `indicator_length` is needed for default
+
+    >>> round_trip = indices_to_indicator(indices)
+    >>> round_trip
+    (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)
+
+    >>> round_trip == bembé
+    True
+
+    The `indicator_length` can, however, be specified:
+    >>> indices_to_indicator(indices, indicator_length=12)
+    (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)
+
+    And the `indicator_length` can extend the indicator as neede:
+    >>> indices_to_indicator(indices, indicator_length=14)
+    (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0)
+
+    """
+    out = []
+    if indicator_length is None:
+        indicator_length = max(indices_vector) + 1
+    for i in range(indicator_length):
+        if i in indices_vector:
+            out.append(1)
+        else:
+            out.append(0)
+
+    return tuple(out)
+
+
+def indicator_to_interval(
     vector: Union[list[int], tuple[int, ...]],
     wrap: bool = True,
     adjacent_not_all: bool = True,
+    sequence_not_vector: bool = True,
 ) -> tuple:
     """
     Given a vector (assumed to be indicator)
     convert from 1/0 at each index to the intervals between the 1s.
 
+    Parameters
+    ----------
+    vector: an indicator vector for position usage.
+    wrap: wrap the cycle, duplicating the first element at the end to include that interval.
+    adjacent_not_all: intervals between pais of adjacent elements in the sequencs or between all pairs.
+    sequence_not_vector:
+        In the case of adjacent intervals, express the result as an interval sequence,
+        or as an interval vector.
+        (No such option in the ase of all intervals: hat must be a vector).
+
     Examples
     --------
-    >>> bembé = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1) # adjacent only
-    >>> indices_to_interval(bembé)
+
+    Example 1:
+    >>> bembé = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)
+
+    Adjacent intervals expressed as a sequence:
+    >>> indicator_to_interval(bembé)
     (2, 2, 1, 2, 2, 2, 1)
 
-    >>> indices_to_interval(bembé, adjacent_not_all=False) # all distances
+    Wrap is optional:
+    >>> indicator_to_interval(bembé, wrap=False)
+    (2, 2, 1, 2, 2, 2)
+
+    Adjacent intervals expressed as an interval vector:
+    >>> indicator_to_interval(bembé, sequence_not_vector=False)
+    (2, 5, 0, 0, 0, 0)
+
+    All distances (not just the adjacent pairs), which is necessarily expressed as an interval vector:
+    >>> indicator_to_interval(bembé, adjacent_not_all=False)
     (2, 5, 4, 3, 6, 1)
 
-    >>> shiko = (1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0) # adjacent only
-    >>> indices_to_interval(shiko)
+    Example 2:
+    >>> shiko = (1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0)
+
+    Adjacent intervals expressed as a sequence:
+    >>> indicator_to_interval(shiko)
     (4, 2, 4, 2, 4)
 
-    >>> indices_to_interval(shiko, adjacent_not_all=False) # all distances
+    Adjacent intervals expressed as an interval vector:
+    >>> indicator_to_interval(shiko, sequence_not_vector=False)
+    (0, 2, 0, 3, 0, 0, 0, 0)
+
+    All distances (not just the adjacent pairs), which is necessarily expressed as an interval vector:
+    >>> indicator_to_interval(shiko, adjacent_not_all=False)
     (0, 2, 0, 3, 0, 4, 0, 1)
 
     """
     if adjacent_not_all and wrap:
-        vector = list(vector)
-        vector.append(vector[0])
+        vector += (vector[0],)  # TODO DRY
 
-    set_as_list = list(vector_to_set(vector))
-    set_as_list.sort()
+    indices = indicator_to_indices(vector)
 
     if adjacent_not_all:
-        return tuple(
-            [set_as_list[i + 1] - set_as_list[i] for i in range(len(set_as_list) - 1)]
-        )
+        sequence = tuple([indices[i + 1] - indices[i] for i in range(len(indices) - 1)])
+        if sequence_not_vector:
+            return sequence
+        else:
+            ics = sequence
     else:  # all
-        vector_length = len(vector)
-        half_vector_length = int(vector_length / 2)
-        non_adjacent_interval_vector = [0] * half_vector_length
+        ics = [p[1] - p[0] for p in combinations(indices, 2)]
 
-        for p in combinations(set_as_list, 2):
-            ic = p[1] - p[0]
-            if ic < 0:
-                ic *= -1
-            if ic > half_vector_length:
-                ic = vector_length - ic
-            non_adjacent_interval_vector[ic - 1] += 1
-        return tuple(non_adjacent_interval_vector)
+    vector_length = len(vector)
+    half_vector_length = int(vector_length / 2)
+    interval_vector = [0] * half_vector_length
+
+    for ic in ics:
+        if ic < 0:
+            ic *= -1
+        if ic > half_vector_length:
+            ic = vector_length - ic
+        interval_vector[ic - 1] += 1
+    return tuple(interval_vector)
+
+
+def interval_sequence_to_indices(interval_sequence_vector, wrap: bool = False) -> tuple:
+    """
+    Given an interval sequence vector, convert to indices.
+
+    Parameters
+    ----------
+    interval_sequence_vector: an indicator vector for position usage.
+    wrap: If True, include the index after the end of the sequence
+
+    Examples
+    --------
+    >>> interval_sequence_to_indices((3, 3, 2), wrap=False)  # Default
+    (0, 3, 6)
+
+    >>> interval_sequence_to_indices((3, 3, 2), wrap=True)
+    (0, 3, 6, 8)
+
+    """
+    indices = [0]
+    count = 0
+    if not wrap:
+        interval_sequence_vector = interval_sequence_vector[:-1]
+    for i in interval_sequence_vector:
+        count += i
+        indices.append(count)
+    return tuple(indices)
+
+
+def interval_sequence_to_indicator(interval_sequence_vector) -> tuple:
+    """
+    Given an interval sequence vector, convert to indicator.
+
+    Parameters
+    ----------
+    interval_sequence_vector: the interval sequence
+
+    Examples
+    --------
+    >>> interval_sequence_to_indicator((3, 3, 2))
+    (1, 0, 0, 1, 0, 0, 1, 0)
+
+    """
+    indices = interval_sequence_to_indices(interval_sequence_vector, wrap=False)
+    indicator = indices_to_indicator(
+        indices, indicator_length=sum(interval_sequence_vector)
+    )
+    return tuple(indicator)
 
 
 def saturated_subsequence_repetition(
@@ -310,7 +582,7 @@ def saturated_subsequence_repetition(
     ----------
     sequence: A vector for event positions in the cycle time span.
     all_rotations: If True, check all rotations of the sequence.
-    subsequence_period: If specified, check only that period length. Otherwise check all factors of n.
+    subsequence_period: If specified, check only that period length; otherwise, check all factors of n.
 
     Returns
     -------
