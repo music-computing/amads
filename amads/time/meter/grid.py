@@ -50,9 +50,10 @@ __author__ = "Mark Gotham"
 
 from collections import Counter
 from fractions import Fraction
-from math import floor, gcd
 from numbers import Number
 from typing import Iterable, Optional, Union
+
+from amads.algorithms.gcd import fraction_gcd_pair
 
 
 def starts_to_int_relative_counter(starts: Iterable[float]):
@@ -76,197 +77,6 @@ def starts_to_int_relative_counter(starts: Iterable[float]):
             )
 
     return Counter([round(x - int(x), 5) for x in starts])
-
-
-def float_gcd(a: float, b: float = 1.0, rtol=1e-05, atol=1e-08) -> float:
-    """
-    Calculate the greatest common divisor (GCD) for values a and b given the specified
-    relative and absolute tolerance (rtol and atol).
-    With thanks to Euclid,
-    `fractions.gcd`, and
-    [stackexchange](https://stackoverflow.com/questions/45323619/).
-
-    Tolerance values should be set in relation to the granulaity (e.g., pre-rounding) of the input data.
-
-    Parameters
-    ----------
-    a
-        Any float value.
-    b
-        Any float value, though typically 1.0 for our use case of measure-relative positioning.
-    rtol
-        the relative tolerance
-    atol
-        the absolute tolerance
-
-
-    Examples
-    --------
-
-    At risk of failure in both directions.
-    Default tolerance values fail simple cases (2 / 3 to 4d.p.):
-    >>> round(float_gcd(0.6667), 3) # failure
-    0.0
-
-    Leaving the value the same, but changing the tolerance to accomodate:
-    >>> round(float_gcd(0.6667, atol=0.001, rtol=0.001), 3) # success
-    0.333
-
-    But this same kind of tolerance adjustment can make errors for other, common musical values.
-    15/16 is a common musical value for which the finer tolerance is effective:
-
-    >>> fifteen_sixteenths = 15/16
-    >>> round(1 / float_gcd(fifteen_sixteenths)) # success
-    16
-
-    >>> round(1 / float_gcd(fifteen_sixteenths, atol=0.001, rtol=0.001)) # success
-    16
-
-    >>> fifteen_sixteenths_3dp = round(fifteen_sixteenths, 3)
-    >>> round(1 / float_gcd(fifteen_sixteenths_3dp)) # failure
-    500
-
-    >>> round(1 / float_gcd(fifteen_sixteenths_3dp, atol=0.001, rtol=0.001)) # failure
-    500
-
-    """
-    t = min(abs(a), abs(b))
-    while abs(b) > rtol * t + atol:
-        a, b = b, a % b
-    return a
-
-
-def local_lcm(a, b):
-    """Local implementation of the Lowest Common Multiple (LCM)."""
-    return a * b // gcd(a, b)
-
-
-def fraction_gcd(x: Fraction, y: Fraction) -> Fraction:
-    """
-    Compute the GCD of two fractions using the
-    equivalence between gcd(a/b, c/d) and gcd(a, c)/lcm(b, d)
-
-    This function compares exactly two fractions (x and y).
-    For a longer list, use `fraction_gcd_list`.
-
-    Return
-    ------
-    Fraction (which is always simplified).
-
-    >>> fraction_gcd(Fraction(1, 2), Fraction(2, 3))
-    Fraction(1, 6)
-
-    """
-    return Fraction(
-        gcd(x.numerator, y.numerator), local_lcm(x.denominator, y.denominator)
-    )
-
-
-def fraction_gcd_list(fraction_list: list[Fraction]):
-    """
-    Iterate GCD comparisons over a list of Fractions.
-    See `fraction_gcd`
-
-    >>> fraction_gcd_list([Fraction(1, 2), Fraction(2, 3), Fraction(5, 12)])
-    Fraction(1, 12)
-
-    """
-    current_gcd = fraction_list[0]
-    for i in range(1, len(fraction_list)):
-        current_gcd = fraction_gcd(current_gcd, fraction_list[i])
-    return current_gcd
-
-
-def approximate_fraction(x, d: float = 0.001):
-    """
-    Takes a float and approximates the value as a fraction.
-
-    Args:
-    -------
-    x: Input float to be approximated as a fraction.
-    d: Tolerance ratio.
-
-    Returns
-    -------
-    A tuple (numerator, denominator) representing the fraction.
-
-    Based on [1] via an implementation in R by Peter Harrison.
-
-    References
-    [1] Frieder Stolzenburg. 2015. Harmony perception by periodicity detection. DOI: 10.1080/17459737.2015.1033024
-
-    Examples
-    --------
-    Fine for simple cases:
-
-    >>> approximate_fraction(0.833)
-    (5, 6)
-
-    >>> approximate_fraction(0.875)
-    (7, 8)
-
-    >>> approximate_fraction(0.916)
-    (11, 12)
-
-    >>> approximate_fraction(0.6666)
-    (2, 3)
-
-    Liable to fail in both directions.
-
-    >>> one_third = 1 / 3
-    >>> one_third
-    0.3333333333333333
-
-    >>> approximate_fraction(one_third)
-    (1, 3)
-
-    >>> one_third_3dp = round(one_third, 3)
-    >>> one_third_3dp
-    0.333
-
-    >>> approximate_fraction(one_third_3dp) # fail
-    (167, 502)
-
-    >>> approximate_fraction(one_third_3dp, d = 0.01) # ... fixed by adapting tolerance
-    (1, 3)
-
-    But this same tolerance adjustment makes errors for other, common musical values.
-    15/16 is a common musical value for which the finer tolerance is effective:
-
-    >>> approximate_fraction(0.938) # effective at default tolerance value
-    (15, 16)
-
-    >>> approximate_fraction(0.938, d = 0.01) # ... made incorrect by the same tolerance adaptation above
-    (14, 15)
-    """
-
-    x_min = (1 - d) * x
-    x_max = (1 + d) * x
-    a_l = floor(x)
-    b_l = 1
-    a_r = floor(x) + 1
-    b_r = 1
-    a = round(x)
-    b = 1
-
-    while a / b < x_min or x_max < a / b:
-        x_0 = 2 * x - a / b
-        if x < a / b:
-            a_r = a
-            b_r = b
-            k = floor((x_0 * b_l - a_l) / (a_r - x_0 * b_r))
-            a_l = a_l + k * a_r
-            b_l = b_l + k * b_r
-        else:
-            a_l = a
-            b_l = b
-            k = floor((a_r - x_0 * b_r) / (x_0 * b_l - a_l))
-            a_r = a_r + k * a_l
-            b_r = b_r + k * b_l
-        a = a_l + a_r
-        b = b_l + b_r
-
-    return a, b
 
 
 def approximate_pulse_match_with_priority_list(
@@ -431,7 +241,7 @@ def get_tatum(
     It serves use cases including the attempted retrieval of true metrical positions (fractions)
     from rounded versions thereof (floats).
     See notes at the top of this module, as well as at
-    `float_gcd` and `approximate_fraction` for why standard algorithms fail at this task in a musical setting.
+    for why standard algorithms fail at this task in a musical setting.
 
     This function serves those common cases where
     there is a need to balance between capturing event positions as accurately as possible while not
@@ -564,7 +374,7 @@ def get_tatum(
 
     current_gcd = pulses_needed[0]
     for i in range(1, len(pulses_needed)):
-        current_gcd = fraction_gcd(current_gcd, pulses_needed[i])
+        current_gcd = fraction_gcd_pair(current_gcd, pulses_needed[i])
 
     return current_gcd
 

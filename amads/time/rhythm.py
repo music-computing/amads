@@ -16,6 +16,7 @@ import math
 from fractions import Fraction
 from typing import Union
 
+from amads.algorithms.gcd import gcd_pair
 from amads.core.vector_transforms_checks import (
     indicator_to_indices,
     indicator_to_interval,
@@ -206,21 +207,9 @@ def totatives(n):
 
     totatives_list = []
     for i in range(1, n):
-        if gcd(n, i) == 1:
+        if gcd_pair(n, i) == 1:
             totatives_list.append(i)
     return totatives_list
-
-
-def gcd(a, b):
-    """
-    Calculates the greatest common divisor (GCD) of two integers using the
-    Euclidean algorithm.
-
-    TODO we should have this once centrally.
-    """
-    while b:
-        a, b = b, a % b
-    return a
 
 
 def vector_to_onset_beat(
