@@ -345,7 +345,7 @@ def is_maximally_even(indicator_vector: tuple) -> bool:
     >>> is_maximally_even(bembé)
     True
 
-    For our comparison case, we create a another cycle that also has:
+    For our comparison case, we create another cycle that also has:
     a) 7 elements in a 12-unit cycle,
 
     >>> not_bembé =  (1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1)
@@ -486,10 +486,18 @@ def indicator_to_indices(
 
 # TODO in vectors_sets?
 def indices_to_indicator(
-    indices_vector: Union[list[int], tuple[int, ...]], indicator_length: int
+    indices_vector: Union[list[int], tuple[int, ...]],
+    indicator_length: Optional[int] = None,
 ) -> tuple:
     """
     Simple mapping from indices to indicator vector.
+
+    Parameters
+    ----------
+    indices_vector: A vector of indices (0, 2, 4, 5, 7, 9, 11).
+        Monotonic increase is expected but not required.
+    indicator_length: optionally specify the length of the output indicator vector.
+        If not specified, we use the highest index in the indices vector.
 
     Examples
     --------
@@ -499,11 +507,27 @@ def indices_to_indicator(
     >>> indices
     (0, 2, 4, 5, 7, 9, 11)
 
+    No `indicator_length` is needed for default
+
+    >>> round_trip = indices_to_indicator(indices)
+    >>> round_trip
+    (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)
+
+    >>> round_trip == bembé
+    True
+
+    The `indicator_length` can, however, be specified:
     >>> indices_to_indicator(indices, indicator_length=12)
     (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)
 
+    And the `indicator_length` can extend the indicator as neede:
+    >>> indices_to_indicator(indices, indicator_length=14)
+    (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0)
+
     """
     out = []
+    if indicator_length is None:
+        indicator_length = max(indices_vector) + 1
     for i in range(indicator_length):
         if i in indices_vector:
             out.append(1)
@@ -539,9 +563,13 @@ def indicator_to_interval(
     Example 1:
     >>> bembé = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)
 
-     Adjacent intervals expressed as a sequence:
+    Adjacent intervals expressed as a sequence:
     >>> indicator_to_interval(bembé)
     (2, 2, 1, 2, 2, 2, 1)
+
+    Wrap is optional:
+    >>> indicator_to_interval(bembé, wrap=False)
+    (2, 2, 1, 2, 2, 2)
 
     Adjacent intervals expressed as an interval vector:
     >>> indicator_to_interval(bembé, sequence_not_vector=False)
@@ -629,7 +657,6 @@ def interval_sequence_to_indicator(interval_sequence_vector) -> tuple:
     Parameters
     ----------
     interval_sequence_vector: the interval sequence
-    wrap: If True, include the index after the end of the sequence
 
     Examples
     --------
@@ -660,7 +687,7 @@ def saturated_subsequence_repetition(
     ----------
     sequence: A vector for event positions in the cycle time span.
     all_rotations: If True, check all rotations of the sequence.
-    subsequence_period: If specified, check only that period length. Otherwise check all factors of n.
+    subsequence_period: If specified, check only that period length; otherwise, check all factors of n.
 
     Returns
     -------
