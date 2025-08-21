@@ -13,11 +13,33 @@ markdown_extensions:
 
 plugins:
   - search
-  - mkdocstrings
-#      handlers:
-#        python:
-#          setup_commands:
-#            - import sys; sys.path.append(".")
+  - mkdocstrings:
+      handlers:
+        python:
+          # paths: [src]  # depends where your package is
+          inventories:
+          - https://docs.python.org/3/objects.inv
+          # load other object inventories here
+          options:
+            docstring_style: numpy
+            docstring_options:
+              ignore_init_summary: true
+            docstring_section_style: list
+            filters: public  # sponsors only, will be released soon
+            heading_level: 1
+            inherited_members: true
+            line_length: 88  # to format signatures with Ruff/Black if installed
+            merge_init_into_class: true
+            parameter_headings: true
+            separate_signature: true
+            show_root_heading: true
+            show_root_full_path: false
+            show_signature_annotations: true
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            signature_crossrefs: true
+            summary: true
+            unwrap_annotated: true
 
 nav:
   - Home: index.md
@@ -33,7 +55,5 @@ nav:
   - API Reference:
       - Core Data Structures: core.md
       - Core Classes:
-        - reference/event.md
-        - reference/chord.md
-        - reference/pitch.md
+        - reference/core.md
       - Melody: reference/melody.md

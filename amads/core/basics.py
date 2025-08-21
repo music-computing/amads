@@ -55,25 +55,23 @@ class Event:
 
     Parameters
     ----------
-    `parent` : Optional[`EventGroup`]
+    parent : Optional[EventGroup]
         The containing object or None.
-
-    `onset` : float | None
+    onset : float | None
         The onset (start) time.
-
-    `duration` : float
+    duration : float
         The duration of the event in quarters or seconds.
 
     Attributes
     ----------
-        parent : Optional[Event]
-            The containing object or None.
-        _onset : float | None
-            The onset (start) time.
-        duration : float
-            The duration of the event in quarters or seconds.
-        info : Optional[Dict]
-            Additional attribute/value information.
+    parent : Optional[Event]
+        The containing object or None.
+    _onset : float | None
+        The onset (start) time.
+    duration : float
+        The duration of the event in quarters or seconds.
+    info : Optional[Dict]
+        Additional attribute/value information.
     """
     __slots__ = ["parent", "_onset", "duration", "info"]
     parent: Optional["EventGroup"]
@@ -81,35 +79,11 @@ class Event:
     duration: float
     info: Optional[Dict]
 
+
     def __init__(self, parent: Optional["EventGroup"],
                  onset: float | None, duration: float):
         """
         Initialize an Event instance.
-
-        Parameters
-        ----------
-        `parent` : Optional[`EventGroup`]
-            The containing object or None.
-
-        `onset` : float | None
-            The onset (start) time.
-
-        `duration` : float
-            The duration of the event in quarters or seconds.
-
-        Attributes
-        ----------
-        `parent` : Optional[Event]
-            The containing object or None.
-
-        `_onset` : float | None
-            The onset (start) time.
-
-       `duration` : float
-            The duration of the event in quarters or seconds.
-
-        `info` : Optional[Dict]
-            Additional attribute/value information.
 
         """
         self.parent = None  # set below when inserted into parent
@@ -162,16 +136,16 @@ class Event:
 
         Parameters
         ----------
-        `property` : str.
+        property : str.
             The name of the property to get.
 
-        `default` : Any, optional.
+        default : Any, optional.
             The default value to return if the property is not found.
             (Defaults to None)
 
         Returns
         -------
-        `Any`
+        Any
             The value of the specified property.
         """
         if self.info is None:
@@ -195,7 +169,7 @@ class Event:
         return property in self.info
 
 
-    def copy(self, parent: Optional["EventGroup"] = None) -> "Event":
+    def copy(self, parent: Optional[EventGroup] = None) -> Event:
         """
         Return a deep copy of the `Event` instance except for the parent,
         which may be provided as an argument. See also copyempty to copy
@@ -475,23 +449,23 @@ class Rest(Event):
 
     Parameters
     ----------
-        parent : Optional[EventGroup], optional
-            The containing object or None.
-        onset : float, optional
-            The onset (start) time. An initial value of None might
-            be assigned when the Note is inserted into an EventGroup.
-            (Defaults to None)
-        duration : float, optional
-            The duration of the rest in quarters or seconds. (Defaults to 1)
+    parent : Optional[EventGroup], optional
+        The containing object or None.
+    onset : float, optional
+        The onset (start) time. An initial value of None might
+        be assigned when the Note is inserted into an EventGroup.
+        (Defaults to None)
+    duration : float, optional
+        The duration of the rest in quarters or seconds. (Defaults to 1)
 
     Attributes
     ----------
-        parent : Optional[EventGroup]
-            The containing object or None.
-        _onset : float, optional
-            The onset (start) time. None represents an unspecified onset.
-        duration : float
-            The duration of the rest in quarters or seconds.
+    parent : Optional[EventGroup]
+        The containing object or None.
+    _onset : float, optional
+        The onset (start) time. None represents an unspecified onset.
+    duration : float
+        The duration of the rest in quarters or seconds.
     """
     __slots__ = []
 
@@ -531,40 +505,40 @@ class Note(Event):
 
     Parameters
     ----------
-        parent : Optional[EventGroup], optional
-            The containing object or None.
-        onset : float, optional
-            The onset (start) time. An initial value of None might
-            be assigned when the Note is inserted into an EventGroup.
-            (Defaults to None)
-        duration : float, optional
-            The duration of the note in quarters or seconds. (Defaults to 1)
-        pitch : Union[Pitch, int, float], optional
-            A Pitch object or an integer MIDI key number that will be
-            converted to a Pitch object. (Defaults to C4)
-        dynamic : Optional[Union[int, str]], optional
-            Dynamic level (MIDI velocity) or string. (Defaults to None)
-        lyric : Optional[str], optional
-            Lyric text. (Defaults to None)
+    parent : Optional[EventGroup], optional
+        The containing object or None.
+    onset : float, optional
+        The onset (start) time. An initial value of None might
+        be assigned when the Note is inserted into an EventGroup.
+        (Defaults to None)
+    duration : float, optional
+        The duration of the note in quarters or seconds. (Defaults to 1)
+    pitch : Union[Pitch, int, float], optional
+        A Pitch object or an integer MIDI key number that will be
+        converted to a Pitch object. (Defaults to C4)
+    dynamic : Optional[Union[int, str]], optional
+        Dynamic level (MIDI velocity) or string. (Defaults to None)
+    lyric : Optional[str], optional
+        Lyric text. (Defaults to None)
 
     Attributes
     ----------
-        parent : Optional[EventGroup]
-            The containing object or None.
-        _onset : Optional[float]
-            The onset (start) time. None represents an unspecified onset.
-        duration : float
-            The duration of the note in quarters or seconds. See the
-            property tied_duration for the duration of an entire group
-            if the note is the first of a tied group of notes.
-        pitch :  Pitch | None
-            The pitch of the note. Unpitched notes have a pitch of None.
-        dynamic : Optional[Union[int, str]]
-            Dynamic level (MIDI velocity) or string.
-        lyric : Optional[str]
-            Lyric text.
-        tie : Optional[Note]
-            The note that this note is tied to, if any.
+    parent : Optional[EventGroup]
+        The containing object or None.
+    _onset : Optional[float]
+        The onset (start) time. None represents an unspecified onset.
+    duration : float
+        The duration of the note in quarters or seconds. See the
+        property tied_duration for the duration of an entire group
+        if the note is the first of a tied group of notes.
+    pitch :  Pitch | None
+        The pitch of the note. Unpitched notes have a pitch of None.
+    dynamic : Optional[Union[int, str]]
+        Dynamic level (MIDI velocity) or string.
+    lyric : Optional[str]
+        Lyric text.
+    tie : Optional[Note]
+        The note that this note is tied to, if any.
     """
     __slots__ = ["pitch", "dynamic", "lyric", "tie"]
     pitch: Optional[Pitch]
@@ -870,6 +844,8 @@ class Note(Event):
             flats), and otherwise use the same enharmonic choice as the Pitch
             constructor.
 
+        Exceptions
+        ----------
         If the note is unpitched (pitch is None), raise ValueError.
 
         Returns
@@ -889,32 +865,32 @@ class TimeSignature(Event):
 
     Parameters
     ----------
-        parent : Optional[EventGroup], optional
-            The containing object or None. (Defaults to None)
-        onset : float, optional
-            The onset (start) time. An initial value of None might
-            be assigned when the TimeSignature is inserted into an EventGroup.
-            (Defaults to None)
-        upper : float, optional
-            The "numerator" of the key signature: subdivisions units per
-            measure, a number, which may be a fraction. (Defaults to 4)
-        lower : int, optional
-            The "denominator" of the key signature: a whole number power
-            of 2, e.g. 1, 2, 4, 8, 16, 32, 64. (Defaults to 4) representing
-            the symbol for one subdivision, e.g. 4 implies quarter note.
+    parent : Optional[EventGroup], optional
+        The containing object or None. (Defaults to None)
+    onset : float, optional
+        The onset (start) time. An initial value of None might
+        be assigned when the TimeSignature is inserted into an EventGroup.
+        (Defaults to None)
+    upper : float, optional
+        The "numerator" of the key signature: subdivisions units per
+        measure, a number, which may be a fraction. (Defaults to 4)
+    lower : int, optional
+        The "denominator" of the key signature: a whole number power
+        of 2, e.g. 1, 2, 4, 8, 16, 32, 64. (Defaults to 4) representing
+        the symbol for one subdivision, e.g. 4 implies quarter note.
 
     Attributes
     ----------
-        parent : Optional[EventGroup]
-            The containing object or None.
-        _onset : float
-            The onset (start) time.
-        duration : float
-            Always zero for this subclass.
-        upper : float
-            The "numerator" of the key signature: subdivisions per measure.
-        lower : int
-            The "denominator" of the key signature: a whole number power of 2.
+    parent : Optional[EventGroup]
+        The containing object or None.
+    _onset : float
+        The onset (start) time.
+    duration : float
+        Always zero for this subclass.
+    upper : float
+        The "numerator" of the key signature: subdivisions per measure.
+    lower : int
+        The "denominator" of the key signature: a whole number power of 2.
     """
     __slots__ = ["upper", "lower"]
     upper: float
@@ -958,25 +934,25 @@ class Clef(Event):
 
     Parameters
     ----------
-        parent : Optional[EventGroup], optional
-            The containing object or None. (Defaults to None)
-        onset : float, optional
-            The onset (start) time. An initial value of None might
-            be assigned when the TimeSignature is inserted into an EventGroup.
-            (Defaults to None)
-        clef : str, optional (Defaults to "treble")
+    parent : Optional["EventGroup"], optional
+        The containing object or None. (Defaults to None)
+    onset : float, optional
+        The onset (start) time. An initial value of None might
+        be assigned when the TimeSignature is inserted into an EventGroup.
+        (Defaults to None)
+    clef : str, optional (Defaults to "treble")
 
     Attributes
     ----------
-        parent : Optional[EventGroup]
-            The containing object or None.
-        _onset : float
-            The onset (start) time.
-        duration : float
-            Always zero for this subclass.
-        clef : str
-            The clef name, one of "treble", "bass", "alto", "tenor", 
-            "percussion", "treble8vb" (Other clefs may be added later.)
+    parent : Optional["EventGroup"]
+        The containing object or None.
+    _onset : float
+        The onset (start) time.
+    duration : float
+        Always zero for this subclass.
+    clef : str
+        The clef name, one of "treble", "bass", "alto", "tenor", 
+        "percussion", "treble8vb" (Other clefs may be added later.)
     """
     __slots__ = ["clef"]
     clef: str
@@ -1020,27 +996,27 @@ class KeySignature(Event):
 
     Parameters
     ----------
-        parent : Optional[EventGroup], optional
-            The containing object or None. (Defaults to None)
-        onset : float, optional
-            The onset (start) time. An initial value of None might
-            be assigned when the KeySignature is inserted into an EventGroup.
-            (Defaults to None)
-        key_sig : int, optional
-            An integer representing the number of sharps (if positive)
-            and flats (if negative), e.g. -3 for Eb major or C minor.
-            (Defaults to 0)
+    parent : Optional["EventGroup"], optional
+        The containing object or None. (Defaults to None)
+    onset : float, optional
+        The onset (start) time. An initial value of None might
+        be assigned when the KeySignature is inserted into an EventGroup.
+        (Defaults to None)
+    key_sig : int, optional
+        An integer representing the number of sharps (if positive)
+        and flats (if negative), e.g. -3 for Eb major or C minor.
+        (Defaults to 0)
 
     Attributes
     ----------
-        parent : Optional[EventGroup]
-            The containing object or None.
-        _onset : float
-            The onset (start) time.
-        duration : float
-            Always zero for this subclass.
-        key_sig : int
-            An integer representing the number of sharps and flats.
+    parent : Optional["EventGroup"]
+        The containing object or None.
+    _onset : float
+        The onset (start) time.
+    duration : float
+        Always zero for this subclass.
+    key_sig : int
+        An integer representing the number of sharps and flats.
     """
     __slots__ = ["key_sig"]
     key_sig: int
@@ -1118,34 +1094,34 @@ class EventGroup(Event):
 
     Parameters
     ----------
-        parent : Optional[EventGroup]
-            The containing object or None.
-        onset : float | None
-            The onset (start) time.
-        duration : Optional[float]
-            The duration in quarters or seconds.
-        content : Optional[list]
-            A list of Event objects to be added to the group. The parent
-            of each Event is set to this EventGroup, and it is an error
-            if any Event already has a parent.
-        pack : bool, optional
-            If true, Events in content are adjusted to form a sequence
-            where the first event onset is the specified group onset
-            (which defaults to 0) and the onset of other events is
-            the offset of the previous event in the sequence.
-            (Defaults to False).
+    parent : Optional[EventGroup]
+        The containing object or None.
+    onset : float | None
+        The onset (start) time.
+    duration : Optional[float]
+        The duration in quarters or seconds.
+    content : Optional[list]
+        A list of Event objects to be added to the group. The parent
+        of each Event is set to this EventGroup, and it is an error
+        if any Event already has a parent.
+    pack : bool, optional
+        If true, Events in content are adjusted to form a sequence
+        where the first event onset is the specified group onset
+        (which defaults to 0) and the onset of other events is
+        the offset of the previous event in the sequence.
+        (Defaults to False).
 
 
     Attributes
     ----------
-        parent : Optional[EventGroup]
-            The containing object or None.
-        _onset : Optional[float]
-            The onset (start) time.
-        duration : float
-            The duration in quarters or seconds.
-        content : list[Event]
-            Elements contained within this collection.
+    parent : Optional[EventGroup]
+        The containing object or None.
+    _onset : Optional[float]
+        The onset (start) time.
+    duration : float
+        The duration in quarters or seconds.
+    content : list[Event]
+        Elements contained within this collection.
     """
     __slots__ = ["content"]
     duration: float
@@ -1647,43 +1623,43 @@ class Sequence(EventGroup):
 
     Parameters
     ----------
-        parent : Optional[EventGroup], optional
-            The containing object or None. (Defaults to None)
-        onset : Optional[float], optional
-            The onset (start) time. None means unknown, to be
-            set when Sequence is added to a parent. (Defaults to None)
-        duration : Optional[float], optional
-            The duration in quarters or seconds.
-            (If duration is omitted or None, the duration is set so
-            that self.offset ends at the max offset in content, or 0
-            if there is no content.) (Defaults to None)
-        content : Optional[list[Event]], optional
-            A list of Event objects to be added to the group. Content
-            events with onsets of None are set to the offset of the
-            previous event in the sequence. The first event onset is
-            the specified group onset, or zero if onset is None.
-            (Defaults to None)
-        pack: bool
-            If true, Events in content are adjusted to form a sequence
-            where the first event onset is the specified group onset
-            (where None means 0) and the onsets of other events are
-            the offsets of the previous events in the sequence. A
-            pack=True value changes the default behavior by overriding
-            any existing onsets in the content. (Defaults to False
-            because we do not want to automatically override onsets
-            when they are specified.)
+    parent : Optional[EventGroup], optional
+        The containing object or None. (Defaults to None)
+    onset : Optional[float], optional
+        The onset (start) time. None means unknown, to be
+        set when Sequence is added to a parent. (Defaults to None)
+    duration : Optional[float], optional
+        The duration in quarters or seconds.
+        (If duration is omitted or None, the duration is set so
+        that self.offset ends at the max offset in content, or 0
+        if there is no content.) (Defaults to None)
+    content : Optional[list[Event]], optional
+        A list of Event objects to be added to the group. Content
+        events with onsets of None are set to the offset of the
+        previous event in the sequence. The first event onset is
+        the specified group onset, or zero if onset is None.
+        (Defaults to None)
+    pack: bool
+        If true, Events in content are adjusted to form a sequence
+        where the first event onset is the specified group onset
+        (where None means 0) and the onsets of other events are
+        the offsets of the previous events in the sequence. A
+        pack=True value changes the default behavior by overriding
+        any existing onsets in the content. (Defaults to False
+        because we do not want to automatically override onsets
+        when they are specified.)
 
     Attributes
     ----------
-        parent : Optional[EventGroup]
-            The containing object or None.
-        _onset : Optional[float]
-            The onset (start) time. None represents "unknown" and to
-            be determined when this object is added to a parent.
-        duration : float
-            The duration in quarters or seconds.
-        content : list[Event]
-            Elements contained within this collection.
+    parent : Optional[EventGroup]
+        The containing object or None.
+    _onset : Optional[float]
+        The onset (start) time. None represents "unknown" and to
+        be determined when this object is added to a parent.
+    duration : float
+        The duration in quarters or seconds.
+    content : list[Event]
+        Elements contained within this collection.
     """
     __slots__ = []
 
@@ -1745,32 +1721,32 @@ class Concurrence(EventGroup):
 
     Parameters
     ----------
-        parent : Optional[EventGroup], optional
-            The containing object or None. (Defaults to None)
-        onset : Optional[float], optional
-            The onset (start) time. None means unknown, to be
-            set when Sequence is added to a parent. (Defaults to None)
-        duration : Optional[float], optional
-            The duration in quarters or seconds.
-            (If duration is omitted or None, the duration is set so
-            that self.offset ends at the max offset in content, or 0
-            if there is no content.)
-        content : Optional[list[Event]], optional
-            A list of Event objects to be added to the group. Content
-            events with onsets of None are set to the offset of the
-            concurrence, or zero if onset is None. (Defaults to None)
+    parent : Optional[EventGroup], optional
+        The containing object or None. (Defaults to None)
+    onset : Optional[float], optional
+        The onset (start) time. None means unknown, to be
+        set when Sequence is added to a parent. (Defaults to None)
+    duration : Optional[float], optional
+        The duration in quarters or seconds.
+        (If duration is omitted or None, the duration is set so
+        that self.offset ends at the max offset in content, or 0
+        if there is no content.)
+    content : Optional[list[Event]], optional
+        A list of Event objects to be added to the group. Content
+        events with onsets of None are set to the offset of the
+        concurrence, or zero if onset is None. (Defaults to None)
 
     Attributes
     ----------
-        parent : Optional[EventGroup]
-            The containing object or None.
-        _onset : Optional[float]
-            The onset (start) time. None represents "unknown" and to
-            be determined when this object is added to a parent.
-        duration : float
-            The duration in quarters or seconds.
-        content : list[Event]
-            Elements contained within this collection.
+    parent : Optional[EventGroup]
+        The containing object or None.
+    _onset : Optional[float]
+        The onset (start) time. None represents "unknown" and to
+        be determined when this object is added to a parent.
+    duration : float
+        The duration in quarters or seconds.
+    content : list[Event]
+        Elements contained within this collection.
     """
     __slots__ = []
 
@@ -1852,39 +1828,34 @@ class Chord(Concurrence):
 
     Parameters
     ----------
-        *args : Event
-            The Event objects to be added to the group. Content
-            events with onsets of None are set to the onset of the
-            chord, or zero if onset is None. (Defaults to None)
-        parent : Optional[EventGroup], optional
-            The containing object or None. Must be passed as a keyword
-            parameter due to `*args`. (Defaults to None)
-        onset : Optional[float], optional
-            The onset (start) time. None means unknown, to be
-            set when Sequence is added to a parent.  Must be passed
-            as a keyword parameter due to `*args`. (Defaults to None)
-        duration : Optional[float], optional
-            The duration in quarters or seconds. (Defaults to None)
-            (If duration is omitted or None, the duration is set so
-            that self.offset ends at the max offset of args, or 0
-            if there is no content.) Must be passed as a keyword
-            parameter due to `*args`. (Defaults to None)
-        content : Optional[list[Event]], optional
-            A list of Event objects to be added to the group. Content
-            events with onsets of None are set to the offset of the
-            chord, or zero if onset is None.  Must be passed as a
-            keyword parameter due to `*args`. (Defaults to None)
+    *args : Event
+        The Event objects to be added to the group. Content
+        events with onsets of None are set to the onset of the
+        chord, or zero if onset is None. (Defaults to None)
+    parent : Optional[EventGroup], optional
+        The containing object or None. Must be passed as a keyword
+        parameter due to `*args`. (Defaults to None)
+    onset : Optional[float], optional
+        The onset (start) time. None means unknown, to be
+        set when Sequence is added to a parent.  Must be passed
+        as a keyword parameter due to `*args`. (Defaults to None)
+    duration : Optional[float], optional
+        The duration in quarters or seconds. (Defaults to None)
+        (If duration is omitted or None, the duration is set so
+        that self.offset ends at the max offset of args, or 0
+        if there is no content.) Must be passed as a keyword
+        parameter due to `*args`. (Defaults to None)
 
     Attributes
     ----------
-        parent : Optional[EventGroup]
-            The containing object or None.
-        _onset : Optional[float]
-            The onset (start) time.
-        duration : float
-            The duration in quarters or seconds.
-        content : list[Event]
-            Elements contained within this collection.
+    parent : Optional[EventGroup]
+        The containing object or None.
+    _onset : Optional[float]
+        The onset (start) time.
+    duration : float
+        The duration in quarters or seconds.
+    content : list[Event]
+        Elements contained within this collection.
     """
     __slots__ = []
 
@@ -1892,8 +1863,6 @@ class Chord(Concurrence):
                  parent: Optional[EventGroup] = None,
                  onset: Optional[float] = None,
                  duration: Optional[float] = None):
-        """Chord typically represents a set of Note events.
-        """
         super().__init__(parent, onset, duration, list(args))
 
 
@@ -1919,41 +1888,41 @@ class Measure(Sequence):
 
     Parameters
     ----------
-        *args:  Event
-            A variable number of Event objects to be added to the group.
-        parent : Optional[EventGroup], optional
-            The containing object or None. Must be passed as a keyword
-            parameter due to `*args`. (Defaults to None)
-        onset : Optional[float], optional
-            The onset (start) time. None means unknown, to be set when
-            Sequence is added to a parent. Must be passed as a keyword
-            parameter due to `*args`. (Defaults to None)
-        duration : Optional[float], optional
-            The duration in quarters or seconds. Must be passed as a
-            keyword parameter due to `*args`. (Defaults to 4)
-        number : Optional[str], optional
-            A string representing the measure number. Must be passed as
-            a keyword parameter due to `*args`. (Defaults to None)
-        pack : bool, optional
-            If true, Events in `*args` are adjusted to form a sequence
-            where the first event onset is the specified group onset
-            (which defaults to 0) and the onset of other events is the
-            offset of the previous event in the sequence. Must be passed
-            as a keyword parameter due to `*args`. (Defaults to False).
+    *args:  Event
+        A variable number of Event objects to be added to the group.
+    parent : Optional[EventGroup], optional
+        The containing object or None. Must be passed as a keyword
+        parameter due to `*args`. (Defaults to None)
+    onset : Optional[float], optional
+        The onset (start) time. None means unknown, to be set when
+        Sequence is added to a parent. Must be passed as a keyword
+        parameter due to `*args`. (Defaults to None)
+    duration : Optional[float], optional
+        The duration in quarters or seconds. Must be passed as a
+        keyword parameter due to `*args`. (Defaults to 4)
+    number : Optional[str], optional
+        A string representing the measure number. Must be passed as
+        a keyword parameter due to `*args`. (Defaults to None)
+    pack : bool, optional
+        If true, Events in `*args` are adjusted to form a sequence
+        where the first event onset is the specified group onset
+        (which defaults to 0) and the onset of other events is the
+        offset of the previous event in the sequence. Must be passed
+        as a keyword parameter due to `*args`. (Defaults to False).
 
     Attributes
     -----------
-        parent : Optional[EventGroup]
-            The containing object or None.
-        _onset : Optional[float]
-            The onset (start) time. None represents "unknown" and to
-            be determined when this object is added to a parent.
-        duration : float
-            The duration in quarters or seconds.
-        content : list[Event]
-            Elements contained within this Measure.
-        number : Optional[str]
-            A string representing the measure number if any.
+    parent : Optional[EventGroup]
+        The containing object or None.
+    _onset : Optional[float]
+        The onset (start) time. None represents "unknown" and to
+        be determined when this object is added to a parent.
+    duration : float
+        The duration in quarters or seconds.
+    content : list[Event]
+        Elements contained within this Measure.
+    number : Optional[str]
+        A string representing the measure number if any.
     """
     __slots__ = ["number"]
     number: Optional[str]
@@ -2001,39 +1970,39 @@ class Score(Concurrence):
 
     Parameters
     ----------
-        *args : Event
-            A variable number of Event objects to be added to the group.
-        onset : Optional[float], optional
-            The onset (start) time. If unknown (None), onset will be set
-            when the score is added to a parent, but normally, Scores do
-            not have parents, so the default onset is 0. You can override
-            this using keyword parameter (due to `*args`).
-        duration : Optional[float], optional
-            The duration in quarters or seconds.
-            (If duration is omitted or None, the duration is set so
-            that self.offset ends at the max offset of args, or 0
-            if there is no content.) Must be passed as a keyword
-            parameter due to `*args`. (Defaults to None)
-        time_map : TimeMap, optional
-            A map from quarters to seconds (or seconds to quarters).
-            Must be passed as a keyword parameter due to `*args`.
-            (Defaults to None)
+    *args : Event
+        A variable number of Event objects to be added to the group.
+    onset : Optional[float], optional
+        The onset (start) time. If unknown (None), onset will be set
+        when the score is added to a parent, but normally, Scores do
+        not have parents, so the default onset is 0. You can override
+        this using keyword parameter (due to `*args`).
+    duration : Optional[float], optional
+        The duration in quarters or seconds.
+        (If duration is omitted or None, the duration is set so
+        that self.offset ends at the max offset of args, or 0
+        if there is no content.) Must be passed as a keyword
+        parameter due to `*args`. (Defaults to None)
+    time_map : TimeMap, optional
+        A map from quarters to seconds (or seconds to quarters).
+        Must be passed as a keyword parameter due to `*args`.
+        (Defaults to None)
 
 
     Attributes
     ----------
-        parent : Optional[EventGroup]
-            The containing object or None.
-        _onset : float
-            The onset (start) time.
-        duration : float
-            The duration in quarters or seconds.
-        content : list[Event]
-            Elements contained within this collection.
-        time_map : TimeMap
-            A map from quarters to seconds (or seconds to quarters).
-        _units_are_seconds : bool
-            True if the units are seconds, False if the units are quarters.
+    parent : Optional[EventGroup]
+        The containing object or None.
+    _onset : float
+        The onset (start) time.
+    duration : float
+        The duration in quarters or seconds.
+    content : list[Event]
+        Elements contained within this collection.
+    time_map : TimeMap
+        A map from quarters to seconds (or seconds to quarters).
+    _units_are_seconds : bool
+        True if the units are seconds, False if the units are quarters.
 
     Additional attributes may be assigned, e.g. 'title', 'source_file',
     'composer', etc.
@@ -2249,7 +2218,9 @@ class Score(Concurrence):
             as part of flattening. If the parts are flattened already,
             setting has_ties=False will save some computation.
 
-        Note: The use of lists like [1] for part and staff index notation
+        Note
+        ----
+        The use of lists like [1] for part and staff index notation
         is not ideal, but parts can be assigned a designated number that
         is not the same as the index, so we need a way to select by
         designated number, e.g. 1, and by index, e.g. [1]. Initially, I
@@ -2556,46 +2527,46 @@ class Part(EventGroup):
 
     Parameters
     ----------
-        *args : Optional[Event], optional
-            A variable number of Event objects to be added to the group.
-        parent : Optional[EventGroup], optional
-            The containing object or None. Must be passed as a keyword
-            parameter due to `*args`. (Defaults to None)
-        onset : Optional[float], optional
-            The onset (start) time. If unknown (None), it will be set
-            when this Part is added to a parent. Must be passed as a
-            keyword parameter due to `*args`. (Defaults to None)
-        duration : Optional[float], optional
-            The duration in quarters or seconds.
-            (If duration is omitted or None, the duration is set so
-            that self.offset ends at the max offset of args, or 0
-            if there is no content.)  Must be passed as a keyword
-            parameter due to `*args`. (Defaults to None)
-        number : Optional[str], optional
-            A string representing the part number. (Defaults to None)
-        instrument : Optional[str], optional
-            A string representing the instrument name. (Defaults to None)
-        pack : bool, optional
-            If true, Events in `*args` are adjusted to form a sequence
-            where the first event onset is the specified group onset
-            (which defaults to 0) and the onset of other events is the
-            offset of the previous event in the sequence. Must be passed
-            as a keyword parameter due to `*args`. (Defaults to False)
+    *args : Optional[Event], optional
+        A variable number of Event objects to be added to the group.
+    parent : Optional[EventGroup], optional
+        The containing object or None. Must be passed as a keyword
+        parameter due to `*args`. (Defaults to None)
+    onset : Optional[float], optional
+        The onset (start) time. If unknown (None), it will be set
+        when this Part is added to a parent. Must be passed as a
+        keyword parameter due to `*args`. (Defaults to None)
+    duration : Optional[float], optional
+        The duration in quarters or seconds.
+        (If duration is omitted or None, the duration is set so
+        that self.offset ends at the max offset of args, or 0
+        if there is no content.)  Must be passed as a keyword
+        parameter due to `*args`. (Defaults to None)
+    number : Optional[str], optional
+        A string representing the part number. (Defaults to None)
+    instrument : Optional[str], optional
+        A string representing the instrument name. (Defaults to None)
+    pack : bool, optional
+        If true, Events in `*args` are adjusted to form a sequence
+        where the first event onset is the specified group onset
+        (which defaults to 0) and the onset of other events is the
+        offset of the previous event in the sequence. Must be passed
+        as a keyword parameter due to `*args`. (Defaults to False)
 
     Attributes
     ----------
-        parent : Optional[EventGroup]
-            The containing object or None.
-        _onset : float
-            The onset (start) time.
-        duration : float
-            The duration in quarters or seconds.
-        content : list[Event]
-            Elements contained within this collection.
-        number : Union[str, None]
-            A string representing the part number (if any). E.g. "22a".
-        instrument : Union[str, None]
-            A string representing the instrument name (if any).
+    parent : Optional[EventGroup]
+        The containing object or None.
+    _onset : float
+        The onset (start) time.
+    duration : float
+        The duration in quarters or seconds.
+    content : list[Event]
+        Elements contained within this collection.
+    number : Union[str, None]
+        A string representing the part number (if any). E.g. "22a".
+    instrument : Union[str, None]
+        A string representing the instrument name (if any).
     """
     __slots__ = ["number", "instrument"]
     number: Optional[str]
@@ -2747,46 +2718,46 @@ class Staff(Sequence):
 
     Parameters
     ----------
-        *args : Optional[Event], optional
-            A variable number of Event objects to be added to the group.
-        parent : Optional[EventGroup]
-            The containing object or None. (Defaults to None)
-        onset : Optional[float], optional
-            The onset (start) time. If unknown (None), it will be set
-            when this Staff is added to a parent. Must be passed as a
-            keyword parameter due to `*args`. (Defaults to None)
-        duration : Optional[float], optional
-            The duration in quarters or seconds.
-            (If duration is omitted or None, the duration is set so
-            that self.offset ends at the max offset of args, or 0
-            if there is no content.) Must be passed as a keyword
-            parameter due to `*args`. (Defaults to None)
-        number : Optional[int], optional
-            The staff number. Normally, a Staff is given an integer
-            number where 1 is the top staff of the part, 2 is the 2nd,
-            etc. Must be passed as a keyword parameter due to `*args`.
-            (Defaults to None)
-        pack : bool, optional
-            If true, Events in `*args` are adjusted to form a sequence
-            where the first event onset is the specified group onset
-            (which defaults to 0) and the onset of other events is
-            the offset of the previous event in the sequence.
-            Must be passed as a keyword parameter due to `*args`.
-            (Defaults to False).
+    *args : Optional[Event], optional
+        A variable number of Event objects to be added to the group.
+    parent : Optional[EventGroup]
+        The containing object or None. (Defaults to None)
+    onset : Optional[float], optional
+        The onset (start) time. If unknown (None), it will be set
+        when this Staff is added to a parent. Must be passed as a
+        keyword parameter due to `*args`. (Defaults to None)
+    duration : Optional[float], optional
+        The duration in quarters or seconds.
+        (If duration is omitted or None, the duration is set so
+        that self.offset ends at the max offset of args, or 0
+        if there is no content.) Must be passed as a keyword
+        parameter due to `*args`. (Defaults to None)
+    number : Optional[int], optional
+        The staff number. Normally, a Staff is given an integer
+        number where 1 is the top staff of the part, 2 is the 2nd,
+        etc. Must be passed as a keyword parameter due to `*args`.
+        (Defaults to None)
+    pack : bool, optional
+        If true, Events in `*args` are adjusted to form a sequence
+        where the first event onset is the specified group onset
+        (which defaults to 0) and the onset of other events is
+        the offset of the previous event in the sequence.
+        Must be passed as a keyword parameter due to `*args`.
+        (Defaults to False).
 
     Attributes
     ----------
-        parent : Optional[EventGroup]
-            The containing object or None.
-        _onset : float
-            The onset (start) time.
-        duration : float
-            The duration in quarters or seconds.
-        content : list[Event]
-            Elements contained within this collection.
-        number : Optional[int]
-            The staff number. Normally a Staff is given an integer number
-            where 1 is the top staff of the part, 2 is the 2nd, etc.
+    parent : Optional[EventGroup]
+        The containing object or None.
+    _onset : float
+        The onset (start) time.
+    duration : float
+        The duration in quarters or seconds.
+    content : list[Event]
+        Elements contained within this collection.
+    number : Optional[int]
+        The staff number. Normally a Staff is given an integer number
+        where 1 is the top staff of the part, 2 is the 2nd, etc.
     """
     __slots__ = ["number"]
     number: Optional[int]
