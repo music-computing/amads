@@ -38,6 +38,5 @@ def max_key_cc(
         the maximum correlation value computed in key_cc
     """
     corrcoef_pairs = key_cc(score, profile, attribute_names, salience_flag)
-    # I'm too lazy to write my own for loop
     nested_coefs_iter = (coefs for (_, coefs) in corrcoef_pairs if coefs is not None)
     return max(chain.from_iterable(nested_coefs_iter))

@@ -4,9 +4,8 @@ hierarchies
 Author(s): Tai Nakamura, Di Wang
 Date: [2025-03-11]
 Description:
-    Computes correlation coefficients of a score's pitch distribution
-    to a specified standard pitch histogram that is key transposed
-    over all 24 standard keys
+    Compute correlation of a score's pitch distribution with
+    a specified pitch histogram in 12 transpositions.
 Usage:
     [Add basic usage examples or import statements]
 Original doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=68
@@ -32,24 +31,31 @@ def key_cc(
 ) -> List[Tuple[str, Optional[Tuple[float]]]]:
     """
     Calculate the correlation coefficients of a score's pitch-class distribution
-    with any key profile in profiles.py.
-    The profile can be transpositionally equivalent or non-equivalent.
-    The function returns a list of tuples, each containing the attribute name
+    with a key profile from profiles.py.
+    Return a list of tuples, each containing the attribute name
     and the corresponding correlation coefficients.
 
     Parameters
     ----------
-    score (Score): The score to analyze.
-    profile (prof._KeyProfile): The key profile to use for analysis.
-    attribute_names (List[str]): List of attribute names to compute correlations for.
-    salience_flag (bool): If True, apply salience weighting to the pitch-class according to Huron & Parncutt (1993).
+    score: Score
+        The score to analyze.
+
+    profile: prof._KeyProfile
+        The key profile to use for analysis.
+
+    attribute_names: List[str]
+        List of attribute names to compute correlations for.
+
+    salience_flag: bool
+        If True, apply salience weighting to the pitch-class according
+        to Huron & Parncutt (1993).
 
     Returns
     -------
-    List[Tuple[str, Optional[Tuple[float]]]]:
+    List[Tuple[str, Optional[Tuple[float]]]]
         A list of tuples where each tuple contains the attribute name and the
-        corresponding correlation coefficients. If an attribute is invalid or None,
-        it will return (attribute_name, None).
+        corresponding correlation coefficients. If an attribute is invalid
+        or None, it will return (attribute_name, None).
     """
 
     # Get pitch-class distribution

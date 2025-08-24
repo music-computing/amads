@@ -28,16 +28,16 @@ ABOUT:
 ===============================
 Pitch class usage profiles (PCP) from the literature.
 
-In almost all cases reported here, keys are assumed to be equivalent, so
-the first (0th) entry is the tonic, and
-no key-specific information is given.
-The exception is QuinnWhite which provides key-specific data.
-In the key-specific case, we instead store the distributions as a tuple
-of tuples of distributions representing each individual key profile.
+In almost all cases reported here, keys are assumed to be
+transpositionally equivalent, so the first (0th) entry is the tonic,
+and no key-specific information is given.  The exception is QuinnWhite
+which provides key-specific data.  In the key-specific case, we
+instead store the distributions as a tuple of tuples of distributions
+representing each individual key profile.
 
-The profiles here provide the values exactly as reported in the literature.
-Where a profile does not sum to 1, an additional
-"_sum" entry is provided with that normalisation.
+The profiles here provide the values exactly as reported in the
+literature.  Where a profile does not sum to 1, an additional "_sum"
+entry is provided with that normalisation.
 
 The profiles appear below in approximately chronological order.
 For reference, the alphabetical ordering is:
@@ -62,11 +62,21 @@ from amads.core.distribution import Distribution
 
 
 class PitchProfile(Distribution):
+    """
+    A set of weights for each pitch class. Weights are proportional to the expected
+    number of occurrences of the pitch class in pieces transposed to the key of C
+    (major or minor).
+
+    In the case of profiles that are not transpositionally equivalent, there is a
+    profile for each key. These profiles are always rotated so that the first weight
+    is for the tonic.
+    """
+
     def __init__(self, name, profile_tuple):
         assert len(profile_tuple) == 12
         assert all(isinstance(elem, float) for elem in profile_tuple)
         x_cats = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
-        x_label = "pitches"
+        x_label = "pitch class"
 
         y_cats = None
         y_label = "weights"
@@ -94,10 +104,16 @@ class _KeyProfile:
 
     This is the body of the docstring description.
 
-    Attributes:
-        name (str): the name of the profile
-        literature (str): citations for the profile in the literature
-        about (str): a longer description of the profile.
+    Attributes
+    ----------
+    name: str
+        name of the profile
+
+    literature: str
+        citations for the profile in the literature
+
+    about: str
+        a longer description of the profile.
 
     """
 
@@ -106,10 +122,11 @@ class _KeyProfile:
     about: str = ""
 
     def __getitem__(self, key: str):
-        """This is added for (some) backwards compatibility when these objects were dictionaries.
-        It means we can still access class attributes using bracket notation.
+        """This is added for (some) backwards compatibility, allowing objects
+        to be accessed as dictionaries using bracket notation.
 
-        Examples:
+        Examples
+        --------
             >>> kp = KrumhanslKessler()
             >>> kp["name"]
             'KrumhanslKessler'
