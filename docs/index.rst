@@ -1,9 +1,36 @@
-amads documentation
+AMADS Documentation
 =====================
 
-This package collects together a variety of algorithms for symbolic music analysis.
+This package collects together a variety of algorithms for symbolic
+music analysis, offering:
+- reference implementations of algorithms from the literature,
+- access to all from a single language (Python),
+- compatibility and interoperability through common data representations.
 
-**The package is its very early stages. The API is subject to change, and many algorithms are not yet implemented, tested, or documented!**
+**The package is evolving. The API is subject to change, and many algorithms are not yet implemented, tested, or documented!**
+
+Guide
+-----
+
+Whether you are a user or developer, basic knowledge of score
+representation is essential. See :doc:`core`.
+
+Users
+~~~~~
+
+A good place to start is to study some examples (see the navigation
+sidebar). You will certainly want your programs to read music data:
+See Section :ref:`io-section` below. To learn about AMADS analysis
+functions, browse or search the list of algorithms below.
+
+
+Developers
+~~~~~~~~~~
+
+Various details of AMADS development are described in "Developer
+notes" in the navigation sidebar. We welcome contributions. Please
+contact the AMADS team and we can help with design and
+interoperability issues.
 
 For the source code, visit the `GitHub repository <https://github.com/music-computing/amads>`_.
 
@@ -17,6 +44,7 @@ For the source code, visit the `GitHub repository <https://github.com/music-comp
 
    user_guide/installation
 
+.. _developer-notes-section:
 .. toctree::
    :maxdepth: 2
    :caption: Developer notes:
@@ -39,10 +67,26 @@ For the source code, visit the `GitHub repository <https://github.com/music-comp
    auto_examples/index
 
 
+Core
+----
+
+.. toctree::
+   :maxdepth: 1
+
+   core 
+ 
+.. autosummary::
+   :toctree: _autosummary
+
+  amads.core.basics
+  amads.core.pitch
+  amads.core.timemap
+
+.. general-algorithms-sec:
 
 General algorithms
 ------------------
-
+ 
 .. autosummary::
    :toctree: _autosummary
    :caption: General algorithms:
@@ -82,10 +126,9 @@ Time
 
    amads.time.durdist1
    amads.time.durdist2
-   amads.time.notedensity
+   amads.time.variability
    amads.time.swing
    amads.time.tempo
-   amads.time.variability
    amads.time.meter.break_it_up
 
 Harmony
@@ -119,14 +162,8 @@ Polyphony
 
    amads.polyphony.skyline
 
-Core
-----
 
-.. autosummary::
-   :toctree: _autosummary
-   :caption: Core:
-
-   amads.core.basics
+.. _io-section:
 
 IO
 --
@@ -136,3 +173,4 @@ IO
    :caption: IO:
 
    amads.io.pianoroll
+

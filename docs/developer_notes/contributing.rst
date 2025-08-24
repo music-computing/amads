@@ -1,7 +1,26 @@
 Contributing
 ============
 
-We welcome contributions to the project! Whether you want to fix bugs, improve documentation, or add new features, here's how you can contribute:
+We welcome contributions to the project! Whether you want to fix bugs,
+improve documentation, or add new features, here's how you can
+contribute:
+
+Core Data Structures and Functions
+----------------------------------
+
+Our goal is compatibility among input, output, and analysis functions.
+Most of AMADS shares a common representation for music information, so
+you should be familiar with the core data structures and methods
+described in :ref:`core-sec`.
+
+In addition, check out :ref:`General algorithms
+<general-algorithms-sec>`, which include various
+functions to compute common analysis and statistical properties
+such as entropy, and there are also operations related to collections
+(sets, vectors, etc.). Even if it is a little work to put data in
+the right form to use these shared algorithms, we prefer this to
+avoid a proliferation of implementations of the same algorithm (which
+might have subtle bugs or surprising differences.
 
 GitHub contribution workflow
 ----------------------------
