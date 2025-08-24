@@ -222,7 +222,7 @@ class Event:
         self._onset = onset
 
 
-    def quantize(self, divisions: int) -> "Event":
+    def _quantize(self, divisions: int) -> "Event":
         """Modify onset and offset to a multiple of divisions per quarter note.
 
         This method modifies the Event in place. It also handles tied notes.
@@ -1481,6 +1481,13 @@ class EventGroup(Event):
             else:
                 event.copy(group)  # simply copy to new parent
         return group
+
+
+    def _quantize(self, divisions: int) -> "EventGroup":
+        """"Since `_quantize` is called recursively on children, this method is
+        needed to redirect `EventGroup._quantize` to `quantize`
+        """
+        return quantize(self, divisions)
 
 
     def quantize(self, divisions: int) -> "EventGroup":

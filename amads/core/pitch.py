@@ -39,43 +39,43 @@ class Pitch:
 
     Parameters
     ----------
-        pitch : Union[int, float, str, None], optional
-            MIDI key_num or string Pitch name. Syntax is A-G followed by
-            accidentals followed by octave number.
-            (Defaults to 60)
-        alt: Union[int, float, None], optional
-            If pitch is a number, alt is an optional alteration (Defaults to 0).
-            If `pitch - alt` does not result in a diatonic pitch number, alt is
-            adjusted, normally choosing spellings C#, Eb, F#, Ab, and Bb.
-            If pitch is a string, alt is the optional octave (an integer)
-            (Overridden by any octave specification in pitch,
-            otherwise defaults to -1, which yields pitch class `key_num`s 0-11).
-        accidental_chars: Union[str, None], optional
-            Allows parsing of pitch names with customized accidental characters.
-            (Defaults to None, which admits '♭', 'b' or '-' for flat, and
-            '♯', '#', and '+' for sharp, but does not accept 'f' and 's'.
+    pitch : Union[int, float, str, None], optional
+        MIDI key_num or string Pitch name. Syntax is A-G followed by
+        accidentals followed by octave number.
+        (Defaults to 60)
+    alt: Union[int, float, None], optional
+        If pitch is a number, alt is an optional alteration (Defaults to 0).
+        If `pitch - alt` does not result in a diatonic pitch number, alt is
+        adjusted, normally choosing spellings C#, Eb, F#, Ab, and Bb.
+        If pitch is a string, alt is the optional octave (an integer)
+        (Overridden by any octave specification in pitch,
+        otherwise defaults to -1, which yields pitch class `key_num`s 0-11).
+    accidental_chars: Union[str, None], optional
+        Allows parsing of pitch names with customized accidental characters.
+        (Defaults to None, which admits '♭', 'b' or '-' for flat, and
+        '♯', '#', and '+' for sharp, but does not accept 'f' and 's'.
 
     Attributes
     ----------
-        key_num : float
-            MIDI key number, e.g., C4 = 60, generalized to float.
-        alt : float
-            Alteration, e.g., flat = -1.
+    key_num : float
+        MIDI key number, e.g., C4 = 60, generalized to float.
+    alt : float
+        Alteration, e.g., flat = -1.
 
     Properties
     ----------
-        step : str
-            The name of the pitch without octave or accidentals, e.g., A or G.
-        name : str
-            The string representation of the pitch name, including accidentals.
-        name_with_octave : str
-            The string representation of the pitch name with octave.
-        octave : int
-            The octave number of the note name, based on `key_num` and `alt`.
-        pitch_class : int
-            The pitch class of the note
-        register : int
-            The absolute octave of `key_num`, e.g. octave of B#3 is 4.
+    step : str
+        The name of the pitch without octave or accidentals, e.g., A or G.
+    name : str
+        The string representation of the pitch name, including accidentals.
+    name_with_octave : str
+        The string representation of the pitch name with octave.
+    octave : int
+        The octave number of the note name, based on `key_num` and `alt`.
+    pitch_class : int
+        The pitch class of the note
+    register : int
+        The absolute octave of `key_num`, e.g. octave of B#3 is 4.
 
     Examples
     --------

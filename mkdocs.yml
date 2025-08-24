@@ -26,10 +26,11 @@ plugins:
               ignore_init_summary: true
             docstring_section_style: list
             filters: public  # sponsors only, will be released soon
-            heading_level: 1
+            heading_level: 2
             inherited_members: true
             line_length: 88  # to format signatures with Ruff/Black if installed
             merge_init_into_class: true
+            modernize_annotations: true
             parameter_headings: true
             separate_signature: true
             show_root_heading: true
@@ -53,7 +54,9 @@ nav:
       - Style: developer_notes/style.md
       - Music21: developer_notes/music21.md
   - API Reference:
-      - Core Data Structures: core.md
-      - Core Classes:
-        - reference/core.md
+      - Core:
+        - Overview: core.md
+        - Basic Score Elements: reference/basics.md
+        - Pitch: reference/pitch.md
+        - Distribution: reference/distribution.md
       - Melody: reference/melody.md
