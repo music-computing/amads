@@ -90,7 +90,7 @@ Then there are larger libraries that could serve to draw this together.
 At one time [humdrum](https://www.humdrum.org/) was a/the central point of reference. 
 That continues to be used and maintained (an impressive 40 years later!),
 but there are downsides, e.g., the 'language neutral' set up is commendable,
-but not very inviting for newcomers with the expectations based on the landscape of 2024.
+but not very inviting for newcomers with the expectations based on the landscape of today.
 
 Later, along came [music21](https://github.com/cuthbertLab/music21).
 First published in 2010/11, this too continues to be maintained and used.
@@ -112,15 +112,38 @@ given this state of affairs, and following conversation with the maintainers of 
 it is clear that we need a new coordination effort
 drawing together the work cited above at a higher level.
 
-AMADS seeks to address this need, serving primarily to bring together these algorithms.
+
+## Philosophy
+
+AMADS seeks to address the above need, serving primarily to bring together these algorithms.
 We seek to be user-friendly as possible,
 serving as a welcoming introduction to those new to the field,
 and a helpful reference library for those already active.
 
-Moreover, we aim to:
-* credit that previous work carefully,
-* "fill in the gaps" with new implementations where none are readily available, and 
-* expand into uncharted territory (alongside ongoing, separately published research).
+There is a spectrum of options we could have taken in pursuing these goals.
+One extremely light-touch option we considered was to simply list the resources out there.
+This alone would have provide the field some manner of synthesis and sign-posting.
+We decided on the more ambitious and extensive undertaking seen here as many
+useful functions have no public implementation, else an implementation in an all-but obsolete language.
+Pointing users to those sources would be a limited use.
+Much better instead, to provide an implementation in those cases.
+
+Where existing code packages are
+publicly available and clearly maintained by a named and currently active person or team,
+we aim to avoid re-implementation,
+and focus instead on providing an ecosystem that incorporates those packages as dependencies via an API.
+As such, AMADS serves as a kind of meta-package,
+with a unified Python API for acessing 
+both new code and other relevant packages in one place.
+
+There are trade-offs here.
+This meta-package scope necessarily makes the overall design less consistent than it might be if we reimplemented everything from scratch.
+Overall, we consider this an acceptable balance; we consider the current approach the best way to invest time in serving the field and building on what has been accomplished already.
+
+In keeping with the above, we will gladly consider PR contributions
+that build on any of those packages (IDyoM, music21, Partitura, ...).
+We reserve the right to later refactor the inner workings,
+and will in such cases aim to keep details of the user-experience API consistent in terms of input/output and result.
 
 
 # Acknowledgements

@@ -44,7 +44,7 @@ def duration_distribution_1(
         7            2*sqrt(2)
         8            4 (whole)
     Durations below sqrt(2)/8 quarters (just above a sixteenth triplet) and
-    greater than sqrt(2) * 4 quarters (about 5.65685 beats) are ignored.
+    greater than sqrt(2) * 4 quarters (about 5.65685) are ignored.
 
     If `bin_centers` is provided, the centers of the bins are set to the
     values in `bin_centers` and rounding is done on a log scale, i.e. the

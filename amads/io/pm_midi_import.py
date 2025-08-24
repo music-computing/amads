@@ -83,9 +83,9 @@ def _time_map_from_tick_scales(tick_scales, resolution: int) -> TimeMap:
     midi file tempo map
     """
     ticks_per_second = 1.0 / tick_scales[0][1]
-    time_map = TimeMap(bpm=ticks_per_second * 60 / resolution)
+    time_map = TimeMap(qpm=ticks_per_second * 60 / resolution)
     for change in tick_scales[1:]:
-        time_map.append_beat_tempo(
+        time_map.append_quarter_tempo(
             change[0] / resolution, 60.0 / (change[1] * resolution)
         )
     return time_map
@@ -103,7 +103,7 @@ def _create_measures(
     current_duration = 4  # default is 4/4
     current_beat = 0  # we have created measures up to this time
     for sig in pmscore.time_signature_changes:
-        beat = time_map.time_to_beat(sig.time)
+        beat = time_map.time_to_quarter(sig.time)
         beat = round(beat * 32) / 32  # quantize measure boundaries
         while current_beat < beat:  # fill in measures using current_duration
             staff.insert(Measure(onset=current_beat, duration=current_duration))
@@ -261,7 +261,7 @@ def pretty_midi_midi_import(
             # now notes have part as parent, but parent does not have notes
             staff = Staff(parent=part, onset=0.0, duration=part.duration, number=1)
             end_time = pmscore.get_end_time()  # total duration of score
-            end_beat = score.time_map.time_to_beat(end_time)
+            end_beat = score.time_map.time_to_quarter(end_time)
             # in principle we could do this once for the first staff and
             # then copy the created staff with measures for any other
             # staff, but then we would have to save off the notes and

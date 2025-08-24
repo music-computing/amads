@@ -41,6 +41,7 @@ entry is provided with that normalisation.
 
 The profiles appear below in approximately chronological order.
 For reference, the alphabetical ordering is:
+
     AardenEssen,
     AlbrechtShanahan,
     BellmanBudge,

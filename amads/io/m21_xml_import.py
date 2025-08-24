@@ -293,7 +293,7 @@ def append_items_to_measure(
         elif isinstance(element, tempo.MetronomeMark):
             # update tempo
             time_map = measure.score.time_map
-            last_beat = time_map.beats[-1].beat
+            last_beat = time_map.quarters[-1].quarter
             tempo_change_onset = offset + element.offset
             if last_beat > tempo_change_onset:
                 warnings.warn(
@@ -301,17 +301,17 @@ def append_items_to_measure(
                     " is within existing time mmap, ignoring"
                 )
             else:
-                bpm = element.getQuarterBPM()
+                qpm = element.getQuarterBPM()
                 # music21 tempo mark may return None for BPM, so provide a default
-                if bpm is None:
+                if qpm is None:
                     warnings.warn(
                         f"Music21 tempo mark at {tempo_change_onset}"
                         " has no BPM, ignoring"
                     )
                 else:
                     # print("music21 MetronomeMark: tempo_change_onset",
-                    #      tempo_change_onset, "bpm", bpm)
-                    time_map.append_beat_tempo(tempo_change_onset, bpm)
+                    #      tempo_change_onset, "qpm", qpm)
+                    time_map.append_quarter_tempo(tempo_change_onset, qpm)
         elif isinstance(element, bar.Barline):
             pass  # ignore barlines, e.g. Barline type="final"
         else:
