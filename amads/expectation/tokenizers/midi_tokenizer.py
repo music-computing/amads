@@ -416,7 +416,7 @@ class TSDTokenizer_Custom(SymusicTokenizer):
         config_dict = DEFAULT_TOKENIZER_CONFIG
         for key, value in config_params.items():
             config_dict[key] = value
-
+        print(config_dict)
         config = CustomTokenizerConfig(**config_dict)
 
         self.use_bpe = False
@@ -437,7 +437,7 @@ class TSDTokenizer_Custom(SymusicTokenizer):
             Preprocessed symusic Score with preserved timing
         """
         # Load the score while preserving absolute time information
-        symusic_score = load_score(midi_path)
+        symusic_score = load_score(midi_path, as_seconds=True)
         # Apply preprocessing to handle note overlaps, short notes, etc.
         return preprocess_score(symusic_score)
 
