@@ -51,7 +51,7 @@ def notedensity(score: Score, timetype: Optional[str] = "quarters") -> float:
     1.0
     >>> from amads.core.timemap import TimeMap
     >>> score = Score.from_melody([60, 62, 64, 65])  # all quarter notes
-    >>> score.time_map = TimeMap(bpm = 120)  # set BPM to 120
+    >>> score.time_map = TimeMap(qpm = 120)  # set QPM to 120
     >>> notedensity(score, timetype='seconds')
     2.0
     >>> score = Score.from_melody([60, 62, 64, 65], durations = [1.0, 2.0, 3.0, 4.0])  # mixed durations
@@ -67,12 +67,12 @@ def notedensity(score: Score, timetype: Optional[str] = "quarters") -> float:
             start_onset = notes[0].onset
             end_onset = notes[-1].onset
         else:
-            start_onset = score.time_map.beat_to_time(notes[0].onset)
-            end_onset = score.time_map.beat_to_time(notes[-1].onset)
+            start_onset = score.time_map.quarter_to_time(notes[0].onset)
+            end_onset = score.time_map.quarter_to_time(notes[-1].onset)
     elif timetype == "quarters":
         if score.units_are_seconds:
-            start_onset = score.time_map.time_to_beat(notes[0].onset)
-            end_onset = score.time_map.time_to_beat(notes[-1].onset)
+            start_onset = score.time_map.time_to_quarter(notes[0].onset)
+            end_onset = score.time_map.time_to_quarter(notes[-1].onset)
         else:
             start_onset = notes[0].onset
             end_onset = notes[-1].onset

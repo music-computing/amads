@@ -1,126 +1,225 @@
-# timemap.py -- map to convert between quarters and seconds
-#
+"""
+Tempo representation and conversion between quarters and seconds.
+"""
 
 
-class MapBeat:
-    """MapBeat is a (time, beat) pair in a piece-wise linear mapping."""
+class MapQuarter:
+    """
+    Represents a (time, quarter) pair in a piece-wise linear mapping.
 
-    def __init__(self, time, beat):
+    Parameters
+    ----------
+    time : float
+        The time in seconds.
+    quarter : float
+        The corresponding quarter note position.
+
+    Attributes
+    ----------
+    time : float
+        The time in seconds.
+    quarter : float
+        The corresponding quarter note position.
+
+    Methods
+    -------
+    copy()
+        Return a copy of the MapQuarter instance.
+    """
+
+    __slots__ = ["time", "quarter"]
+    time: float
+    quarter: float
+
+    def __init__(self, time, quarter):
         self.time = time
-        self.beat = beat
+        self.quarter = quarter
 
     def copy(self):
-        return MapBeat(self.time, self.beat)
+        """return a copy of this MapQuarter"""
+        return MapQuarter(self.time, self.quarter)
 
 
 class TimeMap:
-    """TimeMap is a map to convert between quarters and seconds."""
+    """
+    A map to convert between musical quarters and seconds.
 
-    # beats -- array of MapBeat
-    # last_tempo -- final beats per second to extrapolate from final
-    #         breakpoint
+    A TimeMap is an attribute of Score and used for tempo specification.
 
-    def __init__(self, bpm=100.0):
-        self.beats = [MapBeat(0.0, 0.0)]  # initial beat
-        self.last_tempo = bpm / 60.0  # 100 bpm default
+    Parameters
+    ----------
+    qpm : float, optional
+        Initial tempo in quarters per minute (default is 100.0).
 
-    def show(self, indent):
-        """print a summary of this time map"""
+    Attributes
+    ----------
+    quarters : list of MapQuarter
+        List of (time, quarter) breakpoints for piece-wise linear mapping.
+    last_tempo : float
+        Final quarters per second (qps) for extrapolatation.
+
+    Examples
+    --------
+    >>> tm = TimeMap(qpm=120)
+    >>> tm.append_quarter_tempo(4.0, 60.0)  # change to 60 qpm at quarter 4
+    >>> tm.quarter_to_time(5.0)
+    3.0
+    >>> tm.time_to_quarter(3.0)
+    5.0
+    """
+
+    __slots__ = ["quarters", "last_tempo"]
+    quarters: list[MapQuarter]
+    last_tempo: float
+
+    def __init__(self, qpm=100.0):
+        self.quarters = [MapQuarter(0.0, 0.0)]  # initial quarter
+        self.last_tempo = qpm / 60.0  # 100 qpm default
+
+    def show(self, indent: int = 0) -> None:
+        """Print a summary of this time map"""
         print(" " * indent, "TimeMap: [ ", sep="", end="")
-        for i, mb in enumerate(self.beats):
+        for i, mb in enumerate(self.quarters):
             tempo = self.index_to_tempo(i + 1)
-            print(f"({mb.beat:.2g}, {mb.time:.3g}s, {tempo:.3g}bpm) ", sep="", end="")
+            print(
+                f"({mb.quarter:.2g}, {mb.time:.3g}s, {tempo:.3g}qpm) ", sep="", end=""
+            )
         print("]")
 
-    def deep_copy(self):
-        """make a full copy of this time map"""
-        newtm = TimeMap(bpm=self.last_tempo * 60)
-        for i in self.beats[1:]:
-            newtm.beats.append(i.copy())
+    def deep_copy(self) -> "TimeMap":
+        """Make a full copy of this time map"""
+        newtm = TimeMap(qpm=self.last_tempo * 60)
+        for i in self.quarters[1:]:
+            newtm.quarters.append(i.copy())
         return newtm
 
-    def append_beat_tempo(self, beat, tempo):
-        """Append a MapBeat specifying a change to tempo at beat.
-        beat must be >= last MapBeat's beat. You cannot insert a tempo
+    def append_quarter_tempo(self, quarter: float, tempo: float) -> None:
+        """Append a tempo change at a given quarter.
+
+        Append a MapQuarter specifying a change to tempo at quarter.
+        quarter must be >= last MapQuarter's quarter. You cannot insert a tempo
         change before the end of the TimeMap. tempo will hold forever
-        beginning at beat unless you call append_beat_tempo again to
-        change the tempo somewhere beyond beat.
+        beginning at quarter unless you call append_quarter_tempo again to
+        change the tempo somewhere beyond quarter.
 
         Parameters
         ----------
-        beat: float
-            The beat measured in quarters where the tempo changes
+        quarter: float
+            The quarter measured in quarters where the tempo changes
         tempo: float
-            The new tempo at beat measured in beats per minute
+            The new tempo at quarter measured in quarters per minute.
+            Typically, this is the same as beats per minute (BPM),
+            but only when a beat lasts one quarter.
         """
-        last_beat = self.beats[-1].beat  # get the last beat
-        assert beat >= last_beat
-        if beat > last_beat:
-            self.beats.append(MapBeat(self.beat_to_time(beat), beat))
-        self.last_tempo = tempo / 60.0  # from bpm to bps
-        # print("append_beat_tempo", tempo, self.beats[-1])
+        last_quarter = self.quarters[-1].quarter  # get the last quarter
+        assert quarter >= last_quarter
+        if quarter > last_quarter:
+            self.quarters.append(MapQuarter(self.quarter_to_time(quarter), quarter))
+        self.last_tempo = tempo / 60.0  # from qpm to qps
+        # print("append_quarter_tempo", tempo, self.quarters[-1])
 
-    def locate_time(self, time):
-        """find the insertion index for a 0-based beat at time in seconds"""
+    def locate_time(self, time: float) -> int:
+        """Find the insertion index for a given time in seconds.
+
+        Returns the index of the first MapQuarter whose `time` attribute
+        is greater than the specified `time`. If `time` is greater than
+        all entries, returns the length of `self.quarters`.
+
+        Parameters
+        ----------
+        time : float
+            The time in seconds to locate.
+
+        Returns
+        -------
+        int
+            The insertion index for the given time.
+        """
         i = 0
-        while i < len(self.beats) and time > self.beats[i].time:
+        while i < len(self.quarters) and time > self.quarters[i].time:
             i = i + 1
         return i
 
-    def locate_beat(self, beat):
-        """find the insertion index for a beat; equivalent to find the first
-        map entry such that entry.beat is > beat, or if beat is greater than
-        beats of all entries, return the length of beats.
+    def locate_quarter(self, quarter: float) -> int:
+        """Find the insertion index for a given time in seconds.
+
+        Returns the index of the first MapQuarter whose `quarter` attribute
+        is greater than the specified `quarter`. If `quarter` is greater than
+        all entries, returns the length of `self.quarters`.
+
+        Parameters
+        ----------
+        quarter : float
+            The quarter note position to locate.
+
+        Returns
+        -------
+        int
+            The insertion index for the given quarter position.
         """
         i = 0
-        while i < len(self.beats) and beat > self.beats[i].beat:
+        while i < len(self.quarters) and quarter > self.quarters[i].quarter:
             i = i + 1
         return i
 
-    def beat_to_time(self, beat):
-        """convert beat time to seconds"""
-        if beat <= 0:  # there is no negative time or tempo before 0
-            return beat  # so just pretend like tempo is 60 bpm
-        i = self.locate_beat(beat)
-        if i == len(self.beats):
-            # special case: beat >= than last time,beat pair
+    def quarter_to_time(self, quarter: float) -> float:
+        """Convert quarter time to seconds."""
+        if quarter <= 0:  # there is no negative time or tempo before 0
+            return quarter  # so just pretend like tempo is 60 qpm
+        i = self.locate_quarter(quarter)
+        if i == len(self.quarters):
+            # special case: quarter >= than last time,quarter pair
             # so extrapolate using last_tempo
-            mb1 = self.beats[i - 1]
+            mb1 = self.quarters[i - 1]
             if self.last_tempo:
-                return mb1.time + (beat - mb1.beat) / self.last_tempo
+                return mb1.time + (quarter - mb1.quarter) / self.last_tempo
             elif i == 1:  # only one time point and no last_tempo!
                 # assume a tempo of 100
-                return beat * 0.6  # (60sec/min / 100bpm)
+                return quarter * 0.6  # (60sec/min / 100qpm)
             else:  # extrapolate from last two time map entries
-                mb0 = self.beats[i - 2]
+                mb0 = self.quarters[i - 2]
         else:  # interpolate between i - 1 and i
-            # note: i is at least 1 because first MapBeat is at time 0
-            # and beat > 0
-            mb0 = self.beats[i - 1]
-            mb1 = self.beats[i]
+            # note: i is at least 1 because first MapQuarter is at time 0
+            # and quarter > 0
+            mb0 = self.quarters[i - 1]
+            mb1 = self.quarters[i]
         # whether we extrapolate or interpolate, the math is the same:
         time_dif = mb1.time - mb0.time
-        beat_dif = mb1.beat - mb0.beat
-        return mb0.time + (beat - mb0.beat) * time_dif / beat_dif
+        quarter_dif = mb1.quarter - mb0.quarter
+        return mb0.time + (quarter - mb0.quarter) * time_dif / quarter_dif
 
-    def beat_to_tempo(self, beat):
-        """what is the tempo in bpm at beat? If there is a tempo change
-        here, use the tempo on the left (before the change)
+    def quarter_to_tempo(self, quarter: float) -> float:
+        """Get the tempo in qpm at a given quarter.
+
+        If there is a tempo change here, use the tempo on the left
+        (before the change)
         """
-        return self.index_to_tempo(self.locate_beat(beat))
+        return self.index_to_tempo(self.locate_quarter(quarter))
 
-    def index_to_tempo(self, i):
-        """return the tempo at entry i in tempo map in bpm -- the tempo
-        is in effect JUST BEFORE entry i, where tempo might
-        change. Typically, i is related to locate_beat(beat), so i
-        refers to the first map entry BEYOND beat.
+    def index_to_tempo(self, i: int) -> float:
+        """Return the tempo at entry i in the tempo map.
+
+        The tempo at entry i is the tempo in effect JUST BEFORE entry i,
+        Typically, i is related to locate_quarter(quarter), so i
+        refers to the first map entry BEYOND quarter. If i is 0 or there
+        are no MapQuarter entries, return the tempo AFTER entry i.
+
+        Parameters
+        ----------
+        i : int
+            The index in the quarters list.
+
+        Returns
+        -------
+        float
+            The tempo in quarters per minute (qpm) just before entry i.
         """
         # two cases here: (1) we're beyond the last entry, so
         #   use last_tempo or extrapolate, OR
         # (2) there's only one entry, so use last_tempo or
         #   return the default tempo
-        if i == len(self.beats) or len(self.beats) <= 1:
-            # special case: beat >= last time.beat pair
+        if i == len(self.quarters) or len(self.quarters) <= 1:
+            # special case: quarter >= last time.quarter pair
             # so extrapolate using last_tempo if it is there
             if self.last_tempo:
                 return self.last_tempo * 60.0
@@ -128,38 +227,38 @@ class TimeMap:
                 # assume a tempo of 100
                 return 100.0 / 60.0
             else:  # extrapolate from last two time map entries
-                mb0 = self.beats[i - 2]
-                mb1 = self.beats[i - 1]
+                mb0 = self.quarters[i - 2]
+                mb1 = self.quarters[i - 1]
         elif i == 0:
-            mb0 = self.beats[0]
-            mb1 = self.beats[1]
+            mb0 = self.quarters[0]
+            mb1 = self.quarters[1]
         else:
-            mb0 = self.beats[i - 1]
-            mb1 = self.beats[i]
+            mb0 = self.quarters[i - 1]
+            mb1 = self.quarters[i]
         time_dif = mb1.time - mb0.time
-        beat_dif = mb1.beat - mb0.beat
-        return beat_dif * 60.0 / time_dif
+        quarter_dif = mb1.quarter - mb0.quarter
+        return quarter_dif * 60.0 / time_dif
 
-    def time_to_beat(self, time):
-        """return the beat associated with time seconds."""
+    def time_to_quarter(self, time: float) -> float:
+        """Convert time in seconds to quarter position."""
         if time <= 0:
             return time
         i = self.locate_time(time)
-        if i == len(self.beats):  # beat is beyond last time map entry
+        if i == len(self.quarters):  # quarter is beyond last time map entry
             if self.last_tempo:  # extrapolate beyond last time map entry
-                mb0 = self.beats[i - 1]
-                return mb0.beat + (time - mb0.time) * self.last_tempo
+                mb0 = self.quarters[i - 1]
+                return mb0.quarter + (time - mb0.time) * self.last_tempo
             elif i == 1:  # only one time point and no last tempo!
-                return time * 100 / 60  # assume 100 bpm
+                return time * 100 / 60  # assume 100 qpm
             else:  # extrapolate from last two time map entries
-                mb0 = self.beats[i - 2]
-                mb1 = self.beats[i - 1]
+                mb0 = self.quarters[i - 2]
+                mb1 = self.quarters[i - 1]
         else:  # interpolate between the surrounding time map entries
-            mb0 = self.beats[i - 1]
-            mb1 = self.beats[i]
+            mb0 = self.quarters[i - 1]
+            mb1 = self.quarters[i]
         time_dif = mb1.time - mb0.time
-        beat_dif = mb1.beat - mb0.beat
-        return mb0.beat + (time - mb0.time) * beat_dif / time_dif
+        quarter_dif = mb1.quarter - mb0.quarter
+        return mb0.quarter + (time - mb0.time) * quarter_dif / time_dif
 
     """
     if we support any extraction of data from scores and want to retain
@@ -170,52 +269,53 @@ class TimeMap:
         # extract the time map from start to end and shift to time zero
         # start and end are time in seconds if units_are_seconds is true
 
-        var i = 0 // index into beats
+        var i = 0 // index into quarters
         var start_index // index of first breakpoint after start
         var count = 1
-        var initial_beat = start
-        var final_beat = end
+        var initial_quarter = start
+        var final_quarter = end
         if units_are_seconds:
-            initial_beat = time_to_beat(start)
-            final_beat = time_to_beat(end)
+            initial_quarter = time_to_quarter(start)
+            final_quarter = time_to_quarter(end)
         else
-            start = beat_to_time(initial_beat)
-            end = beat_to_time(final_beat)
-        while i < len(beats) and beats[i].time < start:
+            start = quarter_to_time(initial_quarter)
+            end = quarter_to_time(final_quarter)
+        while i < len(quarters) and quarters[i].time < start:
             i = i + 1
-        // now i is index into beats of the first breakpoint after start
-        #if i >= len(beats):
+        // now i is index into quarters of the first breakpoint after start
+        #if i >= len(quarters):
         #    return // only one
-        // beats[0] is (0,0) and remains that way
-        // copy beats[start_index] to beats[1], etc.
-        // skip any beats at or near (start,initial_beat), using count
+        // quarters[0] is (0,0) and remains that way
+        // copy quarters[start_index] to quarters[1], etc.
+        // skip any quarters at or near (start,initial_quarter), using count
         // to keep track of how many entries there are
         start_index = i
-        while i < len(beats) and beats[i].time < end:
-            if beats[i].time - start > alg_eps and
-               beats[i].beat - initial_beat > alg_eps:
-                beats[i].time = beats[i].time - start
-                beats[i].beat = beats[i].beat - initial_beat
-                beats[i - start_index + 1] = beats[i]
+        while i < len(quarters) and quarters[i].time < end:
+            if quarters[i].time - start > alg_eps and
+               quarters[i].quarter - initial_quarter > alg_eps:
+                quarters[i].time = quarters[i].time - start
+                quarters[i].quarter = quarters[i].quarter - initial_quarter
+                quarters[i - start_index + 1] = quarters[i]
                 count = count + 1
             else:
                 start_index = start_index + 1
             i = i + 1
         // set last tempo data
-        // we last examined beats[i-1] and copied it to
-        //   beats[i - start_index]. Next tempo should come
-        //   from beats[i] and store in beats[i - start_index + 1]
+        // we last examined quarters[i-1] and copied it to
+        //   quarters[i - start_index]. Next tempo should come
+        //   from quarters[i] and store in quarters[i - start_index + 1]
         // case 1: there is at least one breakpoint beyond end
         //         => interpolate to put a breakpoint at end
         // case 2: no more breakpoints => set last tempo data
-        if i < len(beats):
-            // we know beats[i].time >= end, so case 1 applies
-            beats[i - start_index + 1].time = end - start
-            beats[i - start_index + 1].beat = final_beat - initial_beat
+        if i < len(quarters):
+            // we know quarters[i].time >= end, so case 1 applies
+            quarters[i - start_index + 1].time = end - start
+            quarters[i - start_index + 1].quarter = (final_quarter -
+                                                     initial_quarter)
             last_tempo = false // extrapolate to get tempo
             count = count + 1
         // else we will just use stored last tempo (if any)
-        beats.set_len(count)
+        quarters.set_len(count)
 
     def cut(start, len, units_are_seconds):
         # remove portion of time map from start to start + len,
@@ -226,104 +326,107 @@ class TimeMap:
         // display "before cut", start, len, units_are_seconds
         show()
         var end = start + len
-        var initial_beat = start
-        var final_beat = end
+        var initial_quarter = start
+        var final_quarter = end
         var i = 0
 
         if units_are_seconds:
-            initial_beat = time_to_beat(start)
-            final_beat = time_to_beat(end)
+            initial_quarter = time_to_quarter(start)
+            final_quarter = time_to_quarter(end)
         else
-            start = beat_to_time(initial_beat)
-            end = beat_to_time(final_beat)
+            start = quarter_to_time(initial_quarter)
+            end = quarter_to_time(final_quarter)
             len = end - start
-        var beat_len = final_beat - initial_beat
+        var quarter_len = final_quarter - initial_quarter
 
-        while i < len(beats) and beats[i].time < start - alg_eps:
+        while i < len(quarters) and quarters[i].time < start - alg_eps:
             i = i + 1
-        // now i is index into beats of the first breakpoint on or
-        // after start, insert (start, initial_beat) in map
-        // note: i may be beyond the last breakpoint, so beat[i] may
+        // now i is index into quarters of the first breakpoint on or
+        // after start, insert (start, initial_quarter) in map
+        // note: i may be beyond the last breakpoint, so quarter[i] may
         // be out of bounds
-        // display "after while", i, len(beats)
-        if i < len(beats) and within(beats[i].time, start, alg_eps)
+        // display "after while", i, len(quarters)
+        if i < len(quarters) and within(quarters[i].time, start, alg_eps)
             // perterb time map slightly (within alg_eps) to place
             // break point exactly at the start time
             //display "reset", i
-            beats[i].time = start
-            beats[i].beat = initial_beat
+            quarters[i].time = start
+            quarters[i].quarter = initial_quarter
         else
             //display "insert", i
-            var point = Alg_beat(start, initial_beat)
-            beats.insert(i, point)
-        // now, we are correct up to beats[i]. find first beat after
+            var point = Alg_quarter(start, initial_quarter)
+            quarters.insert(i, point)
+        // now, we are correct up to quarters[i]. find first quarter after
         // end so we can start shifting from there
         i = i + 1
         var start_index = i
-        while i < len(beats) and beats[i].time < end + alg_eps:
+        while i < len(quarters) and quarters[i].time < end + alg_eps:
             i = i + 1
-        // now beats[i] is the next point to be included in beats
-        // but from i onward, we must shift by (-len, -beat_len)
-        while i < len(beats):
-            var b = beats[i]
+        // now quarters[i] is the next point to be included in quarters
+        // but from i onward, we must shift by (-len, -quarter_len)
+        while i < len(quarters):
+            var b = quarters[i]
             b.time = b.time - len
-            b.beat = b.beat - beat_len
-            beats[start_index] = b
+            b.quarter = b.quarter - quarter_len
+            quarters[start_index] = b
             i = i + 1
             start_index = start_index + 1
-        beats.set_len(start_index)
+        quarters.set_len(start_index)
         //print "after cut"
         //show()
 
 
     def copy():
         var new_map = Alg_time_map()
-        new_map.beats = array(len(beats))
-        for i = 0 to len(beats):
-            new_map.beats[i] = Alg_beat(beats[i].time, beats[i].beat)
+        new_map.quarters = array(len(quarters))
+        for i = 0 to len(quarters):
+            new_map.quarters[i] = Alg_quarter(quarters[i].time,
+                                              quarters[i].quarter)
         new_map.last_tempo = last_tempo
         return new_map
 
 
     def insert_time(start, len):
-        // find time,beat pair that determines tempo at start
-        // compute beat offset = (delta beat / delta time) * len
-        // add len,beat offset to each following Alg_beat
-        var i = locate_time(start) // start <= beats[i].time
-        if beats[i].time == start:
+        // find time,quarter pair that determines tempo at start
+        // compute quarter offset = (delta quarter / delta time) * len
+        // add len,quarter offset to each following Alg_quarter
+        var i = locate_time(start) // start <= quarters[i].time
+        if quarters[i].time == start:
             i = i + 1
-        if i > 0 and i < len(beats):
-            var beat_offset = len * (beats[i].beat - beats[i - 1].beat) /
-                                    (beats[i].time - beats[i - 1].time)
-            while i < len(beats):
-                beats[i].beat = beats[i].beat + beat_offset
-                beats[i].time = beats[i].time + len
+        if i > 0 and i < len(quarters):
+            var quarter_offset = len * (quarters[i].quarter -
+                                        quarters[i - 1].quarter) /
+                                       (quarters[i].time - quarters[i - 1].time)
+            while i < len(quarters):
+                quarters[i].quarter = quarters[i].quarter + quarter_offset
+                quarters[i].time = quarters[i].time + len
                 i = i + 1
 
 
-    def insert_beats(start, len):
-        // find time,beat pair that determines tempo at start
-        // compute beat offset = (delta beat / delta time) * len
-        // add len,beat offset to each following Alg_beat
-        //print "time map before insert beats"
+    def insert_quarters(start, len):
+        // find time,quarter pair that determines tempo at start
+        // compute quarter offset = (delta quarter / delta time) * len
+        // add len,quarter offset to each following Alg_quarter
+        //print "time map before insert quarters"
         //show()
-        var i = locate_beat(start) // start <= beats[i].time
-        if beats[i].beat == start:
+        var i = locate_quarter(start) // start <= quarters[i].time
+        if quarters[i].quarter == start:
             i = i + 1
-        if i > 0 and i < len(beats):
-            var time_offset = len * (beats[i].time - beats[i - 1].time) /
-                                    (beats[i].beat - beats[i - 1].beat)
-            while i < len(beats):
-                beats[i].time = beats[i].time + time_offset
-                beats[i].beat = beats[i].beat + len
+        if i > 0 and i < len(quarters):
+            var time_offset = len * (quarters[i].time - quarters[i - 1].time) /
+                                    (quarters[i].quarter -
+                                     quarters[i - 1].quarter)
+            while i < len(quarters):
+                quarters[i].time = quarters[i].time + time_offset
+                quarters[i].quarter = quarters[i].quarter + len
                 i = i + 1
-        //print "time map after insert beats"
+        //print "time map after insert quarters"
         //show()
 
 
     def show():
         print "Alg_time_map: ";
-        for b in beats:
-            print "("; b.time; ", "; b.beat; ") ";
+        for b in quarters:
+            print "("; b.time; ", "; b.quarter; ") ";
         print "last tempo: "; last_tempo
     """
