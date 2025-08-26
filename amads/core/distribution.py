@@ -21,8 +21,9 @@ from typing import Any, List, Union
 # We should not force this on users as it is not compatible with all backends:
 # matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
-import norm
 from matplotlib.figure import Figure
+
+import amads.algorithms.norm as norm
 
 DEFAULT_BAR_COLOR = "skyblue"
 

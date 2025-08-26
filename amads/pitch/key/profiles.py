@@ -59,7 +59,14 @@ For reference, the alphabetical ordering is:
 
 from dataclasses import dataclass
 
-from amads.core.distribution import Distribution
+# TODO: these packages are needed
+# import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
+
+import amads.algorithms.norm as norm
+from amads.core.distribution import DEFAULT_BAR_COLOR, Distribution
+
+# import numpy as np
 
 
 class PitchProfile(Distribution):
@@ -74,29 +81,94 @@ class PitchProfile(Distribution):
     """
 
     def __init__(self, name, profile_tuple):
-        assert len(profile_tuple) == 12
-        assert all(isinstance(elem, float) for elem in profile_tuple)
-        x_cats = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
-        x_label = "pitch class"
+        if not PitchProfile._check_pitch_data_integrity(profile_tuple):
+            raise ValueError(f"invalid profile tuple {profile_tuple}")
+        x_cats = None
+        x_label = None
 
         y_cats = None
-        y_label = "weights"
+        y_label = None
+        profile_data = None
+        profile_shape = None
+        if isinstance(profile_tuple[0], float):
+            profile_data = list(profile_tuple)
+            profile_shape = [len(profile_data)]
+            x_cats = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
+            x_label = "pitch class"
+
+            y_cats = None
+            y_label = "weights"
+            self.type = "symmetric-profile"
+        elif isinstance(profile_tuple[0], tuple):
+            profile_data = [list(elem) for elem in profile_tuple]
+            profile_shape = [len(profile_data), len(profile_data[0])]
+            # TODO: change this!
+            x_cats = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
+            x_label = "root"
+
+            y_cats = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
+            y_label = "pitch"
+            self.type = "assymetric-profile"
+        else:
+            raise ValueError(f"invalid profile tuple {profile_tuple}")
         super().__init__(
             name,
-            list(profile_tuple),
+            profile_data,
             "pitch_class",
-            [len(profile_tuple)],
+            profile_shape,
             x_cats,
             x_label,
             y_cats,
             y_label,
         )
 
-    def as_tuple(self):
-        return tuple(self.data)
+    @classmethod
+    def _check_pitch_data_integrity(cls, data):
+        """
+        checks the integrity of the data tuple that is supplied in init
+        """
 
-    def as_normalized_tuple(self):
-        return tuple(self.normalize().data)
+        def allisfloat(data_tuple):
+            return all(isinstance(elem, float) for elem in data_tuple)
+
+        if len(data) != 12:
+            return False
+        is_valid_sym = allisfloat(data)
+        if is_valid_sym:
+            return True
+        is_valid_assym = all(
+            isinstance(elem, tuple) and len(elem) == 12 and allisfloat(elem)
+            for elem in data
+        )
+        return is_valid_assym
+
+    def normalize(self):
+        assert self.type in ["assymetric-profile", "symmetric-profile"]
+        if self.type == "symmetric-profile":
+            return super().normalize()
+        else:
+            self.data = [norm.normalize(elem, "sum").tolist() for elem in self.data]
+            return self
+
+    def as_tuple(self, root):
+        pitches = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
+        if root not in pitches:
+            raise ValueError(f"invalid root {root}")
+        assert self.type in ["assymetric-profile", "symmetric-profile"]
+        if self.type == "symmetric-profile":
+            raise RuntimeError("not implemented yet!")
+        else:
+            raise RuntimeError("not implemented yet!")
+
+    def as_matrix(self):
+        if self.type == "symmetric-profile":
+            raise RuntimeError("not implemented yet!")
+        else:
+            raise RuntimeError("Not Implemented Yet!")
+
+    # TODO: discussion needed on the plot function here
+    def plot(self, color=DEFAULT_BAR_COLOR, show: bool = True) -> Figure:
+        raise RuntimeError("Not Implemented Yet!")
 
 
 @dataclass
