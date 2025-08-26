@@ -156,19 +156,30 @@ class PitchProfile(Distribution):
             raise ValueError(f"invalid root {root}")
         assert self.type in ["assymetric-profile", "symmetric-profile"]
         if self.type == "symmetric-profile":
+            # symmetrical case
             raise RuntimeError("not implemented yet!")
         else:
+            # assymetrical case
             raise RuntimeError("not implemented yet!")
 
     def as_matrix(self):
+        """
+        follows the following index ordering for the rows and columns of
+        the returned matrix:
+        "C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"
+        """
         if self.type == "symmetric-profile":
+            # need to rotate the matrix around to do this
             raise RuntimeError("not implemented yet!")
         else:
+            # just np.array and call it a day
             raise RuntimeError("Not Implemented Yet!")
 
     # TODO: discussion needed on the plot function here
     def plot(self, color=DEFAULT_BAR_COLOR, show: bool = True) -> Figure:
         raise RuntimeError("Not Implemented Yet!")
+        # we will need additional function parameters here to plot in order to show
+        # different plots for different pitch-index configurations
 
 
 @dataclass
