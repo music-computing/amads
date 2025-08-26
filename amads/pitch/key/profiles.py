@@ -81,7 +81,7 @@ class PitchProfile(Distribution):
     """
 
     def __init__(self, name, profile_tuple):
-        if not PitchProfile._check_pitch_data_integrity(profile_tuple):
+        if not PitchProfile._check_init_data_integrity(profile_tuple):
             raise ValueError(f"invalid profile tuple {profile_tuple}")
         x_cats = None
         x_label = None
@@ -103,10 +103,11 @@ class PitchProfile(Distribution):
             profile_data = [list(elem) for elem in profile_tuple]
             profile_shape = [len(profile_data), len(profile_data[0])]
             # TODO: change this!
-            x_cats = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
+            # the actual categories for the assymetrical plot
+            x_cats = None
             x_label = "root"
 
-            y_cats = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
+            y_cats = None
             y_label = "pitch"
             self.type = "assymetric-profile"
         else:
