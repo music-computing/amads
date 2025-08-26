@@ -123,7 +123,7 @@ class PitchProfile(Distribution):
         )
 
     @classmethod
-    def _check_pitch_data_integrity(cls, data):
+    def _check_init_data_integrity(cls, data):
         """
         checks the integrity of the data tuple that is supplied in init
         """
