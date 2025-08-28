@@ -57,65 +57,82 @@ For reference, the alphabetical ordering is:
     VuvanHughes,
 """
 
+from collections import deque
 from dataclasses import dataclass
 
-# TODO: these packages are needed
+import numpy as np
+
 # import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 
 import amads.algorithms.norm as norm
 from amads.core.distribution import DEFAULT_BAR_COLOR, Distribution
 
-# import numpy as np
 
-
+# TODO: need to make comments numpy standard
 class PitchProfile(Distribution):
     """
-    A set of weights for each pitch class. Weights are proportional to the expected
-    number of occurrences of the pitch class in pieces transposed to the key of C
-    (major or minor).
+    A set of weights for each pitch class.
+    Weights are proportional to the expected number of occurrences of the
+    pitch class in pieces transposed to the key of C (major or minor).
 
+    In our implementation, a pitch profile is a collection of pitch class
+    distributions stored in a canonical form convenient for conversion
+    into other useful forms, whether to provide methods in a useful state
+    or for custom visualization.
+    We store the pitch profile canonically in two following cases.
+    In the transpositionally equivalent case, we store the data as a set of 12 weights
+    in canonical order (following the order of pitches specified in the _pitches variable).
     In the case of profiles that are not transpositionally equivalent, there is a
-    profile for each key. These profiles are always rotated so that the first weight
-    is for the tonic.
+    pitch-class distribution for each key.
+    These profiles are ordered in canonical order both by key and by pitch weights in each
+    profile
+
+    We provide methods to allow users to obtain the information in a useful state.
     """
+
+    _possible_types = ("assymetric_key_profile", "symmetric_key_profile")
+    _pitches = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
 
     def __init__(self, name, profile_tuple):
         if not PitchProfile._check_init_data_integrity(profile_tuple):
             raise ValueError(f"invalid profile tuple {profile_tuple}")
-        x_cats = None
-        x_label = None
-
-        y_cats = None
-        y_label = None
         profile_data = None
         profile_shape = None
-        if isinstance(profile_tuple[0], float):
-            profile_data = list(profile_tuple)
-            profile_shape = [len(profile_data)]
-            x_cats = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
-            x_label = "pitch class"
+        dist_type = None
 
+        x_cats = None
+        x_label = None
+        y_cats = None
+        y_label = None
+        if isinstance(profile_tuple[0], float):
+            profile_data = deque(profile_tuple)
+            profile_shape = [len(profile_data)]
+            dist_type = "symmetric_key_profile"
+
+            x_cats = PitchProfile._pitches
+            x_label = "pitch class"
             y_cats = None
             y_label = "weights"
-            self.type = "symmetric-profile"
         elif isinstance(profile_tuple[0], tuple):
-            profile_data = [list(elem) for elem in profile_tuple]
+            # we need to change this since the data is given through?
+            # TODO: someone please double check the index here
+            profile_data = [
+                deque(elem).rotate(idx) for idx, elem in enumerate(profile_tuple)
+            ]
             profile_shape = [len(profile_data), len(profile_data[0])]
-            # TODO: change this!
-            # the actual categories for the assymetrical plot
-            x_cats = None
-            x_label = "root"
+            dist_type = "assymetric_key_profile"
 
+            x_cats = None
+            x_label = "key"
             y_cats = None
             y_label = "pitch"
-            self.type = "assymetric-profile"
         else:
             raise ValueError(f"invalid profile tuple {profile_tuple}")
         super().__init__(
             name,
             profile_data,
-            "pitch_class",
+            dist_type,
             profile_shape,
             x_cats,
             x_label,
@@ -144,43 +161,72 @@ class PitchProfile(Distribution):
         return is_valid_assym
 
     def normalize(self):
-        assert self.type in ["assymetric-profile", "symmetric-profile"]
-        if self.type == "symmetric-profile":
-            return super().normalize()
+        """
+        normalize the pitch-class distributions within the PitchProfile
+        """
+        assert self.distribution_type in PitchProfile._possible_types
+        if self.distribution_type == "symmetric_key_profile":
+            self.data = deque(norm.normalize(self.data, "sum"))
+            return self
         else:
-            self.data = [norm.normalize(elem, "sum").tolist() for elem in self.data]
+            self.data = [deque(norm.normalize(elem, "sum")) for elem in self.data]
             return self
 
-    def as_tuple(self, root):
-        pitches = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
-        if root not in pitches:
-            raise ValueError(f"invalid root {root}")
-        assert self.type in ["assymetric-profile", "symmetric-profile"]
-        if self.type == "symmetric-profile":
+    def as_tuple(self, key):
+        """
+        Given a key, and a root pitch (to start the weight on the tuple)
+        returns the corresponding 12-tuple of weights for the key profile
+        where the first weight in the tuple is the tonic to the key specified.
+        """
+        shift_idx = None
+        try:
+            shift_idx = PitchProfile._pitches.find(key)
+        except ValueError:
+            raise ValueError(
+                f"invalid key {key}, expected one of {PitchProfile._pitches}"
+            )
+        assert shift_idx is not None
+        assert shift_idx >= 0 and shift_idx < len(PitchProfile._pitches)
+        assert self.distribution_type in PitchProfile._possible_types
+        if self.distribution_type == "symmetric_key_profile":
             # symmetrical case
-            raise RuntimeError("not implemented yet!")
+            ret_data_tuple = tuple(self.data.rotate(-shift_idx))
+            self.data.rotate(shift_idx)
+            return ret_data_tuple
         else:
             # assymetrical case
-            raise RuntimeError("not implemented yet!")
+            ret_data_tuple = tuple(self.data[shift_idx].rotate(-shift_idx))
+            self.data[shift_idx].rotate(shift_idx)
+            return ret_data_tuple
 
-    def as_matrix(self):
+    def as_matrix_canonical(self) -> np.array:
         """
-        follows the following index ordering for the rows and columns of
+        returns a matrix of weights in canonical order.
+        follows the following index ordering for both the rows and columns of
         the returned matrix:
         "C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"
         """
-        if self.type == "symmetric-profile":
-            # need to rotate the matrix around to do this
-            raise RuntimeError("not implemented yet!")
+        assert self.distribution_type in PitchProfile._possible_types
+        assert self.dimensions[0] == 12
+        if self.distribution_type == "symmetric_key_profile":
+            profile_matrix = np.zeros((self.dimensions[0], self.dimensions[0]))
+            for i in range(12):
+                profile_matrix[i] = self.data
+                self.data.rotate(1)
+            return profile_matrix
         else:
-            # just np.array and call it a day
-            raise RuntimeError("Not Implemented Yet!")
+            return np.array(self.data)
 
-    # TODO: discussion needed on the plot function here
-    def plot(self, color=DEFAULT_BAR_COLOR, show: bool = True) -> Figure:
-        raise RuntimeError("Not Implemented Yet!")
-        # we will need additional function parameters here to plot in order to show
-        # different plots for different pitch-index configurations
+    def plot(self, start_key, color=DEFAULT_BAR_COLOR, show: bool = True) -> Figure:
+        """
+        custom plot method for profile.
+        In the symmetric case, we simply plot a bar graph where the pitch categories
+        are correct.
+        TODO: figure out how to plot 2d tonically...
+        TODO: figure out how 2d data can be visualized in a way that makes sense...
+        Honestly... besides key_cc, I don't really know how this profile data is processed
+        """
+        assert 0
 
 
 @dataclass
