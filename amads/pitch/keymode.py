@@ -35,6 +35,10 @@ def keymode(
     salience_flag: boolean to indicate whether we want to turn on
     salience weights in key_cc
 
+    See Also
+    --------
+    key_cc
+
     Returns
     -------
     List[str]

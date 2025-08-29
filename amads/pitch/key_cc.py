@@ -2,13 +2,10 @@
 Correlations of pitch-class distribution with Krumhansl-Kessler tonal
 hierarchies
 Author(s): Tai Nakamura, Di Wang
-Date: [2025-03-11]
 Description:
     Compute correlation of a score's pitch distribution with
     a specified pitch histogram in 12 transpositions.
-Usage:
-    [Add basic usage examples or import statements]
-Original doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=68
+See https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=68 for more details
 """
 
 import math
@@ -56,6 +53,12 @@ def key_cc(
         A list of tuples where each tuple contains the attribute name and the
         corresponding correlation coefficients. If an attribute is invalid
         or None, it will return (attribute_name, None).
+
+    Raises
+    ------
+    RuntimeError
+        If the score or key profile contains equal pitch weights,
+        resulting in correlation not being able to be computed.
     """
 
     # Get pitch-class distribution
@@ -128,6 +131,11 @@ def _get_profile_matrix(
         12x12 matrix where each row represents a key profile in a given pitch
         with the following encoding (row and column-wise):
         0 -> C, 1 -> C#, ... , 11 -> B
+
+    Raises
+    ------
+    ValueError
+        If the attribute value is not a valid profile
     """
     # check the only two valid pitch profile cases
     if isinstance(attr_value, prof.PitchProfile):
@@ -192,6 +200,11 @@ def _handle_asymmetric(assym_profile_tuple: Tuple[Tuple[float]]) -> np.ndarray:
         12x12 matrix where each row is a key-specific profile
         with the following encoding (row and column-wise):
         0 -> C, 1 -> C#, ... , 11 -> B
+
+    Raises
+    ------
+    ValueError
+        If the input does not have shape (12, 12) or is not a valid asymmetric profile.
     """
     try:
         # Convert tuple of tuples to numpy array

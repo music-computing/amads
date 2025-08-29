@@ -17,6 +17,7 @@ from .key import profiles as profiles
 from .key_cc import key_cc
 
 
+# TODO: include exceptions comments
 def kkcc(
     score: Score, profile_name: str = "KRUMHANSL-KESSLER", salience_flag: bool = False
 ) -> Tuple[float]:
@@ -36,6 +37,10 @@ def kkcc(
     string option for kkcc
     salience_flag (bool): If True, apply salience weighting to the pitch-class
     according to Huron & Parncutt (1993).
+
+    See Also
+    --------
+    key_cc
 
     Returns
     -------

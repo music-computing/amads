@@ -12,6 +12,8 @@ from ..core.basics import Score
 from .key import profiles as prof
 from .key_cc import key_cc
 
+# TODO: include exceptions comments
+
 
 def kkkey(
     score: Score,
@@ -39,8 +41,12 @@ def kkkey(
     Returns
     -------
     tuple[str, int]
-        the attribute name and key index of the corresponding maximum
-        correlation coefficient
+        The attribute name and key index of the corresponding maximum
+        correlation coefficient.
+
+    See Also
+    --------
+    key_cc
     """
     corrcoef_pairs = key_cc(score, profile, attribute_names, salience_flag)
 
