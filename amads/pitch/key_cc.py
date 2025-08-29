@@ -78,14 +78,16 @@ def key_cc(
 
     results = []
 
-    if attribute_names is None:
-        attribute_names = [
+    true_attribute_names = attribute_names
+
+    if true_attribute_names is None:
+        true_attribute_names = [
             f.name
             for f in fields(profile)
             if f.name not in ["name", "literature", "about"]
         ]
 
-    for attr_name in attribute_names:
+    for attr_name in true_attribute_names:
         # ! we should probably treat the special attributes as proper attribute names
         if attr_name in ["name", "literature", "about"]:
             print(f"Warning! Attempting to access metadata in profile '{profile.name}")
