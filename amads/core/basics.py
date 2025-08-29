@@ -169,7 +169,7 @@ class Event:
         return property in self.info
 
 
-    def copy(self, parent: Optional[EventGroup] = None) -> Event:
+    def copy(self, parent: Optional["EventGroup"] = None) -> "Event":
         """
         Return a deep copy of the `Event` instance except for the parent,
         which may be provided as an argument. See also copyempty to copy

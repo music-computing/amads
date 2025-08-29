@@ -96,7 +96,7 @@ class PitchProfile(Distribution):
     _possible_types = ("assymetric_key_profile", "symmetric_key_profile")
     _pitches = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
     _x_label = "Keys"
-    _y_cats_2d = [f"+{idx}" for idx in range(len(_pitches))]
+    _y_cats_2d = ["tonic"] + [f"{idx + 1}^" for idx in range(len(_pitches) - 1)]
     _possible_y_labels = ["Relative Pitch Offsets", "Weights"]
 
     def __init__(self, name, profile_tuple):
@@ -176,7 +176,7 @@ class PitchProfile(Distribution):
         """
         shift_idx = None
         try:
-            shift_idx = PitchProfile._pitches.find(key)
+            shift_idx = PitchProfile._pitches.index(key)
         except ValueError:
             raise ValueError(
                 f"invalid key {key}, expected one of {PitchProfile._pitches}"
