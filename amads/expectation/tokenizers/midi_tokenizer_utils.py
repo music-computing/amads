@@ -105,7 +105,7 @@ def get_notes_from_score(score: Score) -> list[Note]:
 
 
 
-def load_score(filepath: str, as_seconds: bool = False) -> Score:
+def load_score(filepath: str, as_seconds: bool = True) -> Score:
     """Loads a MIDI file and resamples such that 1 tick == 1 millisecond in real time"""
     # Load as a symusic object with time sampled in seconds and sort the notes by onset time
     score_as_secs = Score(filepath, ttype="Second")  # this preserves tempo, time signature information etc.
