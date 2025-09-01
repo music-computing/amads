@@ -23,7 +23,7 @@ class Dataset(ABC, Generic[InputType]):
             List of input sequences to tokenize
         tokenizer : Tokenizer
             Tokenizer instance to convert sequences to tokens
-        precompute_tokens : bool, default=False
+        precompute_tokens : bool, default=True
             If True, tokenize all sequences during initialization
             If False, tokenize sequences lazily when first accessed
         """
