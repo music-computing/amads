@@ -416,7 +416,7 @@ class TSDTokenizer_Custom(SymusicTokenizer):
         config_dict = DEFAULT_TOKENIZER_CONFIG
         for key, value in config_params.items():
             config_dict[key] = value
-        print(config_dict)
+        #print(config_dict)
         config = CustomTokenizerConfig(**config_dict)
 
         self.use_bpe = False
