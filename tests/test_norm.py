@@ -4,7 +4,7 @@ Tests for basic normalization routines (norm module).
 
 import pytest
 
-from amads.algorithms.norm import (
+from amads.core.norm import (
     euclidean_distance,
     manhattan_distance,
     normalize,

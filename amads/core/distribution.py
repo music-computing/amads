@@ -23,7 +23,7 @@ from typing import Any, List, Union
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 
-import amads.algorithms.norm as norm
+import amads.core.norm as norm
 
 DEFAULT_BAR_COLOR = "skyblue"
 

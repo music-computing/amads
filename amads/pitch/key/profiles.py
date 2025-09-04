@@ -65,7 +65,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.figure import Figure
 
-import amads.algorithms.norm as norm
+import amads.core.norm as norm
 from amads.core.distribution import DEFAULT_BAR_COLOR, Distribution
 
 

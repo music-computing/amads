@@ -20,13 +20,14 @@ import math
 from typing import Union
 
 from ..core.basics import Note, Score
+from ..core.distribution import Distribution
 
 
 def duration_distribution_1(
     score: Score,
     name: str = "Duration Distribution",
     bin_centers: Union[list[float], None] = None,
-):
+) -> "Distribution":
     """
     Returns the distribution of note durations in a Score.
 
@@ -59,7 +60,6 @@ def duration_distribution_1(
     Returns:
         Distribution: containing and describing the distribution of note durations.
     """
-    from ..core.distribution import Distribution
 
     if bin_centers:
         dd = [0] * len(bin_centers)
