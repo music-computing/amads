@@ -17,7 +17,6 @@ from .key import profiles as profiles
 from .key_cc import key_cc
 
 
-# TODO: include exceptions comments
 def kkcc(
     score: Score, profile_name: str = "KRUMHANSL-KESSLER", salience_flag: bool = False
 ) -> Tuple[float]:
@@ -33,8 +32,9 @@ def kkcc(
     Parameters
     ----------
     score (Score): The musical score to analyze.
-    profile_name (str): string argument denoting the relevant miditoolbox
-    string option for kkcc
+    profile_name (str): String argument denoting the relevant miditoolbox
+    string option for kkcc. Must be one of "KRUMHANSL-KESSLER",
+    "TEMPERLEY", or "ALBRECHT-SHANAHAN".
     salience_flag (bool): If True, apply salience weighting to the pitch-class
     according to Huron & Parncutt (1993).
 
@@ -47,6 +47,10 @@ def kkcc(
     24-tuple of floats
         This denotes the 12 major correlation coefficients and 12 minor correlation
         coefficients from C to B in both major and minor keys, respectively.
+
+    Raises
+    ------
+    ValueError: If the score is not a valid Score object or if the profile_name is invalid.
     """
     if not isinstance(score, Score):
         raise ValueError("invalid score type!")

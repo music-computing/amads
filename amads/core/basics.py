@@ -1153,7 +1153,10 @@ class EventGroup(Event):
         self.duration = duration if duration is not None else 0.0
         self.content = content if content else []
 
-
+    @property
+    def onset(self) -> float:
+        return self._onset
+    
     @onset.setter
     def onset(self, onset: float) -> None:
         """When an unspecified onset time is set (normally because this will
