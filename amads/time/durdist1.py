@@ -19,8 +19,8 @@ Original doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e0
 import math
 from typing import Union
 
-from ..core.basics import Note, Score
-from ..core.distribution import Distribution
+from amads.core.basics import Note, Score
+from amads.core.distribution import Distribution
 
 
 def duration_distribution_1(

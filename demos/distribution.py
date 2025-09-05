@@ -39,20 +39,20 @@ PITCHES = [
     "B",
 ]
 
-TONIC = [
-    "+0",
-    "+1",
-    "+2",
-    "+3",
-    "+4",
-    "+5",
-    "+6",
-    "+7",
-    "+8",
-    "+9",
-    "+10",
-    "+11",
-]
+RELATIVE_TO_TONIC = [f"+{i}" for i in range(12)]
+
+
+def demo_individual_plot_per_window(dists):
+    for dist in dists:
+        _ = dist.plot(show=False)
+
+    plt.show()
+    return
+
+
+def demo_multiple_plots_per_window(dists):
+    Distribution.plot_multiple(dists)
+    return
 
 
 def main():
@@ -71,15 +71,13 @@ def main():
         data=toy_distribution_2d,
         distribution_type="pitch_class",
         dimensions=[12, 12],
-        x_categories=TONIC,
+        x_categories=RELATIVE_TO_TONIC,
         x_label="Pitch (relative to tonic)",
         y_categories=PITCHES,
         y_label="Key",
     )
 
-    _ = dist1._plot_1d()
-    _ = dist2._plot_2d()
-    plt.show()
+    demo_multiple_plots_per_window([dist1, dist2, dist1])
 
 
 if __name__ == "__main__":

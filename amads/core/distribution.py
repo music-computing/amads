@@ -95,41 +95,49 @@ class Distribution:
         self.data = norm.normalize(self.data, "sum").tolist()
         return self
 
-    def plot(self, color=DEFAULT_BAR_COLOR, show: bool = True) -> Figure:
+    # TODO: need to finalize, but lacking knowledge to plot properly
+    def plot(
+        self, fig: Figure = None, ax=None, color=DEFAULT_BAR_COLOR, show: bool = True
+    ) -> Figure:
+        true_fig = fig
+        true_ax = ax
+        if fig is None:
+            assert ax is None
+            true_fig, true_ax = plt.subplots()
         if len(self.dimensions) == 1:
-            fig = self._plot_1d(color)
+            true_fig = self._plot_1d(fig=true_fig, ax=true_ax, color=color)
         elif len(self.dimensions) == 2:
-            fig = self._plot_2d(color)
+            true_fig = self._plot_2d(fig=true_fig, ax=true_ax, color=color)
         else:
             raise ValueError("Unsupported number of dimensions for Distribution class")
         if show:
             plt.show()
-        return fig
+        return true_fig
 
-    def _plot_1d(self, color=DEFAULT_BAR_COLOR) -> Figure:
+    # TODO: probaby add ax and fig as arguments into _plot_1d and _plot_2d
+
+    # TODO: add figure and see
+    def _plot_1d(self, fig: Figure, ax, color=DEFAULT_BAR_COLOR) -> Figure:
         """Create a 1D plot of the distribution.
         Returns:
             Figure - A matplotlib figure object.
         """
-
-        fig, ax = plt.subplots()
         ax.bar(self.x_categories, self.data, color=color)
         ax.set_xlabel(self.x_label)
         ax.set_ylabel(self.y_label)
-        fig.suptitle(self.name)
+        ax.set_title(self.name)
         return fig
 
-    def _plot_2d(self, color=DEFAULT_BAR_COLOR) -> Figure:
+    def _plot_2d(self, fig: Figure, ax, color=DEFAULT_BAR_COLOR) -> Figure:
         """Create a 2D plot of the distribution.
         Returns:
             Figure - A matplotlib figure object.
         """
-        fig, ax = plt.subplots()
         cax = ax.imshow(self.data, cmap="gray_r", interpolation="nearest")
         fig.colorbar(cax, ax=ax, label="Proportion")
         ax.set_xlabel(self.x_label)
         ax.set_ylabel(self.y_label)
-        fig.suptitle(self.name)
+        ax.set_title(self.name)
 
         # Set x and y axis tick labels
         ax.set_xticks(range(len(self.x_categories)))
@@ -148,3 +156,18 @@ class Distribution:
             f' {self.dimensions}, x_label: "{self.x_label}",'
             f' y_label: "{self.y_label}"',
         )
+
+    @classmethod
+    def plot_multiple(
+        cls, dists: List["Distribution"], color=DEFAULT_BAR_COLOR, show: bool = True
+    ) -> Figure:
+        """
+        Plots multiple distributions into a singular Figure
+        """
+        fig, axes = plt.subplots(len(dists), 1)
+        for dist, ax in zip(dists, axes):
+            dist.plot(fig, ax, color, False)
+        if show:
+            plt.show()
+        plt.tight_layout()
+        return fig

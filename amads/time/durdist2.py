@@ -21,8 +21,8 @@ Original doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e0
 import math
 from typing import List, Union
 
-from ..core.basics import Note, Score
-from ..pitch.ismonophonic import ismonophonic
+from amads.core.basics import Note, Score
+from amads.pitch.ismonophonic import ismonophonic
 
 
 def update_dd(
