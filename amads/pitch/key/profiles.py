@@ -57,7 +57,6 @@ For reference, the alphabetical ordering is:
     VuvanHughes,
 """
 
-from collections import deque
 from dataclasses import dataclass
 from typing import Optional
 
@@ -65,7 +64,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.figure import Figure
 
-import amads.core.norm as norm
+import amads.algorithms.norm as norm
 from amads.core.distribution import DEFAULT_BAR_COLOR, Distribution
 
 
@@ -78,26 +77,46 @@ class PitchProfile(Distribution):
     We provide methods to allow users to obtain or visualize the information in a useful state.
 
     We define a canonical order of pitches as the order of pitches specified in
-    the PitchProfile._pitches class variable
+    relative chromatic degree.
 
     In our implementation, a pitch profile is a collection of pitch class
     distributions stored in a canonical form convenient for conversion
     into other useful forms, whether to provide methods in a useful state
     or for custom visualization.
     We store the pitch profile canonically in two following cases.
-    In the transpositionally equivalent case, we store the data as a set of 12 weights
-    in canonical order (following the order of pitches specified in the _pitches variable).
-    In the case of profiles that are not transpositionally equivalent, there is a
-    pitch-class distribution for each key.
-    These profiles are ordered in canonical order both by key and by pitch weights in each
-    profile
+    (1) In the transpositionally equivalent case, we store the data as a list of 12 floats
+    in canonical order (following the order of pitches specified in the _pitches variable)
+
+    (2) In the case of profiles that are not transpositionally equivalent, there is a
+    pitch-class distribution for each key which are collectively stored
+    as a list of lists of integers (12x12).
+    These key profiles are ordered in canonical order by pitch weights in each profile,
+    and start from C for each key profile.
+
+    Attributes (additional attributes that are in addition to the parent class attributes)
+    ----------
+    _possible_types:
+        The possible distribution types that a PitchProfile may be instantiated as
+    _pitches:
+        list of pitches in canonical order
+    _profile_label:
+        histogram label for 1-D histogram (x-axis), or representing the key of the current profile
+        in the 2-D heatmap (y-axis)
+    _data_cats_2d:
+        data categories for the 2-D heatmap, which are labelled in terms of relative chromatic degree
+    _data_labels:
+        possible data labels, Relative Chromatic Degree for 2-D case (x-axis),
+        and Weights for 1-D case (y-axis)
     """
 
-    _possible_types = ("assymetric_key_profile", "symmetric_key_profile")
+    _possible_types = [
+        "symmetric_key_profile",
+        "assymetric_key_profile",
+    ]
     _pitches = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
-    _x_label = "Keys"
-    _y_cats_2d = ["tonic"] + [f"{idx + 1}^" for idx in range(len(_pitches) - 1)]
-    _possible_y_labels = ["Relative Pitch Offsets", "Weights"]
+    _profile_label = "Keys"
+    _data_cats_2d = [f"{idx}^" for idx in range(len(_pitches))]
+    _data_labels = ["Relative Chromatic Degree", "Weights"]
 
     def __init__(self, name, profile_tuple):
         if not PitchProfile._check_init_data_integrity(profile_tuple):
@@ -107,21 +126,21 @@ class PitchProfile(Distribution):
         dist_type = None
 
         x_cats = None
-        x_label = PitchProfile._x_label
+        x_label = None
         y_cats = None
         y_label = None
         if isinstance(profile_tuple[0], float):
-            profile_data = deque(profile_tuple)
+            profile_data = list(profile_tuple)
             profile_shape = [len(profile_data)]
-            dist_type = "symmetric_key_profile"
+            dist_type = PitchProfile._possible_types[0]
 
         elif isinstance(profile_tuple[0], tuple):
-            # we need to change this since the data is given through?
+            # convert data from tonic-first to non-rotated canonical order
             profile_data = [
-                deque(elem).rotate(idx) for idx, elem in enumerate(profile_tuple)
+                elem[-idx:] + elem[:-idx] for idx, elem in enumerate(profile_tuple)
             ]
             profile_shape = [len(profile_data), len(profile_data[0])]
-            dist_type = "assymetric_key_profile"
+            dist_type = PitchProfile._possible_types[1]
 
         else:
             raise ValueError(f"invalid profile tuple {profile_tuple}")
@@ -162,17 +181,18 @@ class PitchProfile(Distribution):
         """
         assert self.distribution_type in PitchProfile._possible_types
         if self.distribution_type == "symmetric_key_profile":
-            self.data = deque(norm.normalize(self.data, "sum"))
+            self.data = norm.normalize(self.data, "sum").tolist()
             return self
         else:
-            self.data = [deque(norm.normalize(elem, "sum")) for elem in self.data]
+            self.data = [norm.normalize(elem, "sum").tolist() for elem in self.data]
             return self
 
     def as_tuple(self, key):
         """
-        Given a key string, returns the corresponding weights in a 12-tuple for the profile
-        where the order of weights is the canonical order rotated such that
-        the first weight corresponds to the tonic.
+        Given a key, computes the corresponding weights for the key profile
+        rotated to the key as the tonic and organized in relative chromatic degree
+        Returns:
+            12-tuple of weights
         """
         shift_idx = None
         try:
@@ -186,27 +206,27 @@ class PitchProfile(Distribution):
         assert self.distribution_type in PitchProfile._possible_types
         if self.distribution_type == "symmetric_key_profile":
             # symmetrical case
-            ret_data_tuple = tuple(self.data.rotate(-shift_idx))
-            self.data.rotate(shift_idx)
-            return ret_data_tuple
+            return tuple(self.data[shift_idx:] + self.data[:shift_idx])
         else:
             # assymetrical case
-            ret_data_tuple = tuple(self.data[shift_idx].rotate(-shift_idx))
-            self.data[shift_idx].rotate(shift_idx)
-            return ret_data_tuple
+            return tuple(
+                self.data[shift_idx][shift_idx:] + self.data[shift_idx][:shift_idx]
+            )
 
     def as_matrix_canonical(self) -> np.array:
         """
-        returns a matrix of weights where both the rows and columns
-        are in canonical order.
+        Computes a 12x12 matrix of the profile data where each row's weights
+        begins from C and is ordered canonically
+        Returns:
+            a 12x12 matrix of floats
         """
         assert self.distribution_type in PitchProfile._possible_types
         assert self.dimensions[0] == 12
         if self.distribution_type == "symmetric_key_profile":
             profile_matrix = np.zeros((self.dimensions[0], self.dimensions[0]))
             for i in range(12):
-                profile_matrix[i] = self.data
-                self.data.rotate(1)
+                data = self.data[i:] + self.data[:i]
+                profile_matrix[i] = data
             return profile_matrix
         else:
             return np.array(self.data)
@@ -220,24 +240,24 @@ class PitchProfile(Distribution):
         In this plot function's context:
         (1) Plot 1d is to plot a bar graph in canonical order of pitches.
         (2) Plot 2d takes a list of keys to plot, where the data corresponding
-        to each key is plotted in canonical order rotated such that
-        the given key is a tonic.
+        to each key is plotted beginning with its corresponding tonic and
+        ordered by relative chromatic degree.
 
         The default option for keys is when keys is None and is as follows:
         In the default symmetric case, we plot the 1-d case.
         In the default assymetric case, we plot the 2-d case.
 
-        Disclaimer:
-        TODO: need to play around a bit more with this...
-
         Args:
-        keys is a list of key pitches for which we want the corresponding pitch profiles
-        to be visualized
-        color is the color to put the plot in
-        show is whether or not we want to display the plot immediately
+        keys: Optional[list]
+            a list of key pitches for which we want the corresponding pitch profiles
+            to be visualized
+        color: str
+            is the color to put the plot in
+        show: bool
+            whether or not we want to display the plot before returning from this function
 
         Returns:
-        Figure that has been plotted to
+            Figure - A matplotlib figure object.
         """
         plot_keys = keys
         # in the default case, we have default presets to plot the data
@@ -245,10 +265,12 @@ class PitchProfile(Distribution):
             # 1-D plot
             if self.distribution_type == "symmetric_key_profile":
                 self.x_categories = PitchProfile._pitches
-                self.y_categories = PitchProfile._y_cats_2d
-                self.y_label = PitchProfile._possible_y_labels[1]
+                self.x_label = PitchProfile._profile_label
+                self.y_categories = None
+                self.y_label = PitchProfile._data_labels[1]
                 fig = super().plot(color, show)
                 self.x_categories = None
+                self.x_label = None
                 self.y_categories = None
                 self.y_label = None
                 return fig
@@ -257,11 +279,13 @@ class PitchProfile(Distribution):
 
         plot_data = [self.as_tuple(key) for key in plot_keys]
 
-        self.x_categories = plot_keys
-        self.y_categories = PitchProfile._y_cats_2d
-        self.y_label = PitchProfile._possible_y_labels[0]
+        self.x_categories = PitchProfile._data_cats_2d
+        self.x_label = PitchProfile._data_labels[0]
+        self.y_categories = plot_keys
+        self.y_label = PitchProfile._pitches
         fig = self._plot_2d(plot_data, color)
         self.x_categories = None
+        self.x_label = None
         self.y_categories = None
         self.y_label = None
         if show:

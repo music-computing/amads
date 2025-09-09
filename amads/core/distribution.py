@@ -16,14 +16,35 @@ Usage:
     [Add basic usage examples or import statements]
 """
 
-from typing import Any, List, Union
+from typing import Any, Iterable, List, Optional, Union
 
 # We should not force this on users as it is not compatible with all backends:
 # matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.figure import Figure
 
-import amads.core.norm as norm
+
+def norm_1d(
+    profile: Iterable,
+    round_places: Optional[int] = None,
+) -> np.array:
+    """
+    Copied implementation from algorithms/norm.py with some modification
+    because using the original will cause a circular dependency in the package
+    """
+    norm_ord = 1
+    norm_dist = profile / np.linalg.norm(profile, ord=norm_ord)
+
+    if round_places is None:
+        return norm_dist
+    elif isinstance(round_places, int):
+        return np.round(norm_dist, round_places)
+    else:
+        raise ValueError(
+            f"invalid round_places parameter {round_places}, expected int or None"
+        )
+
 
 DEFAULT_BAR_COLOR = "skyblue"
 
@@ -92,18 +113,11 @@ class Distribution:
         """
         Convert weights or counts to a probability distribution that sums to 1.
         """
-        self.data = norm.normalize(self.data, "sum").tolist()
+        self.data = norm_1d(self.data).tolist()
         return self
 
-    # TODO: need to finalize, but lacking knowledge to plot properly
-    def plot(
-        self, fig: Figure = None, ax=None, color=DEFAULT_BAR_COLOR, show: bool = True
-    ) -> Figure:
-        true_fig = fig
-        true_ax = ax
-        if fig is None:
-            assert ax is None
-            true_fig, true_ax = plt.subplots()
+    def plot(self, color=DEFAULT_BAR_COLOR, show: bool = True) -> Figure:
+        true_fig, true_ax = plt.subplots()
         if len(self.dimensions) == 1:
             true_fig = self._plot_1d(fig=true_fig, ax=true_ax, color=color)
         elif len(self.dimensions) == 2:
@@ -114,9 +128,6 @@ class Distribution:
             plt.show()
         return true_fig
 
-    # TODO: probaby add ax and fig as arguments into _plot_1d and _plot_2d
-
-    # TODO: add figure and see
     def _plot_1d(self, fig: Figure, ax, color=DEFAULT_BAR_COLOR) -> Figure:
         """Create a 1D plot of the distribution.
         Returns:
@@ -163,6 +174,8 @@ class Distribution:
     ) -> Figure:
         """
         Plots multiple distributions into a singular Figure
+        Returns:
+            Figure - A matplotlib figure object.
         """
         fig, axes = plt.subplots(len(dists), 1)
         for dist, ax in zip(dists, axes):
