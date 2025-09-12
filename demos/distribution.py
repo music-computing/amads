@@ -39,7 +39,7 @@ PITCHES = [
     "B",
 ]
 
-RELATIVE_TO_TONIC = [f"+{i}" for i in range(12)]
+RELATIVE_TO_TONIC = [f"{i}" for i in range(12)]
 
 
 def demo_individual_plot_per_window(dists):
@@ -72,12 +72,14 @@ def main():
         distribution_type="pitch_class",
         dimensions=[12, 12],
         x_categories=RELATIVE_TO_TONIC,
-        x_label="Pitch (relative to tonic)",
+        x_label="Relative Chromatic Scale",
         y_categories=PITCHES,
         y_label="Key",
     )
 
-    demo_multiple_plots_per_window([dist1, dist2, dist1])
+    dist_list = [dist1, dist2]
+
+    demo_multiple_plots_per_window((dist_list * 2)[:-1])
 
 
 if __name__ == "__main__":

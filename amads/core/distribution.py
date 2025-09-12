@@ -117,7 +117,7 @@ class Distribution:
         return self
 
     def plot(self, color=DEFAULT_BAR_COLOR, show: bool = True) -> Figure:
-        true_fig, true_ax = plt.subplots()
+        true_fig, true_ax = plt.figure()
         if len(self.dimensions) == 1:
             true_fig = self._plot_1d(fig=true_fig, ax=true_ax, color=color)
         elif len(self.dimensions) == 2:
@@ -144,7 +144,9 @@ class Distribution:
         Returns:
             Figure - A matplotlib figure object.
         """
-        cax = ax.imshow(self.data, cmap="gray_r", interpolation="nearest")
+        cax = ax.imshow(
+            self.data, cmap="gray_r", aspect="auto", interpolation="nearest"
+        )
         fig.colorbar(cax, ax=ax, label="Proportion")
         ax.set_xlabel(self.x_label)
         ax.set_ylabel(self.y_label)
@@ -152,7 +154,8 @@ class Distribution:
 
         # Set x and y axis tick labels
         ax.set_xticks(range(len(self.x_categories)))
-        ax.set_xticklabels(self.x_categories, rotation=45)
+        # we don't need to rotate by 45 degrees since labels are not verbose
+        ax.set_xticklabels(self.x_categories)
         ax.set_yticks(range(len(self.y_categories)))
         ax.set_yticklabels(self.y_categories)
 
@@ -179,8 +182,15 @@ class Distribution:
         """
         fig, axes = plt.subplots(len(dists), 1)
         for dist, ax in zip(dists, axes):
-            dist.plot(fig, ax, color, False)
+            if len(dist.dimensions) == 1:
+                fig = dist._plot_1d(fig=fig, ax=ax, color=color)
+            elif len(dist.dimensions) == 2:
+                fig = dist._plot_2d(fig=fig, ax=ax, color=color)
+            else:
+                raise ValueError(
+                    "Unsupported number of dimensions for Distribution class"
+                )
+        fig.tight_layout()
         if show:
             plt.show()
-        plt.tight_layout()
         return fig

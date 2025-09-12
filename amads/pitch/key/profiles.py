@@ -115,7 +115,7 @@ class PitchProfile(Distribution):
     ]
     _pitches = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
     _profile_label = "Keys"
-    _data_cats_2d = [f"{idx}^" for idx in range(len(_pitches))]
+    _data_cats_2d = [f"{idx}" for idx in range(len(_pitches))]
     _data_labels = ["Relative Chromatic Degree", "Weights"]
 
     def __init__(self, name, profile_tuple):
@@ -231,8 +231,14 @@ class PitchProfile(Distribution):
         else:
             return np.array(self.data)
 
-    def plot(
-        self, keys: Optional[list], color=DEFAULT_BAR_COLOR, show: bool = True
+    def plot(self, color=DEFAULT_BAR_COLOR, show: bool = True) -> Figure:
+        """
+        plot wrapper to maintain compatibility and inheritance with parent class's plot
+        """
+        return self.plot_custom(keys=None, color=color, show=show)
+
+    def plot_custom(
+        self, keys: Optional[list] = None, color=DEFAULT_BAR_COLOR, show: bool = True
     ) -> Figure:
         """
         custom plot method for PitchProfile.
@@ -282,7 +288,7 @@ class PitchProfile(Distribution):
         self.x_categories = PitchProfile._data_cats_2d
         self.x_label = PitchProfile._data_labels[0]
         self.y_categories = plot_keys
-        self.y_label = PitchProfile._pitches
+        self.y_label = PitchProfile._profile_label
         fig = self._plot_2d(plot_data, color)
         self.x_categories = None
         self.x_label = None
