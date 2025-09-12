@@ -116,8 +116,22 @@ class Distribution:
         self.data = norm_1d(self.data).tolist()
         return self
 
-    def plot(self, color=DEFAULT_BAR_COLOR, show: bool = True) -> Figure:
-        true_fig, true_ax = plt.figure()
+    def plot(
+        self,
+        color=DEFAULT_BAR_COLOR,
+        show: bool = True,
+        fig: Optional[Figure] = None,
+        ax: Optional[Any] = None,
+    ) -> Figure:
+        true_fig, true_ax = None, None
+        if fig is None:
+            if ax is not None:
+                raise ValueError("invalid figure and axis parameter")
+            true_fig, true_ax = plt.subplots()
+        else:
+            if ax is None:
+                raise ValueError("invalid figure and axis parameter")
+            true_fig, true_ax = fig, ax
         if len(self.dimensions) == 1:
             true_fig = self._plot_1d(fig=true_fig, ax=true_ax, color=color)
         elif len(self.dimensions) == 2:
@@ -182,14 +196,7 @@ class Distribution:
         """
         fig, axes = plt.subplots(len(dists), 1)
         for dist, ax in zip(dists, axes):
-            if len(dist.dimensions) == 1:
-                fig = dist._plot_1d(fig=fig, ax=ax, color=color)
-            elif len(dist.dimensions) == 2:
-                fig = dist._plot_2d(fig=fig, ax=ax, color=color)
-            else:
-                raise ValueError(
-                    "Unsupported number of dimensions for Distribution class"
-                )
+            dist.plot(color, False, fig, ax)
         fig.tight_layout()
         if show:
             plt.show()

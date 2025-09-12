@@ -58,7 +58,7 @@ For reference, the alphabetical ordering is:
 """
 
 from dataclasses import dataclass
-from typing import Optional
+from typing import Any, Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -231,14 +231,25 @@ class PitchProfile(Distribution):
         else:
             return np.array(self.data)
 
-    def plot(self, color=DEFAULT_BAR_COLOR, show: bool = True) -> Figure:
+    def plot(
+        self,
+        color=DEFAULT_BAR_COLOR,
+        show: bool = True,
+        fig: Optional[Figure] = None,
+        ax: Optional[Any] = None,
+    ) -> Figure:
         """
         plot wrapper to maintain compatibility and inheritance with parent class's plot
         """
-        return self.plot_custom(keys=None, color=color, show=show)
+        return self.plot_custom(keys=None, fig=fig, ax=ax, color=color, show=show)
 
     def plot_custom(
-        self, keys: Optional[list] = None, color=DEFAULT_BAR_COLOR, show: bool = True
+        self,
+        keys: Optional[list] = None,
+        color=DEFAULT_BAR_COLOR,
+        show: bool = True,
+        fig: Optional[Figure] = None,
+        ax: Optional[Any] = None,
     ) -> Figure:
         """
         custom plot method for PitchProfile.
@@ -261,10 +272,24 @@ class PitchProfile(Distribution):
             is the color to put the plot in
         show: bool
             whether or not we want to display the plot before returning from this function
+        fig: Optional[Figure]
+            matplotlib figure object to plot to (if applicable)
+        ax: Optional[Axes]
+            matplotlib axes object to plot on (if applicable)
 
         Returns:
             Figure - A matplotlib figure object.
         """
+        # similar logic to the plot method in distribution.py
+        true_fig, true_ax = None, None
+        if fig is None:
+            if ax is not None:
+                raise ValueError("invalid figure and axis parameter")
+            true_fig, true_ax = plt.subplots()
+        else:
+            if ax is None:
+                raise ValueError("invalid figure and axis parameter")
+            true_fig, true_ax = fig, ax
         plot_keys = keys
         # in the default case, we have default presets to plot the data
         if plot_keys is None:
@@ -274,12 +299,17 @@ class PitchProfile(Distribution):
                 self.x_label = PitchProfile._profile_label
                 self.y_categories = None
                 self.y_label = PitchProfile._data_labels[1]
-                fig = super().plot(color, show)
+                true_fig = super().plot(
+                    color,
+                    show,
+                    true_fig,
+                    true_ax,
+                )
                 self.x_categories = None
                 self.x_label = None
                 self.y_categories = None
                 self.y_label = None
-                return fig
+                return true_fig
             else:
                 plot_keys = PitchProfile._pitches
 
@@ -289,21 +319,22 @@ class PitchProfile(Distribution):
         self.x_label = PitchProfile._data_labels[0]
         self.y_categories = plot_keys
         self.y_label = PitchProfile._profile_label
-        fig = self._plot_2d(plot_data, color)
+        true_fig = self._plot_2d(plot_data, true_fig, true_ax, color)
         self.x_categories = None
         self.x_label = None
         self.y_categories = None
         self.y_label = None
         if show:
             plt.show()
-        return fig
+        return true_fig
 
-    def _plot_2d(self, plot_data, color=DEFAULT_BAR_COLOR) -> Figure:
+    def _plot_2d(self, plot_data, fig: Figure, ax, color=DEFAULT_BAR_COLOR) -> Figure:
         """Create a 2D plot of the PitchProfile.
         Returns:
             Figure - A matplotlib figure object.
         """
-        fig, ax = plt.subplots()
+        if plot_data is None or fig is None or ax is None:
+            raise ValueError("invalid plotting arguments")
         cax = ax.imshow(plot_data, cmap="gray_r", interpolation="nearest")
         fig.colorbar(cax, ax=ax, label="Proportion")
         ax.set_xlabel(self.x_label)

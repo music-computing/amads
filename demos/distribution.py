@@ -79,7 +79,7 @@ def main():
 
     dist_list = [dist1, dist2]
 
-    demo_multiple_plots_per_window((dist_list * 2)[:-1])
+    demo_individual_plot_per_window(dist_list)
 
 
 if __name__ == "__main__":
