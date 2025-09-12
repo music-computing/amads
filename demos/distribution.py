@@ -72,14 +72,14 @@ def main():
         distribution_type="pitch_class",
         dimensions=[12, 12],
         x_categories=RELATIVE_TO_TONIC,
-        x_label="Relative Chromatic Scale",
+        x_label="Chromatic Scale Degrees",
         y_categories=PITCHES,
         y_label="Key",
     )
 
     dist_list = [dist1, dist2]
 
-    demo_individual_plot_per_window(dist_list)
+    demo_multiple_plots_per_window(dist_list)
 
 
 if __name__ == "__main__":

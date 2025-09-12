@@ -116,7 +116,7 @@ class PitchProfile(Distribution):
     _pitches = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
     _profile_label = "Keys"
     _data_cats_2d = [f"{idx}" for idx in range(len(_pitches))]
-    _data_labels = ["Relative Chromatic Degree", "Weights"]
+    _data_labels = ["Chromatic Scale Degree", "Weights"]
 
     def __init__(self, name, profile_tuple):
         if not PitchProfile._check_init_data_integrity(profile_tuple):

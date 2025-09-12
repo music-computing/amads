@@ -188,16 +188,36 @@ class Distribution:
     @classmethod
     def plot_multiple(
         cls, dists: List["Distribution"], color=DEFAULT_BAR_COLOR, show: bool = True
-    ) -> Figure:
+    ) -> Optional[Figure]:
         """
         Plots multiple distributions into a singular Figure
         Returns:
-            Figure - A matplotlib figure object.
+            Figure - A matplotlib figure object (if applicable)
         """
+        if not dists:
+            return None
         fig, axes = plt.subplots(len(dists), 1)
+        # apparently when we get a singleton element, axes is not a list
+        if len(dists) == 1:
+            return dists[0].plot(color, False, fig, axes)
         for dist, ax in zip(dists, axes):
             dist.plot(color, False, fig, ax)
         fig.tight_layout()
         if show:
             plt.show()
+        return fig
+
+    @classmethod
+    def plot_clustered_1d(
+        cls,
+        dists: List["Distribution"],
+        color=DEFAULT_BAR_COLOR,
+        show: bool = True,
+    ) -> Figure:
+        # TODO: this needs to be implemented
+        raise RuntimeError("not implemented yet!")
+        fig, ax = plt.subplots()
+        ax.set_xlabel(dists[0].x_label)
+        ax.set_ylabel(dists[0].y_label)
+        ax.set_title(dists[0].name)
         return fig
