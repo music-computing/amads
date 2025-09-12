@@ -932,9 +932,9 @@ class QuinnWhite(_KeyProfile):
     # instead of ordering them by circle of fifths, we order the distributions by
     # incrementing key number the non-transpositionally equivalent distributions
     # represent instead
-    major_assym: tuple[PitchProfile] = (
-        PitchProfile(
-            "QuinnWhite.major_assym.C",
+    major_assym: PitchProfile = PitchProfile(
+        "QuinnWhite.major_assym",
+        (
             (
                 0.174,
                 0.014,
@@ -949,9 +949,6 @@ class QuinnWhite(_KeyProfile):
                 0.016,
                 0.096,
             ),
-        ),
-        PitchProfile(
-            "QuinnWhite.major_assym.C#",
             (
                 0.173,
                 0.016,
@@ -966,9 +963,6 @@ class QuinnWhite(_KeyProfile):
                 0.018,
                 0.093,
             ),
-        ),
-        PitchProfile(
-            "QuinnWhite.major_assym.D",
             (
                 0.175,
                 0.013,
@@ -983,9 +977,6 @@ class QuinnWhite(_KeyProfile):
                 0.015,
                 0.094,
             ),
-        ),
-        PitchProfile(
-            "QuinnWhite.major_assym.Eb",
             (
                 0.173,
                 0.015,
@@ -1000,9 +991,6 @@ class QuinnWhite(_KeyProfile):
                 0.015,
                 0.094,
             ),
-        ),
-        PitchProfile(
-            "QuinnWhite.major_assym.E",
             (
                 0.171,
                 0.013,
@@ -1017,9 +1005,6 @@ class QuinnWhite(_KeyProfile):
                 0.016,
                 0.092,
             ),
-        ),
-        PitchProfile(
-            "QuinnWhite.major_assym.F",
             (
                 0.173,
                 0.014,
@@ -1034,9 +1019,6 @@ class QuinnWhite(_KeyProfile):
                 0.016,
                 0.095,
             ),
-        ),
-        PitchProfile(
-            "QuinnWhite.major_assym.F#",
             (
                 0.166,
                 0.018,
@@ -1051,9 +1033,6 @@ class QuinnWhite(_KeyProfile):
                 0.020,
                 0.091,
             ),
-        ),
-        PitchProfile(
-            "QuinnWhite.major_assym.G",
             (
                 0.175,
                 0.013,
@@ -1068,9 +1047,6 @@ class QuinnWhite(_KeyProfile):
                 0.019,
                 0.091,
             ),
-        ),
-        PitchProfile(
-            "QuinnWhite.major_assym.Ab",
             (
                 0.171,
                 0.014,
@@ -1085,9 +1061,6 @@ class QuinnWhite(_KeyProfile):
                 0.015,
                 0.093,
             ),
-        ),
-        PitchProfile(
-            "QuinnWhite.major_assym.A",
             (
                 0.174,
                 0.014,
@@ -1102,9 +1075,6 @@ class QuinnWhite(_KeyProfile):
                 0.014,
                 0.093,
             ),
-        ),
-        PitchProfile(
-            "QuinnWhite.major_assym.Bb",
             (
                 0.169,
                 0.016,
@@ -1119,9 +1089,6 @@ class QuinnWhite(_KeyProfile):
                 0.017,
                 0.096,
             ),
-        ),
-        PitchProfile(
-            "QuinnWhite.major_assym.B",
             (
                 0.167,
                 0.014,
@@ -1155,9 +1122,9 @@ class QuinnWhite(_KeyProfile):
             0.085,
         ),
     )
-    minor_assym: tuple[tuple[float]] = (
-        PitchProfile(
-            "QuinnWhite.minor_assym.C",
+    minor_assym: PitchProfile = PitchProfile(
+        "QuinnWhite.minor_assym",
+        (
             (
                 0.170,
                 0.012,
@@ -1172,9 +1139,6 @@ class QuinnWhite(_KeyProfile):
                 0.023,
                 0.091,
             ),
-        ),
-        PitchProfile(
-            "QuinnWhite.minor_assym.C#",
             (
                 0.168,
                 0.014,
@@ -1189,9 +1153,6 @@ class QuinnWhite(_KeyProfile):
                 0.026,
                 0.082,
             ),
-        ),
-        PitchProfile(
-            "QuinnWhite.minor_assym.D",
             (
                 0.172,
                 0.010,
@@ -1206,9 +1167,6 @@ class QuinnWhite(_KeyProfile):
                 0.027,
                 0.084,
             ),
-        ),
-        PitchProfile(
-            "QuinnWhite.minor_assym.Eb",
             (
                 0.168,
                 0.014,
@@ -1223,9 +1181,6 @@ class QuinnWhite(_KeyProfile):
                 0.027,
                 0.082,
             ),
-        ),
-        PitchProfile(
-            "QuinnWhite.minor_assym.E",
             (
                 0.174,
                 0.012,
@@ -1240,9 +1195,6 @@ class QuinnWhite(_KeyProfile):
                 0.023,
                 0.087,
             ),
-        ),
-        PitchProfile(
-            "QuinnWhite.minor_assym.F",
             (
                 0.167,
                 0.011,
@@ -1257,9 +1209,6 @@ class QuinnWhite(_KeyProfile):
                 0.025,
                 0.089,
             ),
-        ),
-        PitchProfile(
-            "QuinnWhite.minor_assym.F#",
             (
                 0.172,
                 0.013,
@@ -1274,9 +1223,6 @@ class QuinnWhite(_KeyProfile):
                 0.028,
                 0.081,
             ),
-        ),
-        PitchProfile(
-            "QuinnWhite.minor_assym.G",
             (
                 0.174,
                 0.011,
@@ -1291,9 +1237,6 @@ class QuinnWhite(_KeyProfile):
                 0.026,
                 0.081,
             ),
-        ),
-        PitchProfile(
-            "QuinnWhite.minor_assym.Ab",
             (
                 0.168,
                 0.014,
@@ -1308,9 +1251,6 @@ class QuinnWhite(_KeyProfile):
                 0.030,
                 0.085,
             ),
-        ),
-        PitchProfile(
-            "QuinnWhite.minor_assym.A",
             (
                 0.175,
                 0.010,
@@ -1325,9 +1265,6 @@ class QuinnWhite(_KeyProfile):
                 0.026,
                 0.083,
             ),
-        ),
-        PitchProfile(
-            "QuinnWhite.minor_assym.Bb",
             (
                 0.164,
                 0.011,
@@ -1342,9 +1279,6 @@ class QuinnWhite(_KeyProfile):
                 0.027,
                 0.083,
             ),
-        ),
-        PitchProfile(
-            "QuinnWhite.minor_assym.B",
             (
                 0.164,
                 0.012,
