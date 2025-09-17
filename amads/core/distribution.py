@@ -208,16 +208,52 @@ class Distribution:
         return fig
 
     @classmethod
-    def plot_clustered_1d(
+    def plot_grouped_1d(
         cls,
         dists: List["Distribution"],
-        color=DEFAULT_BAR_COLOR,
         show: bool = True,
-    ) -> Figure:
-        # TODO: this needs to be implemented
-        raise RuntimeError("not implemented yet!")
+    ) -> Optional[Figure]:
+        if not dists:
+            return None
+        if any(len(dist.dimensions) != 1 for dist in dists):
+            raise ValueError("Invalid list of distributions to be plotted")
+        if any(dist.dimensions[0] != dists[0].dimensions[0] for dist in dists):
+            raise ValueError("Invalid list of distributions to be plotted")
+        if any(dists[0].distribution_type != dist.distribution_type for dist in dists):
+            raise ValueError("Not all distributions to be plotted of the same type")
+        # actual plotting...
+        # data and label iterators
+        data_iterator = (dist.data for dist in dists)
+        dist_title_iterator = (dist.name for dist in dists)
+        # grouped plot related arithmetic (to properly scale the bars)
+        num_dists = len(dists)
+        # bar width is arbitrary, since everything else is scaled off of bar width
+        bar_width = 1
+        dimension = dists[0].dimensions[0]
+        # since everything is scaled off of each other, we could realistically
+        # just ditch bottom_half and upper_half and offset everything...
+        bottom_half, upper_half = num_dists // 2, num_dists - num_dists // 2
+        width_idxes = range(-bottom_half, upper_half + 1)
+        x_coords = np.arange(dimension) * bar_width * num_dists
+        is_even_offset = ((num_dists + 1) % 2) * bar_width / 2
+        # plotting grouped bar graph
         fig, ax = plt.subplots()
+        # set proper scale for tick labels
+        ax.set_xticks(x_coords)
+        # other plotting stuff like ticks, labels, titles, etc.
+        ax.set_title("Grouped Histogram Plot for 1-D Distributions")
         ax.set_xlabel(dists[0].x_label)
+        ax.set_xticklabels(dists[0].x_categories)
         ax.set_ylabel(dists[0].y_label)
-        ax.set_title(dists[0].name)
+        for width_idx, data, dist_title in zip(
+            width_idxes, data_iterator, dist_title_iterator
+        ):
+            x_axis = x_coords + width_idx * bar_width + is_even_offset
+            ax.bar(x_axis, data, width=bar_width, label=dist_title)
+        # labelled in ax.bar already...
+        ax.legend()
+
+        if show:
+            plt.show()
+
         return fig

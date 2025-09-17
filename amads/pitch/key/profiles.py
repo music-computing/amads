@@ -133,6 +133,10 @@ class PitchProfile(Distribution):
             profile_data = list(profile_tuple)
             profile_shape = [len(profile_data)]
             dist_type = PitchProfile._possible_types[0]
+            x_cats = PitchProfile._pitches
+            x_label = PitchProfile._profile_label
+            y_cats = None
+            y_label = PitchProfile._data_labels[1]
 
         elif isinstance(profile_tuple[0], tuple):
             # convert data from tonic-first to non-rotated canonical order
@@ -141,6 +145,10 @@ class PitchProfile(Distribution):
             ]
             profile_shape = [len(profile_data), len(profile_data[0])]
             dist_type = PitchProfile._possible_types[1]
+            x_cats = PitchProfile._data_cats_2d
+            x_label = PitchProfile._data_labels[0]
+            y_cats = PitchProfile._pitches
+            y_label = PitchProfile._profile_label
 
         else:
             raise ValueError(f"invalid profile tuple {profile_tuple}")
@@ -295,35 +303,29 @@ class PitchProfile(Distribution):
         if plot_keys is None:
             # 1-D plot
             if self.distribution_type == "symmetric_key_profile":
-                self.x_categories = PitchProfile._pitches
-                self.x_label = PitchProfile._profile_label
-                self.y_categories = None
-                self.y_label = PitchProfile._data_labels[1]
                 true_fig = super().plot(
                     color,
                     show,
                     true_fig,
                     true_ax,
                 )
-                self.x_categories = None
-                self.x_label = None
-                self.y_categories = None
-                self.y_label = None
                 return true_fig
             else:
                 plot_keys = PitchProfile._pitches
 
         plot_data = [self.as_tuple(key) for key in plot_keys]
+        # save original plot labels
+        save_state = (self.x_categories, self.x_label, self.y_categories, self.y_label)
 
         self.x_categories = PitchProfile._data_cats_2d
         self.x_label = PitchProfile._data_labels[0]
         self.y_categories = plot_keys
         self.y_label = PitchProfile._profile_label
         true_fig = self._plot_2d(plot_data, true_fig, true_ax, color)
-        self.x_categories = None
-        self.x_label = None
-        self.y_categories = None
-        self.y_label = None
+
+        # restore original plot labels
+        self.x_categories, self.x_label, self.y_categories, self.y_label = save_state
+
         if show:
             plt.show()
         return true_fig

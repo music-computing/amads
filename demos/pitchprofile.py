@@ -12,7 +12,8 @@ def main():
     ]
     # showing a plot in matplotlib is blocking.
 
-    Distribution.plot_multiple(test_profiles[-1:])
+    Distribution.plot_grouped_1d(test_profiles[:2] + test_profiles[:1], show=False)
+    Distribution.plot_multiple(test_profiles[:2], show=False)
 
     plt.show()
 
