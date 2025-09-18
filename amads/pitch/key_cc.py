@@ -101,14 +101,7 @@ def key_cc(
             )
             results.append((attr_name, None))
             continue
-        profiles_matrix = np.zeros((12, 12), dtype=float)
-        for index, key in enumerate(attr_value._pitches):
-            if attr_value.distribution_type == "symmetric_key_profile":
-                # For symmetric profiles, rotate the profile for each key
-                rotated_profile = attr_value.as_tuple(key)
-                profiles_matrix[index, :] = np.roll(rotated_profile, index)
-            else:
-                profiles_matrix[index, :] = attr_value.as_tuple(key)
+        profiles_matrix = attr_value.as_matrix_canonical()
         correlations = tuple(_compute_correlations(pcd, profiles_matrix))
         if any(math.isnan(val) for val in correlations):
             raise RuntimeError(
