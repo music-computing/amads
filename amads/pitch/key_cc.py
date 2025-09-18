@@ -9,9 +9,8 @@ See https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0
 """
 
 import math
-from collections import deque
 from dataclasses import fields
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple
 
 import numpy as np
 
@@ -69,11 +68,11 @@ def key_cc(
 
     # Apply salience weighting if requested
     if salience_flag:
-        sal = deque([1, 0, 0.25, 0, 0, 0.5, 0, 0, 0.33, 0.17, 0.2, 0])
+        sal = [1, 0, 0.25, 0, 0, 0.5, 0, 0, 0.33, 0.17, 0.2, 0]
         salm = np.zeros((12, 12))
         for i in range(salm.shape[0]):
             salm[i] = sal
-            sal.rotate(1)
+            sal = sal[-1] + sal[:-1]  # rotate right
         pcd = np.matmul(pcd, salm)  # shape (1, 12)
 
     results = []
@@ -103,9 +102,7 @@ def key_cc(
             results.append((attr_name, None))
             continue
 
-        # Convert to numpy array or handle special cases
-        # Check if attr_value is a tuple of tuples(non-transpositionally equivalent)
-        profile_matrix = _get_profile_matrix(attr_value)
+        profile_matrix = np.array([attr_value.as_tuple(k) for k in attr_value._pitches])
         correlations = tuple(_compute_correlations(pcd, profile_matrix))
         if any(math.isnan(val) for val in correlations):
             raise RuntimeError(
@@ -114,114 +111,6 @@ def key_cc(
         results.append((attr_name, correlations))
 
     return results
-
-
-def _get_profile_matrix(
-    attr_value: Union[Tuple[prof.PitchProfile], prof.PitchProfile]
-) -> np.ndarray:
-    """
-    Retrieves the profile matrix from a given attribute value
-
-    Parameters
-    ----------
-    attr_value
-        attribute value that is a valid profile value within a profile dataclass
-
-    Returns
-    -------
-    np.ndarray
-        12x12 matrix where each row represents a key profile in a given pitch
-        with the following encoding (row and column-wise):
-        0 -> C, 1 -> C#, ... , 11 -> B
-
-    Raises
-    ------
-    ValueError
-        If the attribute value is not a valid profile
-    """
-    # check the only two valid pitch profile cases
-    if isinstance(attr_value, prof.PitchProfile):
-        profile_tuple = attr_value.as_tuple()
-        # Handle asymmetric profiles (tuple of tuples)
-        profile_matrix = _create_transposed_profile_matrix(profile_tuple)
-        return profile_matrix
-    elif (
-        isinstance(attr_value, tuple)
-        and len(attr_value) == 12
-        and all(isinstance(elem, prof.PitchProfile) for elem in attr_value)
-    ):
-        assym_profile_tuple = tuple(elem.as_tuple() for elem in attr_value)
-        profile_matrix = _handle_asymmetric(assym_profile_tuple)
-        return profile_matrix
-    else:
-        raise ValueError("attribute value is invalid to a _KeyProfile dataclass")
-
-
-def _create_transposed_profile_matrix(profile_tuple: Tuple[float]) -> np.ndarray:
-    """
-    Create a 12x12 matrix with transposed versions of the profile.
-    Assumes that profile is transpositionally equivalent.
-
-    Parameters
-    ----------
-    profile_tuple : tuple[float]
-        12-float tuple representation of a pitch-class distribution
-
-    Returns
-    -------
-    np.ndarray
-        12x12 matrix where each row is the profile transposed to a different key
-        with the following encoding (row and column-wise):
-        0 -> C, 1 -> C#, ... , 11 -> B
-    """
-    profile_deque = deque(profile_tuple)
-    profile_matrix = np.zeros((12, 12))
-    for i in range(12):
-        profile_matrix[i] = profile_deque
-        profile_deque.rotate(1)
-    return profile_matrix
-
-
-def _handle_asymmetric(assym_profile_tuple: Tuple[Tuple[float]]) -> np.ndarray:
-    """
-    Handle asymmetric profiles (e.g., QuinnWhite major_assym, minor_assym).
-
-    These profiles contain separate key-specific profiles, one for each key.
-    (Not transpositionally equivalent)
-
-    Parameters
-    ----------
-    assym_profile_tuple : tuple of tuples
-        Nested tuple structure containing key-specific profiles.
-        Expected structure: ((C_profile_tuple), (C#_profile_tuple), ..., (B_profile_tuple))
-        where each key_profile is a 12-element tuple/list.
-
-    Returns
-    -------
-    np.ndarray
-        12x12 matrix where each row is a key-specific profile
-        with the following encoding (row and column-wise):
-        0 -> C, 1 -> C#, ... , 11 -> B
-
-    Raises
-    ------
-    ValueError
-        If the input does not have shape (12, 12) or is not a valid asymmetric profile.
-    """
-    try:
-        # Convert tuple of tuples to numpy array
-        profile_matrix = np.array(assym_profile_tuple)
-
-        # Verify each non-transpositional profile attribute has 12 pitch classes
-        if profile_matrix.shape != (12, 12):
-            raise ValueError(
-                f"malformed profile matrix with shape {profile_matrix.shape}, expected (12, 12)"
-            )
-
-        return profile_matrix
-
-    except Exception as e:
-        raise ValueError(f"Failed to process asymmetric profile: {e}")
 
 
 def _compute_correlations(pcd: np.ndarray, profile_matrix: np.ndarray) -> np.ndarray:
