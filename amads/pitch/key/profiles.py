@@ -214,7 +214,7 @@ class PitchProfile(Distribution):
         assert self.distribution_type in PitchProfile._possible_types
         if self.distribution_type == "symmetric_key_profile":
             # symmetrical case
-            return tuple(self.data[shift_idx:] + self.data[:shift_idx])
+            return self.data
         else:
             # assymetrical case
             return tuple(
@@ -225,18 +225,23 @@ class PitchProfile(Distribution):
         """
         Computes a 12x12 matrix of the profile data where each row's weights
         begins from C and is ordered canonically
+        Note in the transpositionally equivalent case
         Returns:
             a 12x12 matrix of floats
         """
         assert self.distribution_type in PitchProfile._possible_types
         assert self.dimensions[0] == 12
         if self.distribution_type == "symmetric_key_profile":
+            # in this case, symmetric profile is transpositionally equivalent,
+            # so for instance, in C# major, the pitch weights would be
+            # transposed (rotated) as B -> C, C -> C#, C# -> D, ...
             profile_matrix = np.zeros((self.dimensions[0], self.dimensions[0]))
             for i in range(12):
-                data = self.data[i:] + self.data[:i]
+                data = self.data[-i:] + self.data[:-i]
                 profile_matrix[i] = data
             return profile_matrix
         else:
+            assert self.dimensions == [12, 12]
             return np.array(self.data)
 
     def plot(
