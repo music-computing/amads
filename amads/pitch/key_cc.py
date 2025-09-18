@@ -72,7 +72,7 @@ def key_cc(
         salm = np.zeros((12, 12))
         for i in range(salm.shape[0]):
             salm[i] = sal
-            sal = sal[-1] + sal[:-1]  # rotate right
+            sal = sal[-1:] + sal[:-1]  # rotate right
         pcd = np.matmul(pcd, salm)  # shape (1, 12)
 
     results = []
@@ -101,9 +101,15 @@ def key_cc(
             )
             results.append((attr_name, None))
             continue
-
-        profile_matrix = np.array([attr_value.as_tuple(k) for k in attr_value._pitches])
-        correlations = tuple(_compute_correlations(pcd, profile_matrix))
+        profiles_matrix = np.zeros((12, 12), dtype=float)
+        for index, key in enumerate(attr_value._pitches):
+            if attr_value.distribution_type == "symmetric_key_profile":
+                # For symmetric profiles, rotate the profile for each key
+                rotated_profile = attr_value.as_tuple(key)
+                profiles_matrix[index, :] = np.roll(rotated_profile, index)
+            else:
+                profiles_matrix[index, :] = attr_value.as_tuple(key)
+        correlations = tuple(_compute_correlations(pcd, profiles_matrix))
         if any(math.isnan(val) for val in correlations):
             raise RuntimeError(
                 "key_cc has encountered a score or key profile with equal pitch weights!"

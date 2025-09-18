@@ -1,5 +1,3 @@
-import matplotlib.pyplot as plt
-
 import amads.pitch.key.profiles as prof
 from amads.all import import_midi
 from amads.core.distribution import Distribution
@@ -13,6 +11,7 @@ def main():
 
     # compute correlations for both major and minor using BellmanBudge
     results = key_cc(score, profile=prof.bellman_budge)
+    print("Key Correlations (Bellman-Budge):", results)
 
     # results is a list of (attribute_name, correlations_tuple)
     # find major and minor (order preserved if provided)
@@ -28,7 +27,7 @@ def main():
     data = majors + minors  # length 24
 
     dist = Distribution(
-        name=f"{prof.bellman_budge.name} correlations (major then minor)",
+        name=f"{prof.bellman_budge.name} correlations",
         data=data,
         distribution_type="key_correlation",
         dimensions=[len(data)],
@@ -39,11 +38,7 @@ def main():
     )
 
     # plot without showing, so we can add horizontal zero line and adjust layout
-    fig = dist.plot(color="gray", show=False)
-    ax = fig.axes[0]
-    ax.axhline(0, color="k", linewidth=0.8)
-    fig.tight_layout()
-    plt.show()
+    dist.plot()
 
 
 if __name__ == "__main__":
