@@ -24,7 +24,7 @@ def key_cc(
     score: Score,
     profile: prof._KeyProfile = prof.krumhansl_kessler,
     attribute_names: Optional[List[str]] = None,
-    salience_flag: bool = False,
+    salience_flag: Optional[bool] = False,
 ) -> List[Tuple[str, Optional[Tuple[float]]]]:
     """
     Calculate the correlation coefficients of a score's pitch-class distribution
@@ -40,10 +40,10 @@ def key_cc(
     profile: prof._KeyProfile
         The key profile to use for analysis.
 
-    attribute_names: List[str]
+    attribute_names: Optional[List[str]]
         List of attribute names to compute correlations for.
 
-    salience_flag: bool
+    salience_flag: Optional[bool]
         If True, apply salience weighting to the pitch-class according
         to Huron & Parncutt (1993).
 

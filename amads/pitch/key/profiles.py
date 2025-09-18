@@ -204,7 +204,9 @@ class PitchProfile(Distribution):
         """
         shift_idx = None
         try:
-            shift_idx = PitchProfile._pitches.index(key)
+            shift_idx = PitchProfile._pitches.index(
+                key
+            )  # C -> 0, C# -> 1, D -> 2, ..., B -> 11
         except ValueError:
             raise ValueError(
                 f"invalid key {key}, expected one of {PitchProfile._pitches}"
