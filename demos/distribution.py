@@ -20,6 +20,21 @@ toy_distribution_1d: List[float] = [
     0.091,
 ]
 
+toy2_distribution_1d: List[float] = [
+    0.175,
+    0.013,
+    0.113,
+    0.010,
+    0.155,
+    0.102,
+    0.017,
+    0.227,
+    0.017,
+    0.061,
+    0.015,
+    0.094,
+]
+
 toy_distribution_2d: List[List[float]] = np.random.dirichlet(
     [1.0] * 12, size=12
 ).tolist()
@@ -55,6 +70,11 @@ def demo_multiple_plots_per_window(dists):
     return
 
 
+def demo_plot_grouped_1d(dists):
+    Distribution.plot_grouped_1d(dists)
+    return
+
+
 def main():
     dist1 = Distribution(
         name="example 1D bar plot",
@@ -76,10 +96,22 @@ def main():
         y_categories=PITCHES,
         y_label="Key",
     )
+    dist3 = Distribution(
+        name="example 1D bar plot (toy2)",
+        data=toy2_distribution_1d,
+        distribution_type="pitch_class",
+        dimensions=[12],
+        x_categories=PITCHES,
+        x_label="Pitch class",
+        y_categories=None,
+        y_label="Probability",
+    )
 
     dist_list = [dist1, dist2]
+    dist_list_1d = [dist1, dist3]
 
     demo_multiple_plots_per_window(dist_list)
+    demo_plot_grouped_1d(dist_list_1d)
 
 
 if __name__ == "__main__":
