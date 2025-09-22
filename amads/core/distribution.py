@@ -22,6 +22,7 @@ from typing import Any, Iterable, List, Optional, Union
 # matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 
 
@@ -86,6 +87,8 @@ class Distribution:
         The label for the y-axis.
     """
 
+    POSSIBLE_1D_PLOT_OPTIONS = ["bar", "line"]
+
     def __init__(
         self,
         name: str,
@@ -118,42 +121,74 @@ class Distribution:
 
     def plot(
         self,
-        color=DEFAULT_BAR_COLOR,
+        color: str = DEFAULT_BAR_COLOR,
+        option: str = "bar",
         show: bool = True,
-        fig: Optional[Figure] = None,
-        ax: Optional[Any] = None,
     ) -> Figure:
-        true_fig, true_ax = None, None
-        if fig is None:
-            if ax is not None:
-                raise ValueError("invalid figure and axis parameter")
-            true_fig, true_ax = plt.subplots()
-        else:
-            if ax is None:
-                raise ValueError("invalid figure and axis parameter")
-            true_fig, true_ax = fig, ax
+        """
+        plot function to visualize a distribution's data.
+        In the 1-D case, color denotes bar or line color against a white
+        background, while option denotes whether the plot is a line plot
+        ("line") or bar plot ("bar").
+        If there are worthwhile options to visualize 2-D distributions to add,
+        we will add additional options in the future.
+        NOTE: color, and option are ignored in the 2-D case.
+        Color is the color of the plot data and bar
+        """
+        fig, ax = plt.subplots()
+        return self._subplot(fig, ax, color, option, show)
+
+    def _subplot(
+        self,
+        fig: Figure,
+        ax: Axes,
+        color: str = DEFAULT_BAR_COLOR,
+        option: str = "bar",
+        show: bool = True,
+    ) -> Figure:
+        """
+        Subplot is a special function that is invoked when attempting to plot
+        multiple things within the same window.
+        Has the same toggle options and behavior as the plot method, but
+        also includes the addition of fig and ax, since plotting multiple independent
+        plots in a single window require all of the plots to reside in one figure and
+        each plot to correspond to a singular axis.
+        """
         if len(self.dimensions) == 1:
-            true_fig = self._plot_1d(fig=true_fig, ax=true_ax, color=color)
+            fig = self._plot_1d(fig=fig, ax=ax, color=color, option=option)
         elif len(self.dimensions) == 2:
-            true_fig = self._plot_2d(fig=true_fig, ax=true_ax, color=color)
+            fig = self._plot_2d(fig=fig, ax=ax)
         else:
             raise ValueError("Unsupported number of dimensions for Distribution class")
         if show:
             plt.show()
-        return true_fig
+        return fig
 
-    def _plot_1d(self, fig: Figure, ax, color=DEFAULT_BAR_COLOR) -> Figure:
+    def _plot_1d(
+        self, fig: Figure, ax: Axes, color: str = DEFAULT_BAR_COLOR, option: str = "bar"
+    ) -> Figure:
         """Create a 1D plot of the distribution.
         Returns:
             Figure - A matplotlib figure object.
         """
-        ax.bar(self.x_categories, self.data, color=color)
+        if option not in Distribution.POSSIBLE_1D_PLOT_OPTIONS:
+            raise ValueError(
+                f"invalid 1-d plot option {option},"
+                f" expected one of {Distribution.POSSIBLE_1D_PLOT_OPTIONS}"
+            )
+        if option == "bar":
+            ax.bar(self.x_categories, self.data, color=color)
+        elif option == "line":
+            # this was what I originally put here for line plots...
+            # but it seemed (honestly still seems) extremely ugly... Ah well...
+            # Hopefully this helps make a prettier line graph option...
+            ax.plot(self.x_categories, self.data, color=color, marker="o")
         ax.set_xlabel(self.x_label)
         ax.set_ylabel(self.y_label)
         ax.set_title(self.name)
         return fig
 
-    def _plot_2d(self, fig: Figure, ax, color=DEFAULT_BAR_COLOR) -> Figure:
+    def _plot_2d(self, fig: Figure, ax: Axes) -> Figure:
         """Create a 2D plot of the distribution.
         Returns:
             Figure - A matplotlib figure object.
@@ -187,21 +222,27 @@ class Distribution:
 
     @classmethod
     def plot_multiple(
-        cls, dists: List["Distribution"], color=DEFAULT_BAR_COLOR, show: bool = True
+        cls,
+        dists: List["Distribution"],
+        color: str = DEFAULT_BAR_COLOR,
+        option: str = "bar",
+        show: bool = True,
     ) -> Optional[Figure]:
         """
         Plots multiple distributions into a singular Figure
         Returns:
-            Figure - A matplotlib figure object (if applicable)
+            Figure - A matplotlib figure object if any distribution gets plotted
         """
         if not dists:
             return None
         fig, axes = plt.subplots(len(dists), 1)
         # apparently when we get a singleton element, axes is not a list
         if len(dists) == 1:
-            return dists[0].plot(color, False, fig, axes)
+            return dists[0]._subplot(
+                fig=fig, ax=axes, color=color, option=option, show=False
+            )
         for dist, ax in zip(dists, axes):
-            dist.plot(color, False, fig, ax)
+            dist._subplot(fig=fig, ax=ax, color=color, option=option, show=False)
         fig.tight_layout()
         if show:
             plt.show()
@@ -211,10 +252,22 @@ class Distribution:
     def plot_grouped_1d(
         cls,
         dists: List["Distribution"],
+        option: str = "bar",
         show: bool = True,
     ) -> Optional[Figure]:
+        """
+        Plots multiple 1-D distributions of the same type (e.g. same dimensions,
+        same data visualization) in a grouped bar graph.
+        This is a custom 1-D plot, and is independent of other plot methods such as
+        _subplot, and other subclass plot methods.
+        """
         if not dists:
             return None
+        if option not in cls.POSSIBLE_1D_PLOT_OPTIONS:
+            raise ValueError(
+                f"invalid 1-d plot option {option},"
+                f" expected one of {cls.POSSIBLE_1D_PLOT_OPTIONS}"
+            )
         if any(len(dist.dimensions) != 1 for dist in dists):
             raise ValueError("Invalid list of distributions to be plotted")
         if any(dist.dimensions[0] != dists[0].dimensions[0] for dist in dists):
@@ -248,8 +301,13 @@ class Distribution:
         for width_idx, data, dist_title in zip(
             width_idxes, data_iterator, dist_title_iterator
         ):
-            x_axis = x_coords + width_idx * bar_width + is_even_offset
-            ax.bar(x_axis, data, width=bar_width, label=dist_title)
+            if option == "bar":
+                x_axis = x_coords + width_idx * bar_width + is_even_offset
+                ax.bar(x_axis, data, width=bar_width, label=dist_title)
+            elif option == "line":
+                # this is primarily where the problem occur when plotting a line graph...
+                # normalized graphs are very ugly with lots of crossing lines here...
+                ax.plot(x_coords, data, marker="o", label=dist_title)
         # labelled in ax.bar already...
         ax.legend()
 

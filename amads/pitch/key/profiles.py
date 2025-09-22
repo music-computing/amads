@@ -58,10 +58,11 @@ For reference, the alphabetical ordering is:
 """
 
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import List, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 
 import amads.algorithms.norm as norm
@@ -118,7 +119,7 @@ class PitchProfile(Distribution):
     _data_cats_2d = [f"{idx}" for idx in range(len(_pitches))]
     _data_labels = ["Chromatic Scale Degree", "Weights"]
 
-    def __init__(self, name, profile_tuple):
+    def __init__(self, name: str, profile_tuple: Tuple[Union[float, Tuple[float]]]):
         if not PitchProfile._check_init_data_integrity(profile_tuple):
             raise ValueError(f"invalid profile tuple {profile_tuple}")
         profile_data = None
@@ -164,7 +165,9 @@ class PitchProfile(Distribution):
         )
 
     @classmethod
-    def _check_init_data_integrity(cls, data):
+    def _check_init_data_integrity(
+        cls, data: Tuple[Union[float, Tuple[float]]]
+    ) -> bool:
         """
         checks the integrity of the data tuple that is supplied in init
         """
@@ -195,7 +198,7 @@ class PitchProfile(Distribution):
             self.data = [norm.normalize(elem, "sum").tolist() for elem in self.data]
             return self
 
-    def as_tuple(self, key):
+    def as_tuple(self, key: str) -> Tuple[float]:
         """
         Given a key, computes the corresponding weights for the key profile
         rotated to the key as the tonic and organized in relative chromatic degree
@@ -248,38 +251,74 @@ class PitchProfile(Distribution):
 
     def plot(
         self,
-        color=DEFAULT_BAR_COLOR,
+        color: str = DEFAULT_BAR_COLOR,
+        option: str = "bar",
         show: bool = True,
-        fig: Optional[Figure] = None,
-        ax: Optional[Any] = None,
     ) -> Figure:
         """
         plot wrapper to maintain compatibility and inheritance with parent class's plot
+        Has the exact same options as the previous method.
         """
-        return self.plot_custom(keys=None, fig=fig, ax=ax, color=color, show=show)
+        fig, ax = plt.subplots()
+        return self._subplot(
+            fig=fig, ax=ax, keys=None, color=color, option=option, show=show
+        )
+
+    def _subplot(
+        self,
+        fig: Figure,
+        ax: Axes,
+        color: str = DEFAULT_BAR_COLOR,
+        option: str = "bar",
+        show: bool = True,
+    ) -> Figure:
+        """
+        TODO: fix comments
+        Subplot method
+        """
+        return self._plot_custom_internal(fig, ax, None, color, option, show)
 
     def plot_custom(
         self,
-        keys: Optional[list] = None,
-        color=DEFAULT_BAR_COLOR,
+        keys: Optional[List[str]] = None,
+        color: str = DEFAULT_BAR_COLOR,
+        option: str = "bar",
         show: bool = True,
-        fig: Optional[Figure] = None,
-        ax: Optional[Any] = None,
     ) -> Figure:
         """
         custom plot method for PitchProfile.
 
         In this plot function's context:
-        (1) Plot 1d is to plot a bar graph in canonical order of pitches.
+        (1) Plot 1d is to plot a graph in canonical order of pitches, with the relevant
+        color, and option toggles.
         (2) Plot 2d takes a list of keys to plot, where the data corresponding
         to each key is plotted beginning with its corresponding tonic and
         ordered by relative chromatic degree.
+        color and option are ignored here.
 
         The default option for keys is when keys is None and is as follows:
         In the default symmetric case, we plot the 1-d case.
         In the default assymetric case, we plot the 2-d case.
+        """
+        fig, ax = plt.subplots()
+        return self._plot_custom_internal(fig, ax, keys, color, option, show)
 
+    def _plot_custom_internal(
+        self,
+        fig: Figure,
+        ax: Axes,
+        keys: Optional[List[str]] = None,
+        color: str = DEFAULT_BAR_COLOR,
+        option: str = "bar",
+        show: bool = True,
+    ) -> Figure:
+        """
+        Internal logic for custom plotting in pitch profile.
         Args:
+        fig: Figure
+            matplotlib figure object to plot to
+        ax: Axes
+            matplotlib axes object to plot on
         keys: Optional[list]
             a list of key pitches for which we want the corresponding pitch profiles
             to be visualized
@@ -287,36 +326,17 @@ class PitchProfile(Distribution):
             is the color to put the plot in
         show: bool
             whether or not we want to display the plot before returning from this function
-        fig: Optional[Figure]
-            matplotlib figure object to plot to (if applicable)
-        ax: Optional[Axes]
-            matplotlib axes object to plot on (if applicable)
 
         Returns:
             Figure - A matplotlib figure object.
         """
         # similar logic to the plot method in distribution.py
-        true_fig, true_ax = None, None
-        if fig is None:
-            if ax is not None:
-                raise ValueError("invalid figure and axis parameter")
-            true_fig, true_ax = plt.subplots()
-        else:
-            if ax is None:
-                raise ValueError("invalid figure and axis parameter")
-            true_fig, true_ax = fig, ax
         plot_keys = keys
         # in the default case, we have default presets to plot the data
         if plot_keys is None:
             # 1-D plot
             if self.distribution_type == "symmetric_key_profile":
-                true_fig = super().plot(
-                    color,
-                    show,
-                    true_fig,
-                    true_ax,
-                )
-                return true_fig
+                return super()._subplot(fig, ax, color, option, show)
             else:
                 plot_keys = PitchProfile._pitches
 
@@ -328,23 +348,30 @@ class PitchProfile(Distribution):
         self.x_label = PitchProfile._data_labels[0]
         self.y_categories = plot_keys
         self.y_label = PitchProfile._profile_label
-        true_fig = self._plot_2d(plot_data, true_fig, true_ax, color)
+        fig = self._plot_2d(fig=fig, ax=ax, plot_data=plot_data)
 
         # restore original plot labels
         self.x_categories, self.x_label, self.y_categories, self.y_label = save_state
 
         if show:
             plt.show()
-        return true_fig
+        return fig
 
-    def _plot_2d(self, plot_data, fig: Figure, ax, color=DEFAULT_BAR_COLOR) -> Figure:
+    def _plot_2d(
+        self,
+        fig: Figure,
+        ax: Axes,
+        plot_data: List[List[float]],
+    ) -> Figure:
         """Create a 2D plot of the PitchProfile.
         Returns:
             Figure - A matplotlib figure object.
         """
         if plot_data is None or fig is None or ax is None:
             raise ValueError("invalid plotting arguments")
-        cax = ax.imshow(plot_data, cmap="gray_r", interpolation="nearest")
+        cax = ax.imshow(
+            plot_data, cmap="gray_r", interpolation="nearest", aspect="auto"
+        )
         fig.colorbar(cax, ax=ax, label="Proportion")
         ax.set_xlabel(self.x_label)
         ax.set_ylabel(self.y_label)
