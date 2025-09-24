@@ -87,14 +87,23 @@ class PitchProfile(Distribution):
     We store the pitch profile canonically in two following cases.
     (1) In the transpositionally equivalent case, we store the data as a list of 12 floats
     in canonical order (following the order of pitches specified in the _pitches variable)
-
     (2) In the case of profiles that are not transpositionally equivalent, there is a
     pitch-class distribution for each key which are collectively stored
     as a list of lists of integers (12x12).
+
     These key profiles are ordered in canonical order by pitch weights in each profile,
     and start from C for each key profile.
 
-    Attributes (additional attributes that are in addition to the parent class attributes)
+    For visualization, our design envisions the following use-cases:
+    (1) Compare and contrast data within a single PitchProfile object, especially
+    between different key profiles beginning at their respecive tonic. Hence, our
+    custom plot method allows a list of keys to plot the data side by side in a heatmap.
+    (2) Compare and contrast PitchProfile data with other pitch-class distributions,
+    hence why we also satisfy the specifications for both singular plot and multiple
+    plots from its parent class Distribution.
+
+    Class Attributes (in this case, attributes specifying possible class configuration options
+    and visualization elements)
     ----------
     _possible_types:
         The possible distribution types that a PitchProfile may be instantiated as
@@ -232,7 +241,7 @@ class PitchProfile(Distribution):
         begins from C and is ordered canonically
         Note in the transpositionally equivalent case
         Returns:
-            a 12x12 matrix of floats
+            a 12x12 numpy matrix of floats
         """
         assert self.distribution_type in PitchProfile._possible_types
         assert self.dimensions[0] == 12
@@ -256,8 +265,10 @@ class PitchProfile(Distribution):
         show: bool = True,
     ) -> Figure:
         """
-        plot wrapper to maintain compatibility and inheritance with parent class's plot
-        Has the exact same options as the previous method.
+        Plot method overriding the original plot method in the parent class.
+        Instead, this plot uses the default plot behavior (keys = None) from PitchProfile's
+        plot_custom.
+        See plot_custom for more details about argument behavior.
         """
         fig, ax = plt.subplots()
         return self._subplot(
@@ -273,8 +284,10 @@ class PitchProfile(Distribution):
         show: bool = True,
     ) -> Figure:
         """
-        TODO: fix comments
-        Subplot method
+        Subplot method for multiple plotting as specified in distribution.py.
+        Here, subplot leverages the default plot option of plot_custom
+        through _plot_custom_internal, which is where all keys are plotted.
+        See plot_custom for more details about argument behavior.
         """
         return self._plot_custom_internal(fig, ax, None, color, option, show)
 
@@ -294,11 +307,32 @@ class PitchProfile(Distribution):
         (2) Plot 2d takes a list of keys to plot, where the data corresponding
         to each key is plotted beginning with its corresponding tonic and
         ordered by relative chromatic degree.
-        color and option are ignored here.
+        color and option are ignored in the 2d case.
 
-        The default option for keys is when keys is None and is as follows:
-        In the default symmetric case, we plot the 1-d case.
-        In the default assymetric case, we plot the 2-d case.
+        The default custom plot option, or when keys argument is None, and is as follows:
+        (1) If the current PitchProfile is transpositionally equivalent, plot a bar graph
+        or line graph depending on what is specified in the option argument with the
+        specified color.
+        (1) If the current PitchProfile is non-transpositionally equivalent, plot a grey
+        2d heatmap
+
+        Args:
+        keys: Optional[list]
+            a list of key pitches for which we want the corresponding pitch profiles
+            to be visualized
+        color: str
+            (1) In the transpositionally equivalent case and keys is None,
+            color is the color of the graph
+            (2) Ignored otherwise
+        option: str
+            (1) In the transpositionally equivalent case and keys is None,
+            "bar" or "line" for plotting a bar or line graph, respectively.
+            (2) Ignored otherwise
+        show: bool
+            whether or not we want to display the plot before returning from this function
+
+        Returns:
+            Figure - A matplotlib figure object.
         """
         fig, ax = plt.subplots()
         return self._plot_custom_internal(fig, ax, keys, color, option, show)
@@ -314,21 +348,12 @@ class PitchProfile(Distribution):
     ) -> Figure:
         """
         Internal logic for custom plotting in pitch profile.
-        Args:
-        fig: Figure
-            matplotlib figure object to plot to
-        ax: Axes
-            matplotlib axes object to plot on
-        keys: Optional[list]
-            a list of key pitches for which we want the corresponding pitch profiles
-            to be visualized
-        color: str
-            is the color to put the plot in
-        show: bool
-            whether or not we want to display the plot before returning from this function
+        Refactored into this internal function in order to reuse the underlying logic
+        (speicfically the default custom plot case) for _subplot and plot as well.
 
-        Returns:
-            Figure - A matplotlib figure object.
+        In addition to the arguments in plot_custom, fig, a matplotlib figure object,
+        and ax, a matplotlib axes object, are included as arguments as well
+        to facilitate _subplot specification.
         """
         # similar logic to the plot method in distribution.py
         plot_keys = keys
@@ -363,7 +388,8 @@ class PitchProfile(Distribution):
         ax: Axes,
         plot_data: List[List[float]],
     ) -> Figure:
-        """Create a 2D plot of the PitchProfile.
+        """Create a 2D heatmap of a non-transpositionally equivalent PitchProfile.
+        This is currently only used as internal logic for plot_custom.
         Returns:
             Figure - A matplotlib figure object.
         """

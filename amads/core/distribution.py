@@ -127,13 +127,26 @@ class Distribution:
     ) -> Figure:
         """
         plot function to visualize a distribution's data.
-        In the 1-D case, color denotes bar or line color against a white
+        In the 1d case, color denotes bar or line color against a white
         background, while option denotes whether the plot is a line plot
         ("line") or bar plot ("bar").
-        If there are worthwhile options to visualize 2-D distributions to add,
-        we will add additional options in the future.
-        NOTE: color, and option are ignored in the 2-D case.
-        Color is the color of the plot data and bar
+        NOTE: color, and option are ignored in the 2d case.
+        If there are worthwhile plot variants or visualization tools
+        for 2d distributions, we will add additional options specifically
+        for the 2d case in the future.
+
+        Args:
+        color: str
+            color of the plot. This option is ignored in the 2d case.
+        option: str
+            (1) In the 1d case, "bar" or "line" for
+            plotting a bar or line graph, respectively.
+            (2) In the 2d case, this option is ignored
+        show: bool
+            whether or not to display the plot before returning from this function
+
+        Returns:
+            Figure - A matplotlib figure object.
         """
         fig, ax = plt.subplots()
         return self._subplot(fig, ax, color, option, show)
@@ -150,9 +163,11 @@ class Distribution:
         Subplot is a special function that is invoked when attempting to plot
         multiple things within the same window.
         Has the same toggle options and behavior as the plot method, but
-        also includes the addition of fig and ax, since plotting multiple independent
-        plots in a single window require all of the plots to reside in one figure and
-        each plot to correspond to a singular axis.
+        also includes the addition of fig (matplotlib Figure) and ax
+        (matplotlib Axes) to allow a caller to plot multiple independent
+        Distributions in a single window, since matplotlib requires all
+        of the plots to be plotted in Axes objects pertaining to the
+        same Figure object.
         """
         if len(self.dimensions) == 1:
             fig = self._plot_1d(fig=fig, ax=ax, color=color, option=option)
@@ -229,7 +244,9 @@ class Distribution:
         show: bool = True,
     ) -> Optional[Figure]:
         """
-        Plots multiple distributions into a singular Figure
+        Plots multiple distributions into a singular Figure, leveraging
+        the _subplot method of Distributions to plot multiple distributions
+        in a list on top of each other in a single window.
         Returns:
             Figure - A matplotlib figure object if any distribution gets plotted
         """
@@ -256,10 +273,12 @@ class Distribution:
         show: bool = True,
     ) -> Optional[Figure]:
         """
-        Plots multiple 1-D distributions of the same type (e.g. same dimensions,
-        same data visualization) in a grouped bar graph.
-        This is a custom 1-D plot, and is independent of other plot methods such as
-        _subplot, and other subclass plot methods.
+        Plots multiple 1d distributions of the same type (e.g. same dimensions,
+        same data visualization) in a grouped graph: either multiple line plot or grouped
+        bar graph if option is "line" or "bar", respectively.
+        This is a custom plot method specifically for multiple 1d distributions
+        of the same type, and is independent of other generic multiple plot methods
+        that leverage _subplot.
         """
         if not dists:
             return None
