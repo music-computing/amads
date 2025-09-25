@@ -251,7 +251,7 @@ class Distribution:
         """
         Plots multiple distributions into a singular Figure, leveraging
         the _subplot method of Distributions to plot multiple distributions
-        in a list on top of each other in a single window.
+        stacked on top of each other in a single window.
 
         Returns:
             Figure - A matplotlib figure object if any distribution gets plotted

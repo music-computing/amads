@@ -71,13 +71,15 @@ from amads.core.distribution import DEFAULT_BAR_COLOR, Distribution
 
 class PitchProfile(Distribution):
     """
-    A set of weights for each pitch class.
-    Weights are proportional to the expected number of occurrences of the
-    pitch class in pieces transposed to the key of C (major or minor).
+    A set of weights for each pitch class denoting the expected frequency
+    of pitches for collections of notes (typically songs, can be chords)
+    of a given key.
 
-    We provide methods to allow users to obtain or visualize the information in a useful state.
+    We provide methods to allow users to obtain or visualize this information
+    in a useful state.
 
-    We define a canonical order of pitches as the order of pitches specified in
+    Definitions:
+    Define a canonical order of pitches as the order of pitches specified in
     relative chromatic degree.
 
     In our implementation, a pitch profile is a collection of pitch class
@@ -219,6 +221,7 @@ class PitchProfile(Distribution):
         Args:
         key: str
             pitch string denoting the key of the key profile data we want to retrieve
+
         Returns:
             12-tuple of floats
         """
@@ -329,7 +332,7 @@ class PitchProfile(Distribution):
         (2) Each row in the heatmap is ordered canonically (by relative chromatic degree)
         and begins with its corresponding tonic.
 
-        The default custom plot option, or when keys argument is None, and is as follows:
+        The default custom plot option, or when keys argument is None, is as follows:
         (1) If the current PitchProfile is transpositionally equivalent, plot a bar graph
         or line graph depending on what is specified in the option argument with the
         specified color.
