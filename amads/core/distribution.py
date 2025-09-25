@@ -3,7 +3,7 @@ Distributions Module
 
 The Distribution class represents distributions and distribution metadata.
 
-Author(s): [Roger Dannenberg, Di Wang, Tai Nakamura]
+Author(s): [Roger Dannenberg, Tai Nakamura, Di Wang]
 Date: [2024-12-04]
 
 Description:
@@ -87,6 +87,7 @@ class Distribution:
         The label for the y-axis.
     """
 
+    # class variable detailing the possible 1D plot options
     POSSIBLE_1D_PLOT_OPTIONS = ["bar", "line"]
 
     def __init__(
@@ -162,12 +163,16 @@ class Distribution:
         """
         Subplot is a special function that is invoked when attempting to plot
         multiple things within the same window.
+
         Has the same toggle options and behavior as the plot method, but
         also includes the addition of fig (matplotlib Figure) and ax
-        (matplotlib Axes) to allow a caller to plot multiple independent
-        Distributions in a single window, since matplotlib requires all
-        of the plots to be plotted in Axes objects pertaining to the
-        same Figure object.
+        (matplotlib Axes) to allow a caller to manipulate multiple plots of
+        independent Distributions in a single window.
+        This is due to matplotlib requiring all plots to be plotted in a single window
+        be plotted on to Axes objects pertaining to the same constituent Figure object.
+
+        Returns:
+            Figure - A matplotlib figure object.
         """
         if len(self.dimensions) == 1:
             fig = self._plot_1d(fig=fig, ax=ax, color=color, option=option)
@@ -182,7 +187,7 @@ class Distribution:
     def _plot_1d(
         self, fig: Figure, ax: Axes, color: str = DEFAULT_BAR_COLOR, option: str = "bar"
     ) -> Figure:
-        """Create a 1D plot of the distribution.
+        """Create a 1d plot of the distribution.
         Returns:
             Figure - A matplotlib figure object.
         """
@@ -204,7 +209,7 @@ class Distribution:
         return fig
 
     def _plot_2d(self, fig: Figure, ax: Axes) -> Figure:
-        """Create a 2D plot of the distribution.
+        """Create a 2d plot of the distribution.
         Returns:
             Figure - A matplotlib figure object.
         """
@@ -247,6 +252,7 @@ class Distribution:
         Plots multiple distributions into a singular Figure, leveraging
         the _subplot method of Distributions to plot multiple distributions
         in a list on top of each other in a single window.
+
         Returns:
             Figure - A matplotlib figure object if any distribution gets plotted
         """
@@ -279,6 +285,9 @@ class Distribution:
         This is a custom plot method specifically for multiple 1d distributions
         of the same type, and is independent of other generic multiple plot methods
         that leverage _subplot.
+
+        Returns:
+            Figure - A matplotlib figure object if any distribution gets plotted
         """
         if not dists:
             return None

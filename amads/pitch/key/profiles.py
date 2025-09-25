@@ -119,10 +119,12 @@ class PitchProfile(Distribution):
         and Weights for 1-D case (y-axis)
     """
 
+    # possible PitchProfile types
     _possible_types = [
         "symmetric_key_profile",
         "assymetric_key_profile",
     ]
+    # possible pitches
     _pitches = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
     _profile_label = "Keys"
     _data_cats_2d = [f"{idx}" for idx in range(len(_pitches))]
@@ -197,7 +199,9 @@ class PitchProfile(Distribution):
 
     def normalize(self):
         """
-        normalize the pitch-class distributions within the PitchProfile
+        normalize the pitch-class distributions within the PitchProfile s.t.
+        for each key, the sum of all weights in the corresponding key profile data
+        adds to 1.
         """
         assert self.distribution_type in PitchProfile._possible_types
         if self.distribution_type == "symmetric_key_profile":
@@ -211,13 +215,17 @@ class PitchProfile(Distribution):
         """
         Given a key, computes the corresponding weights for the key profile
         rotated to the key as the tonic and organized in relative chromatic degree
+
+        Args:
+        key: str
+            pitch string denoting the key of the key profile data we want to retrieve
         Returns:
-            12-tuple of weights
+            12-tuple of floats
         """
         shift_idx = None
         try:
             shift_idx = PitchProfile._pitches.index(
-                key
+                key.capitalize()
             )  # C -> 0, C# -> 1, D -> 2, ..., B -> 11
         except ValueError:
             raise ValueError(
@@ -237,9 +245,12 @@ class PitchProfile(Distribution):
 
     def as_matrix_canonical(self) -> np.array:
         """
-        Computes a 12x12 matrix of the profile data where each row's weights
-        begins from C and is ordered canonically
-        Note in the transpositionally equivalent case
+        Computes a 12x12 matrix of the profile data where:
+        (1) The i-th row corresponds to the key profile of the
+        i-th chromatic degree
+        (2) Each row's weights begins from C and is ordered canonically
+        (by relative chromatic degree)
+
         Returns:
             a 12x12 numpy matrix of floats
         """
@@ -268,7 +279,11 @@ class PitchProfile(Distribution):
         Plot method overriding the original plot method in the parent class.
         Instead, this plot uses the default plot behavior (keys = None) from PitchProfile's
         plot_custom.
+
         See plot_custom for more details about argument behavior.
+
+        Returns:
+            Figure - A matplotlib figure object
         """
         fig, ax = plt.subplots()
         return self._subplot(
@@ -287,7 +302,11 @@ class PitchProfile(Distribution):
         Subplot method for multiple plotting as specified in distribution.py.
         Here, subplot leverages the default plot option of plot_custom
         through _plot_custom_internal, which is where all keys are plotted.
+
         See plot_custom for more details about argument behavior.
+
+        Returns:
+            Figure - A matplotlib figure object
         """
         return self._plot_custom_internal(fig, ax, None, color, option, show)
 
@@ -301,13 +320,14 @@ class PitchProfile(Distribution):
         """
         custom plot method for PitchProfile.
 
-        In this plot function's context:
-        (1) Plot 1d is to plot a graph in canonical order of pitches, with the relevant
-        color, and option toggles.
-        (2) Plot 2d takes a list of keys to plot, where the data corresponding
-        to each key is plotted beginning with its corresponding tonic and
-        ordered by relative chromatic degree.
-        color and option are ignored in the 2d case.
+        There are largely 3 cases of behavior, revolving around the keys variable.
+
+        When keys is an empty list, return None.
+
+        When the keys argument is a non-empty list of pitches:
+        (1) Plot a heatmap where the i-th row is the key profile for the i-th key in keys.
+        (2) Each row in the heatmap is ordered canonically (by relative chromatic degree)
+        and begins with its corresponding tonic.
 
         The default custom plot option, or when keys argument is None, and is as follows:
         (1) If the current PitchProfile is transpositionally equivalent, plot a bar graph
@@ -354,6 +374,9 @@ class PitchProfile(Distribution):
         In addition to the arguments in plot_custom, fig, a matplotlib figure object,
         and ax, a matplotlib axes object, are included as arguments as well
         to facilitate _subplot specification.
+
+        Returns:
+            Figure - A matplotlib figure object
         """
         # similar logic to the plot method in distribution.py
         plot_keys = keys
@@ -364,6 +387,11 @@ class PitchProfile(Distribution):
                 return super()._subplot(fig, ax, color, option, show)
             else:
                 plot_keys = PitchProfile._pitches
+        else:
+            plot_keys = [key.capitalize() for key in plot_keys]
+        assert isinstance(plot_keys, list)
+        if not plot_keys:
+            return None
 
         plot_data = [self.as_tuple(key) for key in plot_keys]
         # save original plot labels
