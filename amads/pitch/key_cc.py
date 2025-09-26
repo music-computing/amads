@@ -136,3 +136,51 @@ def _compute_correlations(pcd: np.ndarray, profile_matrix: np.ndarray) -> np.nda
     correlations = correlation_matrix[0, 1:]
 
     return correlations
+
+
+# Simple, embedded builder for quick visualization (major+minor combined)
+def build_key_correlation_distribution(
+    score: Score,
+    profile: prof._KeyProfile = prof.krumhansl_kessler,
+    salience_flag: bool = False,
+):
+    """Compute key correlations and package them into a 1-D Distribution.
+    This is a convenience function for quick visualization of
+    major and minor correlations together.
+
+    The returned Distribution has 24 bins: 12 majors followed by 12 minors.
+    X labels are uppercase for major keys and lowercase for minor keys.
+
+    See Also
+    --------
+    demos/key_cc.py for usage example
+    """
+    from ..core.distribution import Distribution
+
+    # Compute correlations for both major and minor
+    results = key_cc(
+        score,
+        profile=profile,
+        attribute_names=["major", "minor"],
+        salience_flag=salience_flag,
+    )
+    corr_map = {name: list(vals) for name, vals in results if vals is not None}
+
+    majors = corr_map.get("major", [0.0] * 12)
+    minors = corr_map.get("minor", [0.0] * 12)
+
+    majors_labels = prof.PitchProfile._pitches
+    minors_labels = [s.lower() for s in majors_labels]
+    x_labels = majors_labels + minors_labels
+    data = majors + minors
+
+    return Distribution(
+        name=f"{profile.name} correlations",
+        data=data,
+        distribution_type="key_correlation",
+        dimensions=[len(data)],
+        x_categories=x_labels,
+        x_label="Key",
+        y_categories=None,
+        y_label="Corr. coeff.",
+    )
