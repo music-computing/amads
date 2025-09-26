@@ -33,12 +33,12 @@ def build_key_correlation_distribution(profile, score):
     return dist
 
 
-def main(profiles=None):
+def main(profiles=None, kind: str = "bar"):
     midi_path = example.fullpath("midi/sarabande.mid")
     score = import_midi(midi_path, show=False)
     for p in profiles:
         dist = build_key_correlation_distribution(p, score)
-        dist.plot()
+        dist.plot(kind=kind)
 
 
 if __name__ == "__main__":

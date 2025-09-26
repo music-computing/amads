@@ -58,20 +58,52 @@ RELATIVE_TO_TONIC = [f"{i}" for i in range(12)]
 
 
 def demo_individual_plot_per_window(dists):
+    """Plot each distribution in its own window.
+
+    For 1-D distributions, use a line plot and use `kind` option.
+    """
     for dist in dists:
-        _ = dist.plot(show=False)
+        if len(dist.dimensions) == 1:
+            _ = dist.plot(kind="line", show=False)
+        else:
+            _ = dist.plot(show=False)
 
     plt.show()
     return
 
 
 def demo_multiple_plots_per_window(dists):
-    Distribution.plot_multiple(dists)
+    """Stack multiple distributions into one figure.
+
+    Provide `kinds` for 1-D dists only (length must match the number of 1-D dists).
+    Here we set all 1-D distributions to line plots to test the API.
+    """
+    kinds_for_1d = ["line" for d in dists if len(d.dimensions) == 1]
+    Distribution.plot_multiple(dists, kinds=kinds_for_1d)
     return
 
 
 def demo_plot_grouped_1d(dists):
-    Distribution.plot_grouped_1d(dists)
+    """Grouped bar/line comparison for 1-D dists.
+
+    Mix bar and line kinds to demonstrate the new `kinds` option.
+    """
+    # If there are exactly two, show bar vs line; otherwise default all to bar
+    if len(dists) == 2:
+        kinds = ["bar", "line"]
+    else:
+        kinds = ["bar"] * len(dists)
+    Distribution.plot_grouped_1d(dists, kinds=kinds)
+    return
+
+
+def demo_vertical_lines_1d(dists):
+    """Stack multiple 1-D distributions vertically as line plots.
+
+    This compares shapes without overlapping them in a single axes.
+    """
+    kinds = ["line"] * len(dists)
+    Distribution.plot_multiple(dists, kinds=kinds)
     return
 
 
@@ -110,8 +142,14 @@ def main():
     dist_list = [dist1, dist2]
     dist_list_1d = [dist1, dist3]
 
+    # Individual plots: 1-D will be line; 2-D is heatmap
+    demo_individual_plot_per_window([dist1, dist2, dist3])
+    # Mixed 1D+2D stacked; 1-D entries will be lines
     demo_multiple_plots_per_window(dist_list)
+    # Grouped 1-D with bar vs line
     demo_plot_grouped_1d(dist_list_1d)
+    # Vertically stacked line plots for 1-D distributions
+    demo_vertical_lines_1d(dist_list_1d)
 
 
 if __name__ == "__main__":
