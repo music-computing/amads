@@ -219,10 +219,9 @@ class Distribution:
     def plot_multiple(
         cls,
         dists: List["Distribution"],
-        color=DEFAULT_BAR_COLOR,
         show: bool = True,
-        kinds: Optional[list[str]] = None,
-        colors: Optional[list[str]] = None,
+        kinds: Optional[Union[str, List[str]]] = None,
+        colors: Optional[Union[str, List[str]]] = None,
     ) -> Optional[Figure]:
         """
         Plot multiple distributions into a single Figure using vertically
@@ -232,14 +231,31 @@ class Distribution:
         -----
         - 2-D distributions are drawn first (heatmaps), followed by the 1-D
           distributions stacked below them.
-        - `kinds` and `colors` apply only to 1-D distributions and must have
-          length equal to the number of 1-D inputs.
+        - `kinds` and `colors` apply only to 1-D distributions.
+        - You can pass either a list (per-series) or a single string. When a
+          single string is provided, it will be broadcast to all 1-D inputs.
+          For example, kinds="line" makes all 1-D plots line charts.
 
         Returns
         -------
         Figure or None
             A matplotlib Figure when at least one distribution is plotted;
             otherwise None when `dists` is empty.
+
+        Parameters
+        ----------
+        dists : list[Distribution]
+            Distributions to plot. 2-D are rendered as heatmaps; 1-D below them.
+        show : bool
+            Whether to call ``plt.show()`` at the end.
+        kinds : str | list[str] | None
+            1-D plot style per distribution ("bar" or "line"). If a single
+            string is given, it is broadcast to all 1-D distributions. If None,
+            defaults to "bar" for all 1-D inputs.
+        colors : str | list[str] | None
+            1-D color per distribution. If a single string is given, it is
+            broadcast to all 1-D distributions. If None, defaults to
+            the single color DEFAULT_BAR_COLOR for all 1-D inputs.
         """
         if not dists:
             return None
@@ -255,6 +271,11 @@ class Distribution:
 
         # `kinds`/`colors` apply to 1-D only; enforce alignment
         n1 = len(d1)
+        # when single string, broadcast to all 1-D distributions
+        if isinstance(kinds, str):
+            kinds = [kinds] * n1
+        if isinstance(colors, str):
+            colors = [colors] * n1
         if kinds is None:
             kinds = ["bar"] * n1
         if colors is None:
@@ -282,8 +303,8 @@ class Distribution:
         cls,
         dists: List["Distribution"],
         show: bool = True,
-        kinds: Optional[list[str]] = None,
-        colors: Optional[list[str]] = None,
+        kinds: Optional[Union[str, List[str]]] = None,
+        colors: Optional[Union[str, List[str]]] = None,
     ) -> Optional[Figure]:
         """Overlay multiple 1-D distributions on a single axes as grouped bars/lines.
 
@@ -306,12 +327,16 @@ class Distribution:
             1-D distributions to compare in a single plot.
         show : bool
             Whether to call ``plt.show()`` at the end.
-        kinds : list[str] | None
+        kinds : str | list[str] | None
             Per-distribution plot style. Allowed values: "bar" or "line".
-            Length must match `len(dists)`. If None, all series default to "bar".
-        colors : list[str] | None
-            Per-distribution color list. Length must match `len(dists)`. If None,
-            defaults to a simple palette.
+            You can provide a single string to apply to all series (broadcast),
+            or a list with length `len(dists)`. If None, all series default to
+            "bar".
+        colors : str | list[str] | None
+            Per-distribution color list. You can provide a single string to
+            apply to all series (broadcast), or a list with length `len(dists)`.
+            If None, a distinct default color palette is applied (rcParams cycle
+            or the tab10 palette).
 
         Returns
         -------
@@ -338,6 +363,11 @@ class Distribution:
             raise ValueError("All 1-D distributions must have the same length")
 
         labels = [d.name for d in dists]
+        # when single string, broadcast to all
+        if isinstance(kinds, str):
+            kinds = [kinds] * n
+        if isinstance(colors, str):
+            colors = [colors] * n
         if kinds is None:
             kinds = ["bar"] * n
         if colors is None:

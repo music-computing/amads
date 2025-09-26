@@ -107,7 +107,7 @@ def demo_plot_grouped_1d(dists):
     if len(dists) == 2:
         kinds = ["bar", "line"]
     else:
-        kinds = ["bar"] * len(dists)
+        kinds = "bar"
     Distribution.plot_grouped_1d(dists, kinds=kinds)
     return
 
@@ -117,7 +117,7 @@ def demo_vertical_lines_1d(dists):
 
     This compares shapes without overlapping them in a single axes.
     """
-    kinds = ["line"] * len(dists)
+    kinds = "line"
     Distribution.plot_multiple(dists, kinds=kinds)
     return
 
