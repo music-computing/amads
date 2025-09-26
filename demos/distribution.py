@@ -35,6 +35,21 @@ toy2_distribution_1d: List[float] = [
     0.094,
 ]
 
+toy3_distribution_1d: List[float] = [
+    0.160,
+    0.020,
+    0.110,
+    0.130,
+    0.015,
+    0.105,
+    0.030,
+    0.200,
+    0.080,
+    0.030,
+    0.030,
+    0.090,
+]
+
 toy_distribution_2d: List[List[float]] = np.random.dirichlet(
     [1.0] * 12, size=12
 ).tolist()
@@ -138,9 +153,20 @@ def main():
         y_categories=None,
         y_label="Probability",
     )
+    dist4 = Distribution(
+        name="example 1D bar plot (toy3)",
+        data=toy3_distribution_1d,
+        distribution_type="pitch_class",
+        dimensions=[12],
+        x_categories=PITCHES,
+        x_label="Pitch class",
+        y_categories=None,
+        y_label="Probability",
+    )
 
     dist_list = [dist1, dist2]
     dist_list_1d = [dist1, dist3]
+    dist_list_1d_three = [dist1, dist3, dist4]
 
     # Individual plots: 1-D will be line; 2-D is heatmap
     demo_individual_plot_per_window([dist1, dist2, dist3])
@@ -148,6 +174,8 @@ def main():
     demo_multiple_plots_per_window(dist_list)
     # Grouped 1-D with bar vs line
     demo_plot_grouped_1d(dist_list_1d)
+    # Grouped 1-D with three bar series
+    demo_plot_grouped_1d(dist_list_1d_three)
     # Vertically stacked line plots for 1-D distributions
     demo_vertical_lines_1d(dist_list_1d)
 

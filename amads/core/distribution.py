@@ -341,7 +341,9 @@ class Distribution:
         if kinds is None:
             kinds = ["bar"] * n
         if colors is None:
-            colors = [DEFAULT_BAR_COLOR] * n
+            base_colors = plt.get_cmap("tab10").colors  # デフォルトの10色
+            colors = [base_colors[i % len(base_colors)] for i in range(n)]
+
         if len(kinds) != n or len(colors) != n:
             raise ValueError("kinds and colors must match number of distributions")
 
