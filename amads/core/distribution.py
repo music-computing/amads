@@ -129,29 +129,31 @@ class Distribution:
     def plot(
         self,
         color: str = DEFAULT_BAR_COLOR,
+        option: str = "bar",
         show: bool = True,
         fig: Optional[Figure] = None,
         ax: Optional[Axes] = None,
-        kind: str = "bar",
     ) -> Figure:
         """Plot this distribution.
 
         Parameters
         ----------
         color : str
-            Color used for 1-D plots.
+            Color used for 1d plots. Ignored in the 2d case
+        option : {"bar", "line"}
+            Plot style used for 1d distributions. Ignored for 2d case.
         show : bool
             Whether to call ``plt.show()`` at the end.
         fig, ax : matplotlib Figure and Axes
             Provide an existing figure/axes to draw on; if omitted, a new
             figure and axes are created.
-        kind : {"bar", "line"}
-            Plot style used for 1-D distributions. Ignored for 2-D.
 
         Notes
         -----
         - 1-D: bar (default) or line when kind is "line"
         - 2-D: heatmap
+        - fig and ax are provided as optional arguments to allow leveraging
+        this plot function when multiple plots within a single figure are involved
         """
         dims = len(self.dimensions)
         if dims not in (1, 2):
@@ -170,12 +172,12 @@ class Distribution:
         if dims == 1:
             x = range(len(self.x_categories))
             # 1-D distributions: draw either a bar chart or a line chart.
-            if kind == "bar":
+            if option == "bar":
                 ax.bar(x, self.data, color=color)
-            elif kind == "line":
+            elif option == "line":
                 ax.plot(x, self.data, color=color, marker="o")
             else:
-                raise ValueError(f"unknown kind for 1D plot: {kind}")
+                raise ValueError(f"unknown kind for 1D plot: {option}")
 
             ax.set_xticks(list(x))
             ax.set_xticklabels(self.x_categories)
@@ -195,9 +197,8 @@ class Distribution:
 
             ax.set_xticks(range(len(self.x_categories)))
             ax.set_xticklabels(self.x_categories)
-            if self.y_categories is not None:
-                ax.set_yticks(range(len(self.y_categories)))
-                ax.set_yticklabels(self.y_categories)
+            ax.set_yticks(range(len(self.y_categories)))
+            ax.set_yticklabels(self.y_categories)
 
             ax.invert_yaxis()
 
@@ -220,9 +221,13 @@ class Distribution:
         cls,
         dists: List["Distribution"],
         show: bool = True,
-        kinds: Optional[Union[str, List[str]]] = None,
+        options: Optional[Union[str, List[str]]] = None,
         colors: Optional[Union[str, List[str]]] = None,
     ) -> Optional[Figure]:
+        # TODO: need additional constraints on kinds and colors here
+        # from how the code looks (in the list case for kinds, and colors):
+        # the length of kinds, and colors are equal to the length
+        # of d1 in the code
         """
         Plot multiple distributions into a single Figure using vertically
         stacked subplots.
@@ -248,6 +253,7 @@ class Distribution:
             Distributions to plot. 2-D are rendered as heatmaps; 1-D below them.
         show : bool
             Whether to call ``plt.show()`` at the end.
+        ! What are the length constraints for the kinds and colors here?
         kinds : str | list[str] | None
             1-D plot style per distribution ("bar" or "line"). If a single
             string is given, it is broadcast to all 1-D distributions. If None,
@@ -272,26 +278,27 @@ class Distribution:
         # `kinds`/`colors` apply to 1-D only; enforce alignment
         n1 = len(d1)
         # when single string, broadcast to all 1-D distributions
-        if isinstance(kinds, str):
-            kinds = [kinds] * n1
+        if isinstance(options, str):
+            options = [options] * n1
         if isinstance(colors, str):
             colors = [colors] * n1
-        if kinds is None:
-            kinds = ["bar"] * n1
+        if options is None:
+            options = ["bar"] * n1
         if colors is None:
             colors = [DEFAULT_BAR_COLOR] * n1
-        if len(kinds) != n1 or len(colors) != n1:
+        if len(options) != n1 or len(colors) != n1:
             raise ValueError("kinds/colors must match number of 1-D distributions")
 
-        idx = 0
+        # use an axes iterator here
+        ax_iter = iter(axes)
         # Plot 2-D first to match the documented layout
         for d in d2:
-            d.plot(show=False, fig=fig, ax=axes[idx])
-            idx += 1
+            ax = next(ax_iter)
+            d.plot(show=False, fig=fig, ax=ax)
         # Then 1-D with per-kind/color
-        for d, k, c in zip(d1, kinds, colors):
-            d.plot(kind=k, color=c, show=False, fig=fig, ax=axes[idx])
-            idx += 1
+        for d, k, c in zip(d1, options, colors):
+            ax = next(ax_iter)
+            d.plot(color=c, option=k, show=False, fig=fig, ax=ax)
 
         fig.tight_layout()
         if show:
@@ -303,7 +310,7 @@ class Distribution:
         cls,
         dists: List["Distribution"],
         show: bool = True,
-        kinds: Optional[Union[str, List[str]]] = None,
+        options: Optional[Union[str, List[str]]] = None,
         colors: Optional[Union[str, List[str]]] = None,
     ) -> Optional[Figure]:
         """Overlay multiple 1-D distributions on a single axes as grouped bars/lines.
@@ -346,62 +353,91 @@ class Distribution:
 
         How this differs from plot_multiple
         -----------------------------------
-        - plot_grouped_1d overlays all 1-D series on a single axes to make
-          per-category (bin-by-bin) comparison easy and compact, with a single
-          legend.
+        - plot_grouped_1d overlays all 1-D distributions on a single axes to allow:
+          (1) per-category (bin-by-bin) comparison intuitive and compact for grouped bar graphs
+          (2) intuitive and compact gradient comparison for overlaid line graphs.
+          Since all distributions are plotted in a single plot, we can compare all plots
+          within a single legend.
         - plot_multiple creates a vertical stack of subplots, one per
-          distribution (and also supports 2-D heatmaps).
+          distribution, while leveraging the plot attribute of each Distribution
+          (and also supports 2-D heatmaps).
         """
         # Validate inputs
         if not dists:
             return None
-        n = len(dists)
         if any(len(d.dimensions) != 1 for d in dists):
             raise ValueError("All distributions must be 1-D for grouped plotting")
+        # number of categories for each plot in the 1d distribution
         dimension = dists[0].dimensions[0]
         if any(d.dimensions[0] != dimension for d in dists):
             raise ValueError("All 1-D distributions must have the same length")
+        # labels and categories will need to be the same...
+        # or else some of the data visualization for axes will be misleading
+        # since this function does not support plotting multiple axes labels
+        # and categories on the same plot
+        if any(
+            d.x_label != dists[0].x_label or d.y_label != dists[0].y_label
+            for d in dists
+        ):
+            raise ValueError("All 1-D distributions must have same axes labels")
+        if any(d.x_categories != dists[0].x_categories for d in dists):
+            raise ValueError("All 1-D distributions must have same axes categories")
 
-        labels = [d.name for d in dists]
         # when single string, broadcast to all
-        if isinstance(kinds, str):
-            kinds = [kinds] * n
+        if isinstance(options, str):
+            options = [options] * len(dists)
         if isinstance(colors, str):
-            colors = [colors] * n
-        if kinds is None:
-            kinds = ["bar"] * n
+            colors = [colors] * len(dists)
+        if options is None:
+            options = ["bar"] * len(dists)
         if colors is None:
             base_colors = plt.get_cmap("tab10").colors  # デフォルトの10色
-            colors = [base_colors[i % len(base_colors)] for i in range(n)]
-
-        if len(kinds) != n or len(colors) != n:
+            colors = [base_colors[i % len(base_colors)] for i in range(len(dists))]
+        if len(options) != len(dists) or len(colors) != len(dists):
             raise ValueError("kinds and colors must match number of distributions")
+
+        bar_graph_info = None
+        line_graph_info = None
+        # partition bar graphs and line graphs to be plotted separately
+        # (so that line graphs don't each take up a bin themselves)
+        if isinstance(options, list):
+            bar_graph_info = [
+                (dist, color)
+                for dist, kind, color in zip(dists, options, colors)
+                if kind == "bar"
+            ]
+            line_graph_info = [
+                (dist, color)
+                for dist, kind, color in zip(dists, options, colors)
+                if kind in ("line", "plot")
+            ]
 
         fig, ax = plt.subplots()
 
         # Grouped bar arithmetic (unit bar width, grouped per category)
+        # must have at least 1 bin for the line plot to be valid
+        n = max(len(bar_graph_info), 1)
+        # bar_width does not matter here, since everything in the grouped bar
+        # graph is scaled according to this variable
         bar_width = 1
         x_coords = np.arange(dimension) * bar_width * n
         bottom_half, upper_half = n // 2, n - n // 2
         width_idxes = range(-bottom_half, upper_half + 1)
         is_even_offset = ((n + 1) % 2) * bar_width / 2
 
+        # setting plot axes
         ax.set_xticks(x_coords)
         ax.set_xticklabels(dists[0].x_categories)
         ax.set_xlabel(dists[0].x_label)
         ax.set_ylabel(dists[0].y_label)
         ax.set_title("Grouped Histogram Plot for 1-D Distributions")
 
-        for width_idx, dist, label, color, kind in zip(
-            width_idxes, dists, labels, colors, kinds
-        ):
+        for width_idx, (dist, color) in zip(width_idxes, bar_graph_info):
             x_axis = x_coords + width_idx * bar_width + is_even_offset
-            if kind == "bar":
-                ax.bar(x_axis, dist.data, width=bar_width, label=label, color=color)
-            elif kind in ("line", "plot"):
-                ax.plot(x_axis, dist.data, color=color, marker="o", label=label)
-            else:
-                raise ValueError(f"unsupported kind for grouped plot: {kind}")
+            ax.bar(x_axis, dist.data, width=bar_width, label=dist.name, color=color)
+
+        for dist, color in line_graph_info:
+            ax.plot(x_coords, dist.data, color=color, marker="o", label=dist.name)
 
         ax.legend()
         fig.tight_layout()

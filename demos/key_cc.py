@@ -9,7 +9,7 @@ def main(profiles=None, kind: str = "bar"):
     score = import_midi(midi_path, show=False)
     for p in profiles:
         dist = build_key_correlation_distribution(score=score, profile=p)
-        dist.plot(kind=kind)
+        dist.plot(option=kind)
 
 
 if __name__ == "__main__":

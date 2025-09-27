@@ -277,10 +277,13 @@ class PitchProfile(Distribution):
         color: str = DEFAULT_BAR_COLOR,
         option: str = "bar",
         show: bool = True,
+        fig: Optional[Figure] = None,
+        ax: Optional[Axes] = None,
     ) -> Figure:
         """
         Plot method overriding the original plot method in the parent class.
-        Instead, this plot uses the default plot behavior (keys = None) from PitchProfile's
+        Instead of using the behavior of the plot method in the parent class,
+        this plot uses the default plot behavior (keys = None) from PitchProfile's
         plot_custom.
 
         See plot_custom for more details about argument behavior.
@@ -288,30 +291,18 @@ class PitchProfile(Distribution):
         Returns:
             Figure - A matplotlib figure object
         """
-        fig, ax = plt.subplots()
-        return self._subplot(
-            fig=fig, ax=ax, keys=None, color=color, option=option, show=show
+        # Figure/axes handling: either both `fig` and `ax` are provided, or
+        # neither; in the latter case, create a new figure/axes pair.
+        if fig is None:
+            if ax is not None:
+                raise ValueError("invalid figure/axis combination")
+            fig, ax = plt.subplots()
+        else:
+            if ax is None:
+                raise ValueError("invalid figure/axis combination")
+        return self.plot_custom(
+            keys=None, color=color, option=option, show=show, fig=fig, ax=ax
         )
-
-    def _subplot(
-        self,
-        fig: Figure,
-        ax: Axes,
-        color: str = DEFAULT_BAR_COLOR,
-        option: str = "bar",
-        show: bool = True,
-    ) -> Figure:
-        """
-        Subplot method for multiple plotting as specified in distribution.py.
-        Here, subplot leverages the default plot option of plot_custom
-        through _plot_custom_internal, which is where all keys are plotted.
-
-        See plot_custom for more details about argument behavior.
-
-        Returns:
-            Figure - A matplotlib figure object
-        """
-        return self._plot_custom_internal(fig, ax, None, color, option, show)
 
     def plot_custom(
         self,
@@ -319,6 +310,8 @@ class PitchProfile(Distribution):
         color: str = DEFAULT_BAR_COLOR,
         option: str = "bar",
         show: bool = True,
+        fig: Optional[Figure] = None,
+        ax: Optional[Axes] = None,
     ) -> Figure:
         """
         custom plot method for PitchProfile.
@@ -349,49 +342,38 @@ class PitchProfile(Distribution):
             (2) Ignored otherwise
         option: str
             (1) In the transpositionally equivalent case and keys is None,
-            "bar" or "line" for plotting a bar or line graph, respectively.
+            "bar" for plotting a bar graph,
+            or "line" or "plot" for plotting a line graph.
             (2) Ignored otherwise
         show: bool
             whether or not we want to display the plot before returning from this function
+        fig, ax : matplotlib Figure and Axes
+            Provide an existing figure/axes to draw on; if omitted, a new
+            figure and axes are created.
 
         Returns:
             Figure - A matplotlib figure object.
         """
-        fig, ax = plt.subplots()
-        return self._plot_custom_internal(fig, ax, keys, color, option, show)
-
-    def _plot_custom_internal(
-        self,
-        fig: Figure,
-        ax: Axes,
-        keys: Optional[List[str]] = None,
-        color: str = DEFAULT_BAR_COLOR,
-        option: str = "bar",
-        show: bool = True,
-    ) -> Figure:
-        """
-        Internal logic for custom plotting in pitch profile.
-        Refactored into this internal function in order to reuse the underlying logic
-        (speicfically the default custom plot case) for _subplot and plot as well.
-
-        In addition to the arguments in plot_custom, fig, a matplotlib figure object,
-        and ax, a matplotlib axes object, are included as arguments as well
-        to facilitate _subplot specification.
-
-        Returns:
-            Figure - A matplotlib figure object
-        """
+        # Figure/axes handling: either both `fig` and `ax` are provided, or
+        # neither; in the latter case, create a new figure/axes pair.
+        if fig is None:
+            if ax is not None:
+                raise ValueError("invalid figure/axis combination")
+            fig, ax = plt.subplots()
+        else:
+            if ax is None:
+                raise ValueError("invalid figure/axis combination")
         # similar logic to the plot method in distribution.py
         plot_keys = keys
         # in the default case, we have default presets to plot the data
         if plot_keys is None:
             # 1-D plot
             if self.distribution_type == "symmetric_key_profile":
-                return super()._subplot(fig, ax, color, option, show)
+                return super().plot(
+                    fig=fig, ax=ax, color=color, option=option, show=show
+                )
             else:
                 plot_keys = PitchProfile._pitches
-        else:
-            plot_keys = [key.capitalize() for key in plot_keys]
         assert isinstance(plot_keys, list)
         if not plot_keys:
             return None

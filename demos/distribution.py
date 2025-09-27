@@ -79,7 +79,7 @@ def demo_individual_plot_per_window(dists):
     """
     for dist in dists:
         if len(dist.dimensions) == 1:
-            _ = dist.plot(kind="line", show=False)
+            _ = dist.plot(option="line", show=False)
         else:
             _ = dist.plot(show=False)
 
@@ -94,7 +94,7 @@ def demo_multiple_plots_per_window(dists):
     Here we set all 1-D distributions to line plots to test the API.
     """
     kinds_for_1d = ["line" for d in dists if len(d.dimensions) == 1]
-    Distribution.plot_multiple(dists, kinds=kinds_for_1d)
+    Distribution.plot_multiple(dists, options=kinds_for_1d)
     return
 
 
@@ -108,7 +108,7 @@ def demo_plot_grouped_1d(dists):
         kinds = ["bar", "line"]
     else:
         kinds = "bar"
-    Distribution.plot_grouped_1d(dists, kinds=kinds)
+    Distribution.plot_grouped_1d(dists, options=kinds)
     return
 
 
@@ -118,7 +118,7 @@ def demo_vertical_lines_1d(dists):
     This compares shapes without overlapping them in a single axes.
     """
     kinds = "line"
-    Distribution.plot_multiple(dists, kinds=kinds)
+    Distribution.plot_multiple(dists, options=kinds)
     return
 
 
