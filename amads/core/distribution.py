@@ -319,14 +319,15 @@ class Distribution:
         that each category (x bin) shows a "group" of values—one per distribution.
         You can mix plotting styles using the `kinds` argument (for example, some as
         bars and others as lines with markers. Colors are controlled via the
-        `colors` list.
+        `colors` argument.
 
         Constraints
         -----------
         - Only 1-D distributions are accepted. All inputs must have the same
           length (number of categories) so they can be grouped per category.
         - The x/y labels and category names are taken from the first
-          distribution in `dists`.
+          distribution in `dists`. Hence, this function does not support
+          overlaying 1-D distributions with different categories and labels.
 
         Parameters
         ----------
