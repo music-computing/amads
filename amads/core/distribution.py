@@ -128,20 +128,30 @@ class Distribution:
 
     def plot(
         self,
-        color: str = DEFAULT_BAR_COLOR,
-        option: str = "bar",
+        color: Optional[str] = DEFAULT_BAR_COLOR,
+        option: Optional[str] = "bar",
         show: bool = True,
         fig: Optional[Figure] = None,
         ax: Optional[Axes] = None,
     ) -> Figure:
-        """Plot this distribution.
+        """
+        Virtual plot function for Distribution.
+        Allows standalone plotting of a Distribution (when fig and ax are None),
+        while providing enough extensibility to invoke this plot function or its
+        overwritten variants for subplotting when fig and ax are provided as
+        arguments.
 
         Parameters
         ----------
-        color : str
-            Color used for 1d plots. Ignored in the 2d case
-        option : {"bar", "line"}
-            Plot style used for 1d distributions. Ignored for 2d case.
+        color : Optional[str]
+            Plot color string specification. In this particular plot function,
+            it is handled in 1-D distributions and ignored in 2-D distributions.
+            None for default option (DEFAULT_BAR_COLOR).
+        option : Optional[str]
+            Plot style string specification. In this particular plot function,
+            only {"bar", "line"} are valid string arguments that will be handled
+            in a 1-D distribution, while any argument is ignored in 2-D distributions
+            None for default option ("bar").
         show : bool
             Whether to call ``plt.show()`` at the end.
         fig, ax : matplotlib Figure and Axes
@@ -150,10 +160,9 @@ class Distribution:
 
         Notes
         -----
+        Behavior to this specific plot method:
         - 1-D: bar (default) or line when kind is "line"
         - 2-D: heatmap
-        - fig and ax are provided as optional arguments to allow leveraging
-        this plot function when multiple plots within a single figure are involved
         """
         dims = len(self.dimensions)
         if dims not in (1, 2):
@@ -170,6 +179,10 @@ class Distribution:
                 raise ValueError("invalid figure/axis combination")
 
         if dims == 1:
+            if color is None:
+                color = DEFAULT_BAR_COLOR
+            if option is None:
+                option = "bar"
             x = range(len(self.x_categories))
             # 1-D distributions: draw either a bar chart or a line chart.
             if option == "bar":
@@ -224,21 +237,22 @@ class Distribution:
         options: Optional[Union[str, List[str]]] = None,
         colors: Optional[Union[str, List[str]]] = None,
     ) -> Optional[Figure]:
-        # TODO: need additional constraints on kinds and colors here
-        # from how the code looks (in the list case for kinds, and colors):
-        # the length of kinds, and colors are equal to the length
-        # of d1 in the code
         """
         Plot multiple distributions into a single Figure using vertically
         stacked subplots.
 
         Notes
         -----
-        - 2-D distributions are drawn first (heatmaps), followed by the 1-D
-          distributions stacked below them.
-        - `kinds` and `colors` apply only to 1-D distributions.
+        - distributions are plotted in the same order they were presented in
+          dists list
+        - as long as a Distribution or inherited class has a valid plot function
+          implemented, the relevant plot will be mapped here
+        - `options` and `colors` apply to all distributions
+        - Although the original plot function is only limited to
+          `option` and `color` being used in the 1-D case, it is not to say
+          that a class inheriting Distribution won't leverage these arguments.
         - You can pass either a list (per-series) or a single string. When a
-          single string is provided, it will be broadcast to all 1-D inputs.
+          single string is provided, it will be broadcast to all inputs.
           For example, kinds="line" makes all 1-D plots line charts.
 
         Returns
@@ -253,50 +267,38 @@ class Distribution:
             Distributions to plot. 2-D are rendered as heatmaps; 1-D below them.
         show : bool
             Whether to call ``plt.show()`` at the end.
-        ! What are the length constraints for the kinds and colors here?
         kinds : str | list[str] | None
-            1-D plot style per distribution ("bar" or "line"). If a single
-            string is given, it is broadcast to all 1-D distributions. If None,
-            defaults to "bar" for all 1-D inputs.
+            plot style per distribution (e.g. "bar" or "line"). If a single
+            string is given, it is broadcast to all distributions. If None,
+            defaults to "bar".
         colors : str | list[str] | None
-            1-D color per distribution. If a single string is given, it is
+            color option per distribution. If a single string is given, it is
             broadcast to all 1-D distributions. If None, defaults to
-            the single color DEFAULT_BAR_COLOR for all 1-D inputs.
+            the single color DEFAULT_BAR_COLOR.
         """
         if not dists:
             return None
 
-        # Partition inputs by dimensionality to control layout ordering
-        d2 = [d for d in dists if len(d.dimensions) == 2]
-        d1 = [d for d in dists if len(d.dimensions) == 1]
-
-        total = len(d2) + len(d1)
-        # Create a vertical stack of subplots sized to total count
-        fig, axes = plt.subplots(total, 1, squeeze=False)
-        axes = axes.ravel()
-
-        # `kinds`/`colors` apply to 1-D only; enforce alignment
-        n1 = len(d1)
-        # when single string, broadcast to all 1-D distributions
-        if isinstance(options, str):
-            options = [options] * n1
-        if isinstance(colors, str):
-            colors = [colors] * n1
+        # when single string, broadcast to all distributions
         if options is None:
-            options = ["bar"] * n1
+            options = ["bar"] * len(dists)
         if colors is None:
-            colors = [DEFAULT_BAR_COLOR] * n1
-        if len(options) != n1 or len(colors) != n1:
-            raise ValueError("kinds/colors must match number of 1-D distributions")
+            colors = [DEFAULT_BAR_COLOR] * len(dists)
+        if isinstance(options, str):
+            options = [options] * len(dists)
+        if isinstance(colors, str):
+            colors = [colors] * len(dists)
+        if len(options) != len(dists) or len(colors) != len(dists):
+            raise ValueError(
+                "kinds/colors must match number of distributions in list case"
+            )
 
+        # Create a vertical stack of subplots sized to total count
+        fig, axes = plt.subplots(len(dists), 1, squeeze=False)
+        axes = axes.ravel()
         # use an axes iterator here
         ax_iter = iter(axes)
-        # Plot 2-D first to match the documented layout
-        for d in d2:
-            ax = next(ax_iter)
-            d.plot(show=False, fig=fig, ax=ax)
-        # Then 1-D with per-kind/color
-        for d, k, c in zip(d1, options, colors):
+        for d, k, c in zip(dists, options, colors):
             ax = next(ax_iter)
             d.plot(color=c, option=k, show=False, fig=fig, ax=ax)
 
@@ -381,7 +383,11 @@ class Distribution:
             for d in dists
         ):
             raise ValueError("All 1-D distributions must have same axes labels")
-        if any(d.x_categories != dists[0].x_categories for d in dists):
+        if any(
+            d.x_categories != dists[0].x_categories
+            or d.y_categories != dists[0].y_categories
+            for d in dists
+        ):
             raise ValueError("All 1-D distributions must have same axes categories")
 
         # when single string, broadcast to all

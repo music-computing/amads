@@ -90,11 +90,10 @@ def demo_individual_plot_per_window(dists):
 def demo_multiple_plots_per_window(dists):
     """Stack multiple distributions into one figure.
 
-    Provide `kinds` for 1-D dists only (length must match the number of 1-D dists).
-    Here we set all 1-D distributions to line plots to test the API.
+    Provide `kinds` here to set all 1-D distributions to line plots to test the API.
     """
-    kinds_for_1d = ["line" for d in dists if len(d.dimensions) == 1]
-    Distribution.plot_multiple(dists, options=kinds_for_1d)
+    kinds = ["line"] * len(dists)
+    Distribution.plot_multiple(dists, options=kinds)
     return
 
 
