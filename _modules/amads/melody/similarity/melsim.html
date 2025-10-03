@@ -1,0 +1,1271 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>amads.melody.similarity.melsim &#8212; amads  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/amads/melody/similarity/melsim';</script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">amads  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">User guide:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/installation.html">Installation</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Developer notes:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../developer_notes/contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developer_notes/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developer_notes/design.html">Design considerations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developer_notes/modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developer_notes/music21.html">Music21</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developer_notes/testing.html">Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developer_notes/style.html">Style</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developer_notes/making_a_release.html">Making a release</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Examples:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../auto_examples/plot_durdist1.html">Duration distributions (I)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../auto_examples/plot_durdist2.html">Duration pair distributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../auto_examples/plot_parncutt_root_analysis.html">Root analysis (after Parncutt)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../auto_examples/plot_boundary.html">Boundary detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../auto_examples/plot_sliding_window.html">Sliding window analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../auto_examples/plot_melsim.html">Melodic similarity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../auto_examples/scorebasics.html">Score Creation and Manipulation Example</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">General algorithms:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.algorithms.entropy.html">amads.algorithms.entropy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.algorithms.nnotes.html">amads.algorithms.nnotes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.algorithms.scale.html">amads.algorithms.scale</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.algorithms.slice.salami.html">amads.algorithms.slice.salami</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.algorithms.slice.window.html">amads.algorithms.slice.window</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Pitch:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.hz2midi.html">amads.pitch.hz2midi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.ismonophonic.html">amads.pitch.ismonophonic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.ivdirdist1.html">amads.pitch.ivdirdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.ivdist1.html">amads.pitch.ivdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.ivdist2.html">amads.pitch.ivdist2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.ivsizedist1.html">amads.pitch.ivsizedist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.key.profiles.html">amads.pitch.key.profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.pcdist1.html">amads.pitch.pcdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.pcdist2.html">amads.pitch.pcdist2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.pitch_mean.html">amads.pitch.pitch_mean</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.pitch.transformations.html">amads.pitch.transformations</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Time:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.time.durdist1.html">amads.time.durdist1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.time.durdist2.html">amads.time.durdist2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.time.notedensity.html">amads.time.notedensity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.time.swing.html">amads.time.swing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.time.tempo.html">amads.time.tempo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.time.variability.html">amads.time.variability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.time.meter.break_it_up.html">amads.time.meter.break_it_up</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Harmony:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.harmony.root_finding.parncutt.html">amads.harmony.root_finding.parncutt</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Melody:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.melody.boundary.html">amads.melody.boundary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.melody.segment_gestalt.html">amads.melody.segment_gestalt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.melody.contour.interpolation_contour.html">amads.melody.contour.interpolation_contour</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.melody.contour.step_contour.html">amads.melody.contour.step_contour</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.melody.similarity.melsim.html">amads.melody.similarity.melsim</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Polyphony:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.polyphony.skyline.html">amads.polyphony.skyline</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Core:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.core.basics.html">amads.core.basics</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">IO:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../_autosummary/amads.io.pianoroll.html">amads.io.pianoroll</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for amads.melody.similarity.melsim</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This is a Python wrapper for the R package &#39;melsim&#39; (https://github.com/sebsilas/melsim).</span>
+<span class="sd">This wrapper allows the user to easily interface with the melsim package using the AMADS Score object.</span>
+<span class="sd">Melsim is a package for computing similarity between melodies, and is being developed by</span>
+<span class="sd">Sebastian Silas (https://sebsilas.com/) and Klaus Frieler</span>
+<span class="sd">(https://www.aesthetics.mpg.de/en/the-institute/people/klaus-frieler.html).</span>
+<span class="sd">Melsim is based on SIMILE, which was written by Daniel Müllensiefen and Klaus Frieler in 2003/2004.</span>
+<span class="sd">This package is used to compare two or more melodies pairwise across a range of similarity measures.</span>
+<span class="sd">Not all similarity measures are implemented in melsim, but the ones that are can be used here.</span>
+<span class="sd">All of the following similarity measures are implemented and functional in melsim:</span>
+<span class="sd">Please be aware that the names of the similarity measures are case-sensitive.</span>
+<span class="sd">Num:        Name:</span>
+<span class="sd">1           Jaccard</span>
+<span class="sd">2       Kulczynski2</span>
+<span class="sd">3            Russel</span>
+<span class="sd">4             Faith</span>
+<span class="sd">5          Tanimoto</span>
+<span class="sd">6              Dice</span>
+<span class="sd">7            Mozley</span>
+<span class="sd">8            Ochiai</span>
+<span class="sd">9            Simpson</span>
+<span class="sd">10           cosine</span>
+<span class="sd">11          angular</span>
+<span class="sd">12      correlation</span>
+<span class="sd">13        Tschuprow</span>
+<span class="sd">14           Cramer</span>
+<span class="sd">15            Gower</span>
+<span class="sd">16        Euclidean</span>
+<span class="sd">17        Manhattan</span>
+<span class="sd">18         supremum</span>
+<span class="sd">19         Canberra</span>
+<span class="sd">20            Chord</span>
+<span class="sd">21         Geodesic</span>
+<span class="sd">22             Bray</span>
+<span class="sd">23          Soergel</span>
+<span class="sd">24           Podani</span>
+<span class="sd">25        Whittaker</span>
+<span class="sd">26         eJaccard</span>
+<span class="sd">27            eDice</span>
+<span class="sd">28   Bhjattacharyya</span>
+<span class="sd">29       divergence</span>
+<span class="sd">30        Hellinger</span>
+<span class="sd">31    edit_sim_utf8</span>
+<span class="sd">32         edit_sim</span>
+<span class="sd">33      Levenshtein</span>
+<span class="sd">34          sim_NCD</span>
+<span class="sd">35            const</span>
+<span class="sd">36          sim_dtw</span>
+<span class="sd">The following similarity measures are not currently functional in melsim:</span>
+<span class="sd">1    count_distinct (set-based)</span>
+<span class="sd">2          tversky (set-based)</span>
+<span class="sd">3   simple matching</span>
+<span class="sd">4   braun_blanquet (set-based)</span>
+<span class="sd">5        minkowski (vector-based)</span>
+<span class="sd">6           ukkon (distribution-based)</span>
+<span class="sd">7      sum_common (distribution-based)</span>
+<span class="sd">8       distr_sim (distribution-based)</span>
+<span class="sd">9   stringdot_utf8 (sequence-based)</span>
+<span class="sd">10            pmi (special)</span>
+<span class="sd">11       sim_emd (special)</span>
+<span class="sd">Further to the similarity measures, melsim allows the user to specify which domain the</span>
+<span class="sd">similarity should be calculated for. This is referred to as a &quot;transformation&quot; in melsim,</span>
+<span class="sd">and all of the following transformations are implemented and functional:</span>
+<span class="sd">Num:        Name:</span>
+<span class="sd">1           pitch</span>
+<span class="sd">2           int</span>
+<span class="sd">3           fuzzy_int</span>
+<span class="sd">4           parsons</span>
+<span class="sd">5           pc</span>
+<span class="sd">6           ioi_class</span>
+<span class="sd">7           duration_class</span>
+<span class="sd">8           int_X_ioi_class</span>
+<span class="sd">9           implicit_harmonies</span>
+<span class="sd">The following transformations are not currently functional in melsim:</span>
+<span class="sd">Num:        Name:</span>
+<span class="sd">1           ioi</span>
+<span class="sd">2           phrase_segmentation</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">combinations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">tenacity</span><span class="w"> </span><span class="kn">import</span> <span class="n">RetryError</span><span class="p">,</span> <span class="n">Retrying</span><span class="p">,</span> <span class="n">stop_after_attempt</span><span class="p">,</span> <span class="n">wait_exponential</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="n">r_base_packages</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">,</span> <span class="s2">&quot;utils&quot;</span><span class="p">]</span>
+<span class="n">r_cran_packages</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;tibble&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;R6&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;remotes&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;dplyr&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;magrittr&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;proxy&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;purrr&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;purrrlyr&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tidyr&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;yaml&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;stringr&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;emdist&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;dtw&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ggplot2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cba&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;jsonlite&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">r_github_packages</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;melsim&quot;</span><span class="p">]</span>
+<span class="n">github_repos</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;melsim&quot;</span><span class="p">:</span> <span class="s2">&quot;sebsilas/melsim&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="check_r_packages_installed">
+<a class="viewcode-back" href="../../../../_autosummary/amads.melody.similarity.melsim.html#amads.melody.similarity.melsim.check_r_packages_installed">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_r_packages_installed</span><span class="p">(</span><span class="n">install_missing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">n_retries</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if required R packages are installed.&quot;&quot;&quot;</span>
+    <span class="c1"># Create R script to check package installation using base R only</span>
+    <span class="n">check_script</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    packages &lt;- c(</span><span class="si">{packages}</span><span class="s2">)</span>
+<span class="s2">    missing &lt;- packages[!sapply(packages, requireNamespace, quietly = TRUE)]</span>
+<span class="s2">    if (length(missing) &gt; 0) {{</span>
+<span class="s2">        cat(paste0(&#39;&quot;&#39;, missing, &#39;&quot;&#39;, collapse = &quot;,&quot;))</span>
+<span class="s2">    }} else {{</span>
+<span class="s2">        cat(&quot;&quot;)</span>
+<span class="s2">    }}</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Format package list</span>
+    <span class="n">packages_str</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s1">&quot;&#39;</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">r_cran_packages</span> <span class="o">+</span> <span class="n">r_github_packages</span><span class="p">])</span>
+    <span class="n">check_script</span> <span class="o">=</span> <span class="n">check_script</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">packages</span><span class="o">=</span><span class="n">packages_str</span><span class="p">)</span>
+
+    <span class="c1"># Run R script</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;Rscript&quot;</span><span class="p">,</span> <span class="s2">&quot;-e&quot;</span><span class="p">,</span> <span class="n">check_script</span><span class="p">],</span> <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+        <span class="c1"># Parse the output - if empty, no missing packages</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">output</span><span class="p">:</span>
+            <span class="n">missing_packages</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Parse comma-separated quoted strings</span>
+            <span class="n">missing_packages</span> <span class="o">=</span> <span class="p">[</span><span class="n">pkg</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">pkg</span> <span class="ow">in</span> <span class="n">output</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span>
+
+        <span class="k">if</span> <span class="n">missing_packages</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">install_missing</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="n">missing_packages</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">attempt</span> <span class="ow">in</span> <span class="n">Retrying</span><span class="p">(</span>
+                            <span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">n_retries</span><span class="p">),</span>
+                            <span class="n">wait</span><span class="o">=</span><span class="n">wait_exponential</span><span class="p">(</span><span class="n">multiplier</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
+                        <span class="p">):</span>
+                            <span class="k">with</span> <span class="n">attempt</span><span class="p">:</span>
+                                <span class="n">install_r_package</span><span class="p">(</span><span class="n">package</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="n">RetryError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Failed to install R package &#39;</span><span class="si">{</span><span class="n">package</span><span class="si">}</span><span class="s2">&#39; after </span><span class="si">{</span><span class="n">n_retries</span><span class="si">}</span><span class="s2"> attempts. &quot;</span>
+                            <span class="s2">&quot;See above for the traceback.&quot;</span>
+                        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Packages </span><span class="si">{</span><span class="n">missing_packages</span><span class="si">}</span><span class="s2"> are required but not installed. &quot;</span>
+                    <span class="s2">&quot;You can install them by running: install_dependencies()&quot;</span>
+                <span class="p">)</span>
+    <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error checking R packages: </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">stderr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="install_r_package">
+<a class="viewcode-back" href="../../../../_autosummary/amads.melody.similarity.melsim.html#amads.melody.similarity.melsim.install_r_package">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">install_r_package</span><span class="p">(</span><span class="n">package</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Install an R package.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">package</span> <span class="ow">in</span> <span class="n">r_cran_packages</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Installing CRAN package &#39;</span><span class="si">{</span><span class="n">package</span><span class="si">}</span><span class="s2">&#39;...&quot;</span><span class="p">)</span>
+        <span class="n">install_script</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        utils::chooseCRANmirror(ind=1)</span>
+<span class="s2">        utils::install.packages(&quot;</span><span class="si">{</span><span class="n">package</span><span class="si">}</span><span class="s2">&quot;, dependencies=TRUE)</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;Rscript&quot;</span><span class="p">,</span> <span class="s2">&quot;-e&quot;</span><span class="p">,</span> <span class="n">install_script</span><span class="p">],</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">package</span> <span class="ow">in</span> <span class="n">r_github_packages</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Installing GitHub package &#39;</span><span class="si">{</span><span class="n">package</span><span class="si">}</span><span class="s2">&#39;...&quot;</span><span class="p">)</span>
+        <span class="n">repo</span> <span class="o">=</span> <span class="n">github_repos</span><span class="p">[</span><span class="n">package</span><span class="p">]</span>
+        <span class="n">install_script</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        if (!requireNamespace(&quot;remotes&quot;, quietly = TRUE)) </span><span class="se">{{</span>
+<span class="s2">            utils::install.packages(&quot;remotes&quot;)</span>
+<span class="s2">        </span><span class="se">}}</span>
+<span class="s2">        remotes::install_github(&quot;</span><span class="si">{</span><span class="n">repo</span><span class="si">}</span><span class="s2">&quot;, upgrade=&quot;always&quot;, dependencies=TRUE)</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;Rscript&quot;</span><span class="p">,</span> <span class="s2">&quot;-e&quot;</span><span class="p">,</span> <span class="n">install_script</span><span class="p">],</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown package type for &#39;</span><span class="si">{</span><span class="n">package</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="install_dependencies">
+<a class="viewcode-back" href="../../../../_autosummary/amads.melody.similarity.melsim.html#amads.melody.similarity.melsim.install_dependencies">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">install_dependencies</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Install all required R packages.&quot;&quot;&quot;</span>
+    <span class="c1"># Check which packages need to be installed using base R only</span>
+    <span class="n">check_script</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    packages &lt;- c(</span><span class="si">{packages}</span><span class="s2">)</span>
+<span class="s2">    missing &lt;- packages[!sapply(packages, requireNamespace, quietly = TRUE)]</span>
+<span class="s2">    if (length(missing) &gt; 0) {{</span>
+<span class="s2">        cat(paste0(&#39;&quot;&#39;, missing, &#39;&quot;&#39;, collapse = &quot;,&quot;))</span>
+<span class="s2">    }} else {{</span>
+<span class="s2">        cat(&quot;&quot;)</span>
+<span class="s2">    }}</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Check CRAN packages</span>
+    <span class="n">packages_str</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s1">&quot;&#39;</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">r_cran_packages</span><span class="p">])</span>
+    <span class="n">check_script_cran</span> <span class="o">=</span> <span class="n">check_script</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">packages</span><span class="o">=</span><span class="n">packages_str</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;Rscript&quot;</span><span class="p">,</span> <span class="s2">&quot;-e&quot;</span><span class="p">,</span> <span class="n">check_script_cran</span><span class="p">],</span>
+            <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+        <span class="c1"># Parse the output - if empty, no missing packages</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">output</span><span class="p">:</span>
+            <span class="n">missing_cran</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Parse comma-separated quoted strings</span>
+            <span class="n">missing_cran</span> <span class="o">=</span> <span class="p">[</span><span class="n">pkg</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">pkg</span> <span class="ow">in</span> <span class="n">output</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span>
+
+        <span class="k">if</span> <span class="n">missing_cran</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Installing missing CRAN packages...&quot;</span><span class="p">)</span>
+            <span class="n">cran_script</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            utils::chooseCRANmirror(ind=1)</span>
+<span class="s2">            utils::install.packages(c(</span><span class="si">{</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">missing_cran</span><span class="p">])</span><span class="si">}</span><span class="s2">), dependencies=TRUE)</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+            <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;Rscript&quot;</span><span class="p">,</span> <span class="s2">&quot;-e&quot;</span><span class="p">,</span> <span class="n">cran_script</span><span class="p">],</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Skipping install: All CRAN packages are already installed.&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error checking CRAN packages: </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">stderr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Check GitHub packages</span>
+    <span class="n">packages_str</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s1">&quot;&#39;</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">r_github_packages</span><span class="p">])</span>
+    <span class="n">check_script_github</span> <span class="o">=</span> <span class="n">check_script</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">packages</span><span class="o">=</span><span class="n">packages_str</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;Rscript&quot;</span><span class="p">,</span> <span class="s2">&quot;-e&quot;</span><span class="p">,</span> <span class="n">check_script_github</span><span class="p">],</span>
+            <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+        <span class="c1"># Parse the output - if empty, no missing packages</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">output</span><span class="p">:</span>
+            <span class="n">missing_github</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Parse comma-separated quoted strings</span>
+            <span class="n">missing_github</span> <span class="o">=</span> <span class="p">[</span><span class="n">pkg</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">pkg</span> <span class="ow">in</span> <span class="n">output</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span>
+
+        <span class="k">if</span> <span class="n">missing_github</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Installing missing GitHub packages...&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="n">missing_github</span><span class="p">:</span>
+                <span class="n">repo</span> <span class="o">=</span> <span class="n">github_repos</span><span class="p">[</span><span class="n">package</span><span class="p">]</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Installing </span><span class="si">{</span><span class="n">package</span><span class="si">}</span><span class="s2"> from </span><span class="si">{</span><span class="n">repo</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
+                <span class="n">install_script</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                if (!requireNamespace(&quot;remotes&quot;, quietly = TRUE)) </span><span class="se">{{</span>
+<span class="s2">                    utils::install.packages(&quot;remotes&quot;)</span>
+<span class="s2">                </span><span class="se">}}</span>
+<span class="s2">                remotes::install_github(&quot;</span><span class="si">{</span><span class="n">repo</span><span class="si">}</span><span class="s2">&quot;, upgrade=&quot;always&quot;, dependencies=TRUE)</span>
+<span class="s2">                &quot;&quot;&quot;</span>
+                <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;Rscript&quot;</span><span class="p">,</span> <span class="s2">&quot;-e&quot;</span><span class="p">,</span> <span class="n">install_script</span><span class="p">],</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Skipping install: All GitHub packages are already installed.&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error checking GitHub packages: </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">stderr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;All dependencies are installed and up to date.&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="check_python_package_installed">
+<a class="viewcode-back" href="../../../../_autosummary/amads.melody.similarity.melsim.html#amads.melody.similarity.melsim.check_python_package_installed">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_python_package_installed</span><span class="p">(</span><span class="n">package</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if a Python package is installed.&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="nb">__import__</span><span class="p">(</span><span class="n">package</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Package &#39;</span><span class="si">{</span><span class="n">package</span><span class="si">}</span><span class="s2">&#39; is required but not installed. &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Please install it using pip: pip install </span><span class="si">{</span><span class="n">package</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span></div>
+
+
+
+<span class="c1"># Valid similarity measures and transformations as listed in the module docstring</span>
+<span class="n">VALID_METHODS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;Jaccard&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Kulczynski2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Russel&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Faith&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Tanimoto&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Dice&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Mozley&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Ochiai&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Simpson&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cosine&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;angular&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;correlation&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Tschuprow&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Cramer&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Gower&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Euclidean&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Manhattan&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;supremum&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Canberra&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Chord&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Geodesic&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Bray&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Soergel&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Podani&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Whittaker&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;eJaccard&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;eDice&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Bhjattacharyya&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;divergence&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Hellinger&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;edit_sim_utf8&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;edit_sim&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Levenshtein&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sim_NCD&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;const&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sim_dtw&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">VALID_TRANSFORMATIONS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;pitch&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;int&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;fuzzy_int&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;parsons&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pc&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ioi_class&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;duration_class&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;int_X_ioi_class&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;implicit_harmonies&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="validate_method">
+<a class="viewcode-back" href="../../../../_autosummary/amads.melody.similarity.melsim.html#amads.melody.similarity.melsim.validate_method">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">validate_method</span><span class="p">(</span><span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate that the similarity method is supported.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">method</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">VALID_METHODS</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Invalid method &#39;</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&#39;. Valid methods are: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">VALID_METHODS</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="validate_transformation">
+<a class="viewcode-back" href="../../../../_autosummary/amads.melody.similarity.melsim.html#amads.melody.similarity.melsim.validate_transformation">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">validate_transformation</span><span class="p">(</span><span class="n">transformation</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate that the transformation is supported.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">transformation</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">VALID_TRANSFORMATIONS</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Invalid transformation &#39;</span><span class="si">{</span><span class="n">transformation</span><span class="si">}</span><span class="s2">&#39;. Valid transformations are: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">VALID_TRANSFORMATIONS</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_similarity">
+<a class="viewcode-back" href="../../../../_autosummary/amads.melody.similarity.melsim.html#amads.melody.similarity.melsim.get_similarity">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_similarity</span><span class="p">(</span><span class="n">melody_1</span><span class="p">,</span> <span class="n">melody_2</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">transformation</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate similarity between two Score objects using the specified method.</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    melody_1 : Score</span>
+<span class="sd">        First Score object containing a monophonic melody</span>
+<span class="sd">    melody_2 : Score</span>
+<span class="sd">        Second Score object containing a monophonic melody</span>
+<span class="sd">    method : str</span>
+<span class="sd">        Name of the similarity method to use from the list in the module docstring.</span>
+<span class="sd">    transformation : str</span>
+<span class="sd">        Name of the transformation to use from the list in the module docstring.</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        Similarity value between the two melodies</span>
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from amads.core.basics import Score</span>
+<span class="sd">    &gt;&gt;&gt; # Create two simple melodies using from_melody</span>
+<span class="sd">    &gt;&gt;&gt; melody_1 = Score.from_melody(pitches=[60, 62, 64, 65], durations=1.0)</span>
+<span class="sd">    &gt;&gt;&gt; melody_2 = Score.from_melody(pitches=[60, 62, 64, 67], durations=1.0)</span>
+<span class="sd">    &gt;&gt;&gt; # Calculate similarity using Jaccard method</span>
+<span class="sd">    &gt;&gt;&gt; similarity = get_similarity(melody_1, melody_2, &#39;Jaccard&#39;, &#39;pitch&#39;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Validate inputs</span>
+    <span class="n">validate_method</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
+    <span class="n">validate_transformation</span><span class="p">(</span><span class="n">transformation</span><span class="p">)</span>
+
+    <span class="c1"># Convert Score objects to arrays</span>
+    <span class="n">pitches1</span><span class="p">,</span> <span class="n">starts1</span><span class="p">,</span> <span class="n">ends1</span> <span class="o">=</span> <span class="n">score_to_arrays</span><span class="p">(</span><span class="n">melody_1</span><span class="p">)</span>
+    <span class="n">pitches2</span><span class="p">,</span> <span class="n">starts2</span><span class="p">,</span> <span class="n">ends2</span> <span class="o">=</span> <span class="n">score_to_arrays</span><span class="p">(</span><span class="n">melody_2</span><span class="p">)</span>
+
+    <span class="c1"># Pass lists directly to _get_similarity</span>
+    <span class="k">return</span> <span class="n">_get_similarity</span><span class="p">(</span>
+        <span class="n">pitches1</span><span class="p">,</span> <span class="n">starts1</span><span class="p">,</span> <span class="n">ends1</span><span class="p">,</span> <span class="n">pitches2</span><span class="p">,</span> <span class="n">starts2</span><span class="p">,</span> <span class="n">ends2</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">transformation</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_similarity</span><span class="p">(</span>
+    <span class="n">melody1_pitches</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">melody1_starts</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">melody1_ends</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">melody2_pitches</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">melody2_starts</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">melody2_ends</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">transformation</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate similarity between two melodies using the specified method.</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    melody1_pitches : List[float]</span>
+<span class="sd">        Pitch values for the first melody</span>
+<span class="sd">    melody1_starts : List[float]</span>
+<span class="sd">        Start times for the first melody</span>
+<span class="sd">    melody1_ends : List[float]</span>
+<span class="sd">        End times for the first melody</span>
+<span class="sd">    melody2_pitches : List[float]</span>
+<span class="sd">        Pitch values for the second melody</span>
+<span class="sd">    melody2_starts : List[float]</span>
+<span class="sd">        Start times for the second melody</span>
+<span class="sd">    melody2_ends : List[float]</span>
+<span class="sd">        End times for the second melody</span>
+<span class="sd">    method : str</span>
+<span class="sd">        Name of the similarity method to use</span>
+<span class="sd">    transformation : str</span>
+<span class="sd">        Name of the transformation to use</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        Similarity value between the two melodies</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Validate inputs</span>
+    <span class="n">validate_method</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
+    <span class="n">validate_transformation</span><span class="p">(</span><span class="n">transformation</span><span class="p">)</span>
+
+    <span class="c1"># Convert arrays to comma-separated strings (works with both lists and numpy arrays)</span>
+    <span class="n">pitches1_str</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">melody1_pitches</span><span class="p">))</span>
+    <span class="n">starts1_str</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">melody1_starts</span><span class="p">))</span>
+    <span class="n">ends1_str</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">melody1_ends</span><span class="p">))</span>
+    <span class="n">pitches2_str</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">melody2_pitches</span><span class="p">))</span>
+    <span class="n">starts2_str</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">melody2_starts</span><span class="p">))</span>
+    <span class="n">ends2_str</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">melody2_ends</span><span class="p">))</span>
+
+    <span class="c1"># Create R script for similarity calculation</span>
+    <span class="n">r_script</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    suppressMessages(suppressWarnings(</span><span class="se">{{</span>
+<span class="s2">        library(melsim)</span>
+<span class="s2">        # Create melody objects</span>
+<span class="s2">        melody1 &lt;- melody_factory$new(mel_data = tibble::tibble(</span>
+<span class="s2">            onset = c(</span><span class="si">{</span><span class="n">starts1_str</span><span class="si">}</span><span class="s2">),</span>
+<span class="s2">            pitch = c(</span><span class="si">{</span><span class="n">pitches1_str</span><span class="si">}</span><span class="s2">),</span>
+<span class="s2">            duration = c(</span><span class="si">{</span><span class="n">ends1_str</span><span class="si">}</span><span class="s2">) - c(</span><span class="si">{</span><span class="n">starts1_str</span><span class="si">}</span><span class="s2">)</span>
+<span class="s2">        ))</span>
+<span class="s2">        melody2 &lt;- melody_factory$new(mel_data = tibble::tibble(</span>
+<span class="s2">            onset = c(</span><span class="si">{</span><span class="n">starts2_str</span><span class="si">}</span><span class="s2">),</span>
+<span class="s2">            pitch = c(</span><span class="si">{</span><span class="n">pitches2_str</span><span class="si">}</span><span class="s2">),</span>
+<span class="s2">            duration = c(</span><span class="si">{</span><span class="n">ends2_str</span><span class="si">}</span><span class="s2">) - c(</span><span class="si">{</span><span class="n">starts2_str</span><span class="si">}</span><span class="s2">)</span>
+<span class="s2">        ))</span>
+<span class="s2">        # Create similarity measure</span>
+<span class="s2">        sim_measure &lt;- sim_measure_factory$new(</span>
+<span class="s2">            name = &quot;</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&quot;,</span>
+<span class="s2">            full_name = &quot;</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&quot;,</span>
+<span class="s2">            transformation = &quot;</span><span class="si">{</span><span class="n">transformation</span><span class="si">}</span><span class="s2">&quot;,</span>
+<span class="s2">            parameters = list(),</span>
+<span class="s2">            sim_measure = &quot;</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="s2">        )</span>
+<span class="s2">        # Calculate similarity</span>
+<span class="s2">        result &lt;- melody1$similarity(melody2, sim_measure)</span>
+<span class="s2">        cat(jsonlite::toJSON(result$sim))</span>
+<span class="s2">    </span><span class="se">}}</span><span class="s2">))</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Run R script</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;Rscript&quot;</span><span class="p">,</span> <span class="s2">&quot;-e&quot;</span><span class="p">,</span> <span class="n">r_script</span><span class="p">],</span> <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="c1"># Extract JSON from output (may contain warnings before the JSON)</span>
+        <span class="n">output_str</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="c1"># Find the JSON part - look for the last line or the part after newline</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">output_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">json_str</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># JSON should be on the last line</span>
+
+        <span class="c1"># If that doesn&#39;t work, try to find JSON array/object markers</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
+            <span class="n">json_str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;[&quot;</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="n">json_str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;{&quot;</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="n">json_str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;[&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;{&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">):</span>
+                    <span class="n">json_str</span> <span class="o">=</span> <span class="n">line</span>
+                    <span class="k">break</span>
+
+        <span class="n">output</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_str</span><span class="p">)</span>
+
+        <span class="c1"># Handle both single values and lists</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Get first value if it&#39;s a list</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">output</span>
+
+        <span class="c1"># Handle NA values from R</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;NA&quot;</span> <span class="ow">or</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">)</span>  <span class="c1"># Return NaN for invalid combinations</span>
+
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error calculating similarity: </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">stderr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_convert_strings_to_tuples</span><span class="p">(</span><span class="n">d</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert string keys back to tuples where needed.&quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">_convert_strings_to_tuples</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+    <span class="k">return</span> <span class="n">result</span>
+
+
+<div class="viewcode-block" id="score_to_arrays">
+<a class="viewcode-back" href="../../../../_autosummary/amads.melody.similarity.melsim.html#amads.melody.similarity.melsim.score_to_arrays">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">score_to_arrays</span><span class="p">(</span><span class="n">score</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract melody attributes from a Score object.</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    score : Score</span>
+<span class="sd">        Score object containing a monophonic melody</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Tuple[List[int], List[float], List[float]]</span>
+<span class="sd">        Tuple of (pitches, start_times, end_times)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">amads.core.basics</span><span class="w"> </span><span class="kn">import</span> <span class="n">Note</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">amads.pitch.ismonophonic</span><span class="w"> </span><span class="kn">import</span> <span class="n">ismonophonic</span>
+
+    <span class="k">assert</span> <span class="n">ismonophonic</span><span class="p">(</span><span class="n">score</span><span class="p">),</span> <span class="s2">&quot;Score must be monophonic&quot;</span>
+
+    <span class="c1"># Flatten the score to get notes in order</span>
+    <span class="n">flattened_score</span> <span class="o">=</span> <span class="n">score</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">collapse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">notes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">flattened_score</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="n">Note</span><span class="p">))</span>
+
+    <span class="c1"># Extract onset, pitch, duration for each note</span>
+    <span class="n">pitches</span> <span class="o">=</span> <span class="p">[</span><span class="n">note</span><span class="o">.</span><span class="n">pitch</span><span class="o">.</span><span class="n">key_num</span> <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="n">notes</span><span class="p">]</span>
+    <span class="n">starts</span> <span class="o">=</span> <span class="p">[</span><span class="n">note</span><span class="o">.</span><span class="n">onset</span> <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="n">notes</span><span class="p">]</span>
+    <span class="n">ends</span> <span class="o">=</span> <span class="p">[</span><span class="n">note</span><span class="o">.</span><span class="n">onset</span> <span class="o">+</span> <span class="n">note</span><span class="o">.</span><span class="n">duration</span> <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="n">notes</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">pitches</span><span class="p">,</span> <span class="n">starts</span><span class="p">,</span> <span class="n">ends</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_batch_compute_similarities</span><span class="p">(</span><span class="n">args_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute similarities for a batch of melody pairs.</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    args_list : List[Tuple]</span>
+<span class="sd">        List of argument tuples for _compute_similarity</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    List[float]</span>
+<span class="sd">        List of similarity values</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Create R script for batch similarity calculation with improved efficiency</span>
+    <span class="n">r_script</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    suppressMessages(suppressWarnings({</span>
+<span class="s2">        library(melsim)</span>
+<span class="s2">        library(jsonlite)</span>
+<span class="s2">        library(purrr)</span>
+<span class="s2">    # Function to create melody object</span>
+<span class="s2">    create_melody &lt;- function(pitches, starts, ends) {</span>
+<span class="s2">        melody_factory$new(mel_data = tibble::tibble(</span>
+<span class="s2">            onset = as.numeric(strsplit(starts, &quot;,&quot;)[[1]]),</span>
+<span class="s2">            pitch = as.numeric(strsplit(pitches, &quot;,&quot;)[[1]]),</span>
+<span class="s2">            duration = as.numeric(strsplit(ends, &quot;,&quot;)[[1]]) - as.numeric(strsplit(starts, &quot;,&quot;)[[1]])</span>
+<span class="s2">        ))</span>
+<span class="s2">    }</span>
+<span class="s2">    # Function to calculate similarity</span>
+<span class="s2">    calc_similarity &lt;- function(melody1, melody2, method, transformation) {</span>
+<span class="s2">        sim_measure &lt;- sim_measure_factory$new(</span>
+<span class="s2">            name = method,</span>
+<span class="s2">            full_name = method,</span>
+<span class="s2">            transformation = transformation,</span>
+<span class="s2">            parameters = list(),</span>
+<span class="s2">            sim_measure = method</span>
+<span class="s2">        )</span>
+<span class="s2">        result &lt;- melody1$similarity(melody2, sim_measure)</span>
+<span class="s2">        result$sim</span>
+<span class="s2">    }</span>
+<span class="s2">    # Process command line arguments</span>
+<span class="s2">    args &lt;- commandArgs(trailingOnly = TRUE)</span>
+<span class="s2">    n_args &lt;- length(args)</span>
+<span class="s2">    n_comparisons &lt;- n_args / 8  # Each comparison has 8 arguments</span>
+<span class="s2">    # Pre-allocate results vector</span>
+<span class="s2">    results &lt;- numeric(n_comparisons)</span>
+<span class="s2">    # Create a cache for melody objects</span>
+<span class="s2">    melody_cache &lt;- new.env()</span>
+<span class="s2">    # Process in chunks for better memory management</span>
+<span class="s2">    chunk_size &lt;- 1000</span>
+<span class="s2">    n_chunks &lt;- ceiling(n_comparisons / chunk_size)</span>
+<span class="s2">    for (chunk in seq_len(n_chunks)) {</span>
+<span class="s2">        start_idx &lt;- (chunk - 1) * chunk_size + 1</span>
+<span class="s2">        end_idx &lt;- min(chunk * chunk_size, n_comparisons)</span>
+<span class="s2">        # Process chunk</span>
+<span class="s2">        for (i in start_idx:end_idx) {</span>
+<span class="s2">            idx &lt;- (i-1) * 8 + 1</span>
+<span class="s2">            # Get or create melody1</span>
+<span class="s2">            melody1_key &lt;- paste(args[idx], args[idx+1], args[idx+2], sep=&quot;|&quot;)</span>
+<span class="s2">            if (!exists(melody1_key, envir=melody_cache)) {</span>
+<span class="s2">                melody_cache[[melody1_key]] &lt;- create_melody(args[idx], args[idx+1], args[idx+2])</span>
+<span class="s2">            }</span>
+<span class="s2">            melody1 &lt;- melody_cache[[melody1_key]]</span>
+<span class="s2">            # Get or create melody2</span>
+<span class="s2">            melody2_key &lt;- paste(args[idx+3], args[idx+4], args[idx+5], sep=&quot;|&quot;)</span>
+<span class="s2">            if (!exists(melody2_key, envir=melody_cache)) {</span>
+<span class="s2">                melody_cache[[melody2_key]] &lt;- create_melody(args[idx+3], args[idx+4], args[idx+5])</span>
+<span class="s2">            }</span>
+<span class="s2">            melody2 &lt;- melody_cache[[melody2_key]]</span>
+<span class="s2">            method &lt;- args[idx+6]</span>
+<span class="s2">            transformation &lt;- args[idx+7]</span>
+<span class="s2">            results[i] &lt;- calc_similarity(melody1, melody2, method, transformation)</span>
+<span class="s2">        }</span>
+<span class="s2">        # Force garbage collection after each chunk</span>
+<span class="s2">        gc()</span>
+<span class="s2">    }</span>
+<span class="s2">    cat(toJSON(results))</span>
+<span class="s2">    }))</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Prepare all arguments</span>
+    <span class="n">all_args</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">melody1_data</span><span class="p">,</span> <span class="n">melody2_data</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">transformation</span> <span class="ow">in</span> <span class="n">args_list</span><span class="p">:</span>
+        <span class="c1"># Convert lists to comma-separated strings</span>
+        <span class="n">pitches1_str</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">melody1_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="n">starts1_str</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">melody1_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="n">ends1_str</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">melody1_data</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+        <span class="n">pitches2_str</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">melody2_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="n">starts2_str</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">melody2_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="n">ends2_str</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">melody2_data</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+
+        <span class="n">all_args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">pitches1_str</span><span class="p">,</span>
+                <span class="n">starts1_str</span><span class="p">,</span>
+                <span class="n">ends1_str</span><span class="p">,</span>
+                <span class="n">pitches2_str</span><span class="p">,</span>
+                <span class="n">starts2_str</span><span class="p">,</span>
+                <span class="n">ends2_str</span><span class="p">,</span>
+                <span class="n">method</span><span class="p">,</span>
+                <span class="n">transformation</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Run R script with all arguments</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;Rscript&quot;</span><span class="p">,</span> <span class="s2">&quot;-e&quot;</span><span class="p">,</span> <span class="n">r_script</span><span class="p">]</span> <span class="o">+</span> <span class="n">all_args</span><span class="p">,</span>
+            <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># Extract JSON from output (may contain warnings before the JSON)</span>
+        <span class="n">output_str</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="c1"># Find the JSON part - look for the last line or the part after newline</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">output_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">json_str</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># JSON should be on the last line</span>
+
+        <span class="c1"># If that doesn&#39;t work, try to find JSON array/object markers</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
+            <span class="n">json_str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;[&quot;</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="n">json_str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;{&quot;</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="n">json_str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;[&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;{&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">):</span>
+                    <span class="n">json_str</span> <span class="o">=</span> <span class="n">line</span>
+                    <span class="k">break</span>
+
+        <span class="n">parsed_result</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_str</span><span class="p">)</span>
+        <span class="c1"># Handle NA values from R</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;NA&quot;</span> <span class="ow">or</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">parsed_result</span>
+        <span class="p">]</span>
+    <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error calculating similarities: </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">stderr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="get_similarities">
+<a class="viewcode-back" href="../../../../_autosummary/amads.melody.similarity.melsim.html#amads.melody.similarity.melsim.get_similarities">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_similarities</span><span class="p">(</span>
+    <span class="n">scores</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">],</span>
+    <span class="n">method</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="s2">&quot;Jaccard&quot;</span><span class="p">,</span>
+    <span class="n">transformation</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="s2">&quot;pitch&quot;</span><span class="p">,</span>
+    <span class="n">output_file</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">n_cores</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span>
+    <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]],</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]</span>
+<span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate pairwise similarities between multiple Score objects.</span>
+
+<span class="sd">    You can provide a single method and transformation, or a list of methods and transformations.</span>
+<span class="sd">    The function will return similarity matrices as nested dictionaries.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    scores : Dict[str, Score]</span>
+<span class="sd">        Dictionary mapping score names to Score objects</span>
+<span class="sd">    method : Union[str, List[str]], default=&quot;Jaccard&quot;</span>
+<span class="sd">        Name of the similarity method(s) to use. Can be a single method or a list of methods.</span>
+<span class="sd">    transformation : Union[str, List[str]], default=&quot;pitch&quot;</span>
+<span class="sd">        Name of the transformation(s) to use. Can be a single transformation or a list of transformations.</span>
+<span class="sd">    output_file : Union[str, Path], optional</span>
+<span class="sd">        If provided, save results to this file. If no extension is provided, .json will be added.</span>
+<span class="sd">    n_cores : int, optional</span>
+<span class="sd">        Number of CPU cores to use for parallel processing. Defaults to all available cores.</span>
+<span class="sd">    batch_size : int, default=1000</span>
+<span class="sd">        Number of comparisons to process in each batch</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Union[Dict[str, Dict[str, float]], Dict[Tuple[str, str], Dict[str, Dict[str, float]]]]</span>
+<span class="sd">        If single method and transformation: nested dictionary similarity matrix {row_name: {col_name: similarity}}</span>
+<span class="sd">        If multiple methods/transformations: dictionary mapping (method, transformation) tuples to similarity matrices</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Convert single method/transformation to lists</span>
+    <span class="n">methods</span> <span class="o">=</span> <span class="p">[</span><span class="n">method</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">method</span>
+    <span class="n">transformations</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">[</span><span class="n">transformation</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">transformation</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">transformation</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Validate all methods and transformations</span>
+    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">:</span>
+        <span class="n">validate_method</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">transformations</span><span class="p">:</span>
+        <span class="n">validate_transformation</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Need at least 2 Score objects for comparison&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Extract melody data from all scores (avoid multiprocessing due to Score object pickling issues)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Extracting melody data...&quot;</span><span class="p">)</span>
+    <span class="n">melody_data</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">score</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">scores</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Processing Score objects&quot;</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">melody_data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">score_to_arrays</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Warning: Could not extract melody data for </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">melody_data</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Need at least 2 valid Score objects for comparison&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Prepare arguments for parallel processing</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Computing similarities...&quot;</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">score_pairs</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Pre-compute all combinations for better performance</span>
+    <span class="n">combinations_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">combinations</span><span class="p">(</span><span class="n">melody_data</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">name1</span><span class="p">,</span> <span class="n">data1</span><span class="p">),</span> <span class="p">(</span><span class="n">name2</span><span class="p">,</span> <span class="n">data2</span><span class="p">)</span> <span class="ow">in</span> <span class="n">combinations_list</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">transformations</span><span class="p">:</span>
+                <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">data1</span><span class="p">,</span> <span class="n">data2</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">t</span><span class="p">))</span>
+                <span class="n">score_pairs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">name1</span><span class="p">,</span> <span class="n">name2</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">t</span><span class="p">))</span>
+
+    <span class="c1"># Process in larger batches for better performance</span>
+    <span class="n">similarities_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">),</span> <span class="n">batch_size</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Processing batches&quot;</span><span class="p">):</span>
+        <span class="n">batch</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="n">i</span> <span class="p">:</span> <span class="n">i</span> <span class="o">+</span> <span class="n">batch_size</span><span class="p">]</span>
+        <span class="n">similarities_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_batch_compute_similarities</span><span class="p">(</span><span class="n">batch</span><span class="p">))</span>
+
+    <span class="c1"># Create dictionary of results</span>
+    <span class="n">similarities</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">score_pairs</span><span class="p">,</span> <span class="n">similarities_list</span><span class="p">))</span>
+
+    <span class="c1"># Convert to matrix format using native Python types</span>
+    <span class="n">score_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">scores</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+    <span class="c1"># Create similarity matrices as nested dictionaries</span>
+    <span class="n">matrices</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">transformations</span><span class="p">:</span>
+            <span class="c1"># Initialize matrix as nested dictionary with 1s on diagonal</span>
+            <span class="n">sim_matrix</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">name1</span> <span class="ow">in</span> <span class="n">score_names</span><span class="p">:</span>
+                <span class="n">sim_matrix</span><span class="p">[</span><span class="n">name1</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="k">for</span> <span class="n">name2</span> <span class="ow">in</span> <span class="n">score_names</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">name1</span> <span class="o">==</span> <span class="n">name2</span><span class="p">:</span>
+                        <span class="n">sim_matrix</span><span class="p">[</span><span class="n">name1</span><span class="p">][</span><span class="n">name2</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">sim_matrix</span><span class="p">[</span><span class="n">name1</span><span class="p">][</span><span class="n">name2</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+            <span class="c1"># Fill matrix with pairwise similarities</span>
+            <span class="c1"># Since combinations() only gives us each pair once, set both directions</span>
+            <span class="k">for</span> <span class="p">(</span>
+                <span class="n">name1</span><span class="p">,</span>
+                <span class="n">name2</span><span class="p">,</span>
+                <span class="n">method_key</span><span class="p">,</span>
+                <span class="n">transformation_key</span><span class="p">,</span>
+            <span class="p">),</span> <span class="n">similarity</span> <span class="ow">in</span> <span class="n">similarities</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">method_key</span> <span class="o">==</span> <span class="n">m</span> <span class="ow">and</span> <span class="n">transformation_key</span> <span class="o">==</span> <span class="n">t</span><span class="p">:</span>
+                    <span class="c1"># Handle NaN values consistently</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="n">similarity</span> <span class="o">==</span> <span class="s2">&quot;NA&quot;</span>
+                        <span class="ow">or</span> <span class="n">similarity</span> <span class="ow">is</span> <span class="kc">None</span>
+                        <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">similarity</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="ow">and</span> <span class="n">math</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">similarity</span><span class="p">))</span>
+                    <span class="p">):</span>
+                        <span class="n">sim_value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">sim_value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">similarity</span><span class="p">)</span>
+
+                    <span class="c1"># Set both directions to ensure perfect symmetry</span>
+                    <span class="n">sim_matrix</span><span class="p">[</span><span class="n">name1</span><span class="p">][</span><span class="n">name2</span><span class="p">]</span> <span class="o">=</span> <span class="n">sim_value</span>
+                    <span class="n">sim_matrix</span><span class="p">[</span><span class="n">name2</span><span class="p">][</span><span class="n">name1</span><span class="p">]</span> <span class="o">=</span> <span class="n">sim_value</span>
+
+            <span class="n">matrices</span><span class="p">[(</span><span class="n">m</span><span class="p">,</span> <span class="n">t</span><span class="p">)]</span> <span class="o">=</span> <span class="n">sim_matrix</span>
+
+    <span class="c1"># Save to file if output file specified</span>
+    <span class="k">if</span> <span class="n">output_file</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Saving results...&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Ensure output file has .json extension</span>
+        <span class="n">output_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">output_file</span><span class="o">.</span><span class="n">suffix</span><span class="p">:</span>
+            <span class="n">output_file</span> <span class="o">=</span> <span class="n">output_file</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">&quot;.json&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Save matrices to JSON</span>
+        <span class="n">output_data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">t</span><span class="p">),</span> <span class="n">matrix</span> <span class="ow">in</span> <span class="n">matrices</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">output_data</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">m</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">t</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">matrix</span>
+
+        <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">output_data</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Results saved to </span><span class="si">{</span><span class="n">output_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Return format depends on number of method/transformation combinations</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">methods</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">transformations</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="c1"># Single method and transformation: return just the matrix</span>
+        <span class="k">return</span> <span class="n">matrices</span><span class="p">[(</span><span class="n">methods</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">transformations</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Multiple methods/transformations: return dictionary of matrices</span>
+        <span class="k">return</span> <span class="n">matrices</span></div>
+
+</pre></div>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The AMADS team
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, The AMADS team.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
