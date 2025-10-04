@@ -34,7 +34,7 @@ def test_notedensity_quarters_score_seconds_timetype():
     # Create a score in seconds with time_map
     score = Score()
     score.convert_to_seconds()
-    score.time_map = TimeMap(bpm=120)
+    score.time_map = TimeMap(qpm=120)
     part = Part(parent=score)
     Note(parent=part, onset=0.0, duration=0.5, pitch=60)
     Note(parent=part, onset=0.5, duration=0.5, pitch=62)
