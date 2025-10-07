@@ -45,6 +45,7 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 sphinx_gallery_conf = {
     "examples_dirs": "../examples",  # input directory
     "gallery_dirs": "auto_examples",  # output directory
+    "ignore_pattern": r"/disabled_",  # ignore file with 'disabled_' prefix
 }
 
 
