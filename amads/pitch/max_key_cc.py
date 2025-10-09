@@ -15,7 +15,7 @@ from .key_cc import key_cc
 
 def max_key_cc(
     score: Score,
-    profile: prof._KeyProfile = prof.krumhansl_kessler,
+    profile: prof.KeyProfile = prof.krumhansl_kessler,
     attribute_names: Optional[List[str]] = ["major", "minor"],
     salience_flag: bool = False,
 ) -> float:
@@ -25,12 +25,16 @@ def max_key_cc(
 
     Parameters
     ----------
-    score (Score): The musical score to analyze.
-    profile (Profile): Relevant key profile to obtain data from
-    attribute_names: List of strings to relevant attribute names
-    within the profile
-    salience_flag: boolean to indicate whether we want to turn on
-    salience weights in key_cc
+    score: Score
+        The musical score to analyze.
+    profile: Profile
+        Relevant key profile to obtain data from
+    attribute_names: Optional[List[str]]
+        List of attribute names that denote the particular PitchProfiles
+        within the KeyProfile to compute correlations for.
+        See key_cc for more details
+    salience_flag: bool
+        indicate whether we want to turn on salience weights in key_cc
 
     Returns
     -------

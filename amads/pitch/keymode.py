@@ -15,7 +15,7 @@ from .key_cc import key_cc
 
 def keymode(
     score: Score,
-    profile: prof._KeyProfile = prof.krumhansl_kessler,
+    profile: prof.KeyProfile = prof.krumhansl_kessler,
     attribute_names: Optional[List[str]] = ["major", "minor"],
     salience_flag: bool = False,
 ) -> List[str]:
@@ -28,12 +28,16 @@ def keymode(
 
     Parameters
     ----------
-    score (Score): The musical score to analyze.
-    profile (Profile): Relevant key profile to obtain data from
-    attribute_names: List of strings to relevant attribute names
-    within the profile
-    salience_flag: boolean to indicate whether we want to turn on
-    salience weights in key_cc
+    score: Score
+        The musical score to analyze.
+    profile: Profile
+        Relevant key profile to obtain data from
+    attribute_names: Optional[List[str]]
+        List of attribute names that denote the particular PitchProfiles
+        within the KeyProfile to compute correlations for.
+        See key_cc for more details
+    salience_flag: bool
+        indicate whether we want to turn on salience weights in key_cc
 
     See Also
     --------
@@ -46,7 +50,6 @@ def keymode(
     """
     corrcoef_pairs = key_cc(score, profile, attribute_names, salience_flag)
 
-    # I'm too lazy to write my own for loop so please forgive this
     c_max_val_iter = (coefs[0] for (_, coefs) in corrcoef_pairs if coefs is not None)
     c_max_val = max(c_max_val_iter)
     keymode_attributes = [

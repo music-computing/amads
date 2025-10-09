@@ -179,10 +179,8 @@ class Distribution:
                 raise ValueError("invalid figure/axis combination")
 
         if dims == 1:
-            if color is None:
-                color = DEFAULT_BAR_COLOR
-            if option is None:
-                option = "bar"
+            color = color or DEFAULT_BAR_COLOR
+            option = option or "bar"
             x = range(len(self.x_categories))
             # 1-D distributions: draw either a bar chart or a line chart.
             if option == "bar":
@@ -246,7 +244,8 @@ class Distribution:
         - distributions are plotted in the same order they were presented in
           dists list
         - as long as a Distribution or inherited class has a valid plot function
-          implemented, the relevant plot will be mapped here
+          implemented, the relevant plot will be added to the figure at the
+          specified axes.
         - `options` and `colors` apply to all distributions
         - Although the original plot function is only limited to
           `option` and `color` being used in the 1-D case, it is not to say
@@ -280,10 +279,8 @@ class Distribution:
             return None
 
         # when single string, broadcast to all distributions
-        if options is None:
-            options = ["bar"] * len(dists)
-        if colors is None:
-            colors = [DEFAULT_BAR_COLOR] * len(dists)
+        options = options or ["bar"] * len(dists)
+        colors = colors or [DEFAULT_BAR_COLOR] * len(dists)
         if isinstance(options, str):
             options = [options] * len(dists)
         if isinstance(colors, str):

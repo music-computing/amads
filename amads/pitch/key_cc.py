@@ -21,13 +21,15 @@ from .pcdist1 import pcdist1
 
 def key_cc(
     score: Score,
-    profile: prof._KeyProfile = prof.krumhansl_kessler,
+    profile: prof.KeyProfile = prof.krumhansl_kessler,
     attribute_names: Optional[List[str]] = None,
     salience_flag: bool = False,
 ) -> List[Tuple[str, Optional[Tuple[float]]]]:
     """
     Calculate the correlation coefficients of a score's pitch-class distribution
-    with a key profile from profiles.py.
+    with specific pitch profiles in key profile from profiles.py.
+    The names of the pitch profiles to specify in the key profile is
+    in attribute_names.
     Return a list of tuples, each containing the attribute name
     and the corresponding correlation coefficients.
 
@@ -36,11 +38,19 @@ def key_cc(
     score: Score
         The score to analyze.
 
-    profile: prof._KeyProfile
+    profile: prof.KeyProfile
         The key profile to use for analysis.
 
     attribute_names: Optional[List[str]]
-        List of attribute names to compute correlations for.
+        List of attribute names that denote the particular PitchProfiles
+        within the KeyProfile to compute correlations for.
+        An example of a valid key profile, attribute names combination is
+        something like (prof.vuvan, ["natural_minor", "harmonic_minor"]),
+        which specifies key_cc to compute the crosscorrelation between
+        the pitch-class distribution of the score and both prof.vuvan.natural_minor
+        and prof.vuvan.harmonic_minor.
+        None can be supplied when we want to specify all valid pitch
+        profiles within a given key profile.
 
     salience_flag: bool
         If True, apply salience weighting to the pitch-class according
@@ -50,8 +60,9 @@ def key_cc(
     -------
     List[Tuple[str, Optional[Tuple[float]]]]
         A list of tuples where each tuple contains the attribute name and the
-        corresponding correlation coefficients. If an attribute is invalid
-        or None, it will return (attribute_name, None).
+        corresponding correlation coefficients. If an attribute name does not
+        reference a valid data field within the specified key profile,
+        it will yield (attribute_name, None).
 
     Raises
     ------
@@ -104,8 +115,13 @@ def key_cc(
         profiles_matrix = attr_value.as_matrix_canonical()
         correlations = tuple(_compute_correlations(pcd, profiles_matrix))
         if any(math.isnan(val) for val in correlations):
+            # TODO: need more thought on this.
+            # for now, included a more detailed error message
             raise RuntimeError(
-                "key_cc has encountered a score or key profile with equal pitch weights!"
+                "key_cc has encountered either an invalid or equal weight score, or profile matrix\n"
+                f"correlations = {list(correlations)}\n"
+                f"score pitch-class distribution = {list(pcd)}\n"
+                f"profiles matrix = \n{profiles_matrix}\n"
             )
         results.append((attr_name, correlations))
 

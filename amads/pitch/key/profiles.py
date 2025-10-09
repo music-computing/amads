@@ -427,7 +427,7 @@ class PitchProfile(Distribution):
 
 
 @dataclass
-class _KeyProfile:
+class KeyProfile:
     """This is the base class for all key profiles.
 
     This is the body of the docstring description.
@@ -472,7 +472,7 @@ class _KeyProfile:
 
 
 @dataclass
-class KrumhanslKessler(_KeyProfile):
+class KrumhanslKessler(KeyProfile):
     name: str = "KrumhanslKessler"
     literature: str = (
         "Krumhansl and Kessler (1982). See also Krumhansl and Shepard (1979)"
@@ -517,7 +517,7 @@ class KrumhanslKessler(_KeyProfile):
 
 
 @dataclass
-class KrumhanslSchmuckler(_KeyProfile):
+class KrumhanslSchmuckler(KeyProfile):
     name: str = "KrumhanslSchmuckler"
     literature: str = "Krumhansl (1990)"
     about: str = "Early case of key-estimation through matching usage with profiles"
@@ -558,7 +558,7 @@ class KrumhanslSchmuckler(_KeyProfile):
 
 
 @dataclass
-class AardenEssen(_KeyProfile):
+class AardenEssen(KeyProfile):
     name: str = "AardenEssen"
     literature: str = "Aarden (2003) based on Schaffrath (1995)"
     about: str = "Folk melody transcriptions from the Essen collection"
@@ -599,7 +599,7 @@ class AardenEssen(_KeyProfile):
 
 
 @dataclass
-class BellmanBudge(_KeyProfile):
+class BellmanBudge(KeyProfile):
     name: str = "BellmanBudge"
     literature: str = "Bellman (2005, sometimes given as 2006) after Budge (1943)"
     about: str = "Chords in Western common practice tonality"
@@ -640,7 +640,7 @@ class BellmanBudge(_KeyProfile):
 
 
 @dataclass
-class Temperley(_KeyProfile):
+class Temperley(KeyProfile):
     name: str = "Temperley"
     literature: str = (
         "Temperley (1999). What's Key for Key? The Krumhansl-Schmuckler Key-Finding Algorithm Reconsidered. Music Perception, 17, 65-100."
@@ -685,7 +685,7 @@ class Temperley(_KeyProfile):
 
 
 @dataclass
-class TemperleyKostkaPayne(_KeyProfile):
+class TemperleyKostkaPayne(KeyProfile):
     name: str = "TemperleyKostkaPayne"
     literature: str = "Temperley (2007 and 2008)"
     about: str = "Usage by section and excerpts from a textbook (Kostka & Payne)"
@@ -726,7 +726,7 @@ class TemperleyKostkaPayne(_KeyProfile):
 
 
 @dataclass
-class Sapp(_KeyProfile):
+class Sapp(KeyProfile):
     name: str = "Sapp"
     literature: str = "Sapp (PhD thesis, 2011)"
     about: str = (
@@ -741,7 +741,7 @@ class Sapp(_KeyProfile):
 
 
 @dataclass
-class Vuvan(_KeyProfile):
+class Vuvan(KeyProfile):
     name: str = "Vuvan"
     literature: str = "Vuvan et al. (2011)"
     about: str = "Different profiles for natural, harmonic, and melodic minors"
@@ -799,7 +799,7 @@ class Vuvan(_KeyProfile):
 
 
 @dataclass
-class DeClerqTemperley(_KeyProfile):
+class DeClerqTemperley(KeyProfile):
     name: str = "DeClerqTemperley"
     literature: str = "deClerq and Temperley (Popular Music, 2011)"
     about: str = "Chord roots (specifically) in rock harmony."
@@ -823,7 +823,7 @@ class DeClerqTemperley(_KeyProfile):
 
 
 @dataclass
-class TemperleyDeClerq(_KeyProfile):
+class TemperleyDeClerq(KeyProfile):
     name: str = "TemperleyDeClerq"
     literature: str = "Temperley and deClerq (JNMR, 2013)"
     about: str = """Rock music and a distinction between melody and harmony.
@@ -900,7 +900,7 @@ class TemperleyDeClerq(_KeyProfile):
 
 
 @dataclass
-class AlbrechtShanahan(_KeyProfile):
+class AlbrechtShanahan(KeyProfile):
     name: str = "AlbrechtShanahan"
     literature: str = "Albrecht and Shanahan (Music Perception, 2013)"
     about: str = """Partial pieces for more stable within-key environment.
@@ -942,7 +942,7 @@ class AlbrechtShanahan(_KeyProfile):
 
 
 @dataclass
-class PrinceSchumuckler(_KeyProfile):
+class PrinceSchumuckler(KeyProfile):
     name: str = "PrinceSchumuckler"
     literature: str = "Prince and Schmuckler (Music Perception, 2014)"
     about: str = """Distinction between downbeat and all beats.
@@ -1018,7 +1018,7 @@ class PrinceSchumuckler(_KeyProfile):
 
 
 @dataclass
-class QuinnWhite(_KeyProfile):
+class QuinnWhite(KeyProfile):
     name: str = "QuinnWhite"
     literature: str = "Quinn and White (Music Perception 2017)"
     about: str = "Separate profiles for each key"
@@ -1410,7 +1410,7 @@ class QuinnWhite(_KeyProfile):
 
 
 @dataclass
-class VuvanHughes(_KeyProfile):
+class VuvanHughes(KeyProfile):
     name: str = "VuvanHughes"
     literature: str = "Vuvan and Hughes (Music Perception 2021)"
     about: str = "A comparison of Classical and Rock music."

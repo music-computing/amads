@@ -31,13 +31,14 @@ def transpose2c(score: Score, profile_name: str = "KRUMHANSL-KESSLER") -> Score:
     Score:
         a copy of the input score transposed to C-major/minor
     """
-    # a point of optimization is to check for empty case of the score...
-    # this is very hacky...
+    # empty score should always transpose to an empty score, regardless
+    # of how kkcc treats empty scores.
     if next(score.find_all(Note), None) is None:
         return score.deepcopy()
     corr_vals = kkcc(score, profile_name)
 
     key_idx = corr_vals.index(max(corr_vals)) % 12
+    # TODO: need to use pitch_shift which is to-be implemented in Score
     score_copy = score.deepcopy()
     for note in score_copy.find_all(Note):
         keynum, alt = note.pitch.as_tuple()
