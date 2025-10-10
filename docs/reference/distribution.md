@@ -1,0 +1,3 @@
+# Distribution
+
+::: amads.core.distribution

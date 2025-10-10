@@ -15,7 +15,7 @@ def skyline(score: Score, threshold: float = 0.1):
 
     - A lower note that quickly is followed by a higher note: Probably the
       right thing is ignore the lower note if the time to the upper note is
-      less than some threshold (maybe default to 0.1 beats) that can be set
+      less than some threshold (maybe default to 0.1 quarters) that can be set
       through a keyword parameter.
     - (not implemented yet) A rolled chord with 10 notes starts at the bottom,
       and every 0.05 quarter notes, a new note enters. So the previous rule

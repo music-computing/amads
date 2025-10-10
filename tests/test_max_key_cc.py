@@ -1,0 +1,36 @@
+"""
+Please note that all these tests assume that key_cc works as advertised
+"""
+
+import math
+
+import pytest
+
+from amads.core.basics import Score
+from amads.pitch.max_key_cc import max_key_cc
+
+
+def test_zero_pitch_variance_melodies():
+    melody = Score.from_melody([])
+    with pytest.raises(RuntimeError):
+        max_key_cc(melody)
+
+    pitches_in = list(range(56, 68))
+    melody = Score.from_melody(pitches=pitches_in)
+    with pytest.raises(RuntimeError):
+        max_key_cc(melody)
+    return
+
+
+def test_crafted_nonempty_melody():
+    """
+    This is a sanity check nonempty crafted melody (so far)...
+    I probably need some help with these tests...
+    """
+    pitches_in = list(range(56, 68)) + list(range(56, 68, 2))
+    melody = Score.from_melody(pitches=pitches_in)
+    max_coef = max_key_cc(melody)
+    target_coef = 0.0679524348011131
+    assert math.isclose(max_coef, target_coef, rel_tol=1e-13)
+
+    return
