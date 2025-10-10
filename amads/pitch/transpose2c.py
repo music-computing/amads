@@ -31,6 +31,11 @@ def transpose2c(score: Score, profile_name: str = "KRUMHANSL-KESSLER") -> Score:
     Score:
         a copy of the input score transposed to C-major/minor
     """
+    # kkcc fails when an empty score is supplied.
+    # However, an empty score transposes to an empty score regardless of what key
+    # you're transposing to, so we treat this as a special case here.
+    if next(score.find_all(Note), None) is None:
+        return score.deepcopy()
     corr_vals = kkcc(score, profile_name)
 
     key_idx = corr_vals.index(max(corr_vals)) % 12

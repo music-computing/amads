@@ -52,10 +52,6 @@ def norm_1d(
         )
 
 
-# Default color for 1-D bar charts
-DEFAULT_BAR_COLOR = "skyblue"
-
-
 class Distribution:
     """
     Represents a probability distribution and its metadata.
@@ -95,6 +91,8 @@ class Distribution:
 
     # Class variable documenting allowable 1-D plotting styles
     POSSIBLE_1D_PLOT_OPTIONS = ["bar", "line"]
+    # Default color for 1-D bar charts
+    DEFAULT_BAR_COLOR = "skyblue"
 
     def __init__(
         self,
@@ -128,8 +126,8 @@ class Distribution:
 
     def plot(
         self,
-        color: Optional[str] = DEFAULT_BAR_COLOR,
-        option: Optional[str] = "bar",
+        color: Optional[str] = None,
+        option: Optional[str] = None,
         show: bool = True,
         fig: Optional[Figure] = None,
         ax: Optional[Axes] = None,
@@ -146,7 +144,7 @@ class Distribution:
         color : Optional[str]
             Plot color string specification. In this particular plot function,
             it is handled in 1-D distributions and ignored in 2-D distributions.
-            None for default option (DEFAULT_BAR_COLOR).
+            None for default option (Distribution.DEFAULT_BAR_COLOR).
         option : Optional[str]
             Plot style string specification. In this particular plot function,
             only {"bar", "line"} are valid string arguments that will be handled
@@ -179,8 +177,10 @@ class Distribution:
                 raise ValueError("invalid figure/axis combination")
 
         if dims == 1:
-            color = color or DEFAULT_BAR_COLOR
-            option = option or "bar"
+            if color is None:
+                color = Distribution.DEFAULT_BAR_COLOR
+            if option is None:
+                option = "bar"
             x = range(len(self.x_categories))
             # 1-D distributions: draw either a bar chart or a line chart.
             if option == "bar":
@@ -273,14 +273,14 @@ class Distribution:
         colors : str | list[str] | None
             color option per distribution. If a single string is given, it is
             broadcast to all 1-D distributions. If None, defaults to
-            the single color DEFAULT_BAR_COLOR.
+            the single color Distribution.DEFAULT_BAR_COLOR.
         """
         if not dists:
             return None
 
         # when single string, broadcast to all distributions
         options = options or ["bar"] * len(dists)
-        colors = colors or [DEFAULT_BAR_COLOR] * len(dists)
+        colors = colors or [Distribution.DEFAULT_BAR_COLOR] * len(dists)
         if isinstance(options, str):
             options = [options] * len(dists)
         if isinstance(colors, str):

@@ -60,9 +60,9 @@ def key_cc(
     -------
     List[Tuple[str, Optional[Tuple[float]]]]
         A list of tuples where each tuple contains the attribute name and the
-        corresponding correlation coefficients. If an attribute name does not
-        reference a valid data field within the specified key profile,
-        it will yield (attribute_name, None).
+        corresponding 12-tuple of correlation coefficients. If an attribute
+        name does not reference a valid data field within the specified key
+        profile, it will yield (attribute_name, None).
 
     Raises
     ------
@@ -115,10 +115,9 @@ def key_cc(
         profiles_matrix = attr_value.as_matrix_canonical()
         correlations = tuple(_compute_correlations(pcd, profiles_matrix))
         if any(math.isnan(val) for val in correlations):
-            # TODO: need more thought on this.
-            # for now, included a more detailed error message
             raise RuntimeError(
-                "key_cc has encountered either an invalid or equal weight score, or profile matrix\n"
+                "key_cc has encountered either an invalid or equal weight"
+                " score, or invalid pitch profile\n"
                 f"correlations = {list(correlations)}\n"
                 f"score pitch-class distribution = {list(pcd)}\n"
                 f"profiles matrix = \n{profiles_matrix}\n"

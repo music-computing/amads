@@ -66,7 +66,7 @@ from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 
 import amads.algorithms.norm as norm
-from amads.core.distribution import DEFAULT_BAR_COLOR, Distribution
+from amads.core.distribution import Distribution
 
 
 class PitchProfile(Distribution):
@@ -274,7 +274,7 @@ class PitchProfile(Distribution):
 
     def plot(
         self,
-        color: str = DEFAULT_BAR_COLOR,
+        color: str = Distribution.DEFAULT_BAR_COLOR,
         option: str = "bar",
         show: bool = True,
         fig: Optional[Figure] = None,
@@ -307,7 +307,7 @@ class PitchProfile(Distribution):
     def plot_custom(
         self,
         keys: Optional[List[str]] = None,
-        color: str = DEFAULT_BAR_COLOR,
+        color: str = Distribution.DEFAULT_BAR_COLOR,
         option: str = "bar",
         show: bool = True,
         fig: Optional[Figure] = None,
