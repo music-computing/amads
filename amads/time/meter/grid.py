@@ -105,7 +105,9 @@ def approximate_pulse_match_with_priority_list(
     This is a new function by MG as reported in [1].
 
     References
-    [1] Gotham forthcoming. TODO
+    [1] Gotham, Mark R. H. (2025).
+     Keeping Score: Computational Methods for the Analysis of Encoded ("Symbolic") Musical Scores (v0.3)
+     Zenodo. https://doi.org/10.5281/zenodo.14938027
 
     Examples
     --------
@@ -226,12 +228,12 @@ def generate_n_smooth_numbers(
         return smooth_numbers
 
 
-def get_tatum(
+def get_tatum_from_floats_and_priorities(
     starts: Union[Iterable, Counter],
     pulse_priority_list: Optional[list] = None,
     distance_threshold: float = 1 / 24,
     proportion_threshold: Optional[float] = 0.999,
-):
+) -> Fraction:
     """
     This function serves cases where temporal position values are defined by reference to a constant value.
     Examples include the symbolic time to have elapsed since:
@@ -254,9 +256,13 @@ def get_tatum(
     ----------
     starts
         Any iterable giving the starting position of events.
-        Must be expressed relative to a reference value such that
+        Each constituent start must be expressed relative to a reference value such that
         X.0 is the start of a unit,
         X.5 is the mid-point, etc.
+        Floats are the main expected type here (as above); we seek to reverse engineer a plausible fraction from it.
+        If any start is already an exact fraction, then it stays as it is, whatever the user setting:
+        this functionality serves to improve the accuracy of timing data; there's no question of ever reducing it,
+        even if user settings suggest that.
     pulse_priority_list
         The point of this function is to encode musically common pulse values.
         This argument defaults to numbers under 100 with prime factors of only 2 and 3
@@ -269,9 +275,10 @@ def get_tatum(
         This is essential when working with floats, but can be set to any value the user prefers.
     proportion_threshold
         Optionally, set a proportional number of events notes to account for.
+        This option requires that the `starts` be expressed as a Counter, ordered from most to least common.
         The default of .999 means that once at least 99.9% of the source's notes are handled, we ignore the rest.
-        This is achieved by iterating through a Counter object of values relative to the unit.
-        E.g., 1.5 -> 0.5.
+        This is achieved by iterating through the Counter object of values relative to the unit
+        (e.g., 1.5 -> 0.5).
         This option should be chosen with care as, in this case,
         only the unit value and equal divisions thereof are considered.
 
@@ -281,38 +288,33 @@ def get_tatum(
     A simple case, expressed in different ways.
 
     >>> tatum_1_6 = [0, 1/3, Fraction(1, 2), 1]
-    >>> get_tatum(tatum_1_6)
+    >>> get_tatum_from_floats_and_priorities(tatum_1_6)
     Fraction(1, 6)
 
     >>> tatum_1_6 = [0, 0.333, 0.5, 1]
-    >>> get_tatum(tatum_1_6)
+    >>> get_tatum_from_floats_and_priorities(tatum_1_6)
     Fraction(1, 6)
 
     An example of values from the BPSD dataset (Zeilter et al.).
 
     >>> from amads.time.meter import profiles
     >>> bpsd_Op027No1 = profiles.BPSD().op027No1_01 # /16 divisions of the measure and /12 too (from m.48). Tatum 1/48
-    >>> get_tatum(bpsd_Op027No1, distance_threshold=1/24) # proportion_threshold=0.999
+    >>> get_tatum_from_floats_and_priorities(bpsd_Op027No1, distance_threshold=1/24) # proportion_threshold=0.999
     Fraction(1, 48)
 
     Change the `distance_threshold`
-    >>> get_tatum(bpsd_Op027No1, distance_threshold=1/6) # proportion_threshold=0.999
+    >>> get_tatum_from_floats_and_priorities(bpsd_Op027No1, distance_threshold=1/6) # proportion_threshold=0.999
     Fraction(1, 12)
 
     Change the `proportion_threshold`
-    >>> get_tatum(bpsd_Op027No1, distance_threshold=1/24, proportion_threshold=0.80)
+    >>> get_tatum_from_floats_and_priorities(bpsd_Op027No1, distance_threshold=1/24, proportion_threshold=0.80)
     Fraction(1, 24)
 
     """
 
+    # Checks
     if not 0.0 < distance_threshold < 1.0:
         raise ValueError("The `distance_threshold` tolerance must be between 0 and 1.")
-
-    if proportion_threshold is not None:
-        if not 0.0 < proportion_threshold < 1.0:
-            raise ValueError(
-                "When used (not `None`), the `proportion_threshold` must be between 0 and 1."
-            )
 
     if pulse_priority_list is None:
         pulse_priority_list = generate_n_smooth_numbers(invert=True)  # 1, 1/2, 1/3, ...
@@ -332,6 +334,10 @@ def get_tatum(
                 )
 
     if proportion_threshold is not None:
+        if not 0.0 < proportion_threshold < 1.0:
+            raise ValueError(
+                "When used (not `None`), the `proportion_threshold` must be between 0 and 1."
+            )
         if isinstance(starts, Counter):
             for k in starts:
                 if k > 1:
@@ -346,10 +352,14 @@ def get_tatum(
     pulses_needed = []
 
     for x in starts:
-        if (
+        if isinstance(
+            x, Fraction
+        ):  # Keep exact fraction as they are, whatever the user settings
+            pulses_needed.append(x)
+        elif (
             approximate_pulse_match_with_priority_list(
                 x,
-                pulse_priority_list=pulses_needed,
+                pulse_priority_list=pulses_needed,  # Try those we're committed to first
                 distance_threshold=distance_threshold,
             )
             is None

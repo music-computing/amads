@@ -14,31 +14,39 @@ from amads.time.meter import grid, profiles
 
 def test_tatum_counter():
     with pytest.raises(ValueError):
-        grid.get_tatum(starts=Counter({0: 4, 1.5: 2}))
+        grid.get_tatum_from_floats_and_priorities(starts=Counter({0: 4, 1.5: 2}))
 
 
 def test_tatum_bins():
     # Not a list
     with pytest.raises(ValueError):
-        grid.get_tatum(starts=[0, 1, 2, 3], pulse_priority_list=1)
+        grid.get_tatum_from_floats_and_priorities(
+            starts=[0, 1, 2, 3], pulse_priority_list=1
+        )
 
     # List items not integers
     with pytest.raises(ValueError):
-        grid.get_tatum(starts=[0, 1, 2, 3], pulse_priority_list=[1.6])
+        grid.get_tatum_from_floats_and_priorities(
+            starts=[0, 1, 2, 3], pulse_priority_list=[1.6]
+        )
 
     # List items negative integer
     with pytest.raises(ValueError):
-        grid.get_tatum(starts=[0, 1, 2, 3], pulse_priority_list=[-1])
+        grid.get_tatum_from_floats_and_priorities(
+            starts=[0, 1, 2, 3], pulse_priority_list=[-1]
+        )
 
 
 def test_tatum_distance_threshold():
     with pytest.raises(ValueError):
-        grid.get_tatum(starts=[0, 1, 2, 3], distance_threshold=-1)
+        grid.get_tatum_from_floats_and_priorities(
+            starts=[0, 1, 2, 3], distance_threshold=-1
+        )
 
 
 def test_tatum_proportion_threshold():
     with pytest.raises(ValueError):
-        grid.get_tatum(
+        grid.get_tatum_from_floats_and_priorities(
             starts=[0, 1, 2, 3],
             proportion_threshold=3,
         )
