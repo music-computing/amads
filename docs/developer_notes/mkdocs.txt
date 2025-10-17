@@ -1,0 +1,8 @@
+Notes on converting to MkDocs:
+
+pip3 install mkdocs mkdocs-material "mkdocstrings[python]"
+in project root: mkdocs new .
+
+PYTHONPATH=. mkdocs serve
+and
+PYTHONPATH=. mkdocs build
