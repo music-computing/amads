@@ -30,6 +30,44 @@ from typing import List, Optional
 import numpy as np
 
 from amads.core.basics import Concurrence
+from amads.pitch.key import profiles as prof
+
+
+def trainprofilesom(
+    profile: prof._KeyProfile = prof.KrumhanslKessler,
+    attribute_names: Optional[List[str]] = None,
+):
+    """
+    Trains a self-organizing map based off of the profile and attribute names
+    of the specific pitch profiles we want to train our self-organizing map on.
+
+    TODO: Problems
+    - Should we have a configuration state that we can pass in to make training
+    deterministic?
+
+    Parameters
+    ----------
+    profile: prof.KeyProfile
+        The key profile to use for analysis.
+
+    attribute_names: Optional[List[str]]
+        List of attribute names that denote the particular PitchProfiles
+        within the KeyProfile to compute correlations for.
+        An example of a valid key profile, attribute names combination is
+        something like (prof.vuvan, ["natural_minor", "harmonic_minor"]),
+        which specifies key_cc to compute the crosscorrelation between
+        the pitch-class distribution of the score and both prof.vuvan.natural_minor
+        and prof.vuvan.harmonic_minor.
+        None can be supplied when we want to specify all valid pitch
+        profiles within a given key profile.
+
+    Returns
+    -------
+    Any
+        A self-organizing map (dimensions, type undecided yet)
+    """
+
+    assert 0
 
 # from amads.algorithms.norm import euclidean_distance
 from amads.pitch.key import profiles as prof
@@ -127,6 +165,7 @@ def keysom(
         corresponding 12-tuple of correlation coefficients. If an attribute
         name does not reference a valid data field within the specified key
         profile, it will yield (attribute_name, None).
+
     """
 
     # projects pitch-class distribution to trained SOM on major and minor key
