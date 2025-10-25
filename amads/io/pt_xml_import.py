@@ -300,7 +300,25 @@ def partitura_convert_part(ppart, score):
             notes.append(["rest", onset, duration, item.staff])
         elif isinstance(item, pt.score.Tempo):
             # Note: partitura "bpm" is really beats per second!
-            score.time_map.append_beat_tempo(onset, item.bpm)
+            factor = 1.0  # conversion factor from partitura bpm to AMADS qps
+            if item.unit is not None:  # unit string provided
+                if item.unit == "h":
+                    factor = 2.0  # half notes per second
+                elif item.unit == "q":
+                    factor = 1.0  # quarter notes per second
+                elif item.unit == "q.":
+                    factor = 1.5  # dotted quarter notes per second
+                elif item.unit == "e":
+                    factor = 0.5  # eighth notes per second
+                elif item.unit == "e.":
+                    factor = 0.75  # dotted eighth notes per second
+                elif item.unit == "s":
+                    factor = 4.0  # sixteenth notes per second
+                elif item.unit == "s.":
+                    factor = 0.375  # dotted sixteenth notes per second
+                else:
+                    ValueError(f"Unknown tempo unit in partitura: {item.unit}")
+            score.time_map.append_quarter_tempo(onset, item.bpm * factor)
         # T timer2.start()
     # T timer2.report() # DEBUG
     # print("partitura_convert_part: after pass 1, measures are")

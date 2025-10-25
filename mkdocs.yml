@@ -1,0 +1,62 @@
+site_name: AMADS
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.expand
+    - navigation.tabs
+
+markdown_extensions:
+  - toc:
+      permalink: true
+      toc_depth: 2
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          # paths: [src]  # depends where your package is
+          inventories:
+          - https://docs.python.org/3/objects.inv
+          # load other object inventories here
+          options:
+            docstring_style: numpy
+            docstring_options:
+              ignore_init_summary: true
+            docstring_section_style: list
+            filters: public  # sponsors only, will be released soon
+            heading_level: 2
+            inherited_members: true
+            line_length: 88  # to format signatures with Ruff/Black if installed
+            merge_init_into_class: true
+            modernize_annotations: true
+            parameter_headings: true
+            separate_signature: true
+            show_root_heading: true
+            show_root_full_path: false
+            show_signature_annotations: true
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            signature_crossrefs: true
+            summary: true
+            unwrap_annotated: true
+
+nav:
+  - Home: index.md
+  - Install: user_guide/installation.md
+  - Developer:
+      - Documentation: developer_notes/documentation.md
+      - Making a Release: developer_notes/making_a_release.md
+      - Modules: developer_notes/modules.md
+      - Testing: developer_notes/testing.md
+      - Contributing: developer_notes/contributing.md
+      - Style: developer_notes/style.md
+      - Music21: developer_notes/music21.md
+  - API Reference:
+      - Core:
+        - Overview: core.md
+        - Basic Score Elements: reference/basics.md
+        - Pitch: reference/pitch.md
+        - Distribution: reference/distribution.md
+      - Melody: reference/melody.md

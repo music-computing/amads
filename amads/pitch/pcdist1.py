@@ -29,13 +29,12 @@ def pcdist1(noteset: EventGroup, weighted: bool = True) -> list[float]:
     pcd = [0] * 12
 
     if weighted:  # no need to merge ties due to weighting
-        for note in noteset.find_all(Note):
-            pc = note.pitch_class
-            pcd[pc] += note.duration
+        for note in score.find_all(Note):
+            pcd[note.pitch_class] += note.duration
     else:  # count tied notes as single notes
-        noteset = noteset.merge_tied_notes()
-        for note in noteset.find_all(Note):
-            pcd[pc] += 1
+        score = score.merge_tied_notes()
+        for note in score.find_all(Note):
+            pcd[note.pitch_class] += 1
     total = sum(pcd)
     if total > 0:
         pcd = [i / total for i in pcd]

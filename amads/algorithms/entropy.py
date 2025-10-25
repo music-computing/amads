@@ -1,5 +1,5 @@
 """
-Implements the `entropy` function.
+Calculate the relative entropy of a distribution. (MTB)
 
 Original doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=60
 """

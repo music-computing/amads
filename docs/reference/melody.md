@@ -1,0 +1,3 @@
+# Melody API
+
+::: amads.melody

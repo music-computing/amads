@@ -5,7 +5,7 @@ from ..core.basics import Note
 
 
 def pitch_mean(score, weighted=False):
-    """Compute the mean pitch or mean pitch weighted by duration (in beats)
+    """Compute the mean pitch or mean pitch weighted by duration (in quarters)
     score is a Score. The pitch mean is computed for all pitches in the score.
     """
     sum = 0
