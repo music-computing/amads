@@ -1,0 +1,614 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Melodic similarity &#8212; amads  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'auto_examples/plot_melsim';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">amads  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/auto_examples/plot_melsim.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Melodic similarity</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-auto-examples-plot-melsim-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
+</div>
+<section class="sphx-glr-example-title" id="melodic-similarity">
+<span id="sphx-glr-auto-examples-plot-melsim-py"></span><h1>Melodic similarity<a class="headerlink" href="#melodic-similarity" title="Link to this heading">#</a></h1>
+<p>This example demonstrates how we can calculate the similarity between two
+melodies using the <cite>melsim</cite> module, which is a Python wrapper for the <cite>melsim</cite>
+R package (<a class="github reference external" href="https://github.com/sebsilas/melsim">sebsilas/melsim</a>).</p>
+<p>First, we’ll import the required modules.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">amads.core.basics</span><span class="w"> </span><span class="kn">import</span> <span class="n">Score</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">amads.melody.similarity.melsim</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">check_r_packages_installed</span><span class="p">,</span>
+    <span class="n">get_similarities</span><span class="p">,</span>
+    <span class="n">get_similarity</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Check if all required dependencies are installed.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">test_check_dependencies</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if R packages are installed.&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">check_r_packages_installed</span><span class="p">(</span><span class="n">install_missing</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;All R packages are installed.&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s2">&quot;Some R packages are missing. Please run install_dependencies() from the melsim module.&quot;</span>
+        <span class="p">)</span>
+
+
+<span class="n">test_check_dependencies</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Installing CRAN package &#39;tibble&#39;...
+Installing CRAN package &#39;R6&#39;...
+Installing CRAN package &#39;remotes&#39;...
+Installing CRAN package &#39;dplyr&#39;...
+Installing CRAN package &#39;magrittr&#39;...
+Installing CRAN package &#39;proxy&#39;...
+Installing CRAN package &#39;purrr&#39;...
+Installing CRAN package &#39;purrrlyr&#39;...
+Installing CRAN package &#39;tidyr&#39;...
+Installing CRAN package &#39;yaml&#39;...
+Installing CRAN package &#39;stringr&#39;...
+Installing CRAN package &#39;emdist&#39;...
+Installing CRAN package &#39;dtw&#39;...
+Installing CRAN package &#39;ggplot2&#39;...
+Installing CRAN package &#39;cba&#39;...
+Installing CRAN package &#39;jsonlite&#39;...
+Installing GitHub package &#39;melsim&#39;...
+All R packages are installed.
+</pre></div>
+</div>
+<p>Create example melodies for comparison. We’ll start with a C major scale and
+create variations by altering different notes.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a C major scale melody (C4 to C5) with quarter note durations</span>
+<span class="n">c_major_scale</span> <span class="o">=</span> <span class="n">Score</span><span class="o">.</span><span class="n">from_melody</span><span class="p">(</span>
+    <span class="n">pitches</span><span class="o">=</span><span class="p">[</span><span class="mi">60</span><span class="p">,</span> <span class="mi">62</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">65</span><span class="p">,</span> <span class="mi">67</span><span class="p">,</span> <span class="mi">69</span><span class="p">,</span> <span class="mi">71</span><span class="p">,</span> <span class="mi">72</span><span class="p">],</span> <span class="n">durations</span><span class="o">=</span><span class="mf">1.0</span>
+<span class="p">)</span>
+
+<span class="c1"># Create variations by altering different notes</span>
+<span class="n">modified_scale</span> <span class="o">=</span> <span class="n">Score</span><span class="o">.</span><span class="n">from_melody</span><span class="p">(</span>
+    <span class="n">pitches</span><span class="o">=</span><span class="p">[</span><span class="mi">60</span><span class="p">,</span> <span class="mi">62</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">66</span><span class="p">,</span> <span class="mi">67</span><span class="p">,</span> <span class="mi">69</span><span class="p">,</span> <span class="mi">71</span><span class="p">,</span> <span class="mi">72</span><span class="p">],</span> <span class="n">durations</span><span class="o">=</span><span class="mf">1.0</span>  <span class="c1"># F4-&gt;F#4</span>
+<span class="p">)</span>
+
+<span class="n">third_scale</span> <span class="o">=</span> <span class="n">Score</span><span class="o">.</span><span class="n">from_melody</span><span class="p">(</span>
+    <span class="n">pitches</span><span class="o">=</span><span class="p">[</span><span class="mi">60</span><span class="p">,</span> <span class="mi">62</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">66</span><span class="p">,</span> <span class="mi">67</span><span class="p">,</span> <span class="mi">68</span><span class="p">,</span> <span class="mi">71</span><span class="p">,</span> <span class="mi">72</span><span class="p">],</span> <span class="n">durations</span><span class="o">=</span><span class="mf">1.0</span>  <span class="c1"># F4-&gt;F#4, A4-&gt;Ab4</span>
+<span class="p">)</span>
+
+<span class="n">fourth_scale</span> <span class="o">=</span> <span class="n">Score</span><span class="o">.</span><span class="n">from_melody</span><span class="p">(</span>
+    <span class="n">pitches</span><span class="o">=</span><span class="p">[</span><span class="mi">60</span><span class="p">,</span> <span class="mi">62</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">66</span><span class="p">,</span> <span class="mi">67</span><span class="p">,</span> <span class="mi">68</span><span class="p">,</span> <span class="mi">70</span><span class="p">,</span> <span class="mi">72</span><span class="p">],</span> <span class="n">durations</span><span class="o">=</span><span class="mf">1.0</span>  <span class="c1"># F4-&gt;F#4, A4-&gt;Ab4, B4-&gt;Bb4</span>
+<span class="p">)</span>
+
+<span class="n">melodies</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;c_major_scale&quot;</span><span class="p">:</span> <span class="n">c_major_scale</span><span class="p">,</span>
+    <span class="s2">&quot;modified_scale&quot;</span><span class="p">:</span> <span class="n">modified_scale</span><span class="p">,</span>
+    <span class="s2">&quot;third_scale&quot;</span><span class="p">:</span> <span class="n">third_scale</span><span class="p">,</span>
+    <span class="s2">&quot;fourth_scale&quot;</span><span class="p">:</span> <span class="n">fourth_scale</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Perform a simple similarity comparison between two melodies using Jaccard similarity.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">similarity</span> <span class="o">=</span> <span class="n">get_similarity</span><span class="p">(</span><span class="n">c_major_scale</span><span class="p">,</span> <span class="n">modified_scale</span><span class="p">,</span> <span class="s2">&quot;Jaccard&quot;</span><span class="p">,</span> <span class="s2">&quot;pitch&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Jaccard similarity between c_major_scale and modified_scale: </span><span class="si">{</span><span class="n">similarity</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Jaccard similarity between c_major_scale and modified_scale: 0.7778
+</pre></div>
+</div>
+<p>Now perform pairwise comparisons across all melodies using different similarity measures.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">similarity_measures</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;cosine&quot;</span><span class="p">,</span> <span class="s2">&quot;Simpson&quot;</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">similarity_measures</span><span class="p">:</span>
+    <span class="c1"># Use batch processing for efficiency</span>
+    <span class="n">batch_results</span> <span class="o">=</span> <span class="n">get_similarities</span><span class="p">(</span><span class="n">melodies</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">transformation</span><span class="o">=</span><span class="s2">&quot;pitch&quot;</span><span class="p">)</span>
+
+    <span class="c1"># batch_results is now a single matrix (since single method/transformation)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Pairwise </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2"> similarities:&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Display the similarity matrix</span>
+    <span class="n">melody_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">melodies</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+    <span class="c1"># Print header</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;&#39;</span><span class="si">:</span><span class="s2">20</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">melody_names</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">15</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span>
+
+    <span class="c1"># Print matrix rows</span>
+    <span class="k">for</span> <span class="n">name1</span> <span class="ow">in</span> <span class="n">melody_names</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name1</span><span class="si">:</span><span class="s2">20</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">name2</span> <span class="ow">in</span> <span class="n">melody_names</span><span class="p">:</span>
+            <span class="n">similarity</span> <span class="o">=</span> <span class="n">batch_results</span><span class="p">[</span><span class="n">name1</span><span class="p">][</span><span class="n">name2</span><span class="p">]</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">similarity</span><span class="si">:</span><span class="s2">15.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Extracting melody data...
+
+Processing Score objects:   0%|          | 0/4 [00:00&lt;?, ?it/s]
+Processing Score objects: 100%|██████████| 4/4 [00:00&lt;00:00, 5272.54it/s]
+Computing similarities...
+
+Processing batches:   0%|          | 0/1 [00:00&lt;?, ?it/s]
+Processing batches: 100%|██████████| 1/1 [00:00&lt;00:00,  1.13it/s]
+Processing batches: 100%|██████████| 1/1 [00:00&lt;00:00,  1.13it/s]
+
+Pairwise cosine similarities:
+                    c_major_scale  modified_scale third_scale    fourth_scale
+c_major_scale                1.0000         1.0000         1.0000         1.0000
+modified_scale               1.0000         1.0000         1.0000         1.0000
+third_scale                  1.0000         1.0000         1.0000         1.0000
+fourth_scale                 1.0000         1.0000         1.0000         1.0000
+Extracting melody data...
+
+Processing Score objects:   0%|          | 0/4 [00:00&lt;?, ?it/s]
+Processing Score objects: 100%|██████████| 4/4 [00:00&lt;00:00, 6043.67it/s]
+Computing similarities...
+
+Processing batches:   0%|          | 0/1 [00:00&lt;?, ?it/s]
+Processing batches: 100%|██████████| 1/1 [00:00&lt;00:00,  1.13it/s]
+Processing batches: 100%|██████████| 1/1 [00:00&lt;00:00,  1.13it/s]
+
+Pairwise Simpson similarities:
+                    c_major_scale  modified_scale third_scale    fourth_scale
+c_major_scale                1.0000         0.8750         0.7500         0.6250
+modified_scale               0.8750         1.0000         0.8750         0.7500
+third_scale                  0.7500         0.8750         1.0000         0.8750
+fourth_scale                 0.6250         0.7500         0.8750         1.0000
+</pre></div>
+</div>
+<p>Finally, explore other types of melodic similarity measures.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Compare intervallic similarity</span>
+<span class="n">intervallic_sim</span> <span class="o">=</span> <span class="n">get_similarity</span><span class="p">(</span><span class="n">c_major_scale</span><span class="p">,</span> <span class="n">modified_scale</span><span class="p">,</span> <span class="s2">&quot;Euclidean&quot;</span><span class="p">,</span> <span class="s2">&quot;int&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Euclidean intervallic similarity: </span><span class="si">{</span><span class="n">intervallic_sim</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Euclidean intervallic similarity: 0.4142
+</pre></div>
+</div>
+<p>Compare IOI class similarity (expected to be 1 as IOIs are identical)</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">ioi_sim</span> <span class="o">=</span> <span class="n">get_similarity</span><span class="p">(</span><span class="n">c_major_scale</span><span class="p">,</span> <span class="n">modified_scale</span><span class="p">,</span> <span class="s2">&quot;Canberra&quot;</span><span class="p">,</span> <span class="s2">&quot;ioi_class&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Canberra IOI class similarity: </span><span class="si">{</span><span class="n">ioi_sim</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Canberra IOI class similarity: 1.0
+</pre></div>
+</div>
+<p>Compare using different transformations</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">transformations</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;pitch&quot;</span><span class="p">,</span> <span class="s2">&quot;int&quot;</span><span class="p">,</span> <span class="s2">&quot;parsons&quot;</span><span class="p">,</span> <span class="s2">&quot;pc&quot;</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Similarity across different transformations:&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">transformation</span> <span class="ow">in</span> <span class="n">transformations</span><span class="p">:</span>
+    <span class="n">sim</span> <span class="o">=</span> <span class="n">get_similarity</span><span class="p">(</span><span class="n">c_major_scale</span><span class="p">,</span> <span class="n">modified_scale</span><span class="p">,</span> <span class="s2">&quot;Jaccard&quot;</span><span class="p">,</span> <span class="n">transformation</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Jaccard </span><span class="si">{</span><span class="n">transformation</span><span class="si">}</span><span class="s2"> similarity: </span><span class="si">{</span><span class="n">sim</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Similarity across different transformations:
+Jaccard pitch similarity: 0.7778
+Jaccard int similarity: 1.0000
+Jaccard parsons similarity: 1.0000
+Jaccard pc similarity: 0.7500
+</pre></div>
+</div>
+<p>Comprehensive comparison using multiple methods and transformations</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Comprehensive comparison (multiple methods and transformations):&quot;</span><span class="p">)</span>
+<span class="n">comprehensive_results</span> <span class="o">=</span> <span class="n">get_similarities</span><span class="p">(</span>
+    <span class="p">{</span><span class="s2">&quot;melody1&quot;</span><span class="p">:</span> <span class="n">c_major_scale</span><span class="p">,</span> <span class="s2">&quot;melody2&quot;</span><span class="p">:</span> <span class="n">modified_scale</span><span class="p">},</span>
+    <span class="n">method</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Jaccard&quot;</span><span class="p">,</span> <span class="s2">&quot;Dice&quot;</span><span class="p">,</span> <span class="s2">&quot;cosine&quot;</span><span class="p">,</span> <span class="s2">&quot;Euclidean&quot;</span><span class="p">],</span>
+    <span class="n">transformation</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;pitch&quot;</span><span class="p">,</span> <span class="s2">&quot;int&quot;</span><span class="p">,</span> <span class="s2">&quot;parsons&quot;</span><span class="p">,</span> <span class="s2">&quot;pc&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="c1"># Display results in a formatted table</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;Method&#39;</span><span class="si">:</span><span class="s2">12</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;Transform&#39;</span><span class="si">:</span><span class="s2">15</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;Similarity&#39;</span><span class="si">:</span><span class="s2">&gt;12</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">40</span><span class="p">)</span>
+<span class="k">for</span> <span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">transformation</span><span class="p">),</span> <span class="n">matrix</span> <span class="ow">in</span> <span class="n">comprehensive_results</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">similarity</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">[</span><span class="s2">&quot;melody1&quot;</span><span class="p">][</span><span class="s2">&quot;melody2&quot;</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">method</span><span class="si">:</span><span class="s2">12</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">transformation</span><span class="si">:</span><span class="s2">15</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">similarity</span><span class="si">:</span><span class="s2">12.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Comprehensive comparison (multiple methods and transformations):
+Extracting melody data...
+
+Processing Score objects:   0%|          | 0/2 [00:00&lt;?, ?it/s]
+Processing Score objects: 100%|██████████| 2/2 [00:00&lt;00:00, 5282.50it/s]
+Computing similarities...
+
+Processing batches:   0%|          | 0/1 [00:00&lt;?, ?it/s]
+Processing batches: 100%|██████████| 1/1 [00:00&lt;00:00,  1.12it/s]
+Processing batches: 100%|██████████| 1/1 [00:00&lt;00:00,  1.12it/s]
+Method       Transform         Similarity
+----------------------------------------
+Jaccard      pitch                 0.7778
+Jaccard      int                   1.0000
+Jaccard      parsons               1.0000
+Jaccard      pc                    0.7500
+Dice         pitch                 0.8750
+Dice         int                   1.0000
+Dice         parsons               1.0000
+Dice         pc                    0.8571
+cosine       pitch                 1.0000
+cosine       int                   0.9545
+cosine       parsons               1.0000
+cosine       pc                    0.9985
+Euclidean    pitch                 0.5000
+Euclidean    int                   0.4142
+Euclidean    parsons               1.0000
+Euclidean    pc                    0.5000
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (3 minutes 43.038 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-plot-melsim-py">
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/f60b6261bb96f3b45b0b03de9ea6afbc/plot_melsim.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_melsim.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/c3461d354dae99e6f969aab837c22bf2/plot_melsim.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_melsim.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/8e53f5edd25b87e2a3af22cec4d76d9e/plot_melsim.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">plot_melsim.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The AMADS team
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, The AMADS team.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

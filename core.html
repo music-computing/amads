@@ -1,0 +1,590 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Core Data Structures &#8212; amads  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'core';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">amads  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/core.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Core Data Structures</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#full-scores">Full Scores</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#flattened-scores">Flattened Scores</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#well-formed-scores">Well-Formed Scores</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tempo-time-duration">Tempo, Time, Duration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#events-and-eventgroups">Events and EventGroups</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#onset-times">Onset Times</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-note-class">The Note Class</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pitches">Pitches</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#immutable-scores-mostly">Immutable Scores (Mostly)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#accessing-and-processing-scores">Accessing and Processing Scores</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="core-data-structures">
+<h1>Core Data Structures<a class="headerlink" href="#core-data-structures" title="Link to this heading">#</a></h1>
+<p>Quick overview: The basic hierarchy of a score is shown here. Each level
+of this hierarchy can contain 0 or more instances of the next level.
+There are two representations: a “full” score retains most of the
+structure of Western classical notation, while a “flattened” score is
+a more abstracted representation emphasizing notes.</p>
+<section id="full-scores">
+<h2>Full Scores<a class="headerlink" href="#full-scores" title="Link to this heading">#</a></h2>
+<p>A “full” score looks like this:</p>
+<div style=margin-left:2em;"><b>Score</b> - one per musical work or movement </div>
+<div style=margin-left:4em;"><b>Part</b> - one per instrument </div>
+<div style=margin-left:6em;"><b>Staff</b> - usually 1, but e.g. 2 for grand staff</div>
+<div style=margin-left:8em;"><b>Measure</b> - one for each measure. Each measure can
+contain multiple instances of the following: </div>
+<div style=margin-left:10em;"><b>Note</b></div>
+<div style=margin-left:10em;"><b>Rest</b></div>
+<div style=margin-left:10em;"><b>Chord</b></div>
+<div style=margin-left:12em;"><b>Note</b> - one for each note of the chord</div>
+<div style=margin-left:10em;"><b>KeySignature</b></div>
+<div style=margin-left:10em;"><b>TimeSignature</b></div>
+<div style=margin-left:10em;"><b>Clef</b></div>
+</section>
+<section id="flattened-scores">
+<h2>Flattened Scores<a class="headerlink" href="#flattened-scores" title="Link to this heading">#</a></h2>
+<p>A “flattened” score looks like this:</p>
+<div style=margin-left:2em;"><b>Score</b> - one per musical work or movement</div>
+<div style=margin-left:4em;"><b>Part</b> - one per instrument</div>
+<div style=margin-left:6em;"><b>Note</b> - no other instances allowed, no ties</div>
+</section>
+<section id="well-formed-scores">
+<h2>Well-Formed Scores<a class="headerlink" href="#well-formed-scores" title="Link to this heading">#</a></h2>
+<p>Score structure is not enforced (it is up to the developer), but AMADS
+functions expect well-formed scores in either of the “full” score or
+the “flattened” score forms shown above.</p>
+<p>A well-formed score will have events belonging to a parent (EventGroup)
+in time order.</p>
+<p>Rests objects are created when scores are read from MusicXML, but MIDI
+has no representation for rests and the MIDI file reader does not insert
+Rest objects. Generally, you should ignore Rests since Notes all have
+<code class="docutils literal notranslate"><span class="pre">onset</span></code>s. Rests are not needed for timing.</p>
+<section id="tempo-time-duration">
+<h3>Tempo, Time, Duration<a class="headerlink" href="#tempo-time-duration" title="Link to this heading">#</a></h3>
+<p>Time is usually measured in “quarters”. (“Beat” is avioded since it
+is often ambiguous – how many beats per measure are in 6/8 time?) Time
+can also be measured in real-time units of seconds.</p>
+<p>Tempo is indicated at the score level as a single mapping between
+seconds and quarters.</p>
+<p>You can convert every time and duration in an entire score from quarters
+to seconds (and vice versa), allowing you to work in musical time or
+real time. (See
+<code class="docutils literal notranslate"><span class="pre">~amads.core.basics.Score.convert_to_seconds()</span></code>{.interpreted-text
+role=”py:meth”} or
+<code class="docutils literal notranslate"><span class="pre">~amads.core.basics.Score.convert_to_quarters()</span></code>{.interpreted-text
+role=”py:meth”}.</p>
+</section>
+<section id="events-and-eventgroups">
+<h3>Events and EventGroups<a class="headerlink" href="#events-and-eventgroups" title="Link to this heading">#</a></h3>
+<p>To implement this hierarchical representation, we have an abstract
+superclass, which is <code class="docutils literal notranslate"><span class="pre">~amads.core.basics.Event</span></code>{.interpreted-text
+role=”py:class”}. Every Event has the following attributes:</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">onset</span></code>
+:   (float) The time of the event</p>
+<p><code class="docutils literal notranslate"><span class="pre">duration</span></code>
+:   (float) The duration (in beats or seconds) of the event</p>
+<p><code class="docutils literal notranslate"><span class="pre">parent</span></code>
+:   (EventGroup) The object containing this event</p>
+<p><code class="docutils literal notranslate"><span class="pre">info</span></code>
+:   a dictionary with (optional) additional information</p>
+</div></blockquote>
+<p>Anything that can be a <code class="docutils literal notranslate"><span class="pre">parent</span></code> is an
+<code class="docutils literal notranslate"><span class="pre">~amads.core.basics.EventGroup</span></code>{.interpreted-text role=”py:class”}.
+EventGroups including Part, Staff, Measure and Chord are also children,
+so you would also expect them to be Events. There is no conflict because
+EventGroup <em>inherits from</em> Event. Everything is an Event! But not every
+Event is an EventGroup.</p>
+</section>
+<section id="onset-times">
+<h3>Onset Times<a class="headerlink" href="#onset-times" title="Link to this heading">#</a></h3>
+<p>Onset times (as either quarters or seconds) are <em>zero-based</em> and
+<em>absolute</em>. Two measures of quarter notes in 4/4 time will have <code class="docutils literal notranslate"><span class="pre">onsets</span></code>
+of 0, 1, 2, 3, 4, 5, 6, 7. Note that the downbeat is <em>not</em> 1, and the
+first beat of the second measure is 4, not 0 or 1.</p>
+<p>Finally, <code class="docutils literal notranslate"><span class="pre">onset</span></code> can be None during the construction of a Score. If the
+<code class="docutils literal notranslate"><span class="pre">onset</span></code> is None and a Note (Event) is appended to the Events in a
+Measure (EventGroup), the <code class="docutils literal notranslate"><span class="pre">onset</span></code> of the Note is set so that the Events
+are sequential in time. This can be a convenience when writing
+expressions like <code class="docutils literal notranslate"><span class="pre">Measure(Note(),</span> <span class="pre">Note(),</span> <span class="pre">Rest(),</span> <span class="pre">Note())</span></code>, but <em>we
+recommend that you always specify onset times</em>.</p>
+</section>
+<section id="the-note-class">
+<h3>The Note Class<a class="headerlink" href="#the-note-class" title="Link to this heading">#</a></h3>
+<p>The most important class is <code class="docutils literal notranslate"><span class="pre">~amads.core.basics.Note</span></code>{.interpreted-text
+role=”py:class”}. In addition to [onset]{.title-ref},
+[duration]{.title-ref} and [parent]{.title-ref}, inherited from Event, a
+Note has</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">pitch</span></code>
+:   (Pitch) A pitch object (see below)</p>
+<p><code class="docutils literal notranslate"><span class="pre">dynamic</span></code>
+:   (optional int or str) dynamic (loudness) level</p>
+<p><code class="docutils literal notranslate"><span class="pre">lyric</span></code>
+:   (optional str) lyric text</p>
+<p><code class="docutils literal notranslate"><span class="pre">tie</span></code>
+:   (optional Note) the Note this Note is tied to, if any</p>
+</div></blockquote>
+</section>
+<section id="pitches">
+<h3>Pitches<a class="headerlink" href="#pitches" title="Link to this heading">#</a></h3>
+<p>Pitches are complex enough to get their own class (an integer will not
+do). The pitch class has these attributes:</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">key_num</span></code>
+:   (float) MIDI-like key number, e.g. C4 = 60</p>
+<p><code class="docutils literal notranslate"><span class="pre">alt</span></code>
+:   (float) Alteration, e.g. one flat = -1</p>
+</div></blockquote>
+<p>Notice that you can always ignore <code class="docutils literal notranslate"><span class="pre">alt</span></code> and just use <code class="docutils literal notranslate"><span class="pre">key_num</span></code>, but if
+you care about note spelling, you will need <code class="docutils literal notranslate"><span class="pre">alt</span></code>.</p>
+<p>Notice also that both <code class="docutils literal notranslate"><span class="pre">key_num</span></code> and <code class="docutils literal notranslate"><span class="pre">alt</span></code> are floats, so you can express
+quarter tones (a quarter tone above C4 is represented by 60.5), and the
+<code class="docutils literal notranslate"><span class="pre">alt</span></code> would be 0.5 (a quarter tone sharp).</p>
+<p>The Pitch class has a wealth of properties to obtain the name as a
+string, the octave, pitch class, and others.</p>
+</section>
+<section id="immutable-scores-mostly">
+<h3>Immutable Scores (Mostly)<a class="headerlink" href="#immutable-scores-mostly" title="Link to this heading">#</a></h3>
+<p>In general, AMADS Scores are immutable, which means you cannot (or
+should not) change them. When you need changes (consider simple
+operations like time-stretching a score or transposing or removing all
+but one instrument), AMADS almost always returns a <em>copy</em>, leaving the
+original intact. The goal is to avoid surprising side effects when the
+same score is passed through different operations and analyses.</p>
+<p>There are important exceptions. Some examples:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">~amads.core.basics.Score.convert_to_seconds()</span></code>{.interpreted-text
+role=”py:meth”} or
+<code class="docutils literal notranslate"><span class="pre">~amads.core.basics.Score.convert_to_quarters()</span></code>{.interpreted-text
+role=”py:meth”} change the score (but either operation can be undone
+by calling the other),</p></li>
+<li><p>it is permissible to “annotate” a score by adding new information,
+e.g., setting new attributes to the Events’ <code class="docutils literal notranslate"><span class="pre">info</span></code>.</p></li>
+<li><p>during construction, when there is only one reference to a Score, it
+is normal to modify the score by inserting new events.</p></li>
+</ul>
+<p>You should <strong>never</strong> modify a Pitch. Always construct a new one, because
+when Notes are copied, the new Note <em>shares</em> the original Note’s Pitch
+object. Assigning to <code class="docutils literal notranslate"><span class="pre">pitch.key_num</span></code> might change the <code class="docutils literal notranslate"><span class="pre">pitch</span></code> of many
+other notes.</p>
+</section>
+<section id="accessing-and-processing-scores">
+<h3>Accessing and Processing Scores<a class="headerlink" href="#accessing-and-processing-scores" title="Link to this heading">#</a></h3>
+<p>If you access notes directly, be aware that notes can be tied: Not every
+Note object represents a new performed tone. Also, Measures can contain
+Chord events that contain Notes, so Notes can exist at two levels of the
+hierarchy. Because of these and other complications, it is recommended
+that you use Score methods to extract the information you need rather
+than using your own code to traverse a Score.</p>
+<p>To process all notes in time order, call the Score method
+<code class="docutils literal notranslate"><span class="pre">~amads.core.basics.Score.get_sorted_notes</span></code>{.interpreted-text
+role=”py:meth”}, which returns a flat list of all notes, ordered by
+onset time, with ties merged.</p>
+<p>If you need notes from a particular staff or part, use
+<code class="docutils literal notranslate"><span class="pre">~amads.core.basics.Score.collapse_parts</span></code>{.interpreted-text
+role=”py:meth”} to obtain a score with only the desired information, and
+then apply <code class="docutils literal notranslate"><span class="pre">~amads.core.basics.Score.get_sorted_notes</span></code>{.interpreted-text
+role=”py:meth”} to get the Notes.</p>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#full-scores">Full Scores</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#flattened-scores">Flattened Scores</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#well-formed-scores">Well-Formed Scores</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tempo-time-duration">Tempo, Time, Duration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#events-and-eventgroups">Events and EventGroups</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#onset-times">Onset Times</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-note-class">The Note Class</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pitches">Pitches</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#immutable-scores-mostly">Immutable Scores (Mostly)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#accessing-and-processing-scores">Accessing and Processing Scores</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The AMADS team
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, The AMADS team.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
