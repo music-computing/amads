@@ -21,9 +21,8 @@ Original doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e0
 import math
 from typing import List, Union
 
-from ..core.basics import Note, Score
-from ..core.distribution import Distribution
-from ..pitch.ismonophonic import ismonophonic
+from amads.core.basics import Note, Score
+from amads.pitch.ismonophonic import ismonophonic
 
 
 def update_dd(
@@ -70,7 +69,7 @@ def duration_distribution_2(
     score: Score,
     name: str = "Duration Pairs Distribution",
     bin_centers: Union[list[float], None] = None,
-) -> Distribution:
+):
     """
     Returns the 2nd-order duration distribution of a musical score.
 
@@ -114,6 +113,8 @@ def duration_distribution_2(
     Raises:
         Exception: If the score is not monophonic (e.g. contains chords)
     """
+    from ..core.distribution import Distribution
+
     if not ismonophonic(score):
         raise ValueError("Score must be monophonic")
 

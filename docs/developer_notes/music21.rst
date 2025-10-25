@@ -1,10 +1,13 @@
 Music21
 =======
 
+These are RBD's notes on Music21. Probably this does not belong in
+AMADS but it's a reference to help understand Music21.
+
 https://www.music21.org/music21docs/usersGuide/
 
 Note class
----------
+----------
 * name:
   e.g. ``'F'``
 * octave:
@@ -54,12 +57,16 @@ methods include:
 * ``upper_enharmonic()``
 
 Duration using rationals - see fractions.py
+
     measured in quarters
+
 properties are:
+
 * ``quarters``
 
 Structure
 ---------
+
 Stream is supertype for Score, Part and Measure
 Streams have time (delta) and a list of components:
 * ``Stream``
@@ -70,23 +77,27 @@ Streams have time (delta) and a list of components:
 * ``Rest``?
 
 Component deltas are relative to the parent, not global.
+
 We can add a tempo curve that consists of breakpoints
-    starting at (0,0), and map seconds to quarters
-    Operations could then include: fix the tempo, e.g.
+starting at (0,0), and map seconds to quarters
+Operations could then include: fix the tempo, e.g.
+
     linear mapping at some number of quarters/second;
     convert internal deltas from quarters to seconds;
     convert internal deltas from seconds to quarters.
 
 Ties: in Music21, notes can have durations that take
-    them out of the measure, OR notes can have ties.
+them out of the measure, OR notes can have ties.
 
 Chord
 -----
-    similar to Note, but it has pitches instead of pitch
+
+similar to Note, but it has pitches instead of pitch
 methods include:
 * ``root``
 * ``bass``
 
 Tempo
 -----
-    not in Music21 - should add tempo curve to Stream
+
+not in Music21 - should add tempo curve to Stream
