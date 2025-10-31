@@ -3,7 +3,6 @@ Projection of pitch-class distribution on a self-organizing map
 (Toiviainen & Krumhansl, 2003)
 
 Description:
-    TODO: not enough understanding of this function here
 
 Problems:
 Should we generalize this algorithm to use self-organizing maps
@@ -11,13 +10,11 @@ trained on data other than Krumhansl-kessler key profiles?
 Proposal:
     - Add a cached trainer function that takes in a profile and spits out a
     self-organizing map
-
-Keysomdata is missing (even from the github repository)
-in the matlab version.
-Proposal:
-    - Train and get your own training configuration (including initial values
-    of the map before training the SOM, rate of learning, and propagation
-    function)?
+Second thoughts (about this):
+    - Probably not yet. Get a toy working version first that's completely
+    faithful to the miditoolbox version.
+    - Another gripe I have is the width of the SOM (36 indices) seem
+    specifically tailored to a profile with 12 major and 12 minor key weights.
 
 Things to watch out for:
     - crank the learning rate low enough so that order of selection for the
@@ -33,18 +30,21 @@ from typing import List, Optional
 import numpy as np
 
 from amads.core.basics import Concurrence
+
+# from amads.algorithms.norm import euclidean_distance
 from amads.pitch.key import profiles as prof
 
 
 def trainprofilesom(
     profile: prof._KeyProfile = prof.KrumhanslKessler,
-    attribute_names: Optional[List[str]] = None,
+    attribute_names: Optional[List[str]] = ["major", "minor"],
 ):
     """
     Trains a self-organizing map based off of the profile and attribute names
     of the specific pitch profiles we want to train our self-organizing map on.
 
-    TODO: Problems
+    The various configurations for training are empirically determined.
+
     - Should we have a configuration state that we can pass in to make training
     deterministic?
 
@@ -58,9 +58,9 @@ def trainprofilesom(
         within the KeyProfile to compute correlations for.
         An example of a valid key profile, attribute names combination is
         something like (prof.vuvan, ["natural_minor", "harmonic_minor"]),
-        which specifies key_cc to compute the crosscorrelation between
-        the pitch-class distribution of the score and both prof.vuvan.natural_minor
-        and prof.vuvan.harmonic_minor.
+        which specifies training data from the pitch-class distributions
+        of the score and both prof.vuvan.natural_minor and
+        prof.vuvan.harmonic_minor.
         None can be supplied when we want to specify all valid pitch
         profiles within a given key profile.
 
@@ -69,6 +69,27 @@ def trainprofilesom(
     Any
         A self-organizing map (dimensions, type undecided yet)
     """
+
+    # the original SOM had dimensions of (12, 36, 24) where
+    # 12 is the input length
+    # 36 is data width/feature width/something else?
+    # 24 is the 12 major and 12 minor keys for the profile data
+
+    # potential training regimen:
+    # 2 pseudo-rng generators
+    # initialize SOM numpy array weights with random weights
+    # decay_iterator(idx: int) -> float
+    #   (decay rate specific to iteration idx of training)
+    # neighborhood_propagation(coord: tuple(int), best_match: tuple(int), idx: int) -> float
+    #   (neighborhood propagation decay rate function)
+    # data_selector(profile: prof._KeyProfile, attribute_names: List[str], idx: int) -> List[np.array]
+    #   (selector for data during iteration idx)
+
+    # run SOM training algorithm with the previously mentioned variables
+    # one thing to worry about
+
+    # decay rates are mutually independent, also update function seems to
+    # be suspiciously similar to bernoulli random variable expectation
 
     assert 0
 
@@ -107,4 +128,19 @@ def keysom(
         name does not reference a valid data field within the specified key
         profile, it will yield (attribute_name, None).
     """
+
+    # projects pitch-class distribution to trained SOM on major and minor key
+    # profiles
+
+    # plot projection on a 2-D linearly-interpolated heatmap
+    # TODO:
+    # figure out how the notes are plotted, or rather what criteria let the
+    # notes be plotted where they have been?
+    # basically figure out how the keyx and keyy functions operate...
+    # keyx(key: int) -> float
+    # keyy(key: int) -> float
+    # keyname(key: int) -> str
+
+    # additional things to figure out for keysomanim later (especially quirks
+    # with matplotlib)
     assert 0
