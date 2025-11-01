@@ -90,7 +90,7 @@ def update_SOM(SOM: np.array, best_match: Tuple[int], input_data: np.array, idx:
 
 
 def trainprofilesom(
-    profile: prof._KeyProfile = prof.KrumhanslKessler,
+    profile: prof.KeyProfile = prof.KrumhanslKessler,
     attribute_names: Optional[List[str]] = ["major_sum", "minor_sum"],
 ):
     """

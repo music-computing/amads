@@ -72,7 +72,7 @@ def kkcc(
     # these checks are paranoia mainly to prevent future changes
     # from breaking the code after
     assert not (profile is None or attribute_list is None)
-    assert isinstance(profile, profiles._KeyProfile)
+    assert isinstance(profile, profiles.KeyProfile)
     assert len(attribute_list) == 2
 
     corrcoef_pairs = key_cc(score, profile, attribute_list, salience_flag)
