@@ -34,8 +34,31 @@ from amads.algorithms.norm import euclidean_distance
 from amads.core.basics import Concurrence
 from amads.pitch.key import profiles as prof
 
-# TODO: make sure to get rid of some of the random asserts used in development
-# no need to add these restrictions
+# ! make sure to get rid of some of the random asserts used in development
+
+
+# TODO: explore just shoving all the training specific code into KeyProfileSOM
+# also explore getting training specific code and SOM
+class KeyProfileSOM:
+    def __init__(self, output_layer_dimensions=(24, 36)):
+        self.SOM = np.random.rand(*output_layer_dimensions, 12)
+
+    def train_SOM(
+        self,
+        profile: prof.KeyProfile = prof.KrumhanslKessler,
+        attribute_names: Optional[List[str]] = ["major", "minor"],
+    ):
+        # ! only supports attribute_names = ['major', 'minor']
+        assert 0
+        return
+
+    def project_onto_SOM(self, input_data: np.array) -> np.array:
+        assert 0
+        return
+
+    def obtain_key_label_tuples(self) -> List[Tuple[str, int, int]]:
+        assert 0
+        return
 
 
 def decay_function(idx: int) -> float:
@@ -89,9 +112,41 @@ def update_SOM(SOM: np.array, best_match: Tuple[int], input_data: np.array, idx:
             SOM[i, j, :] = (1 - rate) * SOM[i, j, :] + rate * input_data
 
 
+def find_best_matching_unit(SOM: np.array, input_data: np.array) -> Tuple[int]:
+    """
+    Finds best matching unit given a self-organizing map and input data
+    """
+    # input data length needs to match
+    assert SOM.shape[2] == 12
+    assert input_data.shape == (12,)
+    dim0, dim1, input_length = SOM.shape
+    best_i, best_j = 0, 0
+    best_distance = euclidean_distance(input_data, SOM[best_i, best_j, :], False)
+    for i in range(dim0):
+        for j in range(dim1):
+            distance = euclidean_distance(input_data, SOM[i, j, :], False)
+            if best_distance > distance:
+                best_i, best_j = i, j
+                best_distance = distance
+    return (best_i, best_j)
+
+
+def project_input_onto_SOM(SOM: np.array, input_data: np.array) -> np.array:
+    """
+    projects input onto self-organizing map
+    """
+    # input data length needs to match
+    assert SOM.shape[2] == 12
+    assert input_data.shape == (12,)
+    # projection of input data onto current self-organizing map
+    # matrix multiplication (tensor extension)
+    application = SOM @ input_data
+    return application
+
+
 def trainprofilesom(
     profile: prof.KeyProfile = prof.KrumhanslKessler,
-    attribute_names: Optional[List[str]] = ["major_sum", "minor_sum"],
+    attribute_names: Optional[List[str]] = ["major", "minor"],
 ):
     """
     Trains a self-organizing map based off of the profile and attribute names
@@ -123,8 +178,7 @@ def trainprofilesom(
     Any
         A self-organizing map (dimensions, type undecided yet)
     """
-    # TODO: fix this later
-    assert attribute_names == ["major_sum", "minor_sum"]
+    assert attribute_names == ["major", "minor"]
 
     list_of_canonicals = [
         profile[attribute].normalize().as_canonical_matrix()
@@ -143,12 +197,13 @@ def trainprofilesom(
 
     for idx in range(max_iterations):
         data_vector = data_selector(list_of_canonicals, idx)
-        # tensor multiplication (need to figure out index)
-        application = SOM @ data_vector
-        # figure out best match
-        best_match = np.unravel_index(np.argmax(application))
+        best_match = find_best_matching_unit(SOM, data_vector)
         update_SOM(SOM=SOM, best_match=best_match, input_data=data_vector, idx=idx)
 
+    # TODO: need to find BMU to each of the weight vectors in the trained SOM
+
+    # data is becoming exceedingly cumbersome to throw around...
+    # probably organize in a dedicated keySOM class
     return SOM
 
 
