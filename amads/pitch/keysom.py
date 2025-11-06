@@ -3,24 +3,22 @@ Projection of pitch-class distribution on a self-organizing map
 (Toiviainen & Krumhansl, 2003)
 
 Description:
+    Computes the projection of a pitch-class distribution on a self-organizing
+    map, and visualize it.
 
-Problems:
-Should we generalize this algorithm to use self-organizing maps
-trained on data other than Krumhansl-kessler key profiles?
-Proposal:
-    - Add a cached trainer function that takes in a profile and spits out a
-    self-organizing map
-Second thoughts (about this):
-    - Probably not yet. Get a toy working version first that's completely
-    faithful to the miditoolbox version.
-    - Another gripe I have is the width of the SOM (36 indices) seem
-    specifically tailored to a profile with 12 major and 12 minor key weights.
+    Unlike the original miditoolbox implementation in matlab, the SOM here
+    is allowed to use any key profile in literature as long as it contains
+    valid major and minor pitch profile fields. See key/profiles.py for more
+    details.
 
-Things to watch out for:
-    - crank the learning rate low enough so that order of selection for the
-    very small (profile) data set doesn't really matter. (let's start with 0.2)
-    - Make sure the weight propagation is a toroid (circular propagation based
-    off of 1-norm?).
+    ! remove this after testing and experimentation
+    Things to watch out for:
+        - crank the learning rate low enough so that order of selection for the
+        very small (profile) data set doesn't really matter. (let's start with 0.2)
+        - Make sure the weight propagation is a toroid (circular propagation based
+        off of 1-norm?).
+        - non-normalized weights? (prefer normalized ones so far due to how
+        inconsistent literature weights are otherwise)
 
 See https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=66 for more details
 """
@@ -29,13 +27,16 @@ import random
 
 # for function types
 from collections.abc import Callable
-from typing import List, Optional, Tuple
+from typing import Tuple
 
+import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.figure import Figure
 
 from amads.algorithms.norm import euclidean_distance
 from amads.core.basics import Concurrence
 from amads.pitch.key import profiles as prof
+from amads.pitch.pcdist1 import pcdist1
 
 # ! make sure to get rid of some of the random asserts used in development
 
@@ -63,13 +64,24 @@ def neighborhood_propagation(
     return (0.5) ** distance
 
 
-# TODO: explore just shoving all the training specific code into KeyProfileSOM
-# also explore getting training specific code and SOM
 class KeyProfileSOM:
-    def __init__(
-        self, output_layer_dimensions: Tuple[int] = (24, 36), input_length: int = 12
-    ):
-        self.SOM = np.random.rand(*output_layer_dimensions, input_length)
+    """
+    Define coordinate of a node as the coordinate within the array of output nodes
+    in a self-organizing map.
+    Since each output node is
+    """
+
+    # corresponds to the number of weights in a pitch-class distribution
+    _input_length = 12
+    # possible pitches
+    _pitches = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
+    # labels
+    _labels = _pitches + [pitch.lower() for pitch in _pitches]
+
+    def __init__(self, output_layer_dimensions: Tuple[int] = (24, 36)):
+        self.SOM = np.random.rand(*output_layer_dimensions, KeyProfileSOM._input_length)
+        # best matching units to each of the corresponding coordinates
+        self.label_coord_list = []
 
     def update_SOM(
         self,
@@ -78,46 +90,80 @@ class KeyProfileSOM:
         idx: int,
         neighborhood: Callable[[Tuple[int], Tuple[int], int], float],
         global_decay: Callable[[int], float],
-    ):
+    ) -> "KeyProfileSOM":
         """
-        updates the SOM on the input data based off of the best matching unit,
+        Updates the SOM on the input data based off of the best matching unit,
         and the current global training iteration.
 
-        TODO
         Parameters
         ----------
+        best_match: Tuple[int]
+            Coordinate of the best-matching node in the output layer of the
+            self-organizing map and its corresponding connector weights
+            (to the input)
+        input_data: np.array
+            data vector that was selected to train on for the current
+            training iteration
+        idx: int
+            Current training iteration in training session.
+        neighborhood: Callable[[Tuple[int], Tuple[int], int], float]
+            Neighborhood function, denoting the update rate component depending
+            on coordinate differences to the best matching unit and training
+            iteration.
+        global_decay: Callable[[int], float]
+            Global decay function, denoting the update rate component dependent
+            solely on training iteration.
 
+        Returns
+        -------
+        KeyProfileSOM
+            Current object
         """
         dim0, dim1, input_length = self.SOM.shape
-        if input_length != input_data.shape[0]:
+        if input_data.shape != (KeyProfileSOM._input_length,):
             raise ValueError(
-                f"self-organizing map has invalid shape {self.SOM.shape}"
-                "or input is of invalid shape {input_data.shape}"
+                f"input {input_data} is of invalid shape {input_data.shape}"
             )
+        if input_length != KeyProfileSOM._input_length:
+            raise ValueError(f"Corrupted SOM =\n{self.SOM}\nof shape {self.SOM.shape}")
+        if len(best_match) != 2:
+            raise ValueError(f"Invalid best matching unit coords {best_match}")
+
+        # update all weights in the SOM based on competitive learning
+        # (where the only things that truly matter in a training iteration
+        # is the BMU and the input data)
         for i in range(dim0):
             for j in range(dim1):
                 rate = global_decay(idx) * neighborhood((i, j), best_match, idx)
                 self.SOM[i, j, :] = (1 - rate) * self.SOM[i, j, :] + rate * input_data
 
+        return self
+
     def find_best_matching_unit(self, input_data: np.array) -> Tuple[int]:
         """
-        Finds best matching unit given a self-organizing map and input data
+        Finds best matching unit given a self-organizing map and input data,
+        or the coordinate of the output node whose weights has the smallest
+        Euclidean distance from the input data.
 
-        TODO
         Parameters
         ----------
+        input_data: np.array
+            1-D data vector of input length containing the input weights
 
-        TODO
         Returns
         -------
+        Tuple[int]
+            Coordinates of the node that has the connector weights with the
+            smallest Euclidean distance to the input data
         """
         # input data length needs to match
         dim0, dim1, input_length = self.SOM.shape
-        if input_length != input_data.shape[0]:
+        if input_data.shape != (KeyProfileSOM._input_length,):
             raise ValueError(
-                f"self-organizing map has invalid shape {self.SOM.shape}"
-                "or input is of invalid shape {input_data.shape}"
+                f"input {input_data} is of invalid shape {input_data.shape}"
             )
+        if input_length != KeyProfileSOM._input_length:
+            raise ValueError(f"Corrupted SOM =\n{self.SOM}\nof shape {self.SOM.shape}")
         best_i, best_j = 0, 0
         best_distance = euclidean_distance(
             input_data, self.SOM[best_i, best_j, :], False
@@ -130,58 +176,56 @@ class KeyProfileSOM:
                     best_distance = distance
         return (best_i, best_j)
 
-    def _data_selector(self, list_of_canonicals: List[np.array], idx: int) -> np.array:
+    def _data_selector(self, training_data: np.array, idx: int) -> np.array:
         """
-        Data selector given a list of attribute nmaes and current iteration.
+        Internal data selector amongst training inputs represented as a list of
+        canonical matrices (See the PitchProfile class in key/profiles.py for
+        more detials on canonical matrices).
 
-        Current iteration is ignored in this function for now.
+        This training data selector very specific to amads implementation
+        of PitchProfile (See key/profiles.py for more details on the
+        PitchProfile class).
 
-        TODO
         Parameters
         ----------
+        Training data:
+            2-D numpy array where each row is a training data input, and each column
+            index correspond to the indices in a chromatic scale
+        idx:
+            Index of current training iteration
 
-        TODO
         Returns
         -------
         np.array[float]
+            An input vector (with the weights of a normalized pitch profile)
+            that is a 1-D numpy vector.
         """
 
-        return random.choice(list_of_canonicals)[random.randrange(0, 12), :]
+        num_data, input_length = training_data.shape
+        if input_length != KeyProfileSOM._input_length:
+            raise ValueError(
+                f"invalid training data dimensions {training_data.shape}, expected (num_data, 12))"
+            )
+
+        return training_data[random.randrange(0, num_data), :]
 
     def train_SOM(
         self,
         profile: prof.KeyProfile = prof.KrumhanslKessler,
-        attribute_names: Optional[List[str]] = ["major", "minor"],
         max_iterations: int = 36,
         neighborhood: Callable[
             [Tuple[int], Tuple[int], int], float
         ] = neighborhood_propagation,
         global_decay: Callable[[int], float] = decay_function,
-    ):
+    ) -> "KeyProfileSOM":
         """
-        Trains a self-organizing map based off of the profile and attribute names
-        of the specific pitch profiles we want to train our self-organizing map on.
-
-        The various configurations for training are empirically determined.
-
-        - Should we have a configuration state that we can pass in to make training
-        deterministic?
+        Trains a self-organizing map based off of the given training data
+        and training parameters.
 
         Parameters
         ----------
         profile: prof.KeyProfile
             The key profile to use for analysis.
-
-        attribute_names: Optional[List[str]]
-            List of attribute names that denote the particular PitchProfiles
-            within the KeyProfile to compute correlations for.
-            An example of a valid key profile, attribute names combination is
-            something like (prof.vuvan, ["natural_minor", "harmonic_minor"]),
-            which specifies training data from the pitch-class distributions
-            of the score and both prof.vuvan.natural_minor and
-            prof.vuvan.harmonic_minor.
-            None can be supplied when we want to specify all valid pitch
-            profiles within a given key profile.
 
         max_iterations: int
             The number of iterations to train the self-organizing map for
@@ -194,13 +238,25 @@ class KeyProfileSOM:
         global_decay: Callable[[int], float]
             Global decay function, denoting the update rate component dependent
             solely on training iteration.
+
+        Returns
+        -------
+        KeyProfileSOM
+            Current object
         """
-        assert attribute_names == ["major", "minor"]
+        attribute_names = ["major", "minor"]
 
         list_of_canonicals = [
             profile[attribute].normalize().as_canonical_matrix()
             for attribute in attribute_names
         ]
+
+        # stack into matrix representation to satisfy _data_selector argument
+        # specification
+        # Additionally, training data here is ordered (per row) in chromatic
+        # scale order, first in major pitch profile weights then minor pitch
+        # profile weights.
+        training_data = np.vstack(list_of_canonicals)
 
         # 12 is the input length
         # 36 is data width/feature width/something else?
@@ -210,7 +266,7 @@ class KeyProfileSOM:
         # in this implementation
 
         for idx in range(max_iterations):
-            data_vector = self._data_selector(list_of_canonicals, idx)
+            data_vector = self._data_selector(training_data, idx)
             best_match = self.find_best_matching_unit(data_vector)
             self.update_SOM(
                 best_match=best_match,
@@ -220,53 +276,97 @@ class KeyProfileSOM:
                 global_decay=global_decay,
             )
 
-        # TODO: need to find BMU to each of the key profile input vectors in the trained SOM
+        self.label_coord_list.clear()
+        # need to find BMU to each of the key profile input vectors in the trained SOM
+        # since training_data is already ordered properly, we just need to find BMU
+        # over all the inputs
+        for input in training_data:
+            best_match = self.find_best_matching_unit(input)
+            self.label_coord_list.append(best_match)
 
-        # data is becoming exceedingly cumbersome to throw around...
-        # probably organize in a dedicated keySOM class
         return self
 
-    def project_input(self, input_data: np.array) -> np.array:
+    def project_input_onto_SOM(self, input_data: np.array) -> np.array:
         """
-        projects input onto self-organizing map
+        Computes the resulting projection weights of the input on a
+        trained self-organizing map.
 
-        TODO
         Parameters
         ----------
+        input_data: np.array
+            1-D data vector of input length containing the input weights
 
-        TODO
         Returns
         -------
+        np.array[float]
+            Returns a 2-D numpy array that contains the projection of the input
+            data onto the self-organizing map.
         """
         # input data length needs to match
         dim0, dim1, input_length = self.SOM.shape
-        if input_length != input_data.shape[0]:
+        if input_data.shape != (KeyProfileSOM._input_length,):
             raise ValueError(
-                f"self-organizing map has invalid shape {self.SOM.shape}"
-                "or input is of invalid shape {input_data.shape}"
+                f"input {input_data} is of invalid shape {input_data.shape}"
             )
+        if input_length != KeyProfileSOM._input_length:
+            raise ValueError(f"Corrupted SOM =\n{self.SOM}\nof shape {self.SOM.shape}")
         # projection of input data onto current self-organizing map
         # matrix multiplication (tensor extension)
         application = self.SOM @ input_data
+        assert application.shape == (dim0, dim1)
         return application
 
-    def obtain_key_label_tuples(self) -> List[Tuple[str, int, int]]:
+    def project_and_visualize(
+        self, input: Tuple[float], has_legend: bool = True
+    ) -> Tuple[np.array, Figure]:
         """
-        TODO comments
-        """
-        assert 0
-        return
+        Projects a pitch-class distribution and visualizes it
 
-    def project_and_visualize(self, input_data: np.array):
+        ! Currently only supports basic version, need additional plotting
+        ! options for full functionality
+        Parameters
+        ----------
+        input_data: np.array
+            1-D data vector of input length containing the input weights
+
+        has_legend: bool
+            Whether or not the plot should include a color legend
+
+        Returns
+        -------
+        np.array[float]
+            Returns a 2-D numpy array that contains the projection of the input
+            data onto the self-organizing map.
+        Figure
+            Matplotlib figure that contains the axes with a plot of the projection
         """
-        TODO comments
-        """
-        assert 0
-        return
+        # prep data
+        projection = self.project_input_onto_SOM(input)
+
+        dim0, dim1, _ = self.SOM.shape
+        assert projection.shape == (dim0, dim1)
+
+        # visualize
+        fig, ax = plt.subplots()
+
+        # there should be some thought put into the actual interpolation formula
+        cax = ax.imshow(projection, aspect="auto", interpolation="quadric")
+
+        assert len(self.label_coord_list) == len(KeyProfileSOM._labels)
+
+        # key labels in the plot
+        for (i, j), label in zip(self.label_coord_list, KeyProfileSOM._labels):
+            _ = ax.text(j, i, label, ha="center", va="center", color="w")
+
+        # legend
+        if has_legend:
+            fig.colorbar(cax, ax=ax, label="Proportion")
+
+        return projection, fig
 
 
 def keysom(
-    note_collection: Concurrence, cbar: bool = True, cmap: str = "jet", tsize: int = 16
+    note_collection: Concurrence, map: KeyProfileSOM, has_legend: bool = True
 ) -> np.array[float]:
     """
     Projects the pitch-class distribution of a note-collection to a
@@ -278,17 +378,13 @@ def keysom(
     note_collection: Concurrence
         Collection of notes to calculate the pitch-class distribution of and
         project onto the pre-trained SOM.
-        TODO: some thought needed into the type of this argument
-    cbar: bool
-        Whether or not a color scaling legend will appear on the visualization
-        True (default) for appearing color bar, False otherwise.
-    cmap: str
-        color map scheme used in the visualization of the projection matrix
-        e.g. 'jet' (Default), 'gray', etc.
-        TODO: make sure these are converted to matplotlib color map strings
-    tsize: int
-        text size for the annotations on the map itself.
-        Default is 16
+
+    map: KeyProfileSOM
+        A pretrained self-organizing map trained on major + minor pitch profiles
+        from a single literature.
+
+    has_legend: bool
+        Whether or not the plot should include a color legend
 
     Returns
     -------
@@ -299,14 +395,10 @@ def keysom(
         name does not reference a valid data field within the specified key
         profile, it will yield (attribute_name, None).
 
+    TODO: should keysom return Figure here because of how matplotlib behaves?
+    Probably worry about this when keysomanim is implemented
     """
-
-    # projects pitch-class distribution to trained SOM on major and minor key
-    # profiles
-
-    # plot projection on a 2-D linearly-interpolated heatmap
-    # basically figure out how the keyx and keyy functions operate...
-
-    # additional things to figure out for keysomanim later (especially quirks
-    # with matplotlib)
-    assert 0
+    input = pcdist1(note_collection)
+    projection, Figure = map.project_and_visualize(input, has_legend)
+    # a good idea would probably be to return the Figure/axes
+    return projection
