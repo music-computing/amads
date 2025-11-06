@@ -64,6 +64,9 @@ def neighborhood_propagation(
     return (0.5) ** distance
 
 
+# TODO: move into a file in pitch/key/ (the same directory as profiles.py)
+
+
 class KeyProfileSOM:
     """
     Define coordinate of a node as the coordinate within the array of output nodes
@@ -119,11 +122,12 @@ class KeyProfileSOM:
         KeyProfileSOM
             Current object
         """
-        dim0, dim1, input_length = self.SOM.shape
         if input_data.shape != (KeyProfileSOM._input_length,):
             raise ValueError(
                 f"input {input_data} is of invalid shape {input_data.shape}"
             )
+
+        dim0, dim1, input_length = self.SOM.shape
         if input_length != KeyProfileSOM._input_length:
             raise ValueError(f"Corrupted SOM =\n{self.SOM}\nof shape {self.SOM.shape}")
         if len(best_match) != 2:
@@ -157,13 +161,15 @@ class KeyProfileSOM:
             smallest Euclidean distance to the input data
         """
         # input data length needs to match
-        dim0, dim1, input_length = self.SOM.shape
         if input_data.shape != (KeyProfileSOM._input_length,):
             raise ValueError(
                 f"input {input_data} is of invalid shape {input_data.shape}"
             )
+
+        dim0, dim1, input_length = self.SOM.shape
         if input_length != KeyProfileSOM._input_length:
             raise ValueError(f"Corrupted SOM =\n{self.SOM}\nof shape {self.SOM.shape}")
+
         best_i, best_j = 0, 0
         best_distance = euclidean_distance(
             input_data, self.SOM[best_i, best_j, :], False
@@ -303,11 +309,12 @@ class KeyProfileSOM:
             data onto the self-organizing map.
         """
         # input data length needs to match
-        dim0, dim1, input_length = self.SOM.shape
         if input_data.shape != (KeyProfileSOM._input_length,):
             raise ValueError(
                 f"input {input_data} is of invalid shape {input_data.shape}"
             )
+
+        dim0, dim1, input_length = self.SOM.shape
         if input_length != KeyProfileSOM._input_length:
             raise ValueError(f"Corrupted SOM =\n{self.SOM}\nof shape {self.SOM.shape}")
         # projection of input data onto current self-organizing map
@@ -323,7 +330,8 @@ class KeyProfileSOM:
         Projects a pitch-class distribution and visualizes it
 
         ! Currently only supports basic version, need additional plotting
-        ! options for full functionality
+        ! options for more functionality
+        TODO: need to support colormap and textsize
         Parameters
         ----------
         input_data: np.array
@@ -373,6 +381,7 @@ def keysom(
     self-organized map trained on key profile (?) data.
     Returns the resulting projection matrix.
 
+    TODO: need to support colormap and textsize
     Parameters
     ----------
     note_collection: Concurrence
