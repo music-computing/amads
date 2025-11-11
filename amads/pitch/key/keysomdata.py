@@ -31,7 +31,7 @@ are determined by the position of the BMU node in the trained map to their
 corresponding key profiles.
 """
 
-import random
+# import random
 
 # for function types
 from collections.abc import Callable
@@ -51,7 +51,10 @@ def keysom_default_decay_function(idx: int) -> float:
 
     """
     assert idx >= 0
-    return (0.95) ** idx
+    if idx == 0:
+        return 1
+    else:
+        return 1 / (2 * idx)
 
 
 def keysom_default_neighborhood_propagation(
@@ -65,7 +68,10 @@ def keysom_default_neighborhood_propagation(
     """
     distance = euclidean_distance(coord, best_match, False)
 
-    return (0.5) ** distance
+    if distance == 0:
+        return 1
+    else:
+        return (0.95) ** distance
 
 
 # TODO: move into a file in pitch/key/ (the same directory as profiles.py)
@@ -212,15 +218,25 @@ class KeyProfileSOM:
         num_data, input_length = training_data.shape
         if input_length != KeyProfileSOM._input_length:
             raise ValueError(
-                f"invalid training data dimensions {training_data.shape}, expected (num_data, 12))"
+                f"invalid training data dimensions {training_data.shape},"
+                " expected (num_data, 12))"
             )
 
-        return training_data[random.randrange(0, num_data), :]
+        # instead of random.randrange(0, num_data), let's just see the
+        # deterministic version instead...
+
+        # less random, heavily determinstic training
+        return training_data[(idx // 5) % num_data, :]
+
+    def pretraining_SOM():
+        # ! since there is a suspicion that the original result came from
+        # ! heavy pretraining of the weights. Let's do that here!
+        assert 0
 
     def train_SOM(
         self,
         profile: prof.KeyProfile = prof.krumhansl_kessler,
-        max_iterations: int = 36,
+        max_iterations: int = 256,
         neighborhood: Callable[
             [Tuple[int], Tuple[int], int], float
         ] = keysom_default_neighborhood_propagation,
@@ -254,8 +270,11 @@ class KeyProfileSOM:
         """
         attribute_names = ["major", "minor"]
 
+        data_multiplier = 12
+
+        # multiplied by 12 so that each row sums up to 12 instead of 1
         list_of_canonicals = [
-            profile[attribute].normalize().as_canonical_matrix()
+            profile[attribute].normalize().as_canonical_matrix() * data_multiplier
             for attribute in attribute_names
         ]
 
@@ -288,9 +307,11 @@ class KeyProfileSOM:
         # need to find BMU to each of the key profile input vectors in the trained SOM
         # since training_data is already ordered properly, we just need to find BMU
         # over all the inputs
-        for input in training_data:
+        for label, input in zip(KeyProfileSOM._labels, training_data):
+            print(input)
             best_match = self.find_best_matching_unit(input)
             self.label_coord_list.append(best_match)
+            print(f"label: {label}, best_match: {best_match}")
 
         return self
 

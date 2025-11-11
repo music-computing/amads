@@ -41,7 +41,7 @@ def keysom(
     map: ksom.KeyProfileSOM,
     has_legend: bool = True,
     show: bool = True,
-) -> Tuple[np.array[float], Figure]:
+) -> Tuple[np.array, Figure]:
     """
     Projects the pitch-class distribution of a note-collection to a
     self-organized map trained on key profile (?) data.

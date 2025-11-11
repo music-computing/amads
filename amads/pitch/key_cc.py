@@ -112,7 +112,7 @@ def key_cc(
             )
             results.append((attr_name, None))
             continue
-        profiles_matrix = attr_value.as_matrix_canonical()
+        profiles_matrix = attr_value.as_canonical_matrix()
         correlations = tuple(_compute_correlations(pcd, profiles_matrix))
         if any(math.isnan(val) for val in correlations):
             raise RuntimeError(
