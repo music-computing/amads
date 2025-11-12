@@ -31,7 +31,7 @@ are determined by the position of the BMU node in the trained map to their
 corresponding key profiles.
 """
 
-# import random
+import math
 
 # for function types
 from collections.abc import Callable
@@ -42,13 +42,21 @@ import numpy as np
 from matplotlib.figure import Figure
 
 from amads.algorithms.norm import euclidean_distance
+
+# from amads.core.basics import Score
 from amads.pitch.key import profiles as prof
 
+# import random
 
-def keysom_default_decay_function(idx: int) -> float:
+
+# TODO: need pretrained weights on scale pitch profiles or something...
+
+
+def keysom_inverse_decay(idx: int) -> float:
     """
     Global learning rate per iteration.
 
+    Inverse to the current learning iteration...
     """
     assert idx >= 0
     if idx == 0:
@@ -57,24 +65,96 @@ def keysom_default_decay_function(idx: int) -> float:
         return 1 / (2 * idx)
 
 
-def keysom_default_neighborhood_propagation(
-    coord: Tuple[int], best_match: Tuple[int], idx: int
+def keysom_stepped_inverse_decay(idx: int) -> float:
+    """
+    Global learning rate per iteration.
+
+    Inverse to a stepped multiplier of the current learning iteration...
+
+    In this case it's stepped to allow all inputs to deterministically
+    pass during training (for 12 major and 12 minor key profile entries
+    specifically)
+    """
+    step = idx // (12 * 2)
+    if step == 0:
+        return 1
+    else:
+        return 1 / (2 * step)
+
+
+def keysom_centroid_euclidean(
+    coord: Tuple[int], best_match: Tuple[int], shape: Tuple[int], idx: int
 ) -> float:
     """
     Neighborhood propagation update function.
 
-    Centroid with exponential decay (i.e. exponential decay
-    based off euclidean distance)
+    Exponential decay based off of Eucliean distance on a 2-D plane
+    assuming the SOM output layer is a 2-D flat plane
     """
     distance = euclidean_distance(coord, best_match, False)
 
+    # 0.95 is purely empirical. Honestly another value might be better
     if distance == 0:
         return 1
     else:
         return (0.95) ** distance
 
 
-# TODO: move into a file in pitch/key/ (the same directory as profiles.py)
+def keysom_toroid_euclidean(
+    coord: Tuple[int], best_match: Tuple[int], shape: Tuple[int], idx: int
+) -> float:
+    """
+    Neighborhood propagation update function.
+
+    Exponential decay based off of Eucliean distance on a toroid
+    assuming the SOM output layer is a projection of a toroid onto a
+    2-D flat plane
+    """
+    num_rows, num_cols, input_length = shape
+    # these are easy to follow since i, j are convention
+    # and so is i0, j0
+    i, j = coord
+    i0, j0 = best_match
+    diff_row = abs(i - i0)
+    diff_col = abs(j - j0)
+    toroid_diff_row = min(diff_row, num_rows - diff_row)
+    toroid_diff_col = min(diff_col, num_cols - diff_col)
+    distance = math.sqrt(toroid_diff_row**2 + toroid_diff_col**2)
+    if distance == 0:
+        return 1
+    else:
+        return (0.95) ** distance
+
+
+def keysom_toroid_clamped(
+    coord: Tuple[int], best_match: Tuple[int], shape: Tuple[int], idx: int
+) -> float:
+    """
+    Neighborhood propagation update function.
+
+    Same behavior as keysom_toroid_euclidean (see for more details),
+    except distances past a certain radius is clamped to 0
+    """
+    num_rows, num_cols, input_length = shape
+    # these are easy to follow since i, j are convention
+    # and so is i0, j0
+    i, j = coord
+    i0, j0 = best_match
+    diff_row = abs(i - i0)
+    diff_col = abs(j - j0)
+    toroid_diff_row = min(diff_row, num_rows - diff_row)
+    toroid_diff_col = min(diff_col, num_cols - diff_col)
+    distance = math.sqrt(toroid_diff_row**2 + toroid_diff_col**2)
+    radius = 24.0 * ((0.95) ** (idx // 24))
+
+    if distance > radius:
+        return 0.0
+    elif distance == 0:
+        return 1.0
+    else:
+        return (0.8) ** distance
+
+
 class KeyProfileSOM:
     """
     Define coordinate of a node as the coordinate within the array of output nodes
@@ -86,11 +166,12 @@ class KeyProfileSOM:
     _input_length = 12
     # possible pitches
     _pitches = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
-    # labels
+    # labels (major and minor)
     _labels = _pitches + [pitch.lower() for pitch in _pitches]
 
     def __init__(self, output_layer_dimensions: Tuple[int] = (24, 36)):
-        self.SOM = np.random.rand(*output_layer_dimensions, KeyProfileSOM._input_length)
+        self.SOM_output_dims = output_layer_dimensions
+        self.SOM = None
         # best matching units to each of the corresponding coordinates
         self.label_coord_list = []
 
@@ -99,7 +180,7 @@ class KeyProfileSOM:
         best_match: Tuple[int],
         input_data: np.array,
         idx: int,
-        neighborhood: Callable[[Tuple[int], Tuple[int], int], float],
+        neighborhood: Callable[[Tuple[int], Tuple[int], Tuple[int], int], float],
         global_decay: Callable[[int], float],
     ) -> "KeyProfileSOM":
         """
@@ -117,7 +198,7 @@ class KeyProfileSOM:
             training iteration
         idx: int
             Current training iteration in training session.
-        neighborhood: Callable[[Tuple[int], Tuple[int], int], float]
+        neighborhood: Callable[[Tuple[int], Tuple[int], Tuple[int], int], float]
             Neighborhood function, denoting the update rate component depending
             on coordinate differences to the best matching unit and training
             iteration.
@@ -146,7 +227,9 @@ class KeyProfileSOM:
         # is the BMU and the input data)
         for i in range(dim0):
             for j in range(dim1):
-                rate = global_decay(idx) * neighborhood((i, j), best_match, idx)
+                rate = global_decay(idx) * neighborhood(
+                    (i, j), best_match, self.SOM.shape, idx
+                )
                 self.SOM[i, j, :] = (1 - rate) * self.SOM[i, j, :] + rate * input_data
 
         return self
@@ -226,21 +309,61 @@ class KeyProfileSOM:
         # deterministic version instead...
 
         # less random, heavily determinstic training
-        return training_data[(idx // 5) % num_data, :]
+        return training_data[(idx * 5) % num_data, :]
 
-    def pretraining_SOM():
-        # ! since there is a suspicion that the original result came from
-        # ! heavy pretraining of the weights. Let's do that here!
-        assert 0
+    def zero_SOM_init(self):
+        # zero SOM init...
+        self.SOM = np.zeros((*self.SOM_output_dims, KeyProfileSOM._input_length))
+
+    def random_SOM_init(self):
+        """
+        Included self-organizing map initialization
+
+        Randomly initializes all weights in the self-organizing map
+        to something between 0 and 1 inclusive
+        """
+        self.SOM = np.random.rand(*self.SOM_output_dims, KeyProfileSOM._input_length)
+        self.SOM /= 2
+
+    """
+    def pretraining_SOM_init(self):
+        # predeterministic self-organizing map initialization
+        # by updating the pretrained self-organizing map with scales in designated
+        # locations first
+        # # ! since there is a suspicion that the original result came from
+        # # ! heavy pretraining of the weights. Let's do that here!
+        # # ! heavier suspicion after toroid didn't solve randomized labels...
+
+        # initialize with scales
+        init_SOM = np.zeros((*self.SOM_output_dims, KeyProfileSOM._input_length))
+
+        # ! missing the last pitch (overlaps with the)
+
+        c_major_scale = np.array([60, 62, 64, 65, 67, 69, 71])
+        c_minor_scale = np.array([60, 62, 63, 65, 67, 68, 70])
+
+        # gets label position without major or minor offset
+        # ! this does not take into account custom output dimensions
+
+        # only works for 12 keys
+        nonoffset_position = (
+            (chromatic_offset, (i % 4, i // 4))
+            for chromatic_offset, i in zip(range(0, 12 * 5, 5), range(12))
+        )
+
+        for _ in range(5):
+            assert 0
+        self.SOM = init_SOM
+    """
 
     def train_SOM(
         self,
         profile: prof.KeyProfile = prof.krumhansl_kessler,
-        max_iterations: int = 256,
+        max_iterations: int = 512,
         neighborhood: Callable[
-            [Tuple[int], Tuple[int], int], float
-        ] = keysom_default_neighborhood_propagation,
-        global_decay: Callable[[int], float] = keysom_default_decay_function,
+            [Tuple[int], Tuple[int], Tuple[int], int], float
+        ] = keysom_toroid_clamped,
+        global_decay: Callable[[int], float] = keysom_stepped_inverse_decay,
     ) -> "KeyProfileSOM":
         """
         Trains a self-organizing map based off of the given training data
@@ -254,7 +377,7 @@ class KeyProfileSOM:
         max_iterations: int
             The number of iterations to train the self-organizing map for
 
-        neighborhood: Callable[[Tuple[int], Tuple[int], int], float]
+        neighborhood: Callable[[Tuple[int], Tuple[int], Tuple[int], int], float]
             Neighborhood function, denoting the update rate component depending
             on coordinate differences to the best matching unit and training
             iteration.
@@ -291,6 +414,7 @@ class KeyProfileSOM:
         #
         # SOM indices have been rearranged from matlab version for convenience
         # in this implementation
+        self.random_SOM_init()
 
         for idx in range(max_iterations):
             data_vector = self._data_selector(training_data, idx)
@@ -308,7 +432,6 @@ class KeyProfileSOM:
         # since training_data is already ordered properly, we just need to find BMU
         # over all the inputs
         for label, input in zip(KeyProfileSOM._labels, training_data):
-            print(input)
             best_match = self.find_best_matching_unit(input)
             self.label_coord_list.append(best_match)
             print(f"label: {label}, best_match: {best_match}")

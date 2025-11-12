@@ -1,8 +1,8 @@
+import numpy as np
+
 from amads.core.basics import Score
 from amads.pitch.key import keysomdata as ksom
 from amads.pitch.key import profiles as prof
-
-# TODO: Demo for keysomdata here
 from amads.pitch.keysom import keysom
 
 
@@ -24,8 +24,10 @@ def main():
     test_SOM = ksom.KeyProfileSOM()
 
     training_ksom_demo(test_SOM)
-    score = Score.from_melody([60, 62, 64, 65, 67, 69, 71, 72])
-    keysom(score, test_SOM)
+    c_major_scale = np.array([60, 62, 64, 65, 67, 69, 71, 72])
+    for i in range(3):
+        score = Score.from_melody(list(c_major_scale + i))
+        keysom(score, test_SOM)
 
 
 if __name__ == "__main__":
