@@ -308,8 +308,13 @@ class KeyProfileSOM:
         # instead of random.randrange(0, num_data), let's just see the
         # deterministic version instead...
 
-        # less random, heavily determinstic training
-        return training_data[(idx * 5) % num_data, :]
+        # first scan through all major keys in the chromatic order of circle of
+        # fifths
+        # then scan through all minor keys in the same chromatic order
+        if idx % 24 < 12:
+            return training_data[(idx * 5) % 12, :]
+        else:
+            return training_data[12 + ((idx - 12) * 5) % 12, :]
 
     def zero_SOM_init(self):
         # zero SOM init...

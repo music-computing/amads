@@ -14,12 +14,11 @@ def training_ksom_demo(test_obj):
 
 # ! I STG they reorganized the weights or did some *very* heavy deterministic
 # ! training or pretraining...
-# in the current training configuration, we get a fairly decent result with
-# regards to the heatmap highlighting towards the correct key
-# However, the organization of the labels is very very random.
-# The original probably had some very particular weights before training.
-# Extra care needs to be taken in initializing the pretrained weights in a way
-# that allows the labels to take a very neat configuration post training...
+# In the current training configuration. We get the proper toroid shapes,
+# and the correct "local" features, namely circle of fifths are close to each
+# other as well as the thirds for major and minor.
+# However, the training itself still yields labels that are super messed up
+# globally (not as neat as the grid-like structure presented)
 def main():
     test_SOM = ksom.KeyProfileSOM()
 
