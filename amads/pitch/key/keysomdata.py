@@ -123,7 +123,7 @@ def keysom_toroid_euclidean(
     if distance == 0:
         return 1
     else:
-        return (0.95) ** distance
+        return (0.9) ** distance
 
 
 def keysom_toroid_clamped(
@@ -145,14 +145,14 @@ def keysom_toroid_clamped(
     toroid_diff_row = min(diff_row, num_rows - diff_row)
     toroid_diff_col = min(diff_col, num_cols - diff_col)
     distance = math.sqrt(toroid_diff_row**2 + toroid_diff_col**2)
-    radius = 24.0 * ((0.95) ** (idx // 24))
+    radius = 36.0 * (1 / (idx // 24 + 1))
 
     if distance > radius:
         return 0.0
     elif distance == 0:
         return 1.0
     else:
-        return (0.8) ** distance
+        return (0.9) ** distance
 
 
 class KeyProfileSOM:
@@ -161,6 +161,12 @@ class KeyProfileSOM:
     in a self-organizing map.
     Since each output node is
     """
+
+    # TODO: need additional logging facilities,
+    # primarily for visualizing training process:
+    # (1) need a logging format to be able to intuitively visualize the intermediate
+    # parameters
+    # (2) need a few metrics to visualize the training process of the SOM.
 
     # corresponds to the number of weights in a pitch-class distribution
     _input_length = 12
@@ -330,41 +336,10 @@ class KeyProfileSOM:
         self.SOM = np.random.rand(*self.SOM_output_dims, KeyProfileSOM._input_length)
         self.SOM /= 2
 
-    """
-    def pretraining_SOM_init(self):
-        # predeterministic self-organizing map initialization
-        # by updating the pretrained self-organizing map with scales in designated
-        # locations first
-        # # ! since there is a suspicion that the original result came from
-        # # ! heavy pretraining of the weights. Let's do that here!
-        # # ! heavier suspicion after toroid didn't solve randomized labels...
-
-        # initialize with scales
-        init_SOM = np.zeros((*self.SOM_output_dims, KeyProfileSOM._input_length))
-
-        # ! missing the last pitch (overlaps with the)
-
-        c_major_scale = np.array([60, 62, 64, 65, 67, 69, 71])
-        c_minor_scale = np.array([60, 62, 63, 65, 67, 68, 70])
-
-        # gets label position without major or minor offset
-        # ! this does not take into account custom output dimensions
-
-        # only works for 12 keys
-        nonoffset_position = (
-            (chromatic_offset, (i % 4, i // 4))
-            for chromatic_offset, i in zip(range(0, 12 * 5, 5), range(12))
-        )
-
-        for _ in range(5):
-            assert 0
-        self.SOM = init_SOM
-    """
-
     def train_SOM(
         self,
         profile: prof.KeyProfile = prof.krumhansl_kessler,
-        max_iterations: int = 512,
+        max_iterations: int = 1024,
         neighborhood: Callable[
             [Tuple[int], Tuple[int], Tuple[int], int], float
         ] = keysom_toroid_clamped,
@@ -396,6 +371,7 @@ class KeyProfileSOM:
         KeyProfileSOM
             Current object
         """
+        # TODO: this messed up the labels... need to fix
         attribute_names = ["major", "minor"]
 
         data_multiplier = 12
