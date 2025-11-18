@@ -79,7 +79,7 @@ def keysom_stepped_inverse_decay(idx: int) -> float:
     if step == 0:
         return 1
     else:
-        return 1 / (2 * step)
+        return 1 / math.log2(step + 2)
 
 
 def keysom_centroid_euclidean(
@@ -148,7 +148,7 @@ def keysom_toroid_clamped(
     radius = 36.0 * (1 / (idx // 24 + 1))
 
     if distance > radius:
-        return 0.0
+        return 0.0001
     elif distance == 0:
         return 1.0
     else:
@@ -335,6 +335,19 @@ class KeyProfileSOM:
         """
         self.SOM = np.random.rand(*self.SOM_output_dims, KeyProfileSOM._input_length)
         self.SOM /= 2
+
+    def _log_training_iteration(
+        self,
+        training_data: np.array,
+        idx: int,
+        bmu: Tuple[int],
+        neighborhood: Callable[
+            [Tuple[int], Tuple[int], Tuple[int], int], float
+        ] = keysom_toroid_clamped,
+        global_decay: Callable[[int], float] = keysom_stepped_inverse_decay,
+    ):
+        # TODO: records training iteration into the self-organizing map
+        assert 0
 
     def train_SOM(
         self,
