@@ -79,6 +79,23 @@ def keysom_stepped_inverse_decay(idx: int) -> float:
     if step == 0:
         return 1
     else:
+        return 1 / (2 * step)
+
+
+def keysom_stepped_log_inverse_decay(idx: int) -> float:
+    """
+    Global learning rate per iteration.
+
+    Log inverse to a stepped multiplier of the current learning iteration...
+
+    In this case it's stepped to allow all inputs to deterministically
+    pass during training (for 12 major and 12 minor key profile entries
+    specifically)
+    """
+    step = idx // (12 * 2)
+    if step == 0:
+        return 1
+    else:
         return 1 / math.log2(step + 2)
 
 
@@ -133,7 +150,7 @@ def keysom_toroid_clamped(
     Neighborhood propagation update function.
 
     Same behavior as keysom_toroid_euclidean (see for more details),
-    except distances past a certain radius is clamped to 0
+    except distances past a certain radius is clamped to 0.0001.
     """
     num_rows, num_cols, input_length = shape
     # these are easy to follow since i, j are convention
@@ -180,6 +197,7 @@ class KeyProfileSOM:
         self.SOM = None
         # best matching units to each of the corresponding coordinates
         self.label_coord_list = []
+        self.log_info = []
 
     def update_SOM(
         self,
@@ -279,7 +297,9 @@ class KeyProfileSOM:
                     best_distance = distance
         return (best_i, best_j)
 
-    def _data_selector(self, training_data: np.array, idx: int) -> np.array:
+    def _data_selector(
+        self, training_data: np.array, training_idx: int
+    ) -> Tuple[int, np.array]:
         """
         Internal data selector amongst training inputs represented as a list of
         canonical matrices (See the PitchProfile class in key/profiles.py for
@@ -294,7 +314,7 @@ class KeyProfileSOM:
         Training data:
             2-D numpy array where each row is a training data input, and each column
             index correspond to the indices in a chromatic scale
-        idx:
+        training_idx:
             Index of current training iteration
 
         Returns
@@ -317,10 +337,12 @@ class KeyProfileSOM:
         # first scan through all major keys in the chromatic order of circle of
         # fifths
         # then scan through all minor keys in the same chromatic order
-        if idx % 24 < 12:
-            return training_data[(idx * 5) % 12, :]
+        if training_idx % 24 < 12:
+            access_idx = (training_idx * 5) % 12
+            return access_idx, training_data[access_idx, :]
         else:
-            return training_data[12 + ((idx - 12) * 5) % 12, :]
+            access_idx = 12 + ((training_idx - 12) * 5) % 12
+            return access_idx, training_data[access_idx, :]
 
     def zero_SOM_init(self):
         # zero SOM init...
@@ -338,16 +360,28 @@ class KeyProfileSOM:
 
     def _log_training_iteration(
         self,
-        training_data: np.array,
-        idx: int,
+        training_idx: int,
+        data_idx: int,
         bmu: Tuple[int],
-        neighborhood: Callable[
-            [Tuple[int], Tuple[int], Tuple[int], int], float
-        ] = keysom_toroid_clamped,
-        global_decay: Callable[[int], float] = keysom_stepped_inverse_decay,
     ):
-        # TODO: records training iteration into the self-organizing map
-        assert 0
+        """
+        logs a training iteration. This function can be used to visualize
+        a training iteration.
+
+        Parameters
+        ----------
+        training_idx: int
+            current training iteration
+
+        data_idx: int
+            index of the selected data row in the data matrix
+
+        bmu: Tuple[int]
+            coordinate of the best matching unit for the selected data during
+            the current training iteration.
+        """
+        self.log_info.append((training_idx, data_idx, bmu))
+        return
 
     def train_SOM(
         self,
@@ -356,7 +390,8 @@ class KeyProfileSOM:
         neighborhood: Callable[
             [Tuple[int], Tuple[int], Tuple[int], int], float
         ] = keysom_toroid_clamped,
-        global_decay: Callable[[int], float] = keysom_stepped_inverse_decay,
+        global_decay: Callable[[int], float] = keysom_stepped_log_inverse_decay,
+        log_training: bool = False,
     ) -> "KeyProfileSOM":
         """
         Trains a self-organizing map based off of the given training data
@@ -379,12 +414,15 @@ class KeyProfileSOM:
             Global decay function, denoting the update rate component dependent
             solely on training iteration.
 
+        log_training: bool
+            Indicator flag for whether or not to keep a semi-detailed log of the
+            training process
+
         Returns
         -------
         KeyProfileSOM
             Current object
         """
-        # TODO: this messed up the labels... need to fix
         attribute_names = ["major", "minor"]
 
         data_multiplier = 12
@@ -410,16 +448,18 @@ class KeyProfileSOM:
         # in this implementation
         self.random_SOM_init()
 
-        for idx in range(max_iterations):
-            data_vector = self._data_selector(training_data, idx)
+        for training_idx in range(max_iterations):
+            data_idx, data_vector = self._data_selector(training_data, training_idx)
             best_match = self.find_best_matching_unit(data_vector)
             self.update_SOM(
                 best_match=best_match,
                 input_data=data_vector,
-                idx=idx,
+                idx=training_idx,
                 neighborhood=neighborhood,
                 global_decay=global_decay,
             )
+            if log_training:
+                self._log_training_iteration(training_idx, data_idx, best_match)
 
         self.label_coord_list.clear()
         # need to find BMU to each of the key profile input vectors in the trained SOM
@@ -503,7 +543,7 @@ class KeyProfileSOM:
         fig, ax = plt.subplots()
 
         # there should be some thought put into the actual interpolation formula
-        cax = ax.imshow(projection, aspect="auto", interpolation="quadric")
+        cax = ax.contourf(projection)
 
         assert len(self.label_coord_list) == len(KeyProfileSOM._labels)
 
