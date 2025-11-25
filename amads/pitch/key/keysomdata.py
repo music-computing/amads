@@ -453,7 +453,7 @@ class KeyProfileSOM:
     def train_SOM(
         self,
         profile: prof.KeyProfile = prof.krumhansl_kessler,
-        max_iterations: int = 1024,
+        max_iterations: int = 24 * 64,
         neighborhood: Callable[
             [Tuple[int], Tuple[int], Tuple[int], int], float
         ] = keysom_toroid_clamped,
@@ -627,6 +627,3 @@ class KeyProfileSOM:
             plt.show()
 
         return projection, fig
-
-
-# TODO: include some pretrained examples here!
