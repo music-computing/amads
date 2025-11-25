@@ -24,7 +24,7 @@ See https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0
 """
 
 # for function types
-from typing import Tuple
+from typing import Tuple, Union
 
 import numpy as np
 from matplotlib.figure import Figure
@@ -38,7 +38,7 @@ from amads.pitch.pcdist1 import pcdist1
 
 def keysom(
     note_collection: Concurrence,
-    map: ksom.KeyProfileSOM,
+    map: Union[ksom.KeyProfileSOM, str],
     has_legend: bool = True,
     show: bool = True,
 ) -> Tuple[np.array, Figure]:
@@ -57,6 +57,7 @@ def keysom(
     map: KeyProfileSOM
         A pretrained self-organizing map trained on major + minor pitch profiles
         from a single literature.
+        Or, a file path string to load the map
 
     has_legend: bool
         Whether or not the plot should include a color legend
@@ -75,8 +76,15 @@ def keysom(
     Figure
         Matplotlib figure that contains the axes with a plot of the projection
     """
+    target_map = None
+    if isinstance(map, str):
+        target_map = ksom.KeyProfileSOM.from_trained_SOM(map)
+    elif isinstance(map, ksom.KeyProfileSOM):
+        target_map = map
+    else:
+        raise ValueError("invalid map argument!")
     input = pcdist1(note_collection)
-    projection, Figure = map.project_and_visualize(input, has_legend, show)
+    projection, Figure = target_map.project_and_visualize(input, has_legend, show)
     # a good idea would probably be to return a tuple containing projection and
     # Figure/axes
     return projection, Figure

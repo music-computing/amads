@@ -32,10 +32,11 @@ corresponding key profiles.
 """
 
 import math
+import os
 
 # for function types
 from collections.abc import Callable
-from typing import Tuple
+from typing import Optional, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -196,8 +197,74 @@ class KeyProfileSOM:
         self.SOM_output_dims = output_layer_dimensions
         self.SOM = None
         # best matching units to each of the corresponding coordinates
-        self.label_coord_list = []
+        self.label_coord_list = None
         self.log_info = []
+        self.name = None
+
+    @classmethod
+    def save_trained_SOM(
+        cls, obj: "KeyProfileSOM", dir_path: str = "./", file_name: Optional[str] = None
+    ):
+        """
+        saves a trained key profile SOM. Raises a value exception if the object
+        does not contain a proper trained SOM or the directory path is not valid.
+
+        Parameters
+        ----------
+        obj: KeyProfileSOM
+            Key Profile SOM object containing a trained SOM
+        dir_path: str
+            Path to directory to store the trained SOM (in npz format)
+        file_name: Optional[str]
+            Optional file name argument to save the trained SOM
+        """
+
+        if file_name is None:
+            file_name = f"{obj.name}_data.npz"
+
+        file_path = os.path.join(dir_path, file_name)
+
+        if obj.SOM is None or obj.label_coord_list:
+            raise ValueError("input SOM is not trained!")
+
+        np.savez(
+            file_path,
+            SOM=obj.SOM,
+            name=np.array(obj.name),
+            label_coords=np.array(obj.label_coord_list),
+        )
+
+    @classmethod
+    def from_trained_SOM(
+        cls, file_path: str = "./KrumhanslKessler_SOM_data.npz"
+    ) -> "KeyProfileSOM":
+        """
+        Creates a new KeyProfileSOM object containing the trained KeyProfileSOM
+        loaded from the specified file.
+
+        Parameters
+        ----------
+        file_path: str
+            Path to directory to store the trained SOM (in npz format)
+
+        Returns
+        -------
+        KeyProfileSOM
+            Key Profile SOM object containing the trained SOM from the file
+        """
+        load_table = np.load(file_path)
+        SOM = load_table["SOM"]
+        (dim0, dim1, _) = SOM.shape
+        output_dims = (dim0, dim1)
+        name = str(load_table["name"])
+        label_coord_list = [tuple(coord) for coord in load_table["label_coords"]]
+
+        obj = KeyProfileSOM(output_dims)
+        obj.SOM = SOM
+        obj.name = name
+        obj.label_coord_list = label_coord_list
+
+        return obj
 
     def update_SOM(
         self,
@@ -432,6 +499,7 @@ class KeyProfileSOM:
             profile[attribute].normalize().as_canonical_matrix() * data_multiplier
             for attribute in attribute_names
         ]
+        self.name = profile.name + "_SOM"
 
         # stack into matrix representation to satisfy _data_selector argument
         # specification
@@ -461,7 +529,7 @@ class KeyProfileSOM:
             if log_training:
                 self._log_training_iteration(training_idx, data_idx, best_match)
 
-        self.label_coord_list.clear()
+        self.label_coord_list = []
         # need to find BMU to each of the key profile input vectors in the trained SOM
         # since training_data is already ordered properly, we just need to find BMU
         # over all the inputs
