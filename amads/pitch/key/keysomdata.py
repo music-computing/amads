@@ -36,7 +36,7 @@ import os
 
 # for function types
 from collections.abc import Callable
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -180,11 +180,10 @@ class KeyProfileSOM:
     Since each output node is
     """
 
-    # TODO: need additional logging facilities,
-    # primarily for visualizing training process:
-    # (1) need a logging format to be able to intuitively visualize the intermediate
-    # parameters
-    # (2) need a few metrics to visualize the training process of the SOM.
+    # TODO: need additional functionality and adjustments
+    # (1) Need to fix training so that it accounts for label distance across
+    # multiple keys, instead of just subsequent keys.
+    # (2) animation visualization taking a list of pitch-class distributions
 
     # corresponds to the number of weights in a pitch-class distribution
     _input_length = 12
@@ -572,19 +571,27 @@ class KeyProfileSOM:
         return application
 
     def project_and_visualize(
-        self, input: Tuple[float], has_legend: bool = True, show: bool = True
+        self,
+        input: Union[Tuple[float], List[Tuple[float]]],
+        has_legend: bool = True,
+        show: bool = True,
     ) -> Tuple[np.array, Figure]:
         """
         Projects a pitch-class distribution and visualizes it
 
         ! Currently only supports basic version, need additional plotting
         ! options for more functionality
-        TODO: need to support colormap and textsize
+        TODO: need to support colormap and textsize (get core working)
         Parameters
         ----------
-        input: np.array
-            1-D data vector of input length containing the input
-            pitch-class distribution
+        TODO:
+        input: Union[Tuple[float], List[Tuple[float]]]
+            Takes one of the following:
+            (1) a singular pitch-class distribution, in which case the visualization
+            is simply a heatmap of its projection onto the trained SOM.
+            (2) a list of pitch-class distributions, in which case the visualization
+            is an animation of the sequence of projections of the pitch-class
+            distributions onto the trained SOM.
 
         has_legend: bool
             Whether or not the plot should include a color legend
