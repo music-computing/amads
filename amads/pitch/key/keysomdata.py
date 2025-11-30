@@ -40,6 +40,7 @@ from typing import List, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.animation import ArtistAnimation
 from matplotlib.figure import Figure
 
 from amads.algorithms.norm import euclidean_distance
@@ -92,6 +93,15 @@ def keysom_stepped_log_inverse_decay(idx: int) -> float:
     In this case it's stepped to allow all inputs to deterministically
     pass during training (for 12 major and 12 minor key profile entries
     specifically)
+
+    So why does inverse log work well? I like to think of it as the summation
+    of traversing all nodes of a subtree of an imaginary sparse information tree.
+    Where each layer of the information tree provides inverse decaying
+    returns to the whole tree.
+    This justification is very stretched though.
+    Namely, each additional data point fed provides an opportunity to add
+    another "symbol" to the intrinsic learned "alphabet" of the internal
+    representation of the SOM.
     """
     step = idx // (12 * 2)
     if step == 0:
@@ -163,7 +173,13 @@ def keysom_toroid_clamped(
     toroid_diff_row = min(diff_row, num_rows - diff_row)
     toroid_diff_col = min(diff_col, num_cols - diff_col)
     distance = math.sqrt(toroid_diff_row**2 + toroid_diff_col**2)
-    radius = 36.0 * (1 / (idx // 24 + 1))
+
+    # same logic applies to clamp radius as the global learning decay rate.
+    # Namely, each additional data point fed provides an opportunity to add
+    # another "symbol" to the intrinsic learned "alphabet" of the internal
+    # representation of the SOM.
+    # diminishing returns...
+    radius = 36.0 * (1 / math.log2(idx // 24 + 2))
 
     if distance > radius:
         return 0.0001
@@ -491,9 +507,18 @@ class KeyProfileSOM:
         """
         attribute_names = ["major", "minor"]
 
-        data_multiplier = 12
+        data_multiplier = 6
 
-        # multiplied by 12 so that each row sums up to 12 instead of 1
+        # multiplied by 6 which is the expected value of randomly initializing
+        # the values of each neuron's map weights to a random value between
+        # [0, 1]
+        # think of this as "normalizing" the input data to the same scale as
+        # the original map weights
+
+        # this will not affect the visualization of projections of a pitch-class
+        # distribution in any way, since we can simply multiply the SOM
+        # globally by the requisite multiplier after it is trained
+        # in order to obtain normalized neuron weights.
         list_of_canonicals = [
             profile[attribute].normalize().as_canonical_matrix() * data_multiplier
             for attribute in attribute_names
@@ -570,12 +595,20 @@ class KeyProfileSOM:
         assert application.shape == (dim0, dim1)
         return application
 
+    def _visualize_internal(
+        self,
+        input: Union[Tuple[float], List[Tuple[float]]],
+        has_legend: bool = True,
+        show: bool = True,
+    ):
+        assert 0
+
     def project_and_visualize(
         self,
         input: Union[Tuple[float], List[Tuple[float]]],
         has_legend: bool = True,
         show: bool = True,
-    ) -> Tuple[np.array, Figure]:
+    ) -> Union[Tuple[np.array, Figure], Tuple[List[np.array], ArtistAnimation]]:
         """
         Projects a pitch-class distribution and visualizes it
 
@@ -584,7 +617,6 @@ class KeyProfileSOM:
         TODO: need to support colormap and textsize (get core working)
         Parameters
         ----------
-        TODO:
         input: Union[Tuple[float], List[Tuple[float]]]
             Takes one of the following:
             (1) a singular pitch-class distribution, in which case the visualization
@@ -602,12 +634,21 @@ class KeyProfileSOM:
 
         Returns
         -------
-        np.array[float]
-            Returns a 2-D numpy array that contains the projection of the input
+        Union[Tuple[np.array, Figure], Tuple[List[np.array], Figure]]]
+            Either returns a tuple consisting of:
+            (1) the 2-D numpy array that contains the projection of the input
             data onto the self-organizing map.
-        Figure
-            Matplotlib figure that contains the axes with a plot of the projection
+            (2) Matplotlib figure that contains the axes with a plot of the
+            projection
+            or returns a tuple consisting of:
+            (1) A list of 2-D numpy arrays that contain the sequence of projections
+            from the list of input data onto the self-organizing map
+            (2) The artist animation object of these data
         """
+        if not input:
+            raise ValueError("empty input not allowed")
+        if isinstance(input[0], tuple):
+            raise ValueError("animations not implemented yet")
         # prep data
         projection = self.project_input_onto_SOM(np.array(input))
 

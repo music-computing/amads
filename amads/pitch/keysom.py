@@ -83,7 +83,7 @@ def keysom(
         target_map = map
     else:
         raise ValueError("invalid map argument!")
-    input = pcdist1(note_collection)
+    input = tuple(pcdist1(note_collection))
     projection, Figure = target_map.project_and_visualize(input, has_legend, show)
     # a good idea would probably be to return a tuple containing projection and
     # Figure/axes
