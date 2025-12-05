@@ -40,13 +40,18 @@ from typing import List, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.animation import ArtistAnimation
+from matplotlib.animation import FuncAnimation
+
+# from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 
 from amads.algorithms.norm import euclidean_distance
 
 # from amads.core.basics import Score
 from amads.pitch.key import profiles as prof
+
+# from matplotlib.artist import Artist
+
 
 # import random
 
@@ -605,10 +610,10 @@ class KeyProfileSOM:
 
     def project_and_visualize(
         self,
-        input: Union[Tuple[float], List[Tuple[float]]],
+        input: Tuple[float],
         has_legend: bool = True,
         show: bool = True,
-    ) -> Union[Tuple[np.array, Figure], Tuple[List[np.array], ArtistAnimation]]:
+    ) -> Tuple[np.array, Figure]:
         """
         Projects a pitch-class distribution and visualizes it
 
@@ -617,11 +622,74 @@ class KeyProfileSOM:
         TODO: need to support colormap and textsize (get core working)
         Parameters
         ----------
-        input: Union[Tuple[float], List[Tuple[float]]]
-            Takes one of the following:
-            (1) a singular pitch-class distribution, in which case the visualization
+        input: Tuple[float]
+            a singular pitch-class distribution, in which case the visualization
             is simply a heatmap of its projection onto the trained SOM.
-            (2) a list of pitch-class distributions, in which case the visualization
+
+        has_legend: bool
+            Whether or not the plot should include a color legend
+
+        show: bool
+            Whether or not we suspend execution and display the plot before
+            returning from this function
+
+        Returns
+        -------
+        Tuple[np.array, Figure]
+            Returns a tuple consisting of:
+            (1) the 2-D numpy array that contains the projection of the input
+            data onto the self-organizing map.
+            (2) Matplotlib figure that contains the axes with a plot of the
+            projection
+        """
+        if not input:
+            raise ValueError("empty input not allowed")
+        if isinstance(input[0], tuple):
+            raise ValueError("only takes 1 pitch-class distribution")
+        # prep data
+        projection = self.project_input_onto_SOM(np.array(input))
+
+        dim0, dim1, _ = self.SOM.shape
+        assert projection.shape == (dim0, dim1)
+
+        fig, ax = plt.subplots()
+
+        # there should be some thought put into the actual interpolation formula
+        # cax = ax.contourf(projection)
+        cax = ax.contourf(projection)
+
+        assert len(self.label_coord_list) == len(KeyProfileSOM._labels)
+
+        # key labels in the plot
+        for (i, j), label in zip(self.label_coord_list, KeyProfileSOM._labels):
+            ax.text(j, i, label, ha="center", va="center", color="w")
+
+        # legend
+        if has_legend:
+            fig.colorbar(cax, ax=ax, label="Proportion")
+
+        if show:
+            plt.show()
+
+        return projection, fig
+
+    def project_and_animate(
+        self,
+        input_list: List[Tuple[float]],
+        has_legend: bool = True,
+        show: bool = True,
+    ) -> Tuple[List[np.array], FuncAnimation]:
+        """
+        Projects a collection of pitch-class distributions and visualizes them
+        in an animation
+
+        ! Currently only supports basic version, need additional plotting
+        ! options for more functionality
+        TODO: need to support colormap and textsize (get core working)
+        Parameters
+        ----------
+        input_list: List[Tuple[float]]
+            a list of pitch-class distributions, in which case the visualization
             is an animation of the sequence of projections of the pitch-class
             distributions onto the trained SOM.
 
@@ -634,44 +702,59 @@ class KeyProfileSOM:
 
         Returns
         -------
-        Union[Tuple[np.array, Figure], Tuple[List[np.array], Figure]]]
-            Either returns a tuple consisting of:
-            (1) the 2-D numpy array that contains the projection of the input
-            data onto the self-organizing map.
-            (2) Matplotlib figure that contains the axes with a plot of the
-            projection
-            or returns a tuple consisting of:
-            (1) A list of 2-D numpy arrays that contain the sequence of projections
-            from the list of input data onto the self-organizing map
+        Tuple[List[np.array], ArtistAnimation]
+            (1) A list of 2-D numpy arrays that contain the sequence of
+            projections from the list of input data onto the self-organizing map
             (2) The artist animation object of these data
         """
-        if not input:
-            raise ValueError("empty input not allowed")
-        if isinstance(input[0], tuple):
-            raise ValueError("animations not implemented yet")
-        # prep data
-        projection = self.project_input_onto_SOM(np.array(input))
-
-        dim0, dim1, _ = self.SOM.shape
-        assert projection.shape == (dim0, dim1)
-
         # visualize
+        projection_list = [
+            self.project_input_onto_SOM(np.array(input)) for input in input_list
+        ]
+        print(projection_list)
+        if not projection_list:
+            print("Warning! No distributions provided to animate!")
+            return
+
         fig, ax = plt.subplots()
 
-        # there should be some thought put into the actual interpolation formula
-        cax = ax.contourf(projection)
+        # x_axis = np.linspace(0, 35, 36)
+        # y_axis = np.linspace(0, 35, 36)
+        vmin = np.min(projection_list[0])
+        vmax = np.max(projection_list[0])
 
-        assert len(self.label_coord_list) == len(KeyProfileSOM._labels)
-
+        cax = ax.imshow(
+            projection_list[0], aspect="auto", origin="lower", interpolation="nearest"
+        )
+        cax.set_clim(vmin, vmax)
         # key labels in the plot
         for (i, j), label in zip(self.label_coord_list, KeyProfileSOM._labels):
-            _ = ax.text(j, i, label, ha="center", va="center", color="w")
-
-        # legend
+            ax.text(j, i, label, ha="center", va="center", color="w")
         if has_legend:
-            fig.colorbar(cax, ax=ax, label="Proportion")
+            fig.colorbar(cax, ax=ax, label="Proportion", ticks=None)
+
+        def frame_func(frame_idx):
+            idx = frame_idx % len(projection_list)
+            vmin = np.min(projection_list[idx])
+            vmax = np.max(projection_list[idx])
+
+            cax.set_data(projection_list[idx])
+            cax.set_clim(vmin, vmax)
+            # cax = ax.imshow(projection_list[idx], aspect='auto', origin='lower')
+            # key labels in the plot
+            # for (i, j), label in zip(self.label_coord_list, KeyProfileSOM._labels):
+            #     ax.text(j, i, label, ha="center", va="center", color="w")
+
+        ani = FuncAnimation(
+            fig,
+            frame_func,
+            frames=len(input_list),
+            interval=500,
+            repeat=True,
+            repeat_delay=2000,
+        )
 
         if show:
             plt.show()
 
-        return projection, fig
+        return projection_list, ani
