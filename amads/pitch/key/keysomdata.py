@@ -36,7 +36,7 @@ import os
 
 # for function types
 from collections.abc import Callable
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -50,13 +50,26 @@ from amads.algorithms.norm import euclidean_distance
 # from amads.core.basics import Score
 from amads.pitch.key import profiles as prof
 
-# from matplotlib.artist import Artist
+
+def zero_SOM_init(shape: Tuple[int, int, int]) -> np.array:
+    """
+    Included self-organizing map initialization
+
+    Randomly initializes all weights in the self-organizing map
+    to something between 0 and 0.5 inclusive
+    """
+    # zero SOM init...
+    return np.zeros(shape)
 
 
-# import random
+def random_SOM_init(shape: Tuple[int, int, int]) -> np.array:
+    """
+    Included self-organizing map initialization
 
-
-# TODO: need pretrained weights on scale pitch profiles or something...
+    Randomly initializes all weights in the self-organizing map
+    to something between 0 and 0.5 inclusive
+    """
+    return np.random.rand(*shape) / 2
 
 
 def keysom_inverse_decay(idx: int) -> float:
@@ -283,8 +296,40 @@ class KeyProfileSOM:
         obj.SOM = SOM
         obj.name = name
         obj.label_coord_list = label_coord_list
+        obj.vmin = np.min(obj.SOM)
+        obj.vmax = np.max(obj.SOM)
 
         return obj
+
+    @classmethod
+    def default_weights_training_script() -> "KeyProfileSOM":
+        """
+        Simple script that generates a SOM from a hand-crafted initial SOM.
+
+        This gives us a SOM with labels at deterministic places
+
+        Returns
+        -------
+        KeyProfileSOM
+            Object with training weights
+        """
+
+        # for the pretrained version, hand-craft initialization value for the
+        # SOM so that we get the rotation and orientation desired for the resulting
+        # trained weights
+        obj = KeyProfileSOM()
+        if obj.SOM_output_dims != (24, 36):
+            raise RuntimeError("invalid output dimensions for default SOM")
+
+        attributes = ["major", "minor"]
+        kkprof = prof.krumhansl_kessler
+        list_of_canonicals = [
+            kkprof[attribute].normalize().as_canonical_matrix()
+            for attribute in attributes
+        ]
+        assert list_of_canonicals
+
+        assert 0
 
     def update_SOM(
         self,
@@ -431,20 +476,6 @@ class KeyProfileSOM:
             access_idx = 12 + ((training_idx - 12) * 5) % 12
             return access_idx, training_data[access_idx, :]
 
-    def zero_SOM_init(self):
-        # zero SOM init...
-        self.SOM = np.zeros((*self.SOM_output_dims, KeyProfileSOM._input_length))
-
-    def random_SOM_init(self):
-        """
-        Included self-organizing map initialization
-
-        Randomly initializes all weights in the self-organizing map
-        to something between 0 and 1 inclusive
-        """
-        self.SOM = np.random.rand(*self.SOM_output_dims, KeyProfileSOM._input_length)
-        self.SOM /= 2
-
     def _log_training_iteration(
         self,
         training_idx: int,
@@ -478,6 +509,9 @@ class KeyProfileSOM:
             [Tuple[int], Tuple[int], Tuple[int], int], float
         ] = keysom_toroid_clamped,
         global_decay: Callable[[int], float] = keysom_stepped_log_inverse_decay,
+        weights_initialization: Callable[
+            [Tuple[int, int, int]], np.array
+        ] = random_SOM_init,
         log_training: bool = False,
     ) -> "KeyProfileSOM":
         """
@@ -493,13 +527,17 @@ class KeyProfileSOM:
             The number of iterations to train the self-organizing map for
 
         neighborhood: Callable[[Tuple[int], Tuple[int], Tuple[int], int], float]
-            Neighborhood function, denoting the update rate component depending
+            Neighborhood function, denoting the update rate component dependent
             on coordinate differences to the best matching unit and training
             iteration.
 
         global_decay: Callable[[int], float]
             Global decay function, denoting the update rate component dependent
             solely on training iteration.
+
+        weights_initialization: Callable[[Tuple[int, int, int]], np.array]
+            SOM weights initialization function, returning a numpy array of the
+            initial SOM weights dependent on its input shape.
 
         log_training: bool
             Indicator flag for whether or not to keep a semi-detailed log of the
@@ -543,7 +581,9 @@ class KeyProfileSOM:
         #
         # SOM indices have been rearranged from matlab version for convenience
         # in this implementation
-        self.random_SOM_init()
+        self.SOM = weights_initialization(
+            (*self.SOM_output_dims, KeyProfileSOM._input_length)
+        )
 
         for training_idx in range(max_iterations):
             data_idx, data_vector = self._data_selector(training_data, training_idx)
@@ -567,7 +607,14 @@ class KeyProfileSOM:
             self.label_coord_list.append(best_match)
             print(f"label: {label}, best_match: {best_match}")
 
+        # setting colorbar scale here
+        self.vmin = np.min(self.SOM)
+        self.vmax = np.max(self.SOM)
+
         return self
+
+    # TODO: should I have an additional function here to set visualization
+    # state so that it's persistent across multiple plots?
 
     def project_input_onto_SOM(self, input_data: np.array) -> np.array:
         """
@@ -600,14 +647,7 @@ class KeyProfileSOM:
         assert application.shape == (dim0, dim1)
         return application
 
-    def _visualize_internal(
-        self,
-        input: Union[Tuple[float], List[Tuple[float]]],
-        has_legend: bool = True,
-        show: bool = True,
-    ):
-        assert 0
-
+    # TODO: colorbar visualization here!
     def project_and_visualize(
         self,
         input: Tuple[float],
@@ -656,7 +696,8 @@ class KeyProfileSOM:
 
         # there should be some thought put into the actual interpolation formula
         # cax = ax.contourf(projection)
-        cax = ax.contourf(projection)
+        cax = ax.imshow(projection, aspect="auto", origin="lower", interpolation=None)
+        cax.set_clim(self.vmin, self.vmax)
 
         assert len(self.label_coord_list) == len(KeyProfileSOM._labels)
 
@@ -718,32 +759,19 @@ class KeyProfileSOM:
 
         fig, ax = plt.subplots()
 
-        # x_axis = np.linspace(0, 35, 36)
-        # y_axis = np.linspace(0, 35, 36)
-        vmin = np.min(projection_list[0])
-        vmax = np.max(projection_list[0])
-
         cax = ax.imshow(
             projection_list[0], aspect="auto", origin="lower", interpolation="nearest"
         )
-        cax.set_clim(vmin, vmax)
+        cax.set_clim(self.vmin, self.vmax)
         # key labels in the plot
         for (i, j), label in zip(self.label_coord_list, KeyProfileSOM._labels):
             ax.text(j, i, label, ha="center", va="center", color="w")
         if has_legend:
-            fig.colorbar(cax, ax=ax, label="Proportion", ticks=None)
+            fig.colorbar(cax, ax=ax, label="Score Expectation", ticks=None)
 
         def frame_func(frame_idx):
             idx = frame_idx % len(projection_list)
-            vmin = np.min(projection_list[idx])
-            vmax = np.max(projection_list[idx])
-
             cax.set_data(projection_list[idx])
-            cax.set_clim(vmin, vmax)
-            # cax = ax.imshow(projection_list[idx], aspect='auto', origin='lower')
-            # key labels in the plot
-            # for (i, j), label in zip(self.label_coord_list, KeyProfileSOM._labels):
-            #     ax.text(j, i, label, ha="center", va="center", color="w")
 
         ani = FuncAnimation(
             fig,
