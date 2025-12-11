@@ -55,8 +55,7 @@ def zero_SOM_init(shape: Tuple[int, int, int]) -> np.array:
     """
     Included self-organizing map initialization
 
-    Randomly initializes all weights in the self-organizing map
-    to something between 0 and 0.5 inclusive
+    Initializes all weights in the self-organizing map to 0
     """
     # zero SOM init...
     return np.zeros(shape)
@@ -70,6 +69,62 @@ def random_SOM_init(shape: Tuple[int, int, int]) -> np.array:
     to something between 0 and 0.5 inclusive
     """
     return np.random.rand(*shape) / 2
+
+
+def handcrafted_SOM_init(shape: Tuple[int, int, int]) -> np.array:
+    """
+    Included self-organizing map initialization
+
+    Bespoke initialization for the pretrained weights
+    """
+    if shape != (
+        *KeyProfileSOM._default_output_dimensions,
+        KeyProfileSOM._input_length,
+    ):
+        raise ValueError(f"invalid shape {shape} for handcrafted SOM")
+
+    kkprof = prof.krumhansl_kessler
+    list_of_majors = kkprof["major"].normalize().as_canonical_matrix() / 2
+    list_of_minors = kkprof["minor"].normalize().as_canonical_matrix() / 2
+    assert list_of_majors and list_of_minors
+
+    max_row, max_col, _ = shape
+
+    init_weights = np.zeros(shape)
+
+    # per "cell" arrangement, where each cell contains a major key label and its
+    # corresponding minor key label horizontally adjacent to it
+
+    # arithmetic for a 4x3 grid of cells in a 24x36 SOM
+    row_multiplier = 6
+    max_row_cells = max_row // row_multiplier
+    row_offset = 3
+    # twice to accomodate a cell containing 12
+    col_multiplier = 6 * 2
+    max_col_cells = max_col // col_multiplier
+    col_major_offset = 3
+    col_minor_offset = col_major_offset + 6
+
+    key_idx = 0
+    # the end result should be a rectangular grid in the labels
+    for row_cell_idx in range(max_row_cells):
+        for col_cell_idx in range(max_col_cells):
+            # imprint major key
+            major_col_idx = col_cell_idx * col_multiplier + col_major_offset
+            major_row_idx = row_cell_idx * row_multiplier + row_offset
+            init_weights[major_col_idx, major_row_idx] = list_of_majors[key_idx]
+
+            # imprint minor key
+            minor_col_idx = col_cell_idx * col_multiplier + col_minor_offset
+            minor_row_idx = row_cell_idx * row_multiplier + row_offset
+            init_weights[minor_col_idx, minor_row_idx] = list_of_minors[key_idx]
+
+            # increment key_idx
+            key_idx += 1
+
+    assert key_idx == 12
+
+    return init_weights
 
 
 def keysom_inverse_decay(idx: int) -> float:
@@ -221,12 +276,15 @@ class KeyProfileSOM:
 
     # corresponds to the number of weights in a pitch-class distribution
     _input_length = 12
+    _default_output_dimensions = (24, 36)
     # possible pitches
     _pitches = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
     # labels (major and minor)
     _labels = _pitches + [pitch.lower() for pitch in _pitches]
 
-    def __init__(self, output_layer_dimensions: Tuple[int] = (24, 36)):
+    def __init__(
+        self, output_layer_dimensions: Tuple[int] = _default_output_dimensions
+    ):
         self.SOM_output_dims = output_layer_dimensions
         self.SOM = None
         # best matching units to each of the corresponding coordinates
@@ -300,36 +358,6 @@ class KeyProfileSOM:
         obj.vmax = np.max(obj.SOM)
 
         return obj
-
-    @classmethod
-    def default_weights_training_script() -> "KeyProfileSOM":
-        """
-        Simple script that generates a SOM from a hand-crafted initial SOM.
-
-        This gives us a SOM with labels at deterministic places
-
-        Returns
-        -------
-        KeyProfileSOM
-            Object with training weights
-        """
-
-        # for the pretrained version, hand-craft initialization value for the
-        # SOM so that we get the rotation and orientation desired for the resulting
-        # trained weights
-        obj = KeyProfileSOM()
-        if obj.SOM_output_dims != (24, 36):
-            raise RuntimeError("invalid output dimensions for default SOM")
-
-        attributes = ["major", "minor"]
-        kkprof = prof.krumhansl_kessler
-        list_of_canonicals = [
-            kkprof[attribute].normalize().as_canonical_matrix()
-            for attribute in attributes
-        ]
-        assert list_of_canonicals
-
-        assert 0
 
     def update_SOM(
         self,
@@ -786,3 +814,27 @@ class KeyProfileSOM:
             plt.show()
 
         return projection_list, ani
+
+
+def pretrained_weights_script() -> KeyProfileSOM:
+    """
+    Simple script that generates a SOM from a hand-crafted initial SOM.
+
+    This gives us a SOM with labels at deterministic places
+
+    Returns
+    -------
+    KeyProfileSOM
+        Object with training weights
+    """
+
+    # for the pretrained version, hand-craft initialization value for the
+    # SOM so that we get the rotation and orientation desired for the resulting
+    # trained weights
+    obj = KeyProfileSOM()
+    if obj.SOM_output_dims != KeyProfileSOM._default_output_dimensions:
+        raise RuntimeError("invalid output dimensions for default SOM")
+
+    obj.train_SOM(weights_initialization=handcrafted_SOM_init)
+
+    return obj
