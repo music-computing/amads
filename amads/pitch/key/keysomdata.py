@@ -36,8 +36,9 @@ import os
 
 # for function types
 from collections.abc import Callable
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Union
 
+import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.animation import FuncAnimation
@@ -84,9 +85,8 @@ def handcrafted_SOM_init(shape: Tuple[int, int, int]) -> np.array:
         raise ValueError(f"invalid shape {shape} for handcrafted SOM")
 
     kkprof = prof.krumhansl_kessler
-    list_of_majors = kkprof["major"].normalize().as_canonical_matrix() / 2
-    list_of_minors = kkprof["minor"].normalize().as_canonical_matrix() / 2
-    assert list_of_majors and list_of_minors
+    list_of_majors = kkprof["major"].normalize().as_canonical_matrix()
+    list_of_minors = kkprof["minor"].normalize().as_canonical_matrix()
 
     max_row, max_col, _ = shape
 
@@ -112,12 +112,12 @@ def handcrafted_SOM_init(shape: Tuple[int, int, int]) -> np.array:
             # imprint major key
             major_col_idx = col_cell_idx * col_multiplier + col_major_offset
             major_row_idx = row_cell_idx * row_multiplier + row_offset
-            init_weights[major_col_idx, major_row_idx] = list_of_majors[key_idx]
+            init_weights[major_row_idx, major_col_idx] = list_of_majors[key_idx]
 
             # imprint minor key
             minor_col_idx = col_cell_idx * col_multiplier + col_minor_offset
             minor_row_idx = row_cell_idx * row_multiplier + row_offset
-            init_weights[minor_col_idx, minor_row_idx] = list_of_minors[key_idx]
+            init_weights[minor_row_idx, minor_col_idx] = list_of_minors[key_idx]
 
             # increment key_idx
             key_idx += 1
@@ -269,11 +269,6 @@ class KeyProfileSOM:
     Since each output node is
     """
 
-    # TODO: need additional functionality and adjustments
-    # (1) Need to fix training so that it accounts for label distance across
-    # multiple keys, instead of just subsequent keys.
-    # (2) animation visualization taking a list of pitch-class distributions
-
     # corresponds to the number of weights in a pitch-class distribution
     _input_length = 12
     _default_output_dimensions = (24, 36)
@@ -315,7 +310,7 @@ class KeyProfileSOM:
 
         file_path = os.path.join(dir_path, file_name)
 
-        if obj.SOM is None or obj.label_coord_list:
+        if obj.SOM is None or not obj.label_coord_list:
             raise ValueError("input SOM is not trained!")
 
         np.savez(
@@ -327,7 +322,7 @@ class KeyProfileSOM:
 
     @classmethod
     def from_trained_SOM(
-        cls, file_path: str = "./KrumhanslKessler_SOM_data.npz"
+        cls, file_path: str = "./amads/pitch/key/KrumhanslKessler_SOM_data.npz"
     ) -> "KeyProfileSOM":
         """
         Creates a new KeyProfileSOM object containing the trained KeyProfileSOM
@@ -336,7 +331,7 @@ class KeyProfileSOM:
         Parameters
         ----------
         file_path: str
-            Path to directory to store the trained SOM (in npz format)
+            Path to directory containing stored SOM (in npz format)
 
         Returns
         -------
@@ -675,19 +670,18 @@ class KeyProfileSOM:
         assert application.shape == (dim0, dim1)
         return application
 
-    # TODO: colorbar visualization here!
     def project_and_visualize(
         self,
         input: Tuple[float],
         has_legend: bool = True,
+        scaled_legend: bool = False,
+        font_size: Optional[Union[float, str]] = None,
+        color_map: Optional[Union[str, mcolors.LinearSegmentedColormap]] = None,
         show: bool = True,
     ) -> Tuple[np.array, Figure]:
         """
         Projects a pitch-class distribution and visualizes it
 
-        ! Currently only supports basic version, need additional plotting
-        ! options for more functionality
-        TODO: need to support colormap and textsize (get core working)
         Parameters
         ----------
         input: Tuple[float]
@@ -696,6 +690,23 @@ class KeyProfileSOM:
 
         has_legend: bool
             Whether or not the plot should include a color legend
+
+        scaled_legend: bool
+            Whether or not the color legend scales with the projection's minimum
+            and maximum, or (by default) scales with the trained SOM's global
+            minimum and maximum.
+
+        font_size: Optional[Union[float, str]] = None,
+            Font size, either:
+            (1) Font size of the labels (in points) or a string option from
+            matplotlib
+            (2) None for the default font size provided by matplotlib
+
+        color_map: Optional[Union[str, mcolors.LinearSegmentedColormap]]
+            Color map, either:
+             (1) a color map provided by the matplotlib package
+             (2) a custom linear segmented colormap
+             (3) None for the default color scheme provided by matplotlib
 
         show: bool
             Whether or not we suspend execution and display the plot before
@@ -724,17 +735,30 @@ class KeyProfileSOM:
 
         # there should be some thought put into the actual interpolation formula
         # cax = ax.contourf(projection)
-        cax = ax.imshow(projection, aspect="auto", origin="lower", interpolation=None)
-        cax.set_clim(self.vmin, self.vmax)
-
+        cax = ax.imshow(
+            projection,
+            aspect="auto",
+            origin="lower",
+            interpolation="nearest",
+            cmap=color_map,
+        )
         assert len(self.label_coord_list) == len(KeyProfileSOM._labels)
 
         # key labels in the plot
         for (i, j), label in zip(self.label_coord_list, KeyProfileSOM._labels):
-            ax.text(j, i, label, ha="center", va="center", color="w")
+            ax.text(
+                j, i, label, ha="center", va="center", color="w", fontsize=font_size
+            )
 
         # legend
         if has_legend:
+            actual_vmin, actual_vmax = self.vmin, self.vmax
+
+            if scaled_legend:
+                actual_vmin = np.min(projection)
+                actual_vmax = np.max(projection)
+
+            cax.set_clim(actual_vmin, actual_vmax)
             fig.colorbar(cax, ax=ax, label="Proportion")
 
         if show:
@@ -746,15 +770,14 @@ class KeyProfileSOM:
         self,
         input_list: List[Tuple[float]],
         has_legend: bool = True,
+        font_size: Union[float, str] = 10.0,
+        color_map: Optional[Union[str, mcolors.LinearSegmentedColormap]] = None,
         show: bool = True,
     ) -> Tuple[List[np.array], FuncAnimation]:
         """
         Projects a collection of pitch-class distributions and visualizes them
         in an animation
 
-        ! Currently only supports basic version, need additional plotting
-        ! options for more functionality
-        TODO: need to support colormap and textsize (get core working)
         Parameters
         ----------
         input_list: List[Tuple[float]]
@@ -764,6 +787,19 @@ class KeyProfileSOM:
 
         has_legend: bool
             Whether or not the plot should include a color legend
+
+        font_size: Union[float, str]
+            Font size, either:
+            (1) Font size of the labels (in points) or a string option from
+            matplotlib
+            (2) None for the default font size provided by matplotlib
+
+        color_map: Optional[Union[str, mcolors.LinearSegmentedColormap]]
+            Color map, either:
+             (1) a color map provided by the matplotlib package
+             (2) a custom linear segmented colormap
+             (see matplotlib.LinearSegmentedColormap for more details)
+             (3) None for the default color scheme provided by matplotlib
 
         show: bool
             Whether or not we suspend execution and display the plot before
@@ -788,12 +824,18 @@ class KeyProfileSOM:
         fig, ax = plt.subplots()
 
         cax = ax.imshow(
-            projection_list[0], aspect="auto", origin="lower", interpolation="nearest"
+            projection_list[0],
+            aspect="auto",
+            origin="lower",
+            interpolation="nearest",
+            cmap=color_map,
         )
         cax.set_clim(self.vmin, self.vmax)
         # key labels in the plot
         for (i, j), label in zip(self.label_coord_list, KeyProfileSOM._labels):
-            ax.text(j, i, label, ha="center", va="center", color="w")
+            ax.text(
+                j, i, label, ha="center", va="center", color="w", fontsize=font_size
+            )
         if has_legend:
             fig.colorbar(cax, ax=ax, label="Score Expectation", ticks=None)
 
@@ -820,7 +862,8 @@ def pretrained_weights_script() -> KeyProfileSOM:
     """
     Simple script that generates a SOM from a hand-crafted initial SOM.
 
-    This gives us a SOM with labels at deterministic places
+    This gives us a SOM with key labels in a determinstic grid adjacent to the
+    axes of the grid.
 
     Returns
     -------

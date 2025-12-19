@@ -7,10 +7,19 @@ from amads.pitch.keysom import keysom
 from amads.pitch.pcdist1 import pcdist1
 
 
-def training_ksom_demo(test_SOM):
+def training_ksom_demo():
+    test_SOM = ksom.KeyProfileSOM()
     training_profile = prof.krumhansl_kessler
     test_SOM.train_SOM(training_profile)
-    return
+    return test_SOM
+
+
+def handcrafted_ksom_demo():
+    return ksom.pretrained_weights_script()
+
+
+def from_pretrained_weights_demo():
+    return ksom.KeyProfileSOM.from_trained_SOM()
 
 
 def project_and_visualize_demo(test_SOM, score_list):
@@ -25,13 +34,11 @@ def project_and_animate_demo(test_SOM, score_list):
 
 
 def main():
-    test_SOM = ksom.KeyProfileSOM()
+    test_SOM = from_pretrained_weights_demo()
 
-    training_ksom_demo(test_SOM)
     c_major_scale = np.array([60, 62, 64, 65, 67, 69, 71, 72])
     score_list = [Score.from_melody(list(c_major_scale + i)) for i in range(12)]
-    # project_and_visualize_demo(test_SOM, score_list[:3])
-    project_and_animate_demo(test_SOM, score_list)
+    project_and_visualize_demo(test_SOM, score_list[:2])
 
 
 if __name__ == "__main__":
