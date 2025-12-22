@@ -10,6 +10,8 @@ Mark Gotham, 2021
 Huw Cheston, 2025
 Tai Nakamura, 2025
 Di Wang, 2025
+Tai Nakamura, 2025
+Di Wang, 2025
 
 
 LICENCE:
@@ -246,7 +248,7 @@ class PitchProfile(Distribution):
                 self.data[shift_idx][shift_idx:] + self.data[shift_idx][:shift_idx]
             )
 
-    def as_matrix_canonical(self) -> np.array:
+    def as_canonical_matrix(self) -> np.array:
         """
         Computes a 12x12 matrix of the profile data where:
         (1) The i-th row corresponds to the key profile of the
