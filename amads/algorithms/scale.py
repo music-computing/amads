@@ -3,10 +3,16 @@
 from ..core.basics import EventGroup
 
 
-def scale(score, factor=2.0, dim="all", inplace=False):
+def scale(
+    score: EventGroup,
+    factor: float = 2.0,
+    dim: str = "all",
+    inplace: bool = False,
+):
     """Scale event timings in a score by a given factor.
 
-    Original doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=88
+    [Original MIDI Toolbox doc](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=88)
+
     Note that if notes are tied, scaling by only onset time or only duration
     will result in tied notes where the offset of the first note is not the
     same as the onset of the second note.
@@ -17,11 +23,12 @@ def scale(score, factor=2.0, dim="all", inplace=False):
         Score object or other EventGroup object to be modified
     factor : float
         Amount to scale by (must be > 0)
-    dim : {'onset', 'duration', 'all'}
+    dim : {"onset", "duration", "all"}
         Dimension to scale:
-        - 'onset': scales the onset times of all events
-        - 'duration': scales the durations of all non-EventGroup events (Note, Rest)
-        - 'all': scales both onset times and durations
+
+         - 'onset': scales the onset times of all events
+         - 'duration': scales the durations of all non-EventGroup events (Note, Rest)
+         - 'all': scales both onset times and durations
     inplace : bool
         If True, modify the input score in place. If False, return a new score
         object with the scaled timings. (Default value = False)

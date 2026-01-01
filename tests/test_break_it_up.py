@@ -57,7 +57,9 @@ def test_from_pulse_length():
     ]
 
     for entry in all_plausible:
-        start_hierarchy = PulseLengths(pulse_lengths=entry[2]).to_start_hierarchy()
+        start_hierarchy = PulseLengths(
+            pulse_lengths=entry[2]
+        ).to_start_hierarchy()
         g = MetricalSplitter(
             note_start=entry[0],
             note_length=entry[1],

@@ -43,7 +43,9 @@ def test_import_midi(midi_filename):
 
     pm = pretty_midi.PrettyMIDI(str(midi_file))
     print(f"PrettyMIDI resolution: {pm.resolution}")
-    pm_notes = [note for instrument in pm.instruments for note in instrument.notes]
+    pm_notes = [
+        note for instrument in pm.instruments for note in instrument.notes
+    ]
 
     #    score.show()
     flattened_notes = score.get_sorted_notes()

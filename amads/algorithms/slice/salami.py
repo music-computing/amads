@@ -4,14 +4,10 @@ This module implements the salami slice algorithm, which segments a musical scor
 into vertical slices at each note onset and offset. Each slice contains all notes
 that are sounding at that point in time.
 
-Notes
------
-The algorithm is named after the way a salami sausage is sliced into thin,
-vertical segments.
+<small>**Author**: Peter Harrison</small>
 
-Author
-------
-Peter Harrison
+**Note**: The algorithm is named after the way a salami sausage is
+sliced into thin, vertical segments.
 """
 
 from collections import defaultdict

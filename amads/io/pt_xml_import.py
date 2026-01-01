@@ -2,6 +2,8 @@
 
 __author__ = "Roger B. Dannenberg"
 
+from typing import Optional
+
 import partitura as pt
 
 from ..core.basics import (
@@ -14,6 +16,7 @@ from ..core.basics import (
     Staff,
     TimeSignature,
 )
+from ..core.pitch import Pitch
 
 # Partitura seems to have a rounding error, reporting measure length
 # of 1919 instead of 1920 when divs per quarter is 480. This can lead
@@ -54,7 +57,7 @@ DIV_TO_QUARTER_ROUNDING = 96
 #     the notes to adjust when we process ties.
 
 
-def find_measure_ending_after(staff: Staff, time: float) -> Measure:
+def find_measure_ending_after(staff: Staff, time: float) -> Optional[Measure]:
     """Find the first measure in the staff that ends after time.
     staff - the Staff object
     time - the time to find the measure after
@@ -167,7 +170,8 @@ def retie_notes(event, staff):
             if group[i + 1][2] < 0.5 / DIV_TO_QUARTER_ROUNDING:
                 if group[i + 1][7].tie_next is not None:
                     print(
-                        "Unexpected very short note event in tied group", group[i + 1]
+                        "Unexpected very short note event in tied group",
+                        group[i + 1],
                     )
                 group[i + 1][2] = 0  # indicate that note is removed
                 break  # (maybe redundant, we should be done with iteration)
@@ -183,7 +187,7 @@ def staff_for_note(part: Part, event: list) -> Staff:
       Staff - a Staff object from the Part that contains the event.
     """
     if event[3] is None:
-        return part.content[0]
+        return part.content[0]  # type: ignore  (part has staff)
     else:
         return part.content[event[3] - 1]  # find the staff
 
@@ -254,9 +258,9 @@ def partitura_convert_part(ppart, score):
         onset = div_to_quarter(durs, item.start.t)
         if isinstance(item, pt.score.Measure):
             # convert divs duration to quarters
-            duration = div_to_quarter(durs, item.end.t, rnd=True) - div_to_quarter(
-                durs, item.start.t, rnd=True
-            )
+            duration = div_to_quarter(
+                durs, item.end.t, rnd=True
+            ) - div_to_quarter(durs, item.start.t, rnd=True)
             if duration > 0:  # all staves have the same
                 # measure count and timing, so we only build the map for
                 # staff 0; do not append zero-length measures that arise
@@ -361,17 +365,21 @@ def partitura_convert_part(ppart, score):
     mindex = 0
     for event in notes:
         staff = staff_for_note(part, event)
-        measure = staff.content[mindex]
+        measure: Measure = staff.content[mindex]  # type: ignore
+        # find the measure containing event[1] (onset)
         while event[1] >= measure.offset:
             mindex += 1
             if mindex == len(staff.content):
                 print("Something is wrong; could not find measure for", event)
                 break  # use previous measure, but probably there is a bug here
-            measure = staff.content[mindex]
+            measure = staff.content[mindex]  # type: ignore
         if event[0] == "note":
             if event[2] > 0:  # zero duration means skip note
                 note = Note(
-                    parent=measure, onset=event[1], duration=event[2], pitch=event[4]
+                    parent=measure,
+                    onset=event[1],
+                    duration=event[2],
+                    pitch=Pitch(event[4]),
                 )
                 if event[6]:  # is tied to another note
                     # Multiple cases: 1) note is tied to next note with
@@ -396,8 +404,11 @@ def partitura_convert_part(ppart, score):
     return part
 
 
-def partitura_xml_import(filename, show=False):
-    """Use Partitura to import a MusicXML file."""
+def partitura_xml_import(filename, flatten=False, collapse=False, show=False):
+    """Use Partitura to import a MusicXML file.
+
+    <small>**Author**: Roger B. Dannenberg</small>
+    """
     if filename is None:
         filename = pt.EXAMPLE_MUSICXML
 
@@ -414,4 +425,6 @@ def partitura_xml_import(filename, show=False):
     for ptpart in ptscore.parts:
         partitura_convert_part(ptpart, score)
     score.inherit_duration()
+    if flatten or collapse:
+        score = score.flatten(collapse=collapse)
     return score

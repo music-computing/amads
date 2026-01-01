@@ -53,7 +53,8 @@ third_scale = Score.from_melody(
 )
 
 fourth_scale = Score.from_melody(
-    pitches=[60, 62, 64, 66, 67, 68, 70, 72], durations=1.0  # F4->F#4, A4->Ab4, B4->Bb4
+    pitches=[60, 62, 64, 66, 67, 68, 70, 72],
+    durations=1.0,  # F4->F#4, A4->Ab4, B4->Bb4
 )
 
 melodies = {
@@ -67,7 +68,9 @@ melodies = {
 # Perform a simple similarity comparison between two melodies using Jaccard similarity.
 
 similarity = get_similarity(c_major_scale, modified_scale, "Jaccard", "pitch")
-print(f"Jaccard similarity between c_major_scale and modified_scale: {similarity}")
+print(
+    f"Jaccard similarity between c_major_scale and modified_scale: {similarity}"
+)
 
 # %%
 # Now perform pairwise comparisons across all melodies using different similarity measures.
@@ -76,7 +79,9 @@ similarity_measures = ["cosine", "Simpson"]
 
 for method in similarity_measures:
     # Use batch processing for efficiency
-    batch_results = get_similarities(melodies, method=method, transformation="pitch")
+    batch_results = get_similarities(
+        melodies, method=method, transformation="pitch"
+    )
 
     # batch_results is now a single matrix (since single method/transformation)
     print(f"\nPairwise {method} similarities:")
@@ -102,7 +107,9 @@ for method in similarity_measures:
 # Finally, explore other types of melodic similarity measures.
 
 # Compare intervallic similarity
-intervallic_sim = get_similarity(c_major_scale, modified_scale, "Euclidean", "int")
+intervallic_sim = get_similarity(
+    c_major_scale, modified_scale, "Euclidean", "int"
+)
 print(f"\nEuclidean intervallic similarity: {intervallic_sim}")
 
 # %%
@@ -115,7 +122,9 @@ print(f"Canberra IOI class similarity: {ioi_sim}")
 transformations = ["pitch", "int", "parsons", "pc"]
 print("\nSimilarity across different transformations:")
 for transformation in transformations:
-    sim = get_similarity(c_major_scale, modified_scale, "Jaccard", transformation)
+    sim = get_similarity(
+        c_major_scale, modified_scale, "Jaccard", transformation
+    )
     print(f"Jaccard {transformation} similarity: {sim:.4f}")
 
 # %%

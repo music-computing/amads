@@ -9,7 +9,7 @@ checks (e.g., `is_rotation_equivalent`) on vectors.
 __author__ = "Mark Gotham"
 
 from itertools import combinations
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 from .vectors_sets import is_indicator_vector, vector_to_set
 
@@ -20,10 +20,9 @@ from .vectors_sets import is_indicator_vector, vector_to_set
 
 def rotate(
     vector: Union[tuple[int, ...], list[int]], steps: Union[int, None] = None
-) -> list:
+) -> Union[tuple[int, ...], list[int]]:
     """
-    Rotate a vector by N steps.
-    This serves equivalently for
+    this serves equivalently for
     "phase shifting" of rhythm and
     "transposition" of pitch.
 
@@ -32,13 +31,15 @@ def rotate(
     vector : Union[tuple[int, ...], list[int]]
         Any tuple or list of any elements.
         We expect to work with a list of integers representing a vector.
-    steps: how many steps to rotate.
+    steps: Optional[int]
+        How many steps to rotate.
         Or, equivalently, the nth index of the input list becomes the 0th index of the new.
-        If unspecified, use the half cycle: int(<cycle lenth>/2).
+        If unspecified, use the half cycle: int(cycle_length / 2).
 
     Returns
     -------
-    tuple: The input (tuple or list), rotated. Same length.
+    Union[tuple[int, ...], list[int]]
+        The input (tuple or list), rotated. Same length.
 
     Examples
     --------
@@ -61,7 +62,7 @@ def rotate(
 
 
 def mirror(
-    vector: tuple, index_of_symmetry: Union[int, None] = None
+    vector: Union[list, tuple], index_of_symmetry: Union[int, None] = None
 ) -> Union[list, tuple]:
     """
     Reverse a vector (or any ordered iterable).
@@ -71,15 +72,17 @@ def mirror(
     vector: tuple
         The tuple accepts any ordered succession of any elements.
         We expect integers representing a vector, but do not enforce it.
-    index_of_symmetry: Union[int, None] = None
-        Defaults to None, in which case, standard reflection of the form `[::-1]`.
-        Alternatively, specify an index to rotate about, e.g., for the reverse function in convolution use 0.
-        This is equivalent to mirror and rotation.
-        See notes at `rotate`.
+    index_of_symmetry: Union[int, None]
+        Defaults to None, in which case, standard reflection of the
+        form `[::-1]`. Alternatively, specify an index to rotate about,
+        e.g., for the reverse function in convolution use 0. This is
+        equivalent to mirror and rotation. See notes at [`rotate`]
+        [amads.core.vector_transforms_checks.rotate].
 
     Returns
     -------
-    list, tuple: The input (list or tuple), mirrored. Same length.
+    Union[list, tuple]
+        The input (list or tuple), mirrored. Same length.
 
     Examples
     --------
@@ -95,15 +98,20 @@ def mirror(
 
     """
     if index_of_symmetry is not None:
-        rotated = vector[index_of_symmetry::-1] + vector[-1:index_of_symmetry:-1]
+        rotated = (
+            vector[index_of_symmetry::-1] + vector[-1:index_of_symmetry:-1]
+        )
     else:
         rotated = vector[::-1]
     return tuple(rotated)
 
 
-def complement(indicator_vector: tuple[int, ...]) -> tuple:
+def complement(indicator_vector: tuple[int, ...]) -> tuple[int, ...]:
     """
     Provide the complement of an indicator vector.
+
+    Examples
+    --------
     >>> complement((1, 0, 1, 0))
     (0, 1, 0, 1)
     """
@@ -121,6 +129,9 @@ def change_cycle_length(
 ) -> tuple:
     """
     Change the cycle length of a vector by mapping each point to the nearest equivalent in the new length.
+
+    Examples
+    --------
     >>> tresillo = (1, 0, 0, 1, 0, 0, 1, 0)
     >>> change_cycle_length(tresillo, 9)
     (0, 3, 7)
@@ -128,17 +139,22 @@ def change_cycle_length(
     >>> change_cycle_length(tresillo, 12)
     (0, 4, 9)
 
-    >>> change_cycle_length(start_vector=tresillo, destination_length=9, return_indices_not_indicator=False)
+    >>> change_cycle_length(start_vector=tresillo, destination_length=9,
+    ...                     return_indices_not_indicator=False)
     (1, 0, 0, 1, 0, 0, 0, 1, 0)
 
     """
     start_indices = indicator_to_indices(start_vector)
     start_len = len(start_vector)
-    new_indices = [round(destination_length * i / start_len) for i in start_indices]
+    new_indices = [
+        round(destination_length * i / start_len) for i in start_indices
+    ]
     if return_indices_not_indicator:
         return tuple(new_indices)
     else:
-        return indices_to_indicator(new_indices, indicator_length=destination_length)
+        return indices_to_indicator(
+            new_indices, indicator_length=destination_length
+        )
 
 
 # ----------------------------------------------------------------------------
@@ -204,15 +220,16 @@ def is_maximally_even(indicator_vector: tuple) -> bool:
 
     Parameters
     ----------
-    indicator_vector (tuple of ints): An indicator_vector (only 0s and/or 1s).
+    indicator_vector: tuple[int, ...]
+        An indicator_vector (only 0s and/or 1s).
 
     Returns
     -------
-    bool: True if the pattern is maximally even, False otherwise.
+    bool
+        True if the pattern is maximally even, False otherwise.
 
     Examples
     --------
-
     >>> is_maximally_even((1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0))
     True
     >>> is_maximally_even((1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0))
@@ -257,8 +274,8 @@ def is_maximally_even(indicator_vector: tuple) -> bool:
 
     ... but for which the those 2 x 1s are together
 
-    >>> indicator_to_interval(bembé, adjacent_not_all=True)
-    (2, 2, 1, 2, 2, 2, 1)
+    >>> indicator_to_interval(not_bembé, adjacent_not_all=True)
+    (2, 2, 2, 2, 2, 1, 1)
 
     ... making it not maximally even.
 
@@ -293,7 +310,6 @@ def max_even_k_in_n(k: int, n: int) -> set[int]:
 
     Examples
     --------
-
     >>> max_even_k_in_n(3, 8)
     {0, 3, 5}
 
@@ -307,13 +323,16 @@ def max_even_k_in_n(k: int, n: int) -> set[int]:
     return set([round(n * i / k) for i in range(k)])
 
 
-def rotation_distinct_patterns(vector_patterns: tuple[tuple, ...]) -> tuple[tuple, ...]:
+def rotation_distinct_patterns(
+    vector_patterns: tuple[tuple, ...]
+) -> tuple[tuple, ...]:
     """
     Given two or more vectors of the same length,
     test rotation equivalence among them.
     Return the list of rotation distinct pattens:
     the returned patterns are not rotation equivalent to each other,
-    but all tested rhythms (in the argument) are rotation equivalent to one of those returned patterns.
+    but all tested rhythms (in the argument) are rotation equivalent
+    to one of those returned patterns.
 
     Examples
     --------
@@ -354,6 +373,21 @@ def indicator_to_indices(
     Simple mapping from an indicator vector for where events fall,
     to a tuple of the corresponding indices.
 
+    Parameters
+    ----------
+    vector: Union[list[int], tuple[int, ...]]
+        an indicator vector
+
+    wrap: bool
+        if true, the first element of `vector` is appended to `vector`
+        before computing indices, so if the element is non-zero, the
+        length of `vector` will be appear in the result.
+
+    Returns
+    -------
+    tuple[int, ...]
+        a tuple containing the indices for which `vector` is non-zero.
+
     Examples
     --------
     >>> bembé = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1) # adjacent only
@@ -389,9 +423,11 @@ def indices_to_indicator(
 
     Parameters
     ----------
-    indices_vector: A vector of indices (0, 2, 4, 5, 7, 9, 11).
+    indices_vector: Union[list[int], tuple[int, ...]]
+        A vector of indices (0, 2, 4, 5, 7, 9, 11).
         Monotonic increase is expected but not required.
-    indicator_length: optionally specify the length of the output indicator vector.
+    indicator_length: Optional[int]
+        optionally specify the length of the output indicator vector.
         If not specified, we use the highest index in the indices vector.
 
     Examples
@@ -415,7 +451,7 @@ def indices_to_indicator(
     >>> indices_to_indicator(indices, indicator_length=12)
     (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)
 
-    And the `indicator_length` can extend the indicator as neede:
+    And the `indicator_length` can extend the indicator as needed:
     >>> indices_to_indicator(indices, indicator_length=14)
     (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0)
 
@@ -444,17 +480,22 @@ def indicator_to_interval(
 
     Parameters
     ----------
-    vector: an indicator vector for position usage.
-    wrap: wrap the cycle, duplicating the first element at the end to include that interval.
-    adjacent_not_all: intervals between pais of adjacent elements in the sequencs or between all pairs.
-    sequence_not_vector:
-        In the case of adjacent intervals, express the result as an interval sequence,
-        or as an interval vector.
-        (No such option in the ase of all intervals: hat must be a vector).
+    vector: Union[list[int], tuple[int, ...]]
+        an indicator vector representing positions.
+    wrap: bool
+        wrap the cycle, duplicating the first element at the end to include
+        that (possible) interval.
+    adjacent_not_all: bool
+        If True, form the set of intervals between pairs of adjacent positions.
+        If False, form the set of intervals between all pairs.
+    sequence_not_vector: bool
+        In the case of adjacent intervals, True means express the result as an
+        interval sequence, and False means compute an interval vector containing
+        the counts of intervals of size 1, 2, 3, etc. If `adjacent_not_all` is
+        False (meaning all pairs), the result is always an interval vector.
 
     Examples
     --------
-
     Example 1:
     >>> bembé = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)
 
@@ -470,7 +511,8 @@ def indicator_to_interval(
     >>> indicator_to_interval(bembé, sequence_not_vector=False)
     (2, 5, 0, 0, 0, 0)
 
-    All distances (not just the adjacent pairs), which is necessarily expressed as an interval vector:
+    All distances (not just the adjacent pairs), which is necessarily
+    expressed as an interval vector:
     >>> indicator_to_interval(bembé, adjacent_not_all=False)
     (2, 5, 4, 3, 6, 1)
 
@@ -485,7 +527,8 @@ def indicator_to_interval(
     >>> indicator_to_interval(shiko, sequence_not_vector=False)
     (0, 2, 0, 3, 0, 0, 0, 0)
 
-    All distances (not just the adjacent pairs), which is necessarily expressed as an interval vector:
+    All distances (not just the adjacent pairs), which is necessarily
+    expressed as an interval vector:
     >>> indicator_to_interval(shiko, adjacent_not_all=False)
     (0, 2, 0, 3, 0, 4, 0, 1)
 
@@ -496,7 +539,9 @@ def indicator_to_interval(
     indices = indicator_to_indices(vector)
 
     if adjacent_not_all:
-        sequence = tuple([indices[i + 1] - indices[i] for i in range(len(indices) - 1)])
+        sequence = tuple(
+            [indices[i + 1] - indices[i] for i in range(len(indices) - 1)]
+        )
         if sequence_not_vector:
             return sequence
         else:
@@ -517,14 +562,25 @@ def indicator_to_interval(
     return tuple(interval_vector)
 
 
-def interval_sequence_to_indices(interval_sequence_vector, wrap: bool = False) -> tuple:
+def interval_sequence_to_indices(
+    interval_sequence_vector: Union[list[int], tuple[int, ...]],
+    wrap: bool = False,
+) -> tuple[int, ...]:
     """
     Given an interval sequence vector, convert to indices.
 
     Parameters
     ----------
-    interval_sequence_vector: an indicator vector for position usage.
-    wrap: If True, include the index after the end of the sequence
+    interval_sequence_vector: Union[list[int], tuple[int, ...]]
+        a vector of distances (intervals) between adjacent positions
+        that are used.
+    wrap: bool
+        If True, include the index after the end of the sequence
+
+    Returns
+    -------
+    tuple[int, ...]
+        A vector containing the positions (indices) that are used.
 
     Examples
     --------
@@ -545,13 +601,23 @@ def interval_sequence_to_indices(interval_sequence_vector, wrap: bool = False) -
     return tuple(indices)
 
 
-def interval_sequence_to_indicator(interval_sequence_vector) -> tuple:
+def interval_sequence_to_indicator(
+    interval_sequence_vector: Union[list[int], tuple[int, ...]]
+) -> tuple[int, ...]:
     """
     Given an interval sequence vector, convert to indicator.
 
     Parameters
     ----------
-    interval_sequence_vector: the interval sequence
+    interval_sequence_vector: Union[list[int], tuple[int, ...]]
+        the sequence of distances (intervals) between adjacent positions
+        that are used.
+
+    Returns
+    -------
+    tuple[int, ...]
+        An indicator vector representing all positions, where used
+        positions contain the value 1.
 
     Examples
     --------
@@ -570,27 +636,37 @@ def saturated_subsequence_repetition(
     sequence: Union[list[int], tuple[int, ...]],
     all_rotations: bool = True,
     subsequence_period: Optional[int] = None,
-):
+) -> Union[List[List[int]]]:
     """
     Check if a sequence contains a repeated subsequence such that
     the subsequence saturates the whole (no sequence items "left over").
-    This is broadly equivalent to a "periodic sequence", with the additional constraint of saturatation.
+    This is broadly equivalent to a "periodic sequence", with the additional
+    constraint of saturatation.
 
-    This property is a wrapper for an abstraction provided at `vectors_sets.saturated_sublist_repetition`
+    This function is a wrapper for an abstraction provided at
+    [saturated_subsequence_repetition]
+    [amads.core.vector_transforms_checks.saturated_subsequence_repetition].
 
     Parameters
     ----------
-    sequence: A vector for event positions in the cycle time span.
-    all_rotations: If True, check all rotations of the sequence.
-    subsequence_period: If specified, check only that period length; otherwise, check all factors of n.
+    sequence: Union[list[int], tuple[int, ...]]
+        A vector for event positions in the cycle time span.
+    all_rotations: bool
+        If True, check all rotations of the sequence.
+    subsequence_period: Optional[int]
+        If specified, check only that period length; otherwise,
+        check all factors of n.
 
     Returns
     -------
-    If there is a repeated sub-rhythm, that is returned (the first, longest one found). None otherwise.
+    Union[List[List[int]], None]
+        A list of all subsequences that, if repeated, can form the input
+        `sequence`. If `all_rotations`, then also include subsequences
+        that can repeat to form any rotations of `sequence`. If
+        `sequence` is not periodic, return None.
 
     Examples
     --------
-
     >>> test_sequence = [1, 2, 1, 2, 1, 2, 1, 2]
 
     All rotations, all subsequence lengths:

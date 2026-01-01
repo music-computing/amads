@@ -1,31 +1,17 @@
 """
-NAME:
-===============================
-Partimenti (partimenti.py)
-
-
-BY:
-===============================
-Mark Gotham, 2019
-
-
-LICENCE:
-===============================
-Creative Commons Attribution-ShareAlike 4.0 International License
-https://creativecommons.org/licenses/by-sa/4.0/
-
-
-ABOUT:
-===============================
 Partimenti from the literature (broadly Gjerdingen)
-in simple dicts with keys for
-    "name": e.g., "Romanesca",
-    "when": e.g., "Opening",
-    "strong_first": bool. True if the pattern starts strong-weak, False for the opposite. (They all alternate)
-    "melody": the melodic part expressed in scale degrees (int 1--7).
-    "bass": the bass part expressed in scale degrees (int 1--7).
-    "figures": harmony as expressed in figured bass (see toolkit issue #8).
-    "note": optional.
+
+Organized in simple dicts with keys for:
+
+- `"name"`: e.g., `"Romanesca"`,
+- `"when"`: e.g., `"Opening"`,
+- `"strong_first"`: bool. True if the pattern starts strong-weak, False for the opposite. (They all alternate)
+- `"melody"`: the melodic part expressed in scale degrees (int 1--7).
+- `"bass"`: the bass part expressed in scale degrees (int 1--7).
+- `"figures"`: harmony as expressed in figured bass (see toolkit issue #8).
+- `"note"`: optional.
+
+<small>**Author**: Mark Gotham, 2019</small>
 """
 
 # Opening

@@ -63,8 +63,12 @@ def rotate_hexachords(
         second_hexachord = row[6 + i :] + row[6 : 6 + i]
 
         if transpose_iterations:
-            first_hexachord = transpose_to(first_hexachord, start=hexachord1note1)
-            second_hexachord = transpose_to(second_hexachord, start=hexachord2note1)
+            first_hexachord = transpose_to(
+                first_hexachord, start=hexachord1note1
+            )
+            second_hexachord = transpose_to(
+                second_hexachord, start=hexachord2note1
+            )
 
         new_row = first_hexachord + second_hexachord
         rows.append(new_row)

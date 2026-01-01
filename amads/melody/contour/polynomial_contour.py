@@ -1,40 +1,48 @@
 import numpy as np
 
-from amads.core.basics import Note, Score
+from amads.core.basics import Score
 
 __author__ = "David Whyatt"
 
 
 class PolynomialContour:
-    """A class for computing polynomial contour, as described in the FANTASTIC toolbox [1].
+    """A class for computing polynomial contour.
+
+    As described in the FANTASTIC toolbox [1].
     This approach is discussed in detail in Müllensiefen and Wiggins (2011) [2].
 
     Polynomial Contour is constructed in 3 simple steps:
-    First, the onsets are first centred around the origin of the time axis,
-    making a symmetry between the first onset and the last.
-    Then, a polynomial model is fit, seeking to predict the pitch values from
-    a least squares regression of the centred onset times.
-    Finally, the best model is selected using Bayes' Information Criterion,
-    stepwise and in a backwards direction.
+
+     - First, the onsets are first centred around the origin of the time axis,
+       making a symmetry between the first onset and the last.
+
+     - Then, a polynomial model is fit, seeking to predict the pitch values from
+       a least squares regression of the centred onset times.
+
+     - Finally, the best model is selected using Bayes' Information Criterion,
+       stepwise and in a backwards direction.
 
     The final output is the coefficients of the first three non-constant terms,
     i.e. [c1, c2, c3] from p = c0 + c1t + c2t^2 + c3t^3.
+
+    <small>**Author**: David Whyatt</small>
 
     Attributes
     ----------
     score : Score
         The score object containing the melody to analyze.
     coefficients : list[float]
-        The polynomial contour coefficients. Returns the first 3 non-constant coefficients
-        [c1, c2, c3] of the final selected polynomial contour model.
-        The constant term is not included as per the FANTASTIC toolbox specification.
+        The polynomial contour coefficients. Returns the first 3 non-constant
+        coefficients [c1, c2, c3] of the final selected polynomial contour
+        model. The constant term is not included as per the FANTASTIC
+        toolbox specification.
 
     References
     ----------
-    [1] Müllensiefen, D. (2009). Fantastic: Feature ANalysis Technology Accessing
-    STatistics (In a Corpus): Technical Report v1.5
-    [2] Müllensiefen, D., & Wiggins, G.A. (2011). Polynomial functions as a
-    representation of melodic phrase contour.
+     1. Müllensiefen, D. (2009). Fantastic: Feature ANalysis Technology
+        Accessing STatistics (In a Corpus): Technical Report v1.5
+     2. Müllensiefen, D., & Wiggins, G.A. (2011). Polynomial functions as a
+        representation of melodic phrase contour.
 
     Examples
     --------
@@ -106,7 +114,9 @@ class PolynomialContour:
         coefficients = self.select_model(centered_onsets, pitches, m)
         return coefficients
 
-    def get_onsets_and_pitches(self, score: Score) -> tuple[list[float], list[int]]:
+    def get_onsets_and_pitches(
+        self, score: Score
+    ) -> tuple[list[float], list[int]]:
         """Extract onset times and pitches from a Score object.
 
         Parameters
@@ -119,8 +129,7 @@ class PolynomialContour:
         tuple[list[float], list[int]]
             A tuple containing (onset_times, pitch_values)
         """
-        flattened_score = score.flatten(collapse=True)
-        notes = list(flattened_score.find_all(Note))
+        notes = score.get_sorted_notes()
         return [note.onset for note in notes], [note.key_num for note in notes]
 
     def center_onset_times(self, onsets: list[float]) -> list[float]:

@@ -1,12 +1,12 @@
 """
-The module seeks to find the smallest metrical pulse level (broadly, "tatum")
+The module seeks to find the smallest metrical pulse level (broadly, “tatum”)
 in response to a source and user tolerance settings.
 
 In the simplest case, a source records its metrical positions exactly,
 including fractional values as needed.
 We provide functionality for standard, general algorithms in these cases
 (greatest common denominator and fraction estimation)
-which are battle tested and computationally efficient.
+which are battle-tested and computationally efficient.
 
 In metrically simple and regular cases like chorales, this value might be
 the eighth note, for instance.
@@ -19,17 +19,21 @@ and also dotted rhythms that pair a dotted 16th with a 32nd note from measure 5
 So to catch these cases in the first 5 measures, we need the
 lowest common multiple of 6 and 8, i.e., 24 per quarter (or 48 bins per 2/4 measure).
 
-In cases of extreme complexity, there may be a "need" for a
+In cases of extreme complexity, there may be a “need” for a
 considerably shorter tatum pulse (and, equivalently, a greater number of bins).
 This is relevant for some modern music, as well as cases where
 grace notes are assigned a specific metrical position/duration
-(though in many encoded standards, grace notes are not assigned separate metrical positions).
+(though in many encoded standards, grace notes are not assigned
+separate metrical positions).
 
-Moreover, there are musical sources that do not encode fractional time values, but rather approximation with floats.
-These include any:
-- frame-wise representations of time (including MIDI and any attempted transcription from audio),
-- processing via code libraries that likewise convert fractions to floats,
-- secondary representations like most CSVs.
+Moreover, there are musical sources that do not encode fractional time
+values, but rather approximation with floats. These include any:
+
+  - frame-wise representations of time (including MIDI and any attempted
+    transcription from audio),
+  - processing via code libraries that likewise convert fractions to floats,
+  - secondary representations like most CSVs.
+
 As division by 3 leads to rounding, approximation, and floating point errors,
 and as much music involves those divisions, this is widely relevant.
 
@@ -38,9 +42,11 @@ tends to prioritise certain metrical divisions over others.
 For example, 15/16 is a commonly used metrical position (largely because 16 is a power of 2), but 14/15 is not.
 That being the case, while 14/15 might be a better mathematical fit for approximating a value,
 it is typically incorrect as the musical solution.
-We can use the term "incorrect" advisedly here because
+We can use the term “incorrect” advisedly here because
 the floats are secondary representations of a known fractional ground truth.
 Doctests demonstrate some of these cases.
+
+<small>**Author**: Mark Gotham</small>
 """
 
 __author__ = "Mark Gotham"
@@ -58,11 +64,14 @@ from amads.algorithms.gcd import fraction_gcd_pair
 
 def starts_to_int_relative_counter(starts: Iterable[float]):
     """
-    Simple wrapper function to map an iterable (e.g., list or tuple) of floats to
-    integer-relative values (e.g., 1.5 -> 0.5) such that all the keys are geq 0, and less than 1,
-    and to a Counter of those values (e.g., 1.5 and 2.5 -> 0.5: 2).
+    Find and count all fractional parts of an iterable.
 
-    Includes rounding to 5dp. This may change.
+    Simple wrapper function to create a Counter (dict) that
+    maps the fractional parts of starts ($start - int(start)$, e.g.,
+    1.5 becomes 0.5) to the number of occurrences of that fraction
+    (e.g., starts 1.5 and 2.5 produce the mapping 0.5: 2 in the result).
+
+    Fractional parts are rounded to 5 decimal points. This may change.
 
     Examples
     --------
@@ -71,7 +80,9 @@ def starts_to_int_relative_counter(starts: Iterable[float]):
     Counter({0.0: 5, 0.5: 2, 0.75: 1, 0.33333: 1, 0.66667: 1})
     """
     for item in starts:
-        if not isinstance(item, Number):  # int, float, Fraction, np.float32 etc.
+        if not isinstance(
+            item, Number
+        ):  # int, float, Fraction, np.float32 etc.
             raise TypeError(
                 f"All items in `starts` must be numeric (int or float). Found: {type(item)}"
             )
@@ -88,23 +99,27 @@ def approximate_pulse_match_with_priority_list(
     Takes a float and an ordered list of possible pulses,
     returning the first pulse in the list to approximate the input float.
 
-    Params:
-    -------
-    x:
-        Input value (typically a float) to be approximated as a fraction.
-    distance_threshold:
+    This is a new function by MG as reported in [1].
+
+    Parameters
+    ----------
+    x : float
+        Input value to be approximated as a fraction.
+    distance_threshold : float
         The distance threshold.
-    pulse_priority_list:
+    pulse_priority_list : list[Fraction]
         Ordered list of pulse values to try.
-        If unspecified, this defaults to 4, 3, 2, 1.5, 1, and the default output of `generate_n_smooth_numbers`.
+        If unspecified, this defaults to 4, 3, 2, 1.5, 1, and the
+        default output of [generate_n_smooth_numbers]
+        [amads.time.meter.grid.generate_n_smooth_numbers].
 
     Returns
     -------
-    None (no match) or a Fraction(numerator, denominator).
-
-    This is a new function by MG as reported in [1].
+    Union(None, Fraction)
+        None for no match, or a Fraction(numerator, denominator).
 
     References
+    ----------
     [1] Gotham forthcoming. TODO
 
     Examples
@@ -159,10 +174,10 @@ def generate_n_smooth_numbers(
     bases: list[int] = [2, 3], max_value: int = 100, invert: bool = True
 ) -> list:
     """
-    Generates a list of "N-smooth" numbers up to a specified maximum value.
+    Generates a list of “N-smooth” numbers up to a specified maximum value.
 
     An N-smooth number is a positive integer whose prime factors are all
-    less than or equal to the largest number in the 'bases' list.
+    less than or equal to the largest number in the `bases` list.
 
     Parameters
     ----------
@@ -233,21 +248,26 @@ def get_tatum(
     proportion_threshold: Optional[float] = 0.999,
 ):
     """
-    This function serves cases where temporal position values are defined by reference to a constant value.
-    Examples include the symbolic time to have elapsed since:
-    - the start of a piece (or section) in quarter notes (or some other consistent symbolic value)
-    - the start of a measure (or other container), assuming those measures are of a constant duration.
+    Estimate metrical positions from floats.
 
-    It serves use cases including the attempted retrieval of true metrical positions (fractions)
-    from rounded versions thereof (floats).
-    See notes at the top of this module, as well as at
+    This function serves cases where temporal position values are defined
+    relative to some origin, such as the time elapsed since:
+
+    - the start of a piece (or section) in quarter notes (or some other
+        consistent symbolic value)
+    - the start of a measure (or other container), assuming those measures
+        are of a constant duration.
+
+    It serves use cases including the attempted retrieval of true metrical
+    positions (fractions) from rounded versions thereof (floats).
+    See notes at the top of this module, as well as
     for why standard algorithms fail at this task in a musical setting.
 
-    This function serves those common cases where
-    there is a need to balance between capturing event positions as accurately as possible while not
+    This function serves those common cases where there is a need to balance
+    between capturing event positions as accurately as possible while not
     making excessive complexity to account for a few anomalous notes.
-    Most importantly, it enables the explicit prioritisation of common pulse divisions.
-    Defaults prioritse 16x divsion over 15x, for example.
+    Most importantly, it enables the explicit prioritisation of common pulse
+    divisions. Defaults prioritse 16x divsion over 15x, for example.
 
 
     Parameters
@@ -258,22 +278,25 @@ def get_tatum(
         X.0 is the start of a unit,
         X.5 is the mid-point, etc.
     pulse_priority_list
-        The point of this function is to encode musically common pulse values.
-        This argument defaults to numbers under 100 with prime factors of only 2 and 3
-        ("3-smooth"), in increasing order.
-        The user can define any alternative list, optionally making use of `generate_n_smooth_numbers` for the purpose.
-        See notes at `approximate_fraction_with_priorities`.
-        Make sure this list is exhaustive: the function will raise an error if no match is found.
+        The point of this function is to encode musically common pulse
+        values. This argument defaults to numbers under 100 with prime
+        factors of only 2 and 3 (“3-smooth”), in increasing order. The
+        user can define any alternative list, optionally making use of
+        `generate_n_smooth_numbers` for the purpose. See notes at
+        `approximate_fraction_with_priorities`. Make sure this list is
+        exhaustive: the function will raise an error if no match is found.
     distance_threshold
-        The rounding tolerance between a temporal position multiplied by the bin value and the nearest integer.
-        This is essential when working with floats, but can be set to any value the user prefers.
+        The rounding tolerance between a temporal position multiplied by
+        the bin value and the nearest integer.
+        This is essential when working with floats, but can be set to any
+        value the user prefers.
     proportion_threshold
         Optionally, set a proportional number of events notes to account for.
-        The default of .999 means that once at least 99.9% of the source's notes are handled, we ignore the rest.
-        This is achieved by iterating through a Counter object of values relative to the unit.
-        E.g., 1.5 -> 0.5.
-        This option should be chosen with care as, in this case,
-        only the unit value and equal divisions thereof are considered.
+        The default of .999 means that once at least 99.9% of the source's
+        notes are handled, we ignore the rest. This is achieved by iterating
+        through a Counter object of values relative to the unit.
+        E.g., 1.5 -> 0.5. This option should be chosen with care as, in this
+        case, only the unit value and equal divisions thereof are considered.
 
     Examples
     --------
@@ -306,7 +329,9 @@ def get_tatum(
     """
 
     if not 0.0 < distance_threshold < 1.0:
-        raise ValueError("The `distance_threshold` tolerance must be between 0 and 1.")
+        raise ValueError(
+            "The `distance_threshold` tolerance must be between 0 and 1."
+        )
 
     if proportion_threshold is not None:
         if not 0.0 < proportion_threshold < 1.0:
@@ -315,7 +340,9 @@ def get_tatum(
             )
 
     if pulse_priority_list is None:
-        pulse_priority_list = generate_n_smooth_numbers(invert=True)  # 1, 1/2, 1/3, ...
+        pulse_priority_list = generate_n_smooth_numbers(
+            invert=True
+        )  # 1, 1/2, 1/3, ...
     else:
         if not isinstance(pulse_priority_list, list):
             raise ValueError("The `pulse_priority_list` must be a list.")

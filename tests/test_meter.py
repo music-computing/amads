@@ -6,7 +6,12 @@ Tests functionality for regrouping and quantizing musical durations.
 
 import pytest
 
-from amads.time.meter import PulseLengths, StartTimeHierarchy, TimeSignature, examples
+from amads.time.meter import (
+    PulseLengths,
+    StartTimeHierarchy,
+    TimeSignature,
+    examples,
+)
 
 metres = []
 for x in (
@@ -67,10 +72,14 @@ def test_name_format():
     """
     One case in the correct format, and one that raises.
     """
-    StartTimeHierarchy([[0.0, 0.1]], names={0.0: "ta", 1.0: "ka", 2.0: "di", 3.0: "mi"})
+    StartTimeHierarchy(
+        [[0.0, 0.1]], names={0.0: "ta", 1.0: "ka", 2.0: "di", 3.0: "mi"}
+    )
 
     with pytest.raises(AssertionError):
         StartTimeHierarchy([[0.0, 0.1]], names="Aditya, Bella, Carlos")
 
     with pytest.raises(AssertionError):
-        StartTimeHierarchy([[0.0, 0.1]], names={0.0: ["Aditya", "Bella", "Carlos"]})
+        StartTimeHierarchy(
+            [[0.0, 0.1]], names={0.0: ["Aditya", "Bella", "Carlos"]}
+        )

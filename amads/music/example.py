@@ -9,20 +9,20 @@ from importlib import resources, util
 music_extensions = [".mid", ".xml"]  # used to find all music examples
 
 
-def fullpath(example):
+def fullpath(example: str) -> str | None:
     """Construct a full path name for an example file.
     For example, fullpath("midi/sarabande.mid") returns a path to a
     readable file from this package.  This uses importlib so that
     we can read files even from compressed packages (we hope).
     """
 
-    def trim_path(full):
+    def trim_path(full: str) -> str:
         """remove first part of path to construct valid parameter value"""
         first_part = "amads/music/"
         index = full.find(first_part)
         return full if index == -1 else full[index + len(first_part) :]
 
-    path = resources.files("amads").joinpath("music/" + example)
+    path = str(resources.files("amads").joinpath("music/" + example))
 
     if os.path.isfile(path) and os.access(path, os.R_OK):
         return path
@@ -34,7 +34,9 @@ def fullpath(example):
     if spec is None:
         print("Error: Package amads not found")
         return None
-
+    if spec.submodule_search_locations is None:
+        print("Error: Package amads has no submodule search locations")
+        return None
     package_path = spec.submodule_search_locations[0]
 
     # Walk through the directory hierarchy

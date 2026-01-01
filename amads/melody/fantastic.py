@@ -5,7 +5,7 @@ import numpy as np
 
 from amads.algorithms.mtype_tokenizer import FantasticTokenizer
 from amads.algorithms.ngrams import NGramCounter
-from amads.core.basics import Note, Score
+from amads.core.basics import Score
 from amads.melody.contour.huron_contour import HuronContour
 from amads.melody.contour.interpolation_contour import InterpolationContour
 from amads.melody.contour.parsons_contour import ParsonsContour
@@ -18,6 +18,8 @@ __author__ = "David Whyatt"
 
 def fantastic_pitch_features(score: Score) -> Dict:
     """Extract pitch features from a melody.
+
+    <small>**Author**: David Whyatt</small>
 
     Parameters
     ----------
@@ -33,8 +35,7 @@ def fantastic_pitch_features(score: Score) -> Dict:
             - pitch_std: The standard deviation of the pitches in the melody.
             - pitch_entropy: A variant of the Shannon entropy of the pitches in the melody.
     """
-    flattened_score = score.flatten(collapse=True)
-    notes = list(flattened_score.find_all(Note))
+    notes = score.get_sorted_notes()
 
     pitches = [note.pitch.key_num for note in notes]
 
@@ -47,10 +48,14 @@ def fantastic_pitch_features(score: Score) -> Dict:
     total_pitches = len(pitches)
 
     # Calculate relative frequencies
-    pitch_freqs = {p: count / total_pitches for p, count in pitch_counts.items()}
+    pitch_freqs = {
+        p: count / total_pitches for p, count in pitch_counts.items()
+    }
 
     # Calculate entropy using the formula from the FANTASTIC toolbox
-    pitch_entropy = -sum(f * np.log2(f) for f in pitch_freqs.values()) / np.log2(24)
+    pitch_entropy = -sum(
+        f * np.log2(f) for f in pitch_freqs.values()
+    ) / np.log2(24)
 
     return {
         "pitch_range": pitch_range,
@@ -61,6 +66,8 @@ def fantastic_pitch_features(score: Score) -> Dict:
 
 def fantastic_pitch_interval_features(score: Score) -> Dict:
     """Extract pitch interval features from a melody.
+
+    <small>**Author**: David Whyatt</small>
 
     Parameters
     ----------
@@ -78,8 +85,7 @@ def fantastic_pitch_interval_features(score: Score) -> Dict:
             - modal_interval: The modal absolute pitch interval in the melody.
             - interval_entropy: A variant of the Shannon entropy of the absolute pitch intervals in the melody.
     """
-    flattened_score = score.flatten(collapse=True)
-    notes = list(flattened_score.find_all(Note))
+    notes = score.get_sorted_notes()
 
     pitches = [note.pitch.key_num for note in notes]
     # Fantastic defines intervals by looking forwards
@@ -104,9 +110,9 @@ def fantastic_pitch_interval_features(score: Score) -> Dict:
 
     # Calculate entropy using the formula from the FANTASTIC toolbox
     # Note that the maximum number of different intervals is instead 23 here
-    interval_entropy = -sum(f * np.log2(f) for f in interval_freqs.values()) / np.log2(
-        23
-    )
+    interval_entropy = -sum(
+        f * np.log2(f) for f in interval_freqs.values()
+    ) / np.log2(23)
 
     return {
         "absolute_interval_range": absolute_interval_range,
@@ -119,6 +125,8 @@ def fantastic_pitch_interval_features(score: Score) -> Dict:
 
 def fantastic_duration_features(score: Score) -> Dict:
     """Extract duration features from a melody.
+
+    <small>**Author**: David Whyatt</small>
 
     Parameters
     ----------
@@ -140,6 +148,8 @@ def fantastic_duration_features(score: Score) -> Dict:
 def fantastic_global_features(score: Score) -> Dict:
     """Extract global extension features from a melody.
 
+    <small>**Author**: David Whyatt</small>
+
     Parameters
     ----------
     score : Score
@@ -159,6 +169,8 @@ def fantastic_global_features(score: Score) -> Dict:
 def fantastic_step_contour_features(score: Score) -> Dict:
     """Extract step contour features from a melody.
 
+    <small>**Author**: David Whyatt</small>
+
     Parameters
     ----------
     score : Score
@@ -173,8 +185,7 @@ def fantastic_step_contour_features(score: Score) -> Dict:
             - global_direction: The global direction of the step contour.
             - local_variation: The local variation of the step contour.
     """
-    flattened_score = score.flatten(collapse=True)
-    notes = list(flattened_score.find_all(Note))
+    notes = score.get_sorted_notes()
 
     # Extract pitches and times for contour calculation
     pitches = [note.pitch.key_num for note in notes]
@@ -192,6 +203,8 @@ def fantastic_step_contour_features(score: Score) -> Dict:
 def fantastic_interpolation_contour_features(score: Score) -> Dict:
     """Extract interpolation contour features from a melody.
 
+    <small>**Author**: David Whyatt</small>
+
     Parameters
     ----------
     score : Score
@@ -208,8 +221,7 @@ def fantastic_interpolation_contour_features(score: Score) -> Dict:
             - direction_changes: The number of direction changes in the interpolation contour.
             - class_label: The class label of the interpolation contour.
     """
-    flattened_score = score.flatten(collapse=True)
-    notes = list(flattened_score.find_all(Note))
+    notes = score.get_sorted_notes()
 
     # Extract pitches and times for contour calculation
     pitches = [note.pitch.key_num for note in notes]
@@ -233,6 +245,8 @@ def fantastic_parsons_contour_features(
 ) -> Dict:
     """Extract Parsons contour features from a melody.
 
+    <small>**Author**: David Whyatt</small>
+
     Parameters
     ----------
     score : Score
@@ -250,12 +264,13 @@ def fantastic_parsons_contour_features(
                 to represent up, repeat, and down intervals respectively.
     """
 
-    flattened_score = score.flatten(collapse=True)
-    notes = list(flattened_score.find_all(Note))
+    notes = score.get_sorted_notes()
 
     pitches = [note.pitch.key_num for note in notes]
     pc = ParsonsContour(
-        pitches, character_dict=character_dict, initial_asterisk=initial_asterisk
+        pitches,
+        character_dict=character_dict,
+        initial_asterisk=initial_asterisk,
     )
 
     return {
@@ -267,6 +282,8 @@ def fantastic_parsons_contour_features(
 
 def fantastic_polynomial_contour_features(score: Score) -> Dict:
     """Extract polynomial contour features from a melody.
+
+    <small>**Author**: David Whyatt</small>
 
     Parameters
     ----------
@@ -291,6 +308,8 @@ def fantastic_polynomial_contour_features(score: Score) -> Dict:
 def fantastic_huron_contour_features(score: Score) -> Dict:
     """Extract Huron contour features from a melody.
 
+    <small>**Author**: David Whyatt</small>
+
     Parameters
     ----------
     score : Score
@@ -308,8 +327,7 @@ def fantastic_huron_contour_features(score: Score) -> Dict:
             - mean_to_last: The difference between the mean and last pitch.
             - contour_class: The class of the Huron contour.
     """
-    flattened_score = score.flatten(collapse=True)
-    notes = list(flattened_score.find_all(Note))
+    notes = score.get_sorted_notes()
 
     pitches = [note.pitch.key_num for note in notes]
     times = [note.onset for note in notes]
@@ -330,6 +348,8 @@ def fantastic_count_mtypes(
     score: Score, segment: bool, phrase_gap: float, units: str
 ) -> NGramCounter:
     """Count M-Types in a melody.
+
+    <small>**Author**: David Whyatt</small>
 
     Parameters
     ----------
@@ -372,8 +392,11 @@ def fantastic_mtype_summary_features(
     score: Score, segment: bool, phrase_gap: float, units: str
 ) -> Dict:
     """Count M-Types in a melody and compute summary features.
+
     This function provides an easy way to get all the complexity measures
     at once.
+
+    <small>**Author**: David Whyatt</small>
 
     Parameters
     ----------
@@ -391,6 +414,7 @@ def fantastic_mtype_summary_features(
     Dict
         A dictionary of summary features.
         Dictionary keys:
+
             - mean_entropy: The mean entropy of the M-Types.
             - mean_productivity: The mean productivity of the M-Types.
             - yules_k: The mean Yules K statistic.

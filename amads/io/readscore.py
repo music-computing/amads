@@ -1,4 +1,4 @@
-"""readscore.py -- file input"""
+"""functions for file input"""
 
 __author__ = "Roger B. Dannenberg"
 
@@ -58,7 +58,9 @@ def set_preferred_xml_reader(reader: str) -> str:
     return previous_reader
 
 
-def _check_for_subsystem(file_type: str) -> Optional[Callable[[str, bool], Score]]:
+def _check_for_subsystem(
+    file_type: str,
+) -> Optional[Callable[[str, bool, bool, bool], Score]]:
     """Check if the preferred reader is available.
 
     Parameters
@@ -85,7 +87,10 @@ def _check_for_subsystem(file_type: str) -> Optional[Callable[[str, bool], Score
 
                 return music21_xml_import
         elif preferred_reader == "partitura":
-            print(f"In readscore: importing partitura-based {file_type}" " reader.")
+            print(
+                f"In readscore: importing partitura-based {file_type}"
+                " reader."
+            )
             if file_type == "midi":
                 from amads.io.pt_midi_import import partitura_midi_import
 
@@ -95,7 +100,10 @@ def _check_for_subsystem(file_type: str) -> Optional[Callable[[str, bool], Score
 
                 return partitura_xml_import
         elif preferred_reader == "prettymidi":
-            print(f"In readscore: importing prettymidi-based {file_type}" " reader.")
+            print(
+                f"In readscore: importing prettymidi-based {file_type}"
+                " reader."
+            )
             from amads.io.pm_midi_import import pretty_midi_midi_import
 
             if file_type == "midi":
@@ -107,11 +115,19 @@ def _check_for_subsystem(file_type: str) -> Optional[Callable[[str, bool], Score
     return None
 
 
-def import_xml(filename, show: bool = False) -> Score:
-    """Use Partitura or music21 to import a MusicXML file."""
+def import_xml(
+    filename: str,
+    flatten: bool = False,
+    collapse: bool = False,
+    show: bool = False,
+) -> Score:
+    """Use Partitura or music21 to import a MusicXML file.
+
+    <small>**Author**: Roger B. Dannenberg</small>
+    """
     import_xml_fn = _check_for_subsystem("xml")
     if import_xml_fn is not None:
-        return import_xml_fn(filename, show)
+        return import_xml_fn(filename, flatten, collapse, show)
     else:
         raise Exception(
             "Could not find a MusicXML import function. "
@@ -120,14 +136,18 @@ def import_xml(filename, show: bool = False) -> Score:
 
 
 def import_midi(
-    filename: str, flatten: bool = False, collapse: bool = False, show: bool = False
-):
-    """Use Partitura or music21 or pretty_midi to import
-    a Standard MIDI file.
+    filename: str,
+    flatten: bool = False,
+    collapse: bool = False,
+    show: bool = False,
+) -> Score:
+    """Use Partitura or music21 or pretty_midi to import a Standard MIDI file.
+
+    <small>**Author**: Roger B. Dannenberg</small>
     """
     import_midi_fn = _check_for_subsystem("midi")
     if import_midi_fn is not None:
-        return import_midi_fn(filename, flatten=flatten, collapse=collapse, show=show)
+        return import_midi_fn(filename, flatten, collapse, show)
     else:
         raise Exception(
             "Could not find a MIDI file import function. "
@@ -135,10 +155,36 @@ def import_midi(
         )
 
 
-def read_score(filename, show=False, format=None):
-    """read a file with the given format, 'xml', 'midi', 'kern', 'mei'.
+def read_score(
+    filename: str,
+    flatten: bool = False,
+    collapse: bool = False,
+    show: bool = False,
+    format=None,
+) -> Score:
+    """Read a file with the given format, 'xml', 'midi', 'kern', 'mei'.
+
     If format is None (default), the format is based on the filename
     extension, which can be 'xml', 'mid', 'midi', 'smf', 'kern', or 'mei'
+
+    <small>**Author**: Roger B. Dannenberg</small>
+
+    Parameters
+    ----------
+    filename : str
+        the path (relative or absolute) to the music file
+
+    flatten : bool
+        the returned score will be flat (Score, Parts, Notes)
+
+    collapse: bool
+        if collapse and flatten, the parts will be merged into one
+
+    show : bool
+        print a text representation of the data
+
+    format: string
+        one of 'xml', 'midi', 'kern', 'mei'
     """
     if format is None:
         ext = pathlib.Path(filename).suffix
@@ -165,4 +211,12 @@ def read_score(filename, show=False, format=None):
 """
 A list of supported file extensions for score reading.
 """
-valid_score_extensions = [".xml", ".musicxml", ".mid", ".midi", ".smf", ".kern", ".mei"]
+valid_score_extensions = [
+    ".xml",
+    ".musicxml",
+    ".mid",
+    ".midi",
+    ".smf",
+    ".kern",
+    ".mei",
+]

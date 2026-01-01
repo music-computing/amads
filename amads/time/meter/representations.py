@@ -10,6 +10,9 @@ Uses include identifying notes that traverse metrical levels,
 for analysis (e.g., as a cycle of syncopation)
 and notation (e.g., re-notating to reflect the
 within-cycle notational conventions).
+
+
+<small>**Author**: Mark Gotham</small>
 """
 
 __author__ = "Mark Gotham"
@@ -26,6 +29,8 @@ def is_non_negative_integer_power_of_two(n: float) -> bool:
     """
     Checks if a number is a power of 2.
 
+    Examples
+    --------
     >>> is_non_negative_integer_power_of_two(0)
     False
 
@@ -54,13 +59,18 @@ def is_non_negative_integer_power_of_two(n: float) -> bool:
     return n > 0 and (n & (n - 1)) == 0
 
 
-def switch_pulse_length_beat_type(pulse_length_or_beat_type: Union[float, np.array]):
+def switch_pulse_length_beat_type(
+    pulse_length_or_beat_type: Union[float, np.array]
+):
     """
     Switch between a pulse length and beat type.
     Accepts numeric values or numpy arrays thereof.
-    Note that a float of vale 0 will raise a `ZeroDivisionError: division by zero`,
+    Note that a float of vale 0 will raise a
+    `ZeroDivisionError: division by zero`,
     but a numpy array will map any 0s to `inf` without error.
 
+    Examples
+    --------
     >>> switch_pulse_length_beat_type(0.5)
     8.0
 
@@ -75,8 +85,9 @@ def switch_pulse_length_beat_type(pulse_length_or_beat_type: Union[float, np.arr
 
 class StartTimeHierarchy:
     """
-    Encoding metrical structure as a hierarchy of start times:
-    a representation of metrical levels in terms of starts expressed by quarter length
+    Encoding metrical structure as a hierarchy of start times.
+
+    A representation of metrical levels in terms of starts expressed by quarter length
     from the start of the cycle.
 
     Parameters
@@ -85,8 +96,9 @@ class StartTimeHierarchy:
         Users can specify the `start_hierarchy` directly and completely from scratch.
         Use this for advanced, non-standard metrical structures
         including those without 2-/3- grouping, or even nested hierarchies,
-        as well as for (optionally) encoding micro-timing directly into the metrical structure.
-        The only "well-formed" criteria we expect are
+        as well as for (optionally) encoding micro-timing directly into the
+        metrical structure.
+        The only “well-formed” criteria we expect are
         use of 0.0 and full cycle length at the top level, and
         presence of all timepoints from one level in each subsequent level.
         For creating this information from pulse lengths, time signatures, and more
@@ -193,7 +205,9 @@ class StartTimeHierarchy:
         """
 
         def test_one(level: list):
-            diffs = set([level[i + 1] - level[i] for i in range(len(level) - 1)])
+            diffs = set(
+                [level[i + 1] - level[i] for i in range(len(level) - 1)]
+            )
             if len(diffs) > 1:
                 return None
             return float(list(diffs)[0])
@@ -216,9 +230,10 @@ class StartTimeHierarchy:
 
         Raises
         ------
-        Errors raised if the currently fastest level of a `starts_hierarchy` is not periodic,
-        or if either of the fastest level or `minimum_beat_type` are not powers of 2.
-        Set the `starts_hierarchy` manually in these non-standard cases.
+        ValueError
+            if the currently fastest level of a `starts_hierarchy` is not periodic,
+            or if either of the fastest level or `minimum_beat_type` are not powers
+            of 2. Set the `starts_hierarchy` manually in these non-standard cases.
 
         Examples
         --------
@@ -251,9 +266,13 @@ class StartTimeHierarchy:
         self.to_pulse_lengths()
         fastest = self.pulse_lengths[-1]
         if fastest is None:
-            raise ValueError("Fastest level is not regular. Use case unsupported.")
+            raise ValueError(
+                "Fastest level is not regular. Use case unsupported."
+            )
         if not is_non_negative_integer_power_of_two(
-            switch_pulse_length_beat_type(fastest)  # from pulse length to beat type
+            switch_pulse_length_beat_type(
+                fastest
+            )  # from pulse length to beat type
         ):
             raise ValueError(
                 f"Fastest level ({fastest}) is not a power of 2. Use case unsupported."
@@ -274,7 +293,8 @@ class StartTimeHierarchy:
             )
         ]
         new_pulses = [
-            switch_pulse_length_beat_type(beat_type) for beat_type in new_beat_types
+            switch_pulse_length_beat_type(beat_type)
+            for beat_type in new_beat_types
         ]
         self.pulse_lengths += new_pulses
         self.pulse_lengths = [x for x in self.pulse_lengths if x is not None]
@@ -332,21 +352,21 @@ class TimeSignature:
         """
         Given a signature string, extract the constituent parts and create an object.
         The string must take the form `<beat>/<beat_type>`
-        with exactly one "/" separating the two (spaces are ignored).
+        with exactly one “/” separating the two (spaces are ignored).
         The string does not change.
 
-        The `<beat>` ("numerator") part may be a number (including 5 and 7 which are supported)
-        or more than one number separated by the "+" symbol.
-        For example, when encoding "5/4",
-        use the total value only to avoid segmentation above the denominator level ("5/4")
-        or the X+Y form to explicitly distinguish between "2+3" and "3+2".
-        I.e., "5/" time signatures have no 3+2 or 2+3 division by default.
+        The `<beat>` (“numerator”) part may be a number (including 5 and 7 which
+        are supported) or more than one number separated by the “+” symbol.
+        For example, when encoding “5/4”, use the total value only to avoid
+        segmentation above the denominator level (“5/4”)
+        or the X+Y form to explicitly distinguish between “2+3” and “3+2”.
+        I.e., “5/” time signatures have no 3+2 or 2+3 division by default.
         See examples on `TimeSignature.to_starts_hierarchy`.
 
-        Finally, although we support and provide defaults for time signatures in the form "2+3/8",
-        there is no such support for more than one "/"
-        (i.e., the user must build cases like "4/4 + 3/8" explicitly according to how they see it).
-
+        Finally, although we support and provide defaults for time signatures
+        in the form “2+3/8”, there is no such support for more than one “/”
+        (i.e., the user must build cases like “4/4 + 3/8” explicitly
+        according to how they see it).
 
         Examples
         --------
@@ -366,9 +386,10 @@ class TimeSignature:
 
     def check_valid(self):
         """
-        Check the validity of the input:
-        .beats must be an integer or a list / tuple thereof.
-        .beat_type must be a single integer power of two.
+        Check the validity of the input.
+
+         - `.beats` must be an integer or a list/tuple thereof.
+         - `.beat_type` must be a single integer power of two.
         """
         # beats  # TODO this check may be overdoing it
         if self.beats:
@@ -385,14 +406,16 @@ class TimeSignature:
     def get_pulses(self):
         """
         Create an unordered set for the regular pulses present in this time signature.
-        This will include the full cycle and beat type ("denominator") value,
-        e.g., in "3/4" the pulse lengths are 3.0 (full cycle) and 1.0 (beat type).
+
+        This will include the full cycle and beat type (“denominator”) value,
+        e.g., in “3/4” the pulse lengths are 3.0 (full cycle) and 1.0 (beat type).
         If there are other regular levels between the two, they will be added
         only if the user has first called `fill_2s_3s` (it does not run by default).
         For instance, the splitting of 4 into 2+2 is user choice (see `fill_2s_3s`)
-        With this split, this "4/4" has pulse lengths of 4.0 (full cycle)
+        With this split, this “4/4” has pulse lengths of 4.0 (full cycle)
         and 1.0 (beat type) as well as 2.0 given that the two twos are of one kind.
-        In "2+3/4" there is no such 2.0 (or 3.0) regularity, and so no pulse is created for that level.
+        In “2+3/4” there is no such 2.0 (or 3.0) regularity, and so no pulse is
+        created for that level.
 
         Examples
         --------
@@ -431,13 +454,14 @@ class TimeSignature:
 
     def fill_2s_3s(self):
         """
-        Optionally, add pulse values to follow the conventions of the time signatures,
-        enforcing 2- and 3-grouping.
-        This only applies to cases with a single beat in the "numerator".
-        For instance,
-        given a "4/4" signature, this method will add the half-cycle (pulse value 2.0),
-        given a "6/8", it will again add the half-cycle (pulse value 1.5),
-        and given a "12/8", it will add both the half- and quarter-cycle (pulse values 3.0 and 1.5),
+        Optionally, add pulse values to follow the conventions of the time signatures.
+
+        Enforcing 2- and 3-grouping, this only applies to cases with a
+        single beat in the "numerator". For instance,
+        given a “4/4” signature, this method will add the half-cycle (pulse value 2.0),
+        given a “6/8”, it will again add the half-cycle (pulse value 1.5),
+        and given a “12/8”, it will add both the half- and quarter-cycle
+        (pulse values 3.0 and 1.5),
 
         This functionality is factored out and does not run by default.
         Even if this runs, the original time signature string is unchanged,
@@ -475,7 +499,9 @@ class TimeSignature:
     def to_start_hierarchy(self) -> list:
         """
         Create a start hierarchy for almost any time signature
-        (with constraints as noted in the top level class description and in the `.from_string` method).
+
+        (with constraints as noted in the top level class description
+        and in the `.from_string` method).
         See below for several examples of how this handles
         specific time signatures and related assumptions,
         and note the effect of running `fill_2s_3s()`.
@@ -587,8 +613,10 @@ class TimeSignature:
 
         """
         # 1. Basic elements: all periodic cycles from the full cycle to the `beat_type` level.
-        pulses = PulseLengths(  # TODO consistency wrt what is added to the class.
-            pulse_lengths=self.pulses, cycle_length=self.cycle_length
+        pulses = (
+            PulseLengths(  # TODO consistency wrt what is added to the class.
+                pulse_lengths=self.pulses, cycle_length=self.cycle_length
+            )
         )
         start_hierarchy = pulses.to_start_hierarchy()
 
@@ -600,7 +628,9 @@ class TimeSignature:
             beat_starts = bp.beat_pattern_to_start_hierarchy()
             start_hierarchy.append(beat_starts)
 
-            start_hierarchy = [list(i) for i in set(map(tuple, start_hierarchy))]
+            start_hierarchy = [
+                list(i) for i in set(map(tuple, start_hierarchy))
+            ]
             start_hierarchy.sort(key=len)
             # TODO consider move to StartTimeHierarchy?
 
@@ -651,31 +681,36 @@ class PulseLengths:
         require_2_or_3_between_levels: bool = False,
     ):
         """
-        Convert a list of pulse lengths into a corresponding list of lists
-        with start positions per metrical level.
+        Convert a list of pulse lengths into a corresponding list of lists.
+
+        Gives start positions per metrical level.
         All values (pulse lengths, start positions, and cycle_length)
         are all expressed in terms of quarter length.
 
-        That is, the user provides pulse lengths for each level of a metrical hierarchy,
-        and the algorithm expands this into a hierarchy assuming equal spacing (aka "isochrony").
+        That is, the user provides pulse lengths for each level of a
+        metrical hierarchy, and the algorithm expands this into a hierarchy
+        assuming equal spacing (aka “isochrony”).
 
-        This does not work for ("nonisochronous") pulse streams of varying duration
-        in time signatures like 5/x, 7/x
-        (e.g., the level of 5/4 with dotted/undotted 1/2 notes).
+        This does not work for (“nonisochronous”) pulse streams of varying duration
+        in time signatures like 5/x, 7/x (e.g., the level of 5/4 with
+        dotted/undotted 1/2 notes).
 
         It is still perfectly fine to use this for the pulse streams
-        within those meters that are regular, equally spaced ("isochronous")
+        within those meters that are regular, equally spaced (“isochronous”)
         (e.g., the 1/4 note level of 5/4).
 
-        The list of pulse lengths is handled internally in decreasing order, whatever the ordering in the argument.
+        The list of pulse lengths is handled internally in decreasing order,
+        whatever the ordering in the argument.
 
-        If `require_2_or_3_between_levels` is True (default), this functions checks that
-        each level is either a 2 or 3 multiple of the next.
+        If `require_2_or_3_between_levels` is True (default), this functions
+        checks that each level is either a 2 or 3 multiple of the next.
 
         By default, the cycle_length is taken by the longest pulse length.
         Alternatively, this can be user-defined to anything as long as it is
-        1) longer than the longest pulse and
-        2) if `require_2_or_3_between_levels` is True then exactly 2x or 3x longer.
+
+        1. longer than the longest pulse and
+        2. if `require_2_or_3_between_levels` is True then exactly 2x or 3x
+        longer.
 
 
         Parameters
@@ -713,7 +748,9 @@ class PulseLengths:
 
         if require_2_or_3_between_levels:  # TODO consider refactor
             for level in range(len(self.pulse_lengths) - 1):
-                if self.pulse_lengths[level] / self.pulse_lengths[level + 1] not in [
+                if self.pulse_lengths[level] / self.pulse_lengths[
+                    level + 1
+                ] not in [
                     2,
                     3,
                 ]:
@@ -743,12 +780,13 @@ class PulseLengths:
         A maximum of 4 decimal places is hardcoded.
         This is to avoid floating point errors or the need for one line of numpy (np.arange)
         in a module that doesn't otherwise use it.
-        4d.p. should be sufficient for all realistic use cases.
+        4 decimal points should be sufficient for all realistic use cases.
 
         Parameters
         --------
         pulse_length
-            The quarter length of the pulse (note: must be shorter than the `cycle_length`).
+            The quarter length of the pulse (note: must be shorter than the
+            `cycle_length`).
 
         Examples
         --------
@@ -807,7 +845,9 @@ class PulseLengths:
             row = proto_row
             for i in range(divider_of_cycle - 1):
                 row = np.append(row, proto_row)
-            symbolic_pulse_length_array = np.vstack((row, symbolic_pulse_length_array))
+            symbolic_pulse_length_array = np.vstack(
+                (row, symbolic_pulse_length_array)
+            )
 
         return symbolic_pulse_length_array
 
@@ -845,7 +885,8 @@ class BeatPattern:
         [6, 9]
         into a list of within-cycle starting positions, as defined relative
         to the start of the cycle.
-        Basically, the list of beats functions like the time signature's so-called "numerator",
+        Basically, the list of beats functions like the time signature's
+        so-called “numerator”,
         so for instance, `[2, 2, 3]` with the denominator `4` is a kind of 7/4.
         This equates to starting positions of
         `[0.0, 2.0, 4.0, 7.0]`.

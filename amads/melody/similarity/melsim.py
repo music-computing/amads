@@ -1,80 +1,96 @@
 """
-This is a Python wrapper for the R package 'melsim' (https://github.com/sebsilas/melsim).
+This is a Python wrapper for the R package ['melsim'](https://github.com/sebsilas/melsim).
 This wrapper allows the user to easily interface with the melsim package using the AMADS Score object.
 Melsim is a package for computing similarity between melodies, and is being developed by
-Sebastian Silas (https://sebsilas.com/) and Klaus Frieler
-(https://www.aesthetics.mpg.de/en/the-institute/people/klaus-frieler.html).
+[Sebastian Silas](https://sebsilas.com/) and Klaus Frieler
+([https://www.aesthetics.mpg.de/en/the-institute/people/klaus-frieler.html](
+https://www.aesthetics.mpg.de/en/the-institute/people/klaus-frieler.html)).
+
 Melsim is based on SIMILE, which was written by Daniel Müllensiefen and Klaus Frieler in 2003/2004.
 This package is used to compare two or more melodies pairwise across a range of similarity measures.
 Not all similarity measures are implemented in melsim, but the ones that are can be used here.
 All of the following similarity measures are implemented and functional in melsim:
 Please be aware that the names of the similarity measures are case-sensitive.
-Num:        Name:
-1           Jaccard
-2       Kulczynski2
-3            Russel
-4             Faith
-5          Tanimoto
-6              Dice
-7            Mozley
-8            Ochiai
-9            Simpson
-10           cosine
-11          angular
-12      correlation
-13        Tschuprow
-14           Cramer
-15            Gower
-16        Euclidean
-17        Manhattan
-18         supremum
-19         Canberra
-20            Chord
-21         Geodesic
-22             Bray
-23          Soergel
-24           Podani
-25        Whittaker
-26         eJaccard
-27            eDice
-28   Bhjattacharyya
-29       divergence
-30        Hellinger
-31    edit_sim_utf8
-32         edit_sim
-33      Levenshtein
-34          sim_NCD
-35            const
-36          sim_dtw
+
+| Num | Name           |
+|-----|----------------|
+| 1   | Jaccard        |
+| 2   | Kulczynski2    |
+| 3   | Russel         |
+| 4   | Faith          |
+| 5   | Tanimoto       |
+| 6   | Dice           |
+| 7   | Mozley         |
+| 8   | Ochiai         |
+| 9   | Simpson        |
+| 10  | cosine         |
+| 11  | angular        |
+| 12  | correlation    |
+| 13  | Tschuprow      |
+| 14  | Cramer         |
+| 15  | Gower          |
+| 16  | Euclidean      |
+| 17  | Manhattan      |
+| 18  | supremum       |
+| 19  | Canberra       |
+| 20  | Chord          |
+| 21  | Geodesic       |
+| 22  | Bray           |
+| 23  | Soergel        |
+| 24  | Podani         |
+| 25  | Whittaker      |
+| 26  | eJaccard       |
+| 27  | eDice          |
+| 28  | Bhjattacharyya |
+| 29  | divergence     |
+| 30  | Hellinger      |
+| 31  | edit_sim_utf8  |
+| 32  | edit_sim       |
+| 33  | Levenshtein    |
+| 34  | sim_NCD        |
+| 35  | const          |
+| 36  | sim_dtw        |
+
+
+
 The following similarity measures are not currently functional in melsim:
-1    count_distinct (set-based)
-2          tversky (set-based)
-3   simple matching
-4   braun_blanquet (set-based)
-5        minkowski (vector-based)
-6           ukkon (distribution-based)
-7      sum_common (distribution-based)
-8       distr_sim (distribution-based)
-9   stringdot_utf8 (sequence-based)
-10            pmi (special)
-11       sim_emd (special)
+
+| Num | Name | Type |
+|-----|------|------|
+| 1 | count_distinct | set-based |
+| 2 | tversky | set-based |
+| 3 | simple matching | |
+| 4 | braun_blanquet | set-based |
+| 5 | minkowski | vector-based |
+| 6 | ukkon | distribution-based |
+| 7 | sum_common | distribution-based |
+| 8 | distr_sim | distribution-based |
+| 9 | stringdot_utf8 | sequence-based |
+| 10 | pmi | special |
+| 11 | sim_emd | special |
+
 Further to the similarity measures, melsim allows the user to specify which domain the
-similarity should be calculated for. This is referred to as a "transformation" in melsim,
+similarity should be calculated for. This is referred to as a “transformation” in melsim,
 and all of the following transformations are implemented and functional:
-Num:        Name:
-1           pitch
-2           int
-3           fuzzy_int
-4           parsons
-5           pc
-6           ioi_class
-7           duration_class
-8           int_X_ioi_class
-9           implicit_harmonies
+
+| Num | Name |
+|-----|------|
+| 1 | pitch |
+| 2 | int |
+| 3 | fuzzy_int |
+| 4 | parsons |
+| 5 | pc |
+| 6 | ioi_class |
+| 7 | duration_class |
+| 8 | int_X_ioi_class |
+| 9 | implicit_harmonies |
+
 The following transformations are not currently functional in melsim:
-Num:        Name:
-1           ioi
-2           phrase_segmentation
+
+| Num | Name |
+|-----|------|
+| 1 | ioi |
+| 2 | phrase_segmentation |
 """
 
 import json
@@ -82,7 +98,7 @@ import math
 import subprocess
 from itertools import combinations
 from pathlib import Path
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 from tenacity import RetryError, Retrying, stop_after_attempt, wait_exponential
 from tqdm import tqdm
@@ -112,8 +128,25 @@ github_repos = {
 }
 
 
-def check_r_packages_installed(install_missing: bool = False, n_retries: int = 3):
-    """Check if required R packages are installed."""
+def check_r_packages_installed(
+    install_missing: bool = False, n_retries: int = 3
+):
+    """Check if required R packages are installed.
+
+    Parameters
+    ----------
+    install_missing : bool, default=False
+        If True, attempt to install missing packages automatically.
+    n_retries : int, default=3
+        Number of retries for installing each missing package.
+
+    Raises
+    ------
+    ImportError
+        If required packages are missing and install_missing is False.
+    RuntimeError
+        If there is an error checking or installing packages.
+    """
     # Create R script to check package installation using base R only
     check_script = """
     packages <- c({packages})
@@ -126,13 +159,18 @@ def check_r_packages_installed(install_missing: bool = False, n_retries: int = 3
     """
 
     # Format package list
-    packages_str = ", ".join([f'"{p}"' for p in r_cran_packages + r_github_packages])
+    packages_str = ", ".join(
+        [f'"{p}"' for p in r_cran_packages + r_github_packages]
+    )
     check_script = check_script.format(packages=packages_str)
 
     # Run R script
     try:
         result = subprocess.run(
-            ["Rscript", "-e", check_script], capture_output=True, text=True, check=True
+            ["Rscript", "-e", check_script],
+            capture_output=True,
+            text=True,
+            check=True,
         )
         output = result.stdout.strip()
 
@@ -168,7 +206,18 @@ def check_r_packages_installed(install_missing: bool = False, n_retries: int = 3
 
 
 def install_r_package(package: str):
-    """Install an R package."""
+    """Install an R package.
+
+    Parameters
+    ----------
+    package : str
+        Name of the R package to install.
+
+    Raises
+    ------
+    ValueError
+        If the package type is unknown.
+    """
     if package in r_cran_packages:
         print(f"Installing CRAN package '{package}'...")
         install_script = f"""
@@ -191,7 +240,15 @@ def install_r_package(package: str):
 
 
 def install_dependencies():
-    """Install all required R packages."""
+    """Install all required R packages.
+
+    Raises
+    ------
+    ImportError
+        If required packages are missing and install_missing is False.
+    RuntimeError
+        If there is an error checking or installing packages.
+    """
     # Check which packages need to be installed using base R only
     check_script = """
     packages <- c({packages})
@@ -268,7 +325,9 @@ def install_dependencies():
                 """
                 subprocess.run(["Rscript", "-e", install_script], check=True)
         else:
-            print("Skipping install: All GitHub packages are already installed.")
+            print(
+                "Skipping install: All GitHub packages are already installed."
+            )
     except subprocess.CalledProcessError as e:
         raise RuntimeError(f"Error checking GitHub packages: {e.stderr}")
 
@@ -276,7 +335,18 @@ def install_dependencies():
 
 
 def check_python_package_installed(package: str):
-    """Check if a Python package is installed."""
+    """Check if a Python package is installed.
+
+    Parameters
+    ----------
+    package : str
+        Name of the Python package to check.
+
+    Raises
+    ------
+    ImportError
+        If the package is not installed.
+    """
     try:
         __import__(package)
     except ImportError:
@@ -340,7 +410,18 @@ VALID_TRANSFORMATIONS = [
 
 
 def validate_method(method: str):
-    """Validate that the similarity method is supported."""
+    """Validate that the similarity method is supported.
+
+    Parameters
+    ----------
+    method : str
+        Name of the similarity method to validate.
+
+    Raises
+    ------
+    ValueError
+        If the method is not supported.
+    """
     if method not in VALID_METHODS:
         raise ValueError(
             f"Invalid method '{method}'. Valid methods are: {', '.join(VALID_METHODS)}"
@@ -348,15 +429,29 @@ def validate_method(method: str):
 
 
 def validate_transformation(transformation: str):
-    """Validate that the transformation is supported."""
+    """Validate that the transformation is supported.
+
+    Parameters
+    ----------
+    transformation : str
+        Name of the transformation to validate.
+
+    Raises
+    ------
+    ValueError
+        If the transformation is not supported.
+    """
     if transformation not in VALID_TRANSFORMATIONS:
         raise ValueError(
             f"Invalid transformation '{transformation}'. Valid transformations are: {', '.join(VALID_TRANSFORMATIONS)}"
         )
 
 
-def get_similarity(melody_1, melody_2, method: str, transformation: str) -> float:
+def get_similarity(
+    melody_1, melody_2, method: str, transformation: str
+) -> float:
     """Calculate similarity between two Score objects using the specified method.
+
     Parameters
     ----------
     melody_1 : Score
@@ -367,10 +462,12 @@ def get_similarity(melody_1, melody_2, method: str, transformation: str) -> floa
         Name of the similarity method to use from the list in the module docstring.
     transformation : str
         Name of the transformation to use from the list in the module docstring.
+
     Returns
     -------
     float
         Similarity value between the two melodies
+
     Examples
     --------
     >>> from amads.core.basics import Score
@@ -390,7 +487,14 @@ def get_similarity(melody_1, melody_2, method: str, transformation: str) -> floa
 
     # Pass lists directly to _get_similarity
     return _get_similarity(
-        pitches1, starts1, ends1, pitches2, starts2, ends2, method, transformation
+        pitches1,
+        starts1,
+        ends1,
+        pitches2,
+        starts2,
+        ends2,
+        method,
+        transformation,
     )
 
 
@@ -472,7 +576,10 @@ def _get_similarity(
     # Run R script
     try:
         result = subprocess.run(
-            ["Rscript", "-e", r_script], capture_output=True, text=True, check=True
+            ["Rscript", "-e", r_script],
+            capture_output=True,
+            text=True,
+            check=True,
         )
         # Extract JSON from output (may contain warnings before the JSON)
         output_str = result.stdout.strip()
@@ -487,7 +594,11 @@ def _get_similarity(
             or json_str.startswith('"')
         ):
             for line in reversed(lines):
-                if line.startswith("[") or line.startswith("{") or line.startswith('"'):
+                if (
+                    line.startswith("[")
+                    or line.startswith("{")
+                    or line.startswith('"')
+                ):
                     json_str = line
                     break
 
@@ -519,25 +630,22 @@ def _convert_strings_to_tuples(d: Dict) -> Dict:
     return result
 
 
-def score_to_arrays(score) -> Tuple[List[int], List[float], List[float]]:
+def score_to_arrays(score) -> Tuple[List[float], List[float], List[float]]:
     """Extract melody attributes from a Score object.
+
     Parameters
     ----------
     score : Score
         Score object containing a monophonic melody
+
     Returns
     -------
     Tuple[List[int], List[float], List[float]]
         Tuple of (pitches, start_times, end_times)
     """
-    from amads.core.basics import Note
-    from amads.pitch.ismonophonic import ismonophonic
+    assert score.ismonophonic(), "Score must be monophonic"
 
-    assert ismonophonic(score), "Score must be monophonic"
-
-    # Flatten the score to get notes in order
-    flattened_score = score.flatten(collapse=True)
-    notes = list(flattened_score.find_all(Note))
+    notes = score.get_sorted_notes()
 
     # Extract onset, pitch, duration for each note
     pitches = [note.pitch.key_num for note in notes]
@@ -549,10 +657,12 @@ def score_to_arrays(score) -> Tuple[List[int], List[float], List[float]]:
 
 def _batch_compute_similarities(args_list: List[Tuple]) -> List[float]:
     """Compute similarities for a batch of melody pairs.
+
     Parameters
     ----------
     args_list : List[Tuple]
         List of argument tuples for _compute_similarity
+
     Returns
     -------
     List[float]
@@ -669,14 +779,19 @@ def _batch_compute_similarities(args_list: List[Tuple]) -> List[float]:
             or json_str.startswith('"')
         ):
             for line in reversed(lines):
-                if line.startswith("[") or line.startswith("{") or line.startswith('"'):
+                if (
+                    line.startswith("[")
+                    or line.startswith("{")
+                    or line.startswith('"')
+                ):
                     json_str = line
                     break
 
         parsed_result = json.loads(json_str)
         # Handle NA values from R
         return [
-            float("nan") if x == "NA" or x is None else float(x) for x in parsed_result
+            float("nan") if x == "NA" or x is None else float(x)
+            for x in parsed_result
         ]
     except subprocess.CalledProcessError as e:
         raise RuntimeError(f"Error calculating similarities: {e.stderr}")
@@ -686,11 +801,12 @@ def get_similarities(
     scores: Dict[str, object],
     method: Union[str, List[str]] = "Jaccard",
     transformation: Union[str, List[str]] = "pitch",
-    output_file: Union[str, Path] = None,
-    n_cores: int = None,
+    output_file: Union[str, Path, None] = None,
+    n_cores: Optional[int] = None,
     batch_size: int = 1000,
 ) -> Union[
-    Dict[str, Dict[str, float]], Dict[Tuple[str, str], Dict[str, Dict[str, float]]]
+    Dict[str, Dict[str, float]],
+    Dict[Tuple[str, str], Dict[str, Dict[str, float]]],
 ]:
     """Calculate pairwise similarities between multiple Score objects.
 
@@ -715,8 +831,10 @@ def get_similarities(
     Returns
     -------
     Union[Dict[str, Dict[str, float]], Dict[Tuple[str, str], Dict[str, Dict[str, float]]]]
-        If single method and transformation: nested dictionary similarity matrix {row_name: {col_name: similarity}}
-        If multiple methods/transformations: dictionary mapping (method, transformation) tuples to similarity matrices
+        If single method and transformation: nested dictionary similarity
+        matrix {row_name: {col_name: similarity}} where row_name and col_name
+        are score names. If multiple methods/transformations: dictionary mapping
+        (method, transformation) tuples to similarity matrices
     """
     # Convert single method/transformation to lists
     methods = [method] if isinstance(method, str) else method
@@ -740,7 +858,9 @@ def get_similarities(
         try:
             melody_data[name] = score_to_arrays(score)
         except Exception as e:
-            print(f"Warning: Could not extract melody data for {name}: {str(e)}")
+            print(
+                f"Warning: Could not extract melody data for {name}: {str(e)}"
+            )
 
     if len(melody_data) < 2:
         raise ValueError("Need at least 2 valid Score objects for comparison")
@@ -798,7 +918,10 @@ def get_similarities(
                     if (
                         similarity == "NA"
                         or similarity is None
-                        or (isinstance(similarity, float) and math.isnan(similarity))
+                        or (
+                            isinstance(similarity, float)
+                            and math.isnan(similarity)
+                        )
                     ):
                         sim_value = float("nan")
                     else:

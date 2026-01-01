@@ -40,6 +40,7 @@ MIDI_FILE = "midi/twochan.mid"  # example MIDI file
 # As a baseline, let's see how long it takes to create a score with 1000 notes:
 
 from amads.core.basics import Measure, Note, Part, Score, Staff
+from amads.core.pitch import Pitch
 
 
 def test_m21_midi_import(m21print: Optional[bool] = False):
@@ -130,7 +131,7 @@ def create_score(n: int) -> Score:
         if i % 4 == 0:  # time to create a new measure?
             measure = Measure(parent=staff, onset=n, duration=4)
         pitch = i % 24 + 48  # 2-octave chromatic scales
-        Note(parent=measure, onset=n, duration=1, pitch=pitch)
+        Note(parent=measure, onset=n, duration=1, pitch=Pitch(pitch))
     return score
 
 

@@ -12,6 +12,7 @@ from typing import Optional, Tuple, Union
 from amads.core.vectors_sets import multiset_to_vector, weighted_to_indicator
 
 LETTER_TO_NUMBER = {"C": 0, "D": 2, "E": 4, "F": 5, "G": 7, "A": 9, "B": 11}
+DIATONIC = [0, 2, 4, 5, 7, 9, 11]
 
 __author__ = "Roger B. Dannenberg"
 
@@ -19,10 +20,10 @@ __author__ = "Roger B. Dannenberg"
 class Pitch:
     """Represents a symbolic musical pitch.
 
-    A pitch is represented by a `key_num` (MIDI number, generalized to float)
-    and an `alt` (alteration, e.g., -1 for flat, +1 for sharp). The `key_num`
+    A pitch is represented by a `key_num` and an `alt`. The `key_num`
     is a number that corresponds to the MIDI convention where C4 is 60, C# is
-    61, etc. The alt is an alteration, where +1 represents a sharp and -1
+    61, etc., but generalized to floats (60.5 would be C4-quarter-tone-sharp).
+    The `alt` is an alteration, where +1 represents a sharp and -1
     represents a flat. Alterations can also be, for example, 2 (double-sharp)
     or -0.5 (quarter-tone flat). The symbolic note name is derived by
     *subtracting* `alt` from `key_num`.
@@ -30,30 +31,34 @@ class Pitch:
     E.g., C#4 has `key_num=61`, `alt=1`, so 61-1 gives us 60, corresponding
     to note name C. A Db has the same `key_num=61`, but alt=-1, and 61-(-1)
     gives us 62, corresponding to note name D. There is no representation
-    for the "natural sign" (other than `alt=0`, which could imply no
-    accidental) or "courtesy accidentals."  Because accidentals normally
-    "stick" within a measure or are implied by key signatures, accidentals
+    for the “natural sign” (other than `alt=0`, which could imply no
+    accidental) or “courtesy accidentals.”  Because accidentals normally
+    “stick” within a measure or are implied by key signatures, accidentals
     are often omitted in the score presentation. Nonetheless, these
     implied accidentals are encoded in the `alt` attribute and `key_num`
     is the intended pitch with the accidental applied.
 
+    <small>**Author**: Roger B. Dannenberg</small>
+
     Parameters
     ----------
-    pitch : Union[int, float, str, None], optional
-        MIDI key_num or string Pitch name. Syntax is A-G followed by
-        accidentals followed by octave number.
-        (Defaults to 60)
-    alt: Union[int, float, None], optional
-        If pitch is a number, alt is an optional alteration (Defaults to 0).
-        If `pitch - alt` does not result in a diatonic pitch number, alt is
+    pitch : Union[int, float, str, None]
+        Optional MIDI key_num or string Pitch name. Syntax is A-G followed
+        by accidentals (see `accidental_chars` below) followed by octave
+        number. (Defaults to 60)
+    alt_or_oct: Union[int, float, None], optional
+        If pitch is a number, alt_or_oct is an optional alteration (Defaults to 0).
+        If `pitch - alt_or_oct` does not result in a diatonic pitch number, alt is
         adjusted, normally choosing spellings C#, Eb, F#, Ab, and Bb.
-        If pitch is a string, alt is the optional octave (an integer)
+        If pitch is a string, alt_or_oct is the optional octave (an integer)
         (Overridden by any octave specification in pitch,
         otherwise defaults to -1, which yields pitch class `key_num`s 0-11).
-    accidental_chars: Union[str, None], optional
+    accidental_chars: Union[list[str], None], optional
         Allows parsing of pitch names with customized accidental characters.
+        The value is a tuple or list consisting of a string of flat characters
+        and a string of sharp characters, e.g. `["fb", "s#"].
         (Defaults to None, which admits '♭', 'b' or '-' for flat, and
-        '♯', '#', and '+' for sharp, but does not accept 'f' and 's'.
+        '♯', '#', and '+' for sharp, but does not accept 'f' and 's'.)
 
     Attributes
     ----------
@@ -61,21 +66,6 @@ class Pitch:
         MIDI key number, e.g., C4 = 60, generalized to float.
     alt : float
         Alteration, e.g., flat = -1.
-
-    Properties
-    ----------
-    step : str
-        The name of the pitch without octave or accidentals, e.g., A or G.
-    name : str
-        The string representation of the pitch name, including accidentals.
-    name_with_octave : str
-        The string representation of the pitch name with octave.
-    octave : int
-        The octave number of the note name, based on `key_num` and `alt`.
-    pitch_class : int
-        The pitch class of the note
-    register : int
-        The absolute octave of `key_num`, e.g. octave of B#3 is 4.
 
     Examples
     --------
@@ -106,50 +96,91 @@ class Pitch:
 
     >>> p.register
     2
+
+    >>> Pitch(61.5, alt=1.5)
+    Pitch(name='C?4', key_num=61.5)
+
+    >>> # key_num - alt must be a diatonic pitch number. If not, key_num
+    >>> # gets priority and alt is adjusted to the smallest valid value.
+    >>> # Here, alt is adjusted to 0, which preserves key_num 60:
+    >>> Pitch(60, alt=1.4)
+    Pitch(name='C4', key_num=60)
+
     """
     __slots__ = ["key_num", "alt"]
-    key_num: float
+    key_num: float  # but None is also allowed
     alt: float
 
     def _fix_alteration(self) -> None:
         """Fix the alteration to ensure it is a valid value.
         
         I.e., that `(key_num - alt) % 12` denotes one of {C D E F G A B}.
+        If the invariant is false, we give priority to key_num and find
+        the smallest value of alt that makes it true. For integer key_num,
+        we break ties (enharmonics) by favoring C#, Eb, F#, Ab, and Bb.
         """
         unaltered = self.key_num - self.alt
-        if int(unaltered) != unaltered:  # not a whole number
-            # fix alt so that unaltered is an integer
-            diff = unaltered - round(unaltered)
-            self.alt -= diff
-            unaltered = round(self.key_num - self.alt)
-        # make sure pitch class of unaltered is in {C D E F G A B}
-        pc = unaltered % 12
-        if pc in [6, 1]:  # F#->F, C#->C
-            self.alt += 1
-        elif pc in [10, 3, 8]:  # Bb->B, Eb->E, Ab->A
-            self.alt -= 1
-        # now `(key_num + alt) % 12` is in {C D E F G A B}
+        # if alt is off by a tiny amount, we just correct it
+        if abs(unaltered - round(unaltered)) < 1e-6:
+            unaltered = round(unaltered)
+            self.alt = self.key_num - unaltered
+        if unaltered.is_integer() and (unaltered % 12) in DIATONIC:
+            return  # valid key_num and alt
+
+        # If alt is not an integer, we adjust it to be as small as
+        # possible (< 1 when unaltered is in C-to-E or G-to-B, and < 0.5
+        # when pc is in E-to-F or B to C).
+        if not self.key_num.is_integer():
+            # if alt could be less than 0.5, make it so:
+            closest_pc = round(self.key_num) % 12
+            self.alt = self.key_num - round(self.key_num)
+            # now alt < 0.5
+            if not closest_pc in DIATONIC:
+                sign = 1 if self.alt > 0 else -1
+                self.alt -= sign
+            assert abs(self.alt) < 1, "alt must be < 1 in magnitude"
+            # now we have a small value for a non-integer alt
+        else:
+            # again, we have to change alt (an integer this time). Make it 
+            # -1, 0, or 1, giving priority to default spellings C#, Eb, F#,
+            # Ab, and Bb.
+            pc = self.key_num % 12
+            if pc in [1, 6]:  # C#->C, F#->F
+                self.alt = 1
+            elif pc in [3, 8, 10]:  # Eb->E, Ab->A, Bb->B
+                self.alt = -1
+            else:
+                self.alt = 0
+        unaltered = self.key_num - self.alt
+        assert (unaltered - round(unaltered)) < 1e-6
+        assert round(unaltered) % 12 in DIATONIC, "pc must be in valid"
 
 
     def __init__(self,
-                 pitch: Union["Pitch", int, float, str] = 60,
-                 alt: Union[int, float, None] = None,
+                 pitch: Union["Pitch", int, float, str, None] = 60,
+                 alt_or_oct: Union[int, float, None] = None,
                  accidental_chars: Optional[str] = None):
-        if isinstance(pitch, str):
-            self.key_num, self.alt = Pitch.from_name(pitch, alt, accidental_chars)
+        if isinstance(pitch, str):  # alt_or_oct is interpreted as octave here
+            if alt_or_oct is not None and not isinstance(alt_or_oct, int):
+                raise ValueError("If pitch is a string, alt_or_oct must be None" +
+                                 " or an integer octave.")
+            self.key_num, self.alt = Pitch.from_name(pitch, alt_or_oct, 
+                                                     accidental_chars)
         elif isinstance(pitch, Pitch):
             self.key_num = pitch.key_num
             self.alt = pitch.alt
         elif pitch is None:
-            self.key_num = None
-            self.alt = (0 if alt is None else alt)
+            self.key_num = None  # type: ignore (None is allowed, but if we put
+            # that in the type annotation, we have to annotate every use of
+            # arithmetic on key_num.)
+            self.alt = (0 if alt_or_oct is None else alt_or_oct)
         else:  # pitch is a number (int or float)
             # this will raise a ValueError if pitch is not some kind of number:
             pitch = float(pitch)  # converts numpy.int64, nympy.floating, etc.
-            if pitch.is_integer():  # for nicer printing, represent "exact" 12-TET
+            if pitch.is_integer():  # for nicer printing
                 pitch = int(pitch)  # pitch numbers as integers.
             self.key_num = pitch
-            self.alt = (0 if alt is None else alt)
+            self.alt = (0 if alt_or_oct is None else alt_or_oct)
             self._fix_alteration()
 
 
@@ -169,7 +200,9 @@ class Pitch:
 
 
     def __eq__(self, other):
-        """Check equality of two Pitch instances. Pitches are equal if
+        """Check equality of two Pitch instances.
+
+        Pitches are equal if
         both `key_num` and `alt` are equal. Enharmonics are therefore
         not equal, but enharmonic equivalence can be written simply as
         `p1.key_num == p2.key_num`
@@ -219,14 +252,15 @@ class Pitch:
 
     @classmethod
     def from_name(cls, name: str,
-                  octave: Optional[float],
+                  octave: Optional[float] = -1,
                   accidental_chars: Optional[str] = None
                   ) -> Tuple[float, float]:
         """
-        Converts a string like 'Bb' to the corresponding pitch (10)
-        and alteration, e.g., 'Bb' returns (10, -1).
+        Converts a string like "Bb" to a (pitch, alt) tuple.
+
+        For example, converts "Bb" to (10, -1).
         If the string has an octave number or octave is given, the
-        octave will be applied, e.g., "C4" yields (60, 0). octave takes
+        octave will be applied, e.g., "C4" yields (60, 0). `octave` takes
         effect if it is a number and name does not include an octave.
         If both `name` has no octave and `octave` is None, the octave is
         -1, yielding pitch class numbers 0-11.
@@ -254,10 +288,27 @@ class Pitch:
         numbers 0-11 and octave -1 (which you can also specify as octave).
 
         Instructive error messages are given for invalid input.
+
+        Parameters
+        ----------
+        name : str
+            The string representation of the pitch name.
+        octave : Optional[float], optional
+            The octave number if not specified in the name.
+            (Defaults to -1)
+        accidental_chars : Optional[str], optional
+            The characters to use for flat and sharp accidentals.
+            (Defaults to None, which admits '♭', 'b' or '-' for flat, and
+            '♯', '#', and '+' for sharp.)
+
+        Returns
+        -------
+        Tuple[float, float]
+            A tuple containing the `key_num` and `alt` values.
         """
         name = name.replace(" ", "").replace("\t", "").replace("_", "")
         if name == "":
-            return 60, octave if octave else 0
+            return 60, 0
         pitch_base = name[0].upper()  # error if non-string
         if pitch_base not in "ABCDEFG":
             raise ValueError("Invalid first character: must be one of ABCDEFG")
@@ -291,8 +342,9 @@ class Pitch:
 
 
     def get_name(self, accidental_chars: str = "b#") -> str:
-        """Return string name including accidentals (# or b) but no
-        octave. See the `name` property for details.
+        """Return string name including accidentals (# or b) but no octave.
+
+        See the `name` property for details.
 
         Parameters
         ----------
@@ -319,7 +371,9 @@ class Pitch:
 
     def get_name_with_octave(self, accidental_chars: str = "b#") -> str:
         """Return string name with octave, e.g., C4, B#3, etc.
-        See the `name_with_octave` property for details.
+
+        See the [name_with_octave][amads.core.pitch.Pitch.name_with_octave]
+        property for details.
 
         Parameters
         ----------
@@ -332,19 +386,23 @@ class Pitch:
         str
             The string representation of the pitch name with octave.
         """
-        return self.name + str(self.octave)
+        return ("unpitched" if self.key_num is None
+                            else self.name + str(self.octave))
 
 
     @property
     def step(self) -> str:
-        """Retrieve the diatonic name of the pitch, e.g., A, B, C, D,
-        E, F, G corresponding to letter names without accidentals.
+        """The diatonic name of the pitch: A, B, C, D, E, F, or G.
+
+        The diatonic name corresponds to letter name without accidentals.
 
         Returns
         -------
         str
             The name of the pitch, a letter in "A" through "G".
         """
+        if self.key_num is None:
+            return "unpitched"
         unaltered = round(self.key_num - self.alt)
         return ["C", "?", "D", "?", "E", "F", "?", "G", "?", "A", "?", "B"][
             unaltered % 12]
@@ -352,9 +410,11 @@ class Pitch:
 
     @property
     def name(self) -> str:
-        """Return string name including accidentals (# or b) if alt
-        is integral.  Otherwise, return step name concatenated with
-        "?". The octave number is omitted. See `get_name`, which
+        """The string name including accidentals (# or b).
+
+        The octave number is omitted. If alt is not an integer,
+        return the step name concatenated with "?". See also
+        [get_name][amads.core.pitch.Pitch.get_name], which
         accepts a parameter to specify accidental characters.
         """
         return self.get_name()
@@ -362,22 +422,29 @@ class Pitch:
 
     @property
     def name_with_octave(self) -> str:
-        """Return string name with octave, e.g., C4, B#3, etc.
+        """The string name with octave, e.g., "C4", "B#3", etc.
+
         The octave number is calculated by
-            `(key_num - alteration) / 12 + 1`  (with integer division)
+
+            (key_num - alteration) // 12 + 1  # (integer division)
+
         and refers to the pitch before alteration, e.g., C4 is
         enharmonic to B#3 and represents the same (more or less)
-        pitch even though the octave numbers differ.
+        pitch even though the written octave numbers differ.
 
-        See `get_name_with_octave`, which accepts a parameter to
-        specify custom characters to represent accidentals.
+        See also [get_name_with_octave]
+        [amads.core.pitch.Pitch.get_name_with_octave],
+        which accepts a parameter to specify custom characters
+        to represent accidentals.
         """
         return self.get_name_with_octave()
 
 
     @property
     def octave(self) -> int:
-        """Returns the octave number based on `key_num - alt`, e.g.,
+        """The octave number of the note name.
+
+        The note name is based on `key_num - alt`, e.g.,
         C4 has octave 4 while B#3 has octave 3.
         """
         unaltered = round(self.key_num - self.alt)
@@ -399,7 +466,8 @@ class Pitch:
 
     @property
     def pitch_class(self) -> int:
-        """Retrieve the pitch class of the note, e.g., 0, 1, 2, ..., 11.
+        """The pitch class of the note, e.g., 0, 1, 2, ..., 11.
+
         The pitch class is the `key_num modulo 12`, which gives the
         class of this pitch in the range 0-11. If the `key_num` is
         non-integer, it is rounded.
@@ -439,9 +507,9 @@ class Pitch:
 
     @property
     def register(self) -> int:
-        """Returns the absolute octave number based on
-        `floor(key_num)`, e.g., both C4 and B#3 have
-        register 4.
+        """Returns the absolute octave number based on `floor(key_num)`.
+        
+        Both C4 and B#3 have register 4.
         """
         return floor(self.key_num) // 12 - 1
 
@@ -459,12 +527,14 @@ class Pitch:
 #        self.key_num += (reg - old_reg) * 12
 
     def enharmonic(self) -> "Pitch":
-        """If alt is non-zero, return a Pitch where alt is zero
-        or has the opposite sign and where alt is minimized. E.g.
+        """Construct an enharmonic equivalent.
+
+        If `alt` is non-zero, return a Pitch where `alt` is zero
+        or has the opposite sign and where `alt` is minimized. E.g.
         enharmonic(Cbb) is A# (not Bb). If alt is zero, return a
         Pitch with alt of +1 or -1 if possible. Otherwise, return
         a Pitch with alt of -2 (Ebb, Abb or Bbb).
-        Note the difference between this and `to_simplest_enharmonic`.
+        Note the difference between this and `simplest_enharmonic`.
 
         Returns
         -------
@@ -510,16 +580,20 @@ class Pitch:
                 alt = -1
             else:  # A->Bbb, D->Ebb, G->Abb
                 alt = -2
-        return Pitch(self.key_num, alt=alt)
+        return Pitch(self.key_num, alt)
 
 
     def simplest_enharmonic(self,
             sharp_or_flat: Optional[str] = 'default') -> "Pitch":
         """
-        Create a new Pitch object with the simplest enharmonic representation
-        of the current pitch. I.e., if there exists an enharmonic-equivalent
-        pitch with no-alterations, then use that. If an alteration is needed,
-        then use sharps or flats depending on `sharp_or_flat`.
+        Create Pitch object with the simplest enharmonic representation.
+
+        I.e., if there exists an enharmonic-equivalent pitch with no
+        alterations, then use that. If the Pitch is already in simplest
+        form (e.g., C4), it is simply returned. If an alteration is
+        needed, then use sharps or flats depending on `sharp_or_flat`.
+        If `sharp_or_flat` is omitted, the same enharmonic choice
+        as the Pitch constructor is used (C#, Eb, F#, Ab, and Bb).
 
         Parameters
         ----------
@@ -553,18 +627,20 @@ class Pitch:
         if self.pitch_class in [0, 2, 4, 5, 7, 9, 11]:  # C, D, E, F, G, A, B
             return Pitch(self.key_num)
         elif sharp_or_flat == "sharp":  # unaltered in 1, 3, 6, 8, 10
-            return Pitch(self.key_num, alt=1)
+            return Pitch(self.key_num, 1)
         elif sharp_or_flat == "flat":
-            return Pitch(self.key_num, alt=-1)
+            return Pitch(self.key_num, -1)
         else:  # let Pitch figure out which enharmonic spelling (alt) to use:
             return Pitch(self.key_num)
 
 
     def upper_enharmonic(self) -> "Pitch":
         """
-        Return a valid Pitch object based on the note name above the input
-        and with `alt` accordingly decreased by 1 or 2,
-        e.g., C#->Db, C##->D, Cb->Dbbb.
+        Return the enharmonic based on the note name above.
+
+        The result will have the next higher diatonic name
+        with `alt` accordingly decreased by 1 or 2, e.g.,
+        C#->Db, C##->D, Cb->Dbbb.
 
         Returns
         -------
@@ -595,15 +671,19 @@ class Pitch:
         """
         alt = self.alt
         unaltered = round(self.key_num - alt) % 12
-        if unaltered in [0, 2, 4, 7, 9]:  # C->D, D->E, F->G, G->A, A->B
+        if unaltered in [0, 2, 5, 7, 9]:  # C->D, D->E, F->G, G->A, A->B
             alt -= 2
         else:  # E->F, B->C
             alt -= 1
-        return Pitch(self.key_num, alt=alt)
+        return Pitch(self.key_num, alt)
+
 
     def lower_enharmonic(self) -> "Pitch":
-        """Return a valid Pitch with alt increased by 1 or 2, e.g., Db->C#,
-        D->C##, D#->C###
+        """Return the enharmonic based on the note name below.
+
+        The result will have the next lower diatonic name
+        with `alt` accordingly increased by 1 or 2, e.g.,
+        Db->C#, D->C##, D#->C###.
 
         Returns
         -------
@@ -628,7 +708,7 @@ class Pitch:
             alt += 2
         else:  # F->E, C->B
             alt += 1
-        return Pitch(self.key_num, alt=alt)
+        return Pitch(self.key_num, alt)
 
 
 @dataclass
@@ -637,23 +717,35 @@ class PitchCollection:
     Combined representations of more than one pitch. Differs from Chord
     which has onset, duration, and contains Notes, not Pitches.
 
-    >>> test_case = ['G#4', 'G#4', 'B4', 'D4', 'F4', 'Ab4']
-    >>> pitches = [Pitch(p) for p in test_case]
+    Parameters
+    ----------
+    pitches : list[Pitch]
+        A list of Pitch instances.
+
+    Attributes
+    ----------
+    pitches : list[Pitch]
+        A list of Pitch instances.
+
+    Examples
+    --------
+    >>> test_case = ['G#4', 'G#4', 'B4', 'D4', 'F4', 'Ab4']  
+    >>> pitches = [Pitch(p) for p in test_case]  
     >>> pitches_gathered = PitchCollection(pitches)
 
-    >>> pitches_gathered.pitch_name_multiset
+    >>> pitches_gathered.pitch_name_multiset  
     ['G#4', 'G#4', 'B4', 'D4', 'F4', 'Ab4']
 
-    >>> pitches_gathered.pitch_num_multiset
+    >>> pitches_gathered.pitch_num_multiset  
     [68, 68, 71, 62, 65, 68]
 
-    >>> pitches_gathered.pitch_class_multiset
+    >>> pitches_gathered.pitch_class_multiset  
     [2, 5, 8, 8, 8, 11]
 
-    >>> pitches_gathered.pitch_class_set
+    >>> pitches_gathered.pitch_class_set  
     [2, 5, 8, 11]
 
-    >>> pitches_gathered.pitch_class_vector
+    >>> pitches_gathered.pitch_class_vector  
     (0, 0, 1, 0, 0, 1, 0, 0, 3, 0, 0, 1)
 
     >>> pitches_gathered.pitch_class_indicator_vector
@@ -664,24 +756,42 @@ class PitchCollection:
 
     @property
     def pitch_num_multiset(self):
+        """
+        Return a list of pitch numbers from the pitches in the collection.        
+        """
         return [p.key_num for p in self.pitches]
 
     @property
     def pitch_name_multiset(self):
+        """
+        Return a list of pitch names with octaves from the pitches in the collection.        
+        """
         return [p.name_with_octave for p in self.pitches]
 
     @property
     def pitch_class_multiset(self):
+        """
+        Return a sorted list of pitch classes from the pitches in the collection, including duplicates.        
+        """
         return sorted([p.pitch_class for p in self.pitches])
 
     @property
     def pitch_class_set(self):
+        """ 
+        Return a sorted list of pitch classes from the pitches in the collection without duplicates.      
+        """
         return sorted(list(set(self.pitch_class_multiset)))
 
     @property
     def pitch_class_vector(self):
+        """
+        Return a pitch class vector (12-dimensional) representing the count of each pitch class in the collection.
+        """
         return multiset_to_vector(self.pitch_class_multiset, max_index=11)
 
     @property
     def pitch_class_indicator_vector(self):
+        """
+        Return a pitch class indicator vector (12-dimensional) representing the presence (1) or absence (0) of each pitch class in the collection.
+        """
         return weighted_to_indicator(self.pitch_class_vector)

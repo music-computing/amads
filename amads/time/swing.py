@@ -1,15 +1,19 @@
 """
-This module implements various functions useful for analyzing swing in jazz and other genres.
+This module implements various functions useful for analyzing swing in jazz
+and other genres.
 
-References:
-    - Benadon, F. (2006). Slicing the Beat: Jazz Eighth-Notes as Expressive Microrhythm.
-      Ethnomusicology, 50(1), 73–98. https://doi.org/10.2307/20174424
-    - Corcoran, C., & Frieler, K. (2021). Playing It Straight: Analyzing Jazz Soloists’ Swing
-      Eighth-Note Distributions with the Weimar Jazz Database. Music Perception, 38(4), 372–385.
-      https://doi.org/10.1525/mp.2021.38.4.372
+<small>**Author**: Huw Cheston (2025)</small>
 
-Author:
-    Huw Cheston (2025)
+References
+----------
+- Benadon, F. (2006). Slicing the Beat: Jazz Eighth-Notes as Expressive
+    Microrhythm.
+    *Ethnomusicology*, 50(1), 73–98. https://doi.org/10.2307/20174424
+
+- Corcoran, C., & Frieler, K. (2021). Playing It Straight: Analyzing Jazz
+    Soloists’ Swing Eighth-Note Distributions with the Weimar Jazz Database.
+    *Music Perception*, 38(4), 372–385.
+    https://doi.org/10.1525/mp.2021.38.4.372
 
 """
 
@@ -39,30 +43,33 @@ def beat_upbeat_ratio(
     r"""
     Extracts beat-upbeat ratio (BUR) values from an array of beats and upbeats.
 
-    The beat-upbeat ratio (BUR) is used to analyze the amount of "swing" in two consecutive
-    eighth-note beat durations. It is calculated by dividing the duration of the first ("long")
-    eighth-note beat by the duration of the second ("short") eighth-note beat. A BUR value of 2
-    represents "perfect" swing (e.g., a triplet quarter note followed by a triplet eighth note),
-    while a BUR of 1 represents "even" eighth-note durations.
+    The beat-upbeat ratio (BUR) is used to analyze the amount of “swing” in two
+    consecutive eighth-note beat durations. It is calculated by dividing the
+    duration of the first (“long”) eighth-note beat by the duration of the
+    second (“short”) eighth-note beat. A BUR value of 2 represents “perfect”
+    swing (e.g., a triplet quarter note followed by a triplet eighth note),
+    while a BUR of 1 represents “even” eighth-note durations.
 
     The formula for BUR is:
 
-    .. math::
-        \text{BUR} = \frac{t_{a,b} - t_{a}}{t_{b} - t_{a,b}},
+    $\text{BUR} = \frac{t_{a,b} - t_{a}}{t_{b} - t_{a,b}}$, where
 
-    where :math:`t_a` is the beat at position :math:`a`, :math:`t_b` is the beat at position :math:`b`,
-    and :math:`t_{a,b}` is the single upbeat between beats :math:`a` and :math:`b`.
+    $t_a$ is the beat at position $a$, $t_b$ is the beat at position $b$,
+    and $t_{a,b}$ is the single upbeat between beats $a$ and $b$.
 
-    The function takes two iterables of timestamps: `beats` and `upbeats`. Both lists should be
-    unique, and missing values should not be present. The function returns an array of BUR values with
-    a size of `len(beats) - 1`. If multiple `upbeats` are found between two consecutive `beats`
-    or if no `upbeat` is found, the BUR for those beats will be omitted and the corresponding value
-    will be `None`.
+    The function takes two iterables of timestamps: `beats` and `upbeats`.
+    Both lists should be unique, and missing values should not be present.
+    The function returns an array of BUR values with a size of
+    `len(beats) - 1`. If multiple `upbeats` are found between two
+    consecutive `beats` or if no `upbeat` is found, the BUR for those
+    beats will be omitted and the corresponding value will be `None`.
 
-    Additionally, the function can calculate the :math:`log_2` of the BUR values, where a value of 0.0
-    corresponds to "triplet" swing. This can be enabled by setting `log2=True`. The values can also
-    be filtered to remove outliers by setting `bounded=True`, with the default values for the boundaries
-    coming from Corcoran & Frieler (2021).
+    Additionally, the function can calculate the $log_2$ of the
+    BUR values, where a value of 1.0 corresponds to “triplet” swing.
+    This can be enabled by setting `log2=True`. The values can also
+    be filtered to remove outliers by setting `bounded=True`, with
+    the default values for the boundaries coming from Corcoran &
+    Frieler (2021).
 
     Parameters
     ----------
@@ -71,13 +78,17 @@ def beat_upbeat_ratio(
     upbeats : Iterable[float]
         An array of upbeat timestamps.
     log2 : bool, optional
-        If True, computes the log base 2 of BUR values, as used in [2]. Defaults to False.
+        If True, computes the log base 2 of BUR values, as used in [2].
+        Defaults to False.
     bounded : bool, optional
-        If True, filters out BUR values outside the specified range. Defaults to False.
+        If True, filters out BUR values outside the specified range.
+        Defaults to False.
     lower_bound : float, optional
-        Lower boundary for filtering BUR values. Defaults to 0.25 (:math:`log_2` -2).
+        Lower boundary for filtering BUR values. Defaults to 0.25
+        ($log_2$ value of -2).
     upper_bound : float, optional
-        Upper boundary for filtering BUR values. Defaults to 4.0 (:math:`log_2` 2).
+        Upper boundary for filtering BUR values. Defaults to 4.0 ($log_2$
+        value of 2).
 
     Returns
     -------
@@ -116,7 +127,8 @@ def beat_upbeat_ratio(
     upbeats = np.sort(np.array(upbeats))
     # Validate inputs and raise an errors if required
     _validate_bur_inputs(beats, upbeats)
-    # Match beats with upbeats and return a 2d array of shape [[beat1, upbeat, beat2], [beat2, upbeat, beat3]]
+    # Match beats with upbeats and return a 2d array of shape
+    #    [[beat1, upbeat, beat2], [beat2, upbeat, beat3]]
     matched = match_beats_and_upbeats(beats, upbeats)
     # Raise an error if we cannot find any matches between beats and upbeats
     if all([np.isnan(i) for i in matched[:, 1]]):
@@ -138,17 +150,22 @@ def beat_upbeat_ratio(
     return burs
 
 
-def mean_bur(beats: Iterable[float], upbeats: Iterable[float], **kwargs) -> float:
-    """Calculates mean BUR (or :math:`log_2` BUR) given a list of beats and upbeats"""
-    # We use nanmean here as we may have null values in cases where multiple upbeats match with a
-    #  single pair of beats, or where no upbeats match with a beat.
-    #  I think this makes sense to avoid the user having to chop a large list into multiple sublists
-    #  depending on the presence of nans.
+def mean_bur(
+    beats: Iterable[float], upbeats: Iterable[float], **kwargs
+) -> float:
+    """Calculates mean BUR (or $log_2$ BUR) given a list of beats and upbeats"""
+    # We use nanmean here as we may have null values in cases where
+    # multiple upbeats match with a single pair of beats, or where
+    # no upbeats match with a beat.
+    #     I think this makes sense to avoid the user having to chop a
+    # large list into multiple sublists depending on the presence of nans.
     return float(np.nanmean(beat_upbeat_ratio(beats, upbeats, **kwargs)))
 
 
-def std_bur(beats: Iterable[float], upbeats: Iterable[float], **kwargs) -> float:
-    """Calculates standard deviation BUR (or :math:`log_2` BUR) given a list of beats and upbeats"""
+def std_bur(
+    beats: Iterable[float], upbeats: Iterable[float], **kwargs
+) -> float:
+    """Calculates standard deviation BUR (or $log_2$ BUR) given a list of beats and upbeats"""
     return np.nanstd(beat_upbeat_ratio(beats, upbeats, **kwargs))
 
 
@@ -167,7 +184,9 @@ def _validate_bur_inputs(beats: np.ndarray, upbeats: np.ndarray) -> None:
             raise ValueError("Intersection found between beats and upbeats")
 
 
-def match_beats_and_upbeats(beats: np.ndarray, upbeats: np.ndarray) -> np.ndarray:
+def match_beats_and_upbeats(
+    beats: np.ndarray, upbeats: np.ndarray
+) -> np.ndarray:
     """Iterates over consecutive beats and creates an array of `[[beat1, upbeat, beat2], [beat2, upbeat, beat3]]`"""
 
     matched = []

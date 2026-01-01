@@ -8,6 +8,7 @@ from amads.music import example
 @fixture
 def twochan_score():
     midi_file = example.fullpath("midi/twochan.mid")
+    assert midi_file is not None
     return import_midi(midi_file, show=True).quantize(4)
 
 
@@ -20,7 +21,7 @@ def twochan_notes(twochan_score):
     print("twochan_notes fixture gets sorted notes:")
     for note in notes:
         note.show()
-    return twochan_score.get_sorted_notes()
+    return notes
 
 
 # Stop matplotlib plot.show() from blocking the tests

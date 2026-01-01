@@ -11,7 +11,7 @@ __author__ = "Mark Gotham"
 from fractions import Fraction
 
 
-def gcd_pair(a, b):
+def gcd_pair(a: int, b: int) -> int:
     """
     Calculates the greatest common divisor (GCD) of two integers using the
     Euclidean algorithm.
@@ -29,14 +29,16 @@ def float_gcd_pair(a: float, b: float = 1.0, rtol=1e-05, atol=1e-08) -> float:
     `fractions.gcd`, and
     [stackexchange](https://stackoverflow.com/questions/45323619/).
 
-    Tolerance values should be set in relation to the granularity (e.g., pre-rounding) of the input data.
+    Tolerance values should be set in relation to the granularity
+    (e.g., pre-rounding) of the input data.
 
     Parameters
     ----------
-    a
+    a: float
         Any float value.
-    b
-        Any float value, though typically 1.0 for our use case of measure-relative positioning.
+    b: float
+        Any float value, though typically 1.0 (default) for our use case
+        of measure-relative positioning.
     rtol
         the relative tolerance
     atol
@@ -45,17 +47,17 @@ def float_gcd_pair(a: float, b: float = 1.0, rtol=1e-05, atol=1e-08) -> float:
 
     Examples
     --------
-
     At risk of failure in both directions.
     Default tolerance values fail simple cases (2 / 3 to 4d.p.):
     >>> round(float_gcd_pair(0.6667), 3) # failure
     0.0
 
-    Leaving the value the same, but changing the tolerance to accomodate:
+    Leaving the value the same, but changing the tolerance to accommodate:
     >>> round(float_gcd_pair(0.6667, atol=0.001, rtol=0.001), 3) # success
     0.333
 
-    But this same kind of tolerance adjustment can make errors for other, common musical values.
+    But this same kind of tolerance adjustment can make errors for other,
+    common musical values.
     15/16 is a common musical value for which the finer tolerance is effective:
 
     >>> fifteen_sixteenths = 15/16
@@ -79,7 +81,7 @@ def float_gcd_pair(a: float, b: float = 1.0, rtol=1e-05, atol=1e-08) -> float:
     return a
 
 
-def local_lcm_pair(a, b):
+def local_lcm_pair(a: int, b: int) -> int:
     """Local implementation of the Lowest Common Multiple (LCM)."""
     return a * b // gcd_pair(a, b)
 
@@ -92,24 +94,35 @@ def fraction_gcd_pair(x: Fraction, y: Fraction) -> Fraction:
     This function compares exactly two fractions (x and y).
     For a longer list, use `fraction_gcd_list`.
 
-    Return
-    ------
-    Fraction (which is always simplified).
+    Returns
+    -------
+    Fraction
+        The GCD of `x` and `y`, which is always simplified.
 
+    Examples
+    --------
     >>> fraction_gcd_pair(Fraction(1, 2), Fraction(2, 3))
     Fraction(1, 6)
 
     """
     return Fraction(
-        gcd_pair(x.numerator, y.numerator), local_lcm_pair(x.denominator, y.denominator)
+        gcd_pair(x.numerator, y.numerator),
+        local_lcm_pair(x.denominator, y.denominator),
     )
 
 
 def fraction_gcd_list(fraction_list: list[Fraction]):
     """
-    Iterate GCD comparisons over a list of Fractions.
+    Iterate GCD calculation over a list of Fractions.
     See `fraction_gcd`
 
+    Returns
+    -------
+    Fraction
+        The GCD of all Fractions in `fraction_list`.
+
+    Examples
+    --------
     >>> fraction_gcd_list([Fraction(1, 2), Fraction(2, 3), Fraction(5, 12)])
     Fraction(1, 12)
 

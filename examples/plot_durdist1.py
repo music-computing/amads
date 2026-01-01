@@ -14,6 +14,7 @@ from amads.music import example
 
 # Load example MIDI file
 my_midi_file = example.fullpath("midi/sarabande.mid")
+assert my_midi_file is not None, "MIDI example file not found."
 
 # Import MIDI using partitura
 myscore = import_midi(my_midi_file, show=False)
@@ -21,6 +22,7 @@ myscore = import_midi(my_midi_file, show=False)
 
 # Calculate duration distribution
 dd = duration_distribution_1(myscore)
+dd.show()
 dd.plot()
 
 print("Duration distribution:", dd.data, dd.x_categories)

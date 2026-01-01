@@ -10,6 +10,8 @@ Uses include identifying notes that traverse metrical levels,
 for analysis (e.g., as a measure of syncopation)
 and notation (e.g., re-notating to reflect the
 within-measure notational conventions).
+
+<small>**Author**: Mark Gotham</small>
 """
 
 __author__ = "Mark Gotham"
@@ -50,7 +52,7 @@ class MetricalSplitter:
     0.25 connects to 0.5 in level 3 (duration = 0.25), then
     0.5 connects to 1.0 in level 2 (duration = 0.5), then
     1.0 connects to 2.0 in level 1 (duration = 1.0), and
-    this leaves a duration of 0.25 to start on start 2.0.
+    this leaves a duration of 0.25 to start on 2.0.
     The data is returned as a list of (position, duration) tuples.
     The values for the example would be:
     [(0.25, 0.25),
@@ -65,7 +67,7 @@ class MetricalSplitter:
     and `remaining_length` attribute for the rest.
 
     If the `note_start` is not in the hierarchy,
-    then the fist step is to map to the next nearest value in the lowest level.
+    then the first step is to map to the next nearest value in the lowest level.
 
     Parameters
     -------
@@ -79,7 +81,7 @@ class MetricalSplitter:
         When creating hierarchies, decide whether to split elements at the same level, e.g., 1/8 and 2/8 in 6/8.
         In cases of metrical structures with a 3-grouping
         (two "weak" events between a "strong" in compound signatures like 6/8),
-        some conventions chose to split notes within-level as well as between them.
+        some conventions choose to split notes within-level as well as between them.
         For instance, with a quarter note starting on the second eighth note (start 0.5) of 6/8,
         some will want to split that into two 1/8th notes, divided on the third eighth note position,
         while others will want to leave this intact.
@@ -150,12 +152,13 @@ class MetricalSplitter:
     def level_pass(self):
         """
         Given a `start_hierarchy`,
-        this method iterates across the levels of that hierarchy to find
-        the current start position, and (through `advance_step`) the start position to map to.
+        this method iterates across the levels of that hierarchy to find the
+        current start position, and (through `advance_step`) the start
+        position to map to.
 
-        This method runs once for each such mapping,
-        typically advancing up one (or more) layer of the metrical hierarchy with each call.
-        "Typically" because `split_same_level` is supported where relevant.
+        This method runs once for each such mapping, typically advancing
+        up one (or more) layer of the metrical hierarchy with each call.
+        “Typically” because `split_same_level` is supported where relevant.
 
         Each iteration creates a new start-duration pair
         stored in the start_duration_pairs list
@@ -189,7 +192,9 @@ class MetricalSplitter:
                         self.advance_step(self.start_hierarchy[level_index - 1])
 
         if self.remaining_length > 0:  # start not in the hierarchy at all
-            self.advance_step(self.start_hierarchy[-1])  # get to the lowest level
+            self.advance_step(
+                self.start_hierarchy[-1]
+            )  # get to the lowest level
             # Now start the process with the metrical structure:
             self.level_pass()
 
@@ -211,7 +216,10 @@ class MetricalSplitter:
                     return
                 else:  # self.remaining_length > duration_to_next_position:
                     self.start_duration_pairs.append(
-                        (self.updated_start, round(duration_to_next_position, 4))
+                        (
+                            self.updated_start,
+                            round(duration_to_next_position, 4),
+                        )
                     )
                     # Updated start and position; run again
                     self.updated_start = p

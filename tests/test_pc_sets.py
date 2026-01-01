@@ -12,7 +12,10 @@ Source: Gotham and Yust, Serial Analyser, DLfM 2021
 https://github.com/MarkGotham/Serial_Analyser
 """
 
-from amads.pitch.pc_set_functions import pitches_to_prime, set_classes_from_cardinality
+from amads.pitch.pc_set_functions import (
+    pitches_to_prime,
+    set_classes_from_cardinality,
+)
 
 
 def test_pitches_to_prime():

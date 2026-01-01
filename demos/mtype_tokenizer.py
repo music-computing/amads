@@ -108,7 +108,9 @@ def example_usage():
     )
 
     # Segment the melody into phrases
-    segments = fantastic_segmenter(happy_birthday, phrase_gap=2.0, units="quarters")
+    segments = fantastic_segmenter(
+        happy_birthday, phrase_gap=2.0, units="quarters"
+    )
     # Count all n-grams
     ngrams.reset()
     for segment in segments:

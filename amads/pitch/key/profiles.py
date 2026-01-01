@@ -1,29 +1,4 @@
 """
-NAME:
-===============================
-Key Profiles (key_profiles_literature.py)
-
-
-BY:
-===============================
-Mark Gotham, 2021
-Huw Cheston, 2025
-
-
-LICENCE:
-===============================
-Creative Commons Attribution-ShareAlike 4.0 International License
-https://creativecommons.org/licenses/by-sa/4.0/
-
-
-CITE:
-===============================
-Gotham et al. "What if the 'When' Implies the 'What'?". ISMIR, 2021
-(see README.md)
-
-
-ABOUT:
-===============================
 Pitch class usage profiles (PCP) from the literature.
 
 In almost all cases reported here, keys are assumed to be equivalent, so
@@ -38,19 +13,146 @@ Where a profile does not sum to 1, an additional
 The profiles appear below in approximately chronological order.
 For reference, the alphabetical ordering is:
 
-    AardenEssen,
-    AlbrechtShanahan,
-    BellmanBudge,
-    deClerqTemperley,
-    KrumhanslKessler,
-    KrumhanslSchmuckler,
-    PrinceSchumuckler,
-    QuinnWhite,
-    SappSimple,
-    TemperleyKostkaPayne,
-    TemperleyDeClerq,
-    Vuvan,
-    VuvanHughes,
+ -  AardenEssen
+ -  AlbrechtShanahan
+ -  BellmanBudge
+ -  deClerqTemperley
+ -  KrumhanslKessler
+ -  KrumhanslSchmuckler
+ -  PrinceSchumuckler
+ -  QuinnWhite
+ -  SappSimple
+ -  TemperleyKostkaPayne
+ -  TemperleyDeClerq
+ -  Vuvan
+ -  VuvanHughes
+
+The variable **`source_list`** contains a list of all of these profiles.
+
+Each profile is a dataclass object with the following attributes:
+
+ - **`name`** (str) - the class name
+ - **`about`** (str) - a short description
+ - **`literature`** (str) - reference to the relevant publication
+ - **`major`** (tuple[float]) - original weights for 12 pitch classes, major keys
+   (in KrumhanslKessler, KrumhanslSchmuckler, AardenEssen, BellmanBudge,
+    TemperleyKostkaPayne, Sapp, AlbrechtShanahan only)
+ - **`major_sum`**  (tuple[float]) - weights that sum to 1, major keys
+   (in KrumhanslKessler, KrumhanslSchmuckler, AardenEssen, BellmanBudge,
+    TemperleyKostkaPayne, Sapp only)
+ - **`minor`** (tuple[float]) - original weights for 12 pitch classes, minor keys
+   (in KrumhanslKessler, KrumhanslSchmuckler, AardenEssen, BellmanBudge,
+    TemperleyKostkaPayne, Sapp, AlbrechtShanahan only)
+ - **`minor_sum`**  (tuple[float]) - weights that sum to 1, minor keys
+   (in KrumhanslKessler, KrumhanslSchmuckler, AardenEssen, BellmanBudge,
+    TemperleyKostkaPayne, Sapp only)
+ - **`natural_minor`** (tuple[float]) - original weights, natural minor keys
+   (in `Vuvan` only)
+ - **`natural_minor_sum`** (tuple[float]) - weights that sum to 1, natural minor keys
+   (in `Vuvan` only)
+ - **`harmonic_minor`** (tuple[float]) - original weights, harmonic minor keys
+   (in `Vuvan` only)
+ - **`harmonic_minor_sum`** (tuple[float]) - weights that sum to 1, harmonic minor keys
+   (in `Vuvan` only)
+ - **`melodic_minor`** (tuple[float]) - original weights, melodic minor keys
+   (in `Vuvan` only)
+ - **`melodic_minor_sum`** (tuple[float]) - weights that sum to 1, melodic minor keys
+   (in `Vuvan` only)
+ - **`roots`** (tuple[float]) - original weights that sum to 1, chord roots in rock
+   harmony (in DeClerqTemperley only)
+ - **`melody_major`** (tuple[float]) - original weights that sum to 1, major melodies
+   (in `TemperleyDeClerq` only)
+ - **`melody_minor`** (tuple[float]) - original weights that sum to 1, minor melodies
+   (in `TemperleyDeClerq` only)
+ - **`harmony_major`** (tuple[float]) - original weights that sum to 1, major melodies
+   (in `TemperleyDeClerq` only)
+ - **`harmony_minor`** (tuple[float]) - original weights that sum to 1, minor melodies
+   (in `TemperleyDeClerq` only)
+ - **`downbeat_major`** (tuple[float]) - original weights,
+   major on downbeats (in `PrinceSchumuckler` only)
+ - **`downbeat_major_sum`** (tuple[float]) - original weights that sum to 1,
+   major on downbeats (in `PrinceSchumuckler` only)
+ - **`downbeat_minor`** (tuple[float]) - original weights,
+   minor on downbeats (in `PrinceSchumuckler` only)
+ - **`downbeat_minor_sum`** (tuple[float]) - original weights that sum to 1,
+   minor on downbeats (in `PrinceSchumuckler` only)
+ - **`all_beats_major`** (tuple[float]) - original weights,
+   major on all beats (in `PrinceSchumuckler` only)
+ - **`all_beats_major_sum`** (tuple[float]) - original weights that sum to 1,
+   major on all beats (in `PrinceSchumuckler` only)
+ - **`all_beats_minor`** (tuple[float]) - original weights,
+   minor on all_beats (in `PrinceSchumuckler` only)
+ - **`all_beats_minor_sum`** (tuple[float]) - original weights that sum to 1,
+   minor on all_beats (in `PrinceSchumuckler` only)
+ - **`major_all`** (tuple[float]) - original weights that sum to 1, all keys
+   (in QuinnWhite only)
+ - **`major_0`** (tuple[float]) - original weights that sum to 1, C Major
+   (in QuinnWhite only)
+ - **`major_1`** (tuple[float]) - original weights that sum to 1, C#/Db Major
+   (in QuinnWhite only)
+ - **`major_2`** (tuple[float]) - original weights that sum to 1, D Major
+   (in QuinnWhite only)
+ - **`major_3`** (tuple[float]) - original weights that sum to 1, D#/Eb Major
+   (in QuinnWhite only)
+ - **`major_4`** (tuple[float]) - original weights that sum to 1, E Major
+   (in QuinnWhite only)
+ - **`major_5`** (tuple[float]) - original weights that sum to 1, F Major
+   (in QuinnWhite only)
+ - **`major_6`** (tuple[float]) - original weights that sum to 1, F#/Gb Major
+   (in QuinnWhite only)
+ - **`major_7`** (tuple[float]) - original weights that sum to 1, G Major
+   (in QuinnWhite only)
+ - **`major_8`** (tuple[float]) - original weights that sum to 1, G#/Ab Major
+   (in QuinnWhite only)
+ - **`major_9`** (tuple[float]) - original weights that sum to 1, A Major,
+   (in QuinnWhite only)
+ - **`major_10`** (tuple[float]) - original weights that sum to 1, A#/Bb Major
+   (in QuinnWhite only)
+ - **`major_11`** (tuple[float]) - original weights that sum to 1, B Major
+   (in QuinnWhite only)
+ - **`minor_all`** (tuple[float]) - original weights that sum to 1, all keys
+   (in QuinnWhite only)
+ - **`minor_0`** (tuple[float]) - original weights that sum to 1, C Minor
+   (in QuinnWhite only)
+ - **`minor_1`** (tuple[float]) - original weights that sum to 1, C#/Db Minor
+   (in QuinnWhite only)
+ - **`minor_2`** (tuple[float]) - original weights that sum to 1, D Minor
+   (in QuinnWhite only)
+ - **`minor_3`** (tuple[float]) - original weights that sum to 1, D#/Eb Minor
+   (in QuinnWhite only)
+ - **`minor_4`** (tuple[float]) - original weights that sum to 1, E Minor
+   (in QuinnWhite only)
+ - **`minor_5`** (tuple[float]) - original weights that sum to 1, F Minor
+   (in QuinnWhite only)
+ - **`minor_6`** (tuple[float]) - original weights that sum to 1, F#/Gb Minor
+   (in QuinnWhite only)
+ - **`minor_7`** (tuple[float]) - original weights that sum to 1, G Minor
+   (in QuinnWhite only)
+ - **`minor_8`** (tuple[float]) - original weights that sum to 1, G#/Ab Minor
+   (in QuinnWhite only)
+ - **`minor_9`** (tuple[float]) - original weights that sum to 1, A Minor,
+   (in QuinnWhite only)
+ - **`minor_10`** (tuple[float]) - original weights that sum to 1, A#/Bb Minor
+   (in QuinnWhite only)
+ - **`minor_11`** (tuple[float]) - original weights that sum to 1, B Minor
+   (in QuinnWhite only)
+ - **`classical`** (tuple[float]) - original weights for 12 pitch classes,
+   all classical keys
+   (in VuvanHuges only)
+ - **`classical_sum`**  (tuple[float]) - weights that sum to 1, all classical keys
+   (in VuvanHuges only)
+ - **`rock`** (tuple[float]) - original weights for 12 pitch classes, all rock keys
+   (in VuvanHuges only)
+ - **`rock_sum`**  (tuple[float]) - weights that sum to 1, all rock keys
+   (in VuvanHuges only)
+
+<small>**Author**: Mark Gotham, 2021, Huw Cheston, 2025</small>
+
+REFERENCE
+---------
+Gotham et al. "What if the 'When' Implies the 'What'?". ISMIR, 2021
+(see README.md)
+
 """
 
 from dataclasses import dataclass
@@ -59,8 +161,6 @@ from dataclasses import dataclass
 @dataclass
 class _KeyProfile:
     """This is the base class for all key profiles.
-
-    This is the body of the docstring description.
 
     Attributes:
         name (str): the name of the profile
@@ -165,7 +265,9 @@ class KrumhanslKessler(_KeyProfile):
 class KrumhanslSchmuckler(_KeyProfile):
     name: str = "KrumhanslSchmuckler"
     literature: str = "Krumhansl (1990)"
-    about: str = "Early case of key-estimation through matching usage with profiles"
+    about: str = (
+        "Early case of key-estimation through matching usage with profiles"
+    )
     major: tuple[float] = (
         6.35,
         2.33,
@@ -290,7 +392,9 @@ class AardenEssen(_KeyProfile):
 @dataclass
 class BellmanBudge(_KeyProfile):
     name: str = "BellmanBudge"
-    literature: str = "Bellman (2005, sometimes given as 2006) after Budge (1943)"
+    literature: str = (
+        "Bellman (2005, sometimes given as 2006) after Budge (1943)"
+    )
     about: str = "Chords in Western common practice tonality"
     major: tuple[float] = (
         16.8,
@@ -354,7 +458,9 @@ class BellmanBudge(_KeyProfile):
 class TemperleyKostkaPayne(_KeyProfile):
     name: str = "TemperleyKostkaPayne"
     literature: str = "Temperley (2007 and 2008)"
-    about: str = "Usage by section and excerpts from a textbook (Kostka & Payne)"
+    about: str = (
+        "Usage by section and excerpts from a textbook (Kostka & Payne)"
+    )
     major: tuple[float] = (
         0.748,
         0.06,
@@ -420,7 +526,20 @@ class Sapp(_KeyProfile):
     about: str = (
         "Simple set of scale degree intended for use with Krumhansl Schmuckler (above)"
     )
-    major: tuple[float] = (2.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 2.0, 0.0, 1.0, 0.0, 1.0)
+    major: tuple[float] = (
+        2.0,
+        0.0,
+        1.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        2.0,
+        0.0,
+        1.0,
+        0.0,
+        1.0,
+    )
     major_sum: tuple[float] = (
         0.222,
         0.0,
@@ -435,7 +554,20 @@ class Sapp(_KeyProfile):
         0.0,
         0.111,
     )
-    minor: tuple[float] = (2.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 2.0, 1.0, 0.0, 1.0, 0.0)
+    minor: tuple[float] = (
+        2.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        1.0,
+        0.0,
+        2.0,
+        1.0,
+        0.0,
+        1.0,
+        0.0,
+    )
     minor_sum: tuple[float] = (
         0.222,
         0.0,

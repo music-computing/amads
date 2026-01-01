@@ -13,7 +13,9 @@ def test_get_root_strength():
     )  # Root + perfect fifth + major third
     assert analysis.get_root_strength(1) == 0  # No intervals from this pc
     assert analysis.get_root_strength(2) == 2 + 1  # Minor third + major second
-    assert analysis.get_root_strength(4) == 10  # Root from perspective of this pc
+    assert (
+        analysis.get_root_strength(4) == 10
+    )  # Root from perspective of this pc
 
 
 def test_parn88_regression():

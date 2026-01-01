@@ -1,7 +1,9 @@
 from typing import Iterator, Optional
 
 
-def float_range(start: float, end: Optional[float], step: float) -> Iterator[float]:
+def float_range(
+    start: float, end: Optional[float], step: float
+) -> Iterator[float]:
     """Generate a range of floats.
 
     Similar to Python's built-in range() function but supports floating point numbers.

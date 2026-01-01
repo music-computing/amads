@@ -1,32 +1,10 @@
 """
-NAME
-===============================
-PC Sets (pc_sets.py)
-
-BY
-===============================
-Mark Gotham, 2021
-
-
-LICENCE:
-===============================
-Creative Commons Attribution-ShareAlike 4.0 International License
-https://creativecommons.org/licenses/by-sa/4.0/
-
-
-SOURCE:
-===============================
-Gotham and Yust, Serial Analyser, DLfM 2021
-https://github.com/MarkGotham/Serial_Analyser
-
-
-ABOUT:
-===============================
-Look up tables for the properties of pitch class sets.
+Look-up tables for the properties of pitch class sets.
 Note: this toolkit also provides algorithmic
 functions for retrieving one property directly from another.
 
 Each pitch class set entry features the following properties:
+
 - Forte index;
 - prime form (according to Forte's system);
 - interval vector;
@@ -34,15 +12,21 @@ Each pitch class set entry features the following properties:
 
 For the hexachords (only), an additional entry provides the combinatoriality status
 from among 5 options:
-'A' for all-combinatorial (6 hexachords total),
-'T' for transposition only (only 1),
-'I' for inversion only (13),
-'RI' for retrograde-inversion only (13), and
-'' (an empty string) for non-combinatorial (16).
+
+- `'A'` for all-combinatorial (6 hexachords total),
+- `'T'` for transposition only (only 1),
+- `'I'` for inversion only (13),
+- `'RI'` for retrograde-inversion only (13), and
+- `''` (an empty string) for non-combinatorial (16).
 
 For more information on set classes and a more detailed list of properties, see
 Robert Morris's table and brief explanation (with further sources) here:
 http://ecmc.rochester.edu/rdm/pdflib/set-class.table.pdf
+
+**Source**: Gotham and Yust, Serial Analyser, DLfM 2021
+https://github.com/MarkGotham/Serial_Analyser
+
+<small>**Author**: Mark Gotham, 2021</small>
 """
 
 # ------------------------------------------------------------------------------

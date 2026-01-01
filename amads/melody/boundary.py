@@ -47,25 +47,36 @@ emit start and strength pairs...
 """
 
 from ..core.basics import Score
-from ..pitch.ismonophonic import ismonophonic
 
 
-def boundary(score: Score):
+def boundary(score: Score) -> Score:
     """
-    Given a score, returns the following:
-    (1) If score is not monophonic, we raise an exception
-    (2) If score has notes, we return a a list of tuples containing
-    note start and its corresponding strength, respectively
+    Compute the local boundary strength with LBDM (Cambouropoulos, 1997).
+
+    Raises
+    ------
+    ValueError
+        if the score is not monophonic
+
+    Returns
+    -------
+    Score
+        where the notes have the "boundary_strength" property set to a
+        value from 0 to 1.
     """
-    if not ismonophonic(score):
+    if not score.ismonophonic():
         raise ValueError("Score must be monophonic")
 
     notes = score.get_sorted_notes()
 
     # profiles
-    pp = [abs(pair[1].key_num - pair[0].key_num) for pair in zip(notes, notes[1:])]
+    pp = [
+        abs(pair[1].key_num - pair[0].key_num) for pair in zip(notes, notes[1:])
+    ]
     po = [pair[1].onset - pair[0].onset for pair in zip(notes, notes[1:])]
-    pr = [max(0, pair[1].onset - pair[0].offset) for pair in zip(notes, notes[1:])]
+    pr = [
+        max(0, pair[1].onset - pair[0].offset) for pair in zip(notes, notes[1:])
+    ]
 
     def list_degrees(profile):
         ret_list = [
@@ -94,9 +105,16 @@ def boundary(score: Score):
     so = list_strengths(po, ro)
     sr = list_strengths(pr, rr)
 
-    b = [1]
-    for sp_elem, so_elem, sr_elem in zip(sp, so, sr):
-        b.append(0.25 * sp_elem + 0.5 * so_elem + 0.25 * sr_elem)
-    assert len(b) == len(notes)
+    if len(notes) > 0:
+        notes[0].set("boundary_strength", 1)
+    for sp_elem, so_elem, sr_elem, note in zip(sp, so, sr, notes[1:]):
+        note.set(
+            "boundary_strength", 0.25 * sp_elem + 0.5 * so_elem + 0.25 * sr_elem
+        )
 
-    return [(note.onset, boundary) for (note, boundary) in zip(notes, b)]
+        # b = [1]
+        # for sp_elem, so_elem, sr_elem in zip(sp, so, sr):
+        #    b.append(0.25 * sp_elem + 0.5 * so_elem + 0.25 * sr_elem)
+    # assert len(b) == len(notes)
+
+    return score

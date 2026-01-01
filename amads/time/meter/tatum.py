@@ -8,6 +8,7 @@ This is needed for algorithms including the
 Inner Metrical Analysis (IMA) which takes this list of integers indices
 and deduced local and spectral meters.
 
+<small>**Author**: Mark Gotham</small>
 """
 
 __author__ = "Mark Gotham"

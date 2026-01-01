@@ -4,21 +4,23 @@ Time variability.
 This module provides various functions for calculating rhythmic variability in music,
 including the normalized pairwise variability index (nPVI) and variations thereof.
 
-References:
-    - Daniele, J. R., & Patel, A. D. (2013). An Empirical Study of Historical Patterns
-      in Musical Rhythm. Music Perception, 31(1), 10-18.
+<small>**Author**: Huw Cheston (2025)</small>
+
+References
+----------
+
+- Daniele, J. R., & Patel, A. D. (2013). An Empirical Study of
+    Historical Patterns in Musical Rhythm. *Music Perception*, 31(1), 10-18.
       https://doi.org/10.1525/mp.2013.31.1.10
 
-    - Condit-Schultz, N. (2019). Deconstructing the nPVI: A Methodological Critique of
-      the Normalized Pairwise Variability Index as Applied to Music. Music Perception,
-      36(3), 300–313. https://doi.org/10.1525/mp.2019.36.3.300
+- Condit-Schultz, N. (2019). Deconstructing the nPVI: A Methodological
+    Critique of the Normalized Pairwise Variability Index as Applied to
+    Music. *Music Perception*,
+    36(3), 300–313. https://doi.org/10.1525/mp.2019.36.3.300
 
-    - VanHandel, L., & Song, T. (2010). The role of meter in compositional style in
-      19th-century French and German art song. Journal of New Music Research, 39, 1–11.
-      https://doi.org/10.1080/09298211003642498
-
-Author:
-    Huw Cheston (2025)
+- VanHandel, L., & Song, T. (2010). The role of meter in compositional style
+    in 19th-century French and German art song. *Journal of New Music
+    Research*, 39, 1–11. https://doi.org/10.1080/09298211003642498
 """
 
 import math
@@ -60,16 +62,14 @@ def normalized_pairwise_variability_index(
     r"""
     Calculates the normalised pairwise variability index (nPVI).
 
-    The nPVI is a measure of variability between successive elements in a sequence.
+    The nPVI is a measure of variability between successive elements
+    in a sequence. The equation is:
 
-    The equation is:
+    $\text{nPVI} = \frac{100}{m-1} \times \sum\limits_{k=1}^{m-1}
+    \left| \frac{d_k - d_{k+1}}{\frac{d_k + d_{k+1}}{2}} \right|$
 
-    .. math::
-
-    \text{nPVI} = \frac{100}{m-1} \times \sum\limits_{k=1}^{m-1}
-    \left| \frac{d_k - d_{k+1}}{\frac{d_k + d_{k+1}}{2}} \right|
-
-    where :math:`m` is the number of intervals, and :math:`d_k` is the duration of the :math:`k^{th}` interval.
+    where $m$ is the number of intervals, and $d_k$ is the duration
+    of the $k^{th}$ interval.
 
     A completely regular stream of equal durations returns 0 variability.
     High difference between successive items returns a high nPVI value
@@ -77,11 +77,13 @@ def normalized_pairwise_variability_index(
 
     Parameters
     ----------
-    durations (Iterable[float]): the durations to analyse
+    durations : Iterable[float]
+        the durations to analyse
 
     Returns
     -------
-    float: the extracted nPVI value.
+    float
+        the extracted nPVI value.
 
     Examples
     -------
@@ -135,21 +137,26 @@ def normalized_pairwise_variability_index(
 
 def normalized_pairwise_calculation(durations: Iterable[float]) -> list[float]:
     r"""
-    Calculates the normalized pairwise calculation (nPC) for a list of durations, as defined by Condit-Schultz (2019).
+    Calculates the normalized pairwise calculation (nPC) for a list of
+    durations, as defined by Condit-Schultz (2019).
 
-    The nPVI is equivalent to the arithmetic mean of a set of nPC values. The equation for nPC can be written as:
+    The nPVI is equivalent to the arithmetic mean of a set of nPC values.
+    The equation for nPC can be written as:
 
-    .. math::
-        \text{nPC} = 200 * \biggl{|} \frac{\text{antecedent IOI} - \text{consequent IOI}}
-        {\text{antecedent IOI} + \text{consequent IOI}} \biggr{|}
+    $\text{nPC} = 200 * \biggl{|} \frac{\text{antecedent IOI} -
+                                        \text{consequent IOI}}
+        {\text{antecedent IOI} + \text{consequent IOI}} \biggr{|}$
 
     Parameters
     ----------
-    durations (Iterable[float]): the durations to analyse
+    durations : Iterable[float]
+        the durations to analyse
 
     Returns
     -------
-    Iterable[float]: the extracted nPC value(s) for every pair of antecedent-consequent durations
+    Iterable[float]
+        the extracted nPC value(s) for every pair of
+        antecedent-consequent durations
 
     Examples
     --------
@@ -260,7 +267,9 @@ def pairwise_anisochronous_contrast_index(
             all_npcs.append(npc)
     # Raise errors as required
     if len(all_npcs) == 0:
-        raise ValueError("No non-isochronous pairs were found, cannot calculate pACI.")
+        raise ValueError(
+            "No non-isochronous pairs were found, cannot calculate pACI."
+        )
     # Return the average
     return sum(all_npcs) / len(all_npcs)
 

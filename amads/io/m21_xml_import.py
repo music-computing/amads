@@ -43,7 +43,12 @@ tied_notes = {}  # temporary data to track tied notes, this is a mapping
 # list. (First-in-first-out).
 
 
-def music21_xml_import(filename: str, show: bool = False) -> Score:
+def music21_xml_import(
+    filename: str,
+    flatten: bool = False,
+    collapse: bool = False,
+    show: bool = False,
+) -> Score:
     """
     Use music21 to import a MusicXML file and convert it to a Score.
 
@@ -51,6 +56,10 @@ def music21_xml_import(filename: str, show: bool = False) -> Score:
     ----------
     filename : str
         The path to the MusicXML file.
+    flatten : bool, optional
+        If True, flatten the score structure.
+    collapse : bool, optional
+        If True and flatten is true, also collapse parts.
     show : bool, optional
         If True, print the music21 score structure for debugging.
 
@@ -79,8 +88,11 @@ def music21_xml_import(filename: str, show: bool = False) -> Score:
             # Convert the music21 part into an AMADS Part and append it to the Score
             music21_convert_part(m21part, score)
         else:
-            warnings.warn(f"Ignoring non-Part element of Music21 score: {m21part}")
-
+            warnings.warn(
+                f"Ignoring non-Part element of Music21 score: {m21part}"
+            )
+    if flatten or collapse:
+        score = score.flatten(collapse=collapse)
     return score
 
 
@@ -138,13 +150,13 @@ def music21_convert_note(m21note, measure):
         music21_convert_tie(m21note.pitch.midi, note, m21note.tie.type)
 
 
-def music21_convert_tie(key_num, note, tie_type) -> None:
+def music21_convert_tie(key_num: int, note: Note, tie_type: str) -> None:
     """Handle tie to and/or from music21 note
 
     Parameters
     ----------
-    m21note
-        a music 21 note
+    key_num: int
+        the MIDI key number (pitch)
     note : Note
         the note we are creating, corresponds to m21note
     tie_type : str
@@ -226,7 +238,11 @@ def music21_convert_rest(m21rest, measure):
     """
     duration = float(m21rest.quarterLength)
     # Create a new Rest object and associate it with the Measure
-    Rest(parent=measure, onset=float(measure.onset + m21rest.offset), duration=duration)
+    Rest(
+        parent=measure,
+        onset=float(measure.onset + m21rest.offset),
+        duration=duration,
+    )
 
 
 def music21_convert_chord(m21chord, measure, offset):
@@ -243,7 +259,9 @@ def music21_convert_chord(m21chord, measure, offset):
     """
     duration = float(m21chord.quarterLength)
     chord = Chord(
-        parent=measure, onset=float(measure.onset + m21chord.offset), duration=duration
+        parent=measure,
+        onset=float(measure.onset + m21chord.offset),
+        duration=duration,
     )
     for pitch in m21chord.pitches:
         note = Note(
@@ -277,7 +295,9 @@ def append_items_to_measure(
         elif isinstance(element, meter.base.TimeSignature):
             # Create a TimeSignature object and associate it with the Measure
             TimeSignature(
-                parent=measure, upper=element.numerator, lower=element.denominator
+                parent=measure,
+                upper=element.numerator,
+                lower=element.denominator,
             )
         elif isinstance(element, key.KeySignature):
             # Create a KeySignature object and associate it with the Measure
@@ -292,7 +312,8 @@ def append_items_to_measure(
             append_items_to_measure(measure, element, offset + element.offset)
         elif isinstance(element, tempo.MetronomeMark):
             # update tempo
-            time_map = measure.score.time_map
+            time_map = measure.score.time_map  # type: ignore (measure has
+            #     a parent)
             last_beat = time_map.quarters[-1].quarter
             tempo_change_onset = offset + element.offset
             if last_beat > tempo_change_onset:
@@ -316,7 +337,8 @@ def append_items_to_measure(
             pass  # ignore barlines, e.g. Barline type="final"
         else:
             warnings.warn(
-                "Music21_convert_measure ignoring non-Note element" f" {element}."
+                "Music21_convert_measure ignoring non-Note element"
+                f" {element}."
             )
 
 

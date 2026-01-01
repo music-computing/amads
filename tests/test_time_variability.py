@@ -167,7 +167,9 @@ def test_paci():
         # PACI should be equal to expected value
         assert pytest.approx(paci, abs=1e-1) == expected
         # PACI should not be equal to nPVI
-        assert not pytest.approx(paci, abs=1e-1) == pytest.approx(npvi, abs=1e-1)
+        assert not pytest.approx(paci, abs=1e-1) == pytest.approx(
+            npvi, abs=1e-1
+        )
 
     # Test with examples that have no isochronous pairs, so should be identical to vanilla npvi
     vanillas = [
@@ -212,9 +214,13 @@ def test_pnpvi():
         # Calculate pnPVI
         pnpvi = phrase_normalized_pairwise_variability_index(dur, pb)
         # Should be the same as the expected answer
-        assert pytest.approx(pnpvi, abs=1e-1) == pytest.approx(expected, abs=1e-1)
+        assert pytest.approx(pnpvi, abs=1e-1) == pytest.approx(
+            expected, abs=1e-1
+        )
     # Raise an error when IOIs cross all phrase boundaries
     durs = [0.1, 0.6]
     phrase_boundaries = [0.5]
     with pytest.raises(ValueError):
-        _ = phrase_normalized_pairwise_variability_index(durs, phrase_boundaries)
+        _ = phrase_normalized_pairwise_variability_index(
+            durs, phrase_boundaries
+        )

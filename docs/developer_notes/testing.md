@@ -3,13 +3,13 @@
 This project uses pytest for testing. To run the tests, follow these
 steps:
 
-Prerequisites \-\-\-\-\-\-\-\-\-\-\--
+## Prerequisites
 
 Make sure you have the development dependencies installed:
 
     pip install -e ".[dev]"
 
-Running all tests \-\-\-\-\-\-\-\-\-\-\-\-\-\-\--
+## Running all tests
 
 From the root directory of the project, run:
 
@@ -46,7 +46,7 @@ the far left column (pop-up description is \"Testing\".
 Select a test or set of tests. In the selected test, there are small
 icons to run, run with debugger, or run with coverage, so pick one.
 
-Writing tests \-\-\-\-\-\-\-\-\-\-\--
+## Writing tests
 
 Tests are located in the `tests/` directory. Each test file should start
 with `test_` and each test function should also start with `test_`.
@@ -84,6 +84,11 @@ Example doctest:
         --------
         >>> entropy([0.5, 0.5])
         1.0
+
+        >>> entropy(         # multiple line example
+        ...     [0.5, 0.5]
+        ... )
+        1.0
         """
 
 These doctests are automatically run when you run `pytest`.
@@ -99,3 +104,14 @@ check test results in the \"Actions\" tab of the GitHub repository.
 By default tests are run in the tests_main CI job. However, some tests
 that require bespoke dependencies are run in separate CI jobs (e.g.
 `tests_melsim`).
+
+## Code Coverage
+
+To measure how much code is covered by tests
+
+ - Install `coverage`, e.g., `pip3 install coverage`
+ - Install `pytest-cov`, e.g., `pip3 install pytest-cov`
+ - Current directory should be the repo root ABOVE amads,
+   e.g., current directory should contain amads, tests, and demos
+ - Run `coverage run -m pytest`
+ - View results with `coverage report` or `coverage html`

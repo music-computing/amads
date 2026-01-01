@@ -14,18 +14,20 @@ class ParncuttRootAnalysis:
     """
     Parncutt's (1988) model for finding the root of a chord.
 
+    <small>**Author**: Peter Harrison</small>
+
     Parameters
     ----------
-    chord : Union[List[int], Chord, PitchCollection]
+    chord: Union[List[int], Chord, PitchCollection]
         The chord to analyze. Can be represented as:
-        - A list of MIDI pitches representing a chord,
-        - A Chord object,
-        - A PitchCollection object.
-    root_support_weights : Union[str, Dict[int, float]], optional
+        A list of MIDI pitches representing a chord,
+        A Chord object, or
+        A PitchCollection object.
+    root_support_weights: Union[str, Dict[int, float]], optional
         Identifies the root support weights to use. "v1" uses the original weights
         from Parncutt (1988), "v2" uses the updated weights from Parncutt (2006),
         by default "v2".
-    exponent : float, optional
+    exponent: float, optional
         Exponent to be used when computing root ambiguities, by default 0.5.
 
     Attributes
@@ -38,6 +40,12 @@ class ParncuttRootAnalysis:
         A measure of how ambiguous the root is.
     root_strengths : List[float]
         Root support values for each pitch class.
+    root_support_weights : Union[str, Dict[int, float]]
+        Identifies the root support weights to use. "v1" uses the original weights
+        from Parncutt (1988), "v2" uses the updated weights from Parncutt (2006),
+        by default "v2".
+    exponent : float
+        Exponent to be used when computing root ambiguities, by default 0.5.
 
     Examples
     --------
@@ -99,10 +107,13 @@ class ParncuttRootAnalysis:
 
     References
     ----------
-    [1] Parncutt, R. (1988). Revision of Terhardt's psychoacoustical model of the root(s) of a musical chord.
-    Music Perception, 6(1), 65–93. https://doi.org/10.2307/40285416
-    [2] Parncutt, R. (2006). Commentary on Cook & Fujisawa's "The Psychophysics of Harmony Perception:
-    Harmony is a Three-Tone Phenomenon." Empirical Musicology Review, 1(4), 204–209.
+    [1] Parncutt, R. (1988). Revision of Terhardt's psychoacoustical model of
+    the root(s) of a musical chord.
+    *Music Perception*, 6(1), 65–93. https://doi.org/10.2307/40285416
+
+    [2] Parncutt, R. (2006). Commentary on Cook & Fujisawa's "The Psychophysics
+    of Harmony Perception: Harmony is a Three-Tone Phenomenon." *Empirical
+    Musicology Review*, 1(4), 204–209.
     """
 
     available_root_support_weights = {
@@ -117,7 +128,9 @@ class ParncuttRootAnalysis:
         exponent: float = 0.5,
     ):
         self.pitch_set, self.pc_set = self.load_chord(chord)
-        self.root_support_weights = self.load_root_support_weights(root_support_weights)
+        self.root_support_weights = self.load_root_support_weights(
+            root_support_weights
+        )
         self.exponent = exponent
         self.root_strengths = [self.get_root_strength(pc) for pc in range(12)]
         self.root = self.get_root()
@@ -127,10 +140,16 @@ class ParncuttRootAnalysis:
     def load_chord(
         chord: Union[List[int], Chord, PitchCollection]
     ) -> tuple[set[int], set[int]]:
+        """Normalize the chord argument into pitch and pitch-class sets.
+
+        Accepts a list of MIDI numbers, a Chord, or a PitchCollection and
+        returns a set of MIDI pitches along with its pitch-class set.
+        Raises on unknown types, empty chords, or undefined pitches.
+        """
         if isinstance(chord, list):
             pitch_set = set(chord)
         elif isinstance(chord, Chord):
-            pitch_set = set(note.key_num for note in chord.find_all(Note))
+            pitch_set = set(note.key_num for note in chord.find_all(Note))  # type: ignore
         elif isinstance(chord, PitchCollection):
             pitch_set = set(chord.MIDI_multiset)
         else:
@@ -140,13 +159,20 @@ class ParncuttRootAnalysis:
 
         if len(pitch_set) == 0:
             raise ValueError("Chord must contain at least one pitch")
+        if None in pitch_set:
+            raise ValueError("Some Note in Chord has undefined pitch")
 
-        pc_set = set(pitch % 12 for pitch in pitch_set)
-        return pitch_set, pc_set
+        pc_set = set(pitch % 12 for pitch in pitch_set)  # type: ignore
+        return pitch_set, pc_set  # type: ignore
 
     def load_root_support_weights(
         self, root_support_weights: Union[str, Dict[int, float]]
     ) -> Dict[int, float]:
+        """Resolve the root-support weight table.
+
+        Accepts a version key ("v1" or "v2") or a custom mapping of
+        interval->weight values. Raises ValueError for unknown versions.
+        """
         if isinstance(root_support_weights, str):
             if root_support_weights not in self.available_root_support_weights:
                 raise ValueError(
@@ -158,6 +184,7 @@ class ParncuttRootAnalysis:
             return root_support_weights
 
     def get_root_strength(self, pc: int) -> float:
+        """Compute support for a candidate root pitch class."""
         return sum(
             support_weight
             for interval, support_weight in self.root_support_weights.items()
@@ -165,21 +192,25 @@ class ParncuttRootAnalysis:
         )
 
     def get_root(self) -> int:
+        """Return the pitch class with maximal root strength."""
         return self.root_strengths.index(max(self.root_strengths))
 
     def get_root_ambiguity(self) -> float:
+        """Measure ambiguity as the normalized sum of root strengths."""
         max_weight = max(self.root_strengths)
         if max_weight == 0:
             return 0.0
         return sum(w / max_weight for w in self.root_strengths) ** self.exponent
 
-    def plot(self, title: Optional[str] = None, show=True) -> tuple[ModuleType, Figure]:
+    def plot(
+        self, title: Optional[str] = None, show=True
+    ) -> tuple[ModuleType, Figure]:
         """
         Visualize the root support weights for a chord.
 
         Parameters
         ----------
-        title : Optional[str], optional
+        title: Optional[str], optional
             Title for the plot, by default None.
 
         Returns
@@ -238,4 +269,4 @@ class ParncuttRootAnalysis:
         if show:
             plt.show()
 
-        return fig
+        return (plt, fig)

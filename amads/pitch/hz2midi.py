@@ -38,7 +38,9 @@ def hz2midi(hertz):
 
     def validate_hz(hz):
         if hz < 0:
-            raise ValueError(f"The frequency of a sound must be non-negative, got {hz}")
+            raise ValueError(
+                f"The frequency of a sound must be non-negative, got {hz}"
+            )
 
     if isinstance(hertz, list):
         for hz in hertz:

@@ -1,9 +1,11 @@
-# Core Data Structures
+# Overview
 
-Quick overview: The basic hierarchy of a score is shown here. Each level
+## Core Data Structures
+
+**In brief**: The basic hierarchy of a score is shown here. Each level
 of this hierarchy can contain 0 or more instances of the next level.
-There are two representations: a "full" score retains most of the
-structure of Western classical notation, while a "flattened" score is
+There are two score representations: a *full* score retains most of the
+structure of Western classical notation, while a *flat* score is
 a more abstracted representation emphasizing notes.
 
 ## Full Scores
@@ -25,9 +27,9 @@ contain multiple instances of the following: </div>
 <div style=margin-left:10em;"><b>TimeSignature</b></div>
 <div style=margin-left:10em;"><b>Clef</b></div>
 
-## Flattened Scores
+## Flat Scores
 
-A "flattened" score looks like this:
+A “flat” score looks like this:
 
 <div style=margin-left:2em;"><b>Score</b> - one per musical work or movement</div>
 <div style=margin-left:4em;"><b>Part</b> - one per instrument</div>
@@ -36,8 +38,8 @@ A "flattened" score looks like this:
 ## Well-Formed Scores
 
 Score structure is not enforced (it is up to the developer), but AMADS
-functions expect well-formed scores in either of the "full" score or
-the "flattened" score forms shown above.
+functions expect well-formed scores in either of the *full* score or
+the *flat* score forms shown above.
 
 A well-formed score will have events belonging to a parent (EventGroup)
 in time order.
@@ -49,7 +51,7 @@ Rest objects. Generally, you should ignore Rests since Notes all have
 
 ### Tempo, Time, Duration
 
-Time is usually measured in "quarters". ("Beat" is avioded since it
+Time is usually measured in *quarters*. (“Beat” is avioded since it
 is often ambiguous \-- how many beats per measure are in 6/8 time?) Time
 can also be measured in real-time units of seconds.
 
@@ -59,16 +61,15 @@ seconds and quarters.
 You can convert every time and duration in an entire score from quarters
 to seconds (and vice versa), allowing you to work in musical time or
 real time. (See
-`~amads.core.basics.Score.convert_to_seconds()`{.interpreted-text
-role="py:meth"} or
-`~amads.core.basics.Score.convert_to_quarters()`{.interpreted-text
-role="py:meth"}.
+[convert_to_seconds][amads.core.basics.Score.convert_to_seconds] or 
+[convert_to_quarters][amads.core.basics.Score.convert_to_quarters].)
+
 
 ### Events and EventGroups
 
 To implement this hierarchical representation, we have an abstract
-superclass, which is `~amads.core.basics.Event`{.interpreted-text
-role="py:class"}. Every Event has the following attributes:
+superclass, [amads.core.basics.Event][]. Every Event has the
+following attributes:
 
 > `onset`
 > :   (float) The time of the event
@@ -82,10 +83,10 @@ role="py:class"}. Every Event has the following attributes:
 > `info`
 > :   a dictionary with (optional) additional information
 
-Anything that can be a `parent` is an
-`~amads.core.basics.EventGroup`{.interpreted-text role="py:class"}.
+Anything that can be a `parent` is an `EventGroup`
+([`amads.core.basics.EventGroup`][]). 
 EventGroups including Part, Staff, Measure and Chord are also children,
-so you would also expect them to be Events. There is no conflict because
+so as you would expect, they are also Events. There is no conflict because
 EventGroup *inherits from* Event. Everything is an Event! But not every
 Event is an EventGroup.
 
@@ -101,14 +102,13 @@ Finally, `onset` can be None during the construction of a Score. If the
 Measure (EventGroup), the `onset` of the Note is set so that the Events
 are sequential in time. This can be a convenience when writing
 expressions like `Measure(Note(), Note(), Rest(), Note())`, but *we
-recommend that you always specify onset times*.
+recommend that you always specify onset times* rather than relying on
+constructors to infer onset times.
 
 ### The Note Class
 
-The most important class is `~amads.core.basics.Note`{.interpreted-text
-role="py:class"}. In addition to [onset]{.title-ref},
-[duration]{.title-ref} and [parent]{.title-ref}, inherited from Event, a
-Note has
+The most important class is [`amads.core.basics.Note`][]. In addition to `onset`,
+`duration` and `parent`, inherited from [`Event`][amads.core.basics.Event], a `Note` has
 
 > `pitch`
 > :   (Pitch) A pitch object (see below)
@@ -147,7 +147,7 @@ string, the octave, pitch class, and others.
 
 ### Immutable Scores (Mostly)
 
-In general, AMADS Scores are immutable, which means you cannot (or
+In general, AMADS Scores are *immutable*, which means you cannot (or
 should not) change them. When you need changes (consider simple
 operations like time-stretching a score or transposing or removing all
 but one instrument), AMADS almost always returns a *copy*, leaving the
@@ -156,18 +156,16 @@ same score is passed through different operations and analyses.
 
 There are important exceptions. Some examples:
 
--   `~amads.core.basics.Score.convert_to_seconds()`{.interpreted-text
-    role="py:meth"} or
-    `~amads.core.basics.Score.convert_to_quarters()`{.interpreted-text
-    role="py:meth"} change the score (but either operation can be undone
-    by calling the other),
--   it is permissible to "annotate" a score by adding new information,
-    e.g., setting new attributes to the Events\' `info`.
+-   `Score.convert_to_seconds` or
+    `Score.convert_to_quarters` change the score (but either operation
+    can be undone by calling the other),
+-   it is permissible to “annotate” a score by adding new information,
+    e.g., setting new attributes to an Event's `info`.
 -   during construction, when there is only one reference to a Score, it
     is normal to modify the score by inserting new events.
 
 You should **never** modify a Pitch. Always construct a new one, because
-when Notes are copied, the new Note *shares* the original Note\'s Pitch
+when Notes are copied, the new Note *shares* the original Note's Pitch
 object. Assigning to `pitch.key_num` might change the `pitch` of many
 other notes.
 
@@ -181,12 +179,21 @@ that you use Score methods to extract the information you need rather
 than using your own code to traverse a Score.
 
 To process all notes in time order, call the Score method
-`~amads.core.basics.Score.get_sorted_notes`{.interpreted-text
-role="py:meth"}, which returns a flat list of all notes, ordered by
-onset time, with ties merged.
+[`amads.core.basics.Score.get_sorted_notes`][], which returns a flat
+list of all notes, ordered by onset time, with ties merged.
 
 If you need notes from a particular staff or part, use
-`~amads.core.basics.Score.collapse_parts`{.interpreted-text
-role="py:meth"} to obtain a score with only the desired information, and
-then apply `~amads.core.basics.Score.get_sorted_notes`{.interpreted-text
-role="py:meth"} to get the Notes.
+[`amads.core.basics.Score.collapse_parts`][] to obtain a score with
+only the desired information, and then call
+[`score.find_all(Note)`][amads.core.basics.EventGroup.find_all] 
+to get an
+iterator for all notes in onset time order, or use
+[`score.list_all(Note)`][amads.core.basics.EventGroup.list_all] 
+if you need a list rather than an iterator.
+
+The [`score.find_all()`][amads.core.basics.EventGroup.find_all]
+and [`score.list_all()`][amads.core.basics.EventGroup.list_all]
+methods can be used to retrieve other objects, e.g., to find
+all `Part` or `Staff` or `Measure` objects.
+
+

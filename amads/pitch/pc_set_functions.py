@@ -23,7 +23,10 @@ from . import transformations as pitch_list_transformations
 
 def set_classes_from_cardinality(cardinality: int):
     """
+    Find pitch class set data matching given cardinality.
+
     In: a cardinality (2-10).
+
     Out: the pitch class set data for that cardinality.
     """
     if not (1 < cardinality < 11):
@@ -34,7 +37,10 @@ def set_classes_from_cardinality(cardinality: int):
 
 def prime_to_combinatoriality(prime: Tuple[int]):
     """
+    Find the combinatoriality status for a given prime form.
+
     In: a prime form expressed as a Tuple of integers.
+
     Out: the combinatoriality status as a string.
     """
     data = set_classes_from_cardinality(len(prime))
@@ -46,8 +52,11 @@ def prime_to_combinatoriality(prime: Tuple[int]):
 
 def interval_vector_to_combinatoriality(vector: Tuple[int]):
     """
+    Find the combinatoriality status for a given interval vector.
+
     In: an interval vector for any set with 2-10 distinct pitches,
     expressed as a Tuple of 6 integers.
+
     Out: the combinatoriality status of any valid interval vector as a
     string (one of T, I, RI, A, or an empty string for non-combinatorial cases).
     """
@@ -64,7 +73,11 @@ def interval_vector_to_combinatoriality(vector: Tuple[int]):
 
 def pitches_to_combinatoriality(pitches: Union[List[int], Tuple[int]]):
     """
-    In: a list or tuple of pitches expressed as integers (0–11) for sets with 2-10 distinct pitches.
+    Find the combinatoriality status for a given list of pitches.
+
+    In: a list or tuple of pitches expressed as integers
+    (0–11) for sets with 2-10 distinct pitches.
+
     Out: the combinatoriality status as a string.
     """
     icv = pitches_to_interval_vector(pitches)
@@ -73,7 +86,10 @@ def pitches_to_combinatoriality(pitches: Union[List[int], Tuple[int]]):
 
 def distinct_PCs(pitches: Union[List, Tuple]) -> list:
     """
+    Find the distinct pitch classes for a given list of pitches.
+
     In: a list or tuple of pitches (any integers).
+
     Out: a list of distinct PCs in the range 0-11.
     """
     pitches = list(set(pitches))  # remove any duplicates
@@ -82,7 +98,10 @@ def distinct_PCs(pitches: Union[List, Tuple]) -> list:
 
 def pitches_to_interval_vector(pitches: Union[List[int], Tuple[int]]):
     """
+    Find the interval vector for a given list of pitches.
+
     In: a list or tuple of pitches.
+
     Out: the interval vector.
     """
     pitches = distinct_PCs(pitches)
@@ -102,7 +121,11 @@ def pitches_to_interval_vector(pitches: Union[List[int], Tuple[int]]):
 
 def pitches_to_forte_class(pitches: Union[List[int], Tuple[int]]):
     """
-    In: a list or tuple of pitches expressed as integers (0–11) for sets with 2-10 distinct pitches.
+    Find the Forte class for a given list of pitches.
+
+    In: a list or tuple of pitches expressed as integers
+    (0–11) for sets with 2-10 distinct pitches.
+
     Out: the Forte class.
     """
     data = set_classes_from_cardinality(len(pitches))
@@ -115,7 +138,11 @@ def pitches_to_forte_class(pitches: Union[List[int], Tuple[int]]):
 
 def pitches_to_prime(pitches: Union[List[int], Tuple[int]]):
     """
-    In: a list or tuple of pitches expressed as integers (0–11) for sets with 2-10 distinct pitches.
+    Find the prime form for a given list of pitches.
+
+    In: a list or tuple of pitches expressed as integers
+    (0–11) for sets with 2-10 distinct pitches.
+
     Out: the prime form.
 
     The function first converts the pitches to their interval vector (easy, fast).
@@ -149,13 +176,21 @@ def pitches_to_prime(pitches: Union[List[int], Tuple[int]]):
 def transposition_equivalent(set1, set2):
     """
     Supporting function for determining whether two sets are transposition equivalent
-    as part of determining prime forms with `pitches_to_prime`.
+
+    In: two pitch class sets as lists or tuples of integers (0-11).
+
+    Out: True if they are transposition equivalent, False otherwise.
+
+    Used as part of determining prime forms with `pitches_to_prime`.
     """
     sorted_set2 = sorted(list(set2))
     for i in range(12):
-        test_case = sorted(list(pitch_list_transformations.transpose_by(set1, i)))
+        test_case = sorted(
+            list(pitch_list_transformations.transpose_by(set1, i))
+        )
         if test_case == sorted_set2:
             return True
+    return False
 
 
 # ------------------------------------------------------------------------------

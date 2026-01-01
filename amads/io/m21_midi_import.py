@@ -5,7 +5,10 @@ from .m21_xml_import import music21_convert_part
 
 
 def music21_midi_import(
-    filename: str, flatten: bool = False, collapse: bool = False, show: bool = False
+    filename: str,
+    flatten: bool = False,
+    collapse: bool = False,
+    show: bool = False,
 ) -> Score:
     """Use music21 to import a MIDI file and convert it to a Score."""
     # Load the MIDI file using music21
@@ -32,7 +35,7 @@ def music21_midi_import(
         else:
             print("Ignoring non-Part element:", m21part)
 
-    # this might be optimized by building a flattened score to start with:
+    # this might be optimized by building a flat score to start with:
     if flatten or collapse:
         score = score.flatten(collapse=collapse)
 

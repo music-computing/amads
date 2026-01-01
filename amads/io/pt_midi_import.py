@@ -14,7 +14,10 @@ from .pt_xml_import import partitura_convert_part
 
 
 def partitura_midi_import(
-    filename: str, flatten: bool = False, collapse: bool = False, show: bool = False
+    filename: str,
+    flatten: bool = False,
+    collapse: bool = False,
+    show: bool = False,
 ) -> Score:
     """User Partitura to import a MIDI file."""
     ptscore = pt.load_score_midi(filename)
@@ -25,7 +28,7 @@ def partitura_midi_import(
     score = Score()
     for ptpart in ptscore.parts:
         partitura_convert_part(ptpart, score)
-    # this might be optimized by building a flattened score to start with:
+    # this might be optimized by building a flat score to start with:
     if flatten or collapse:
         score = score.flatten(collapse=collapse)
     return score

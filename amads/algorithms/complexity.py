@@ -2,18 +2,20 @@
 This module provides functionality for measuring the complexity of discrete sequences
 using the LZ77 compression algorithm.
 
-References:
-    - Ziv, J., & Lempel, A. (1977). A universal algorithm for sequential data compression.
-      IEEE Transactions on Information Theory, 23(3), 337–343.
-      https://doi.org/10.1109/TIT.1977.1055714
+<small>**Author**: Huw Cheston (2025)</small>
 
-    - Cheston, H., Schlichting, J. L., Cross, I., & Harrison, P. M. C. (2024).
-      Rhythmic qualities of jazz improvisation predict performer identity and style
-      in source-separated audio recordings. Royal Society Open Science, 11(11).
-      https://doi.org/10.1098/rsos.240920
+References
+----------
 
-Author:
-    Huw Cheston (2025)
+  - Ziv, J., & Lempel, A. (1977). A universal algorithm for sequential data compression.
+    *IEEE Transactions on Information Theory*, 23(3), 337–343.
+    https://doi.org/10.1109/TIT.1977.1055714
+
+  - Cheston, H., Schlichting, J. L., Cross, I., & Harrison, P. M. C. (2024).
+    Rhythmic qualities of jazz improvisation predict performer identity and style
+    in source-separated audio recordings. *Royal Society Open Science*, 11(11).
+    https://doi.org/10.1098/rsos.240920
+
 """
 
 from typing import Hashable, Iterable, Union
@@ -22,7 +24,20 @@ __author__ = "Huw Cheston"
 
 
 def lz77_encode(input_list: list[Hashable]) -> list:
-    """Runs the LZ77 compression algorithm over the input `data`, generating tuples of (distance, length, symbol)"""
+    """Runs the LZ77 compression algorithm over the input `data`,
+    generating tuples of (distance, length, symbol)
+
+    Parameters
+    ----------
+    input_list : list[Hashable]
+        The input sequence to be compressed.
+
+    Returns
+    -------
+    list
+        A list of tuples of (distance, length, symbol)
+        representing the LZ77 encoded data.
+    """
 
     # Catch sequences that have a length of zero
     if len(input_list) == 0:
@@ -57,7 +72,18 @@ def lz77_encode(input_list: list[Hashable]) -> list:
 
 
 def lz77_decode(encoded: list[int, int, Hashable]) -> list[Hashable]:
-    """Decode a list of LZ77 tokens, each of which are 3-tuples with form (distance, length, symbol)"""
+    """Decode a list of LZ77 tokens, each of which are 3-tuples with form (distance, length, symbol)
+
+    Parameters
+    ----------
+    encoded : list[int, int, Hashable]
+        A list of LZ77 encoded tokens.
+
+    Returns
+    -------
+    list[Hashable]
+        The decoded sequence.
+    """
 
     # Catch sequences that have a length of zero
     if len(encoded) == 0:
@@ -86,18 +112,19 @@ def lz77_complexity(
     This function applies LZ77 compression to a sequence of hashable elements (e.g., strings, floats, integers).
     Higher compression lengths indicate greater complexity in the sequence.
 
-    Args:
-        sequence (Iterable[Hashable]):
-            A discrete sequence, such as pitch classes or inter-onset intervals.
+    Parameters
+    ----------
+    sequence : Iterable[Hashable]
+        A discrete sequence, such as pitch classes or inter-onset intervals.
 
-        normalized (bool, optional):
-            If True, the result is expressed relative to the input size, where 1.0 indicates
-            maximum complexity (i.e., no compression is possible). Defaults to False.
+    normalized : Optional(bool)
+        If True, the result is expressed relative to the input size, where 1.0 indicates
+        maximum complexity (i.e., no compression is possible). Defaults to False.
 
-    Returns:
-        int | float:
-            The length of the compressed sequence, either as a raw integer or a normalized float.
-
+    Returns
+    -------
+    int | float:
+        The length of the compressed sequence, either as a raw integer or a normalized float.
     """
 
     # Compress the sequence

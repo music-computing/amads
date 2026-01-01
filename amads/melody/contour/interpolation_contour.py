@@ -1,9 +1,6 @@
 """Calculates the Interpolation Contour of a melody, along with related features, as
 implemented in the FANTASTIC toolbox of Müllensiefen (2009) [1]
 (features 23–27).
-Includes a modified version of the FANTASTIC method that is better suited to short melodies
-than the original implementation. This 'AMADS' method defines turning points using reversals,
-and is the default method. All features are returned for either method.
 """
 
 __author__ = "David Whyatt"
@@ -12,16 +9,29 @@ import numpy as np
 
 
 class InterpolationContour:
-    """Class for calculating and analyzing the interpolated contours of melodies, according to
-    Müllensiefen (2009) [1]. This representation was first formalised by Steinbeck (1982)
-    [2], and informed a varient of the present implementation in Müllensiefen & Frieler
-    (2004) [3].
-    An interpolation contour is produced by first identifying turning points in the melody,
-    and then interpolating a linear gradient between each turning point. The resulting list
-    of values represents the gradient of the melody at evenly spaced points in time.
+    """Class for calculating and analyzing interpolated contours of melodies.
+
+    As implemented in the FANTASTIC toolbox of Müllensiefen (2009) [1] (as
+    features 23–27). This representation was first formalised by Steinbeck
+    (1982) [2], and informed a varient of the present implementation in
+    Müllensiefen & Frieler (2004) [3].
+
+    Includes a modified version of the FANTASTIC method that is better
+    suited to short melodies than the original implementation. This
+    'AMADS' method defines turning points using reversals, and is the
+    default method. All features are returned for either method.
+
+    An interpolation contour is produced by first identifying turning points
+    in the melody, and then interpolating a linear gradient between each
+    turning point. The resulting list of values represents the gradient
+    of the melody at evenly spaced points in time.
+
+    <small>**Author**: David Whyatt</small>
     """
 
-    def __init__(self, pitches: list[int], times: list[float], method: str = "amads"):
+    def __init__(
+        self, pitches: list[int], times: list[float], method: str = "amads"
+    ):
         """Initialize with pitch and time values.
 
         Parameters
@@ -29,13 +39,15 @@ class InterpolationContour:
         pitches : list[int]
             Pitch values in any numeric format (e.g., MIDI numbers).
         times : list[float]
-            Onset times in any consistent, proportional scheme (e.g., seconds, quarter notes, etc.)
+            Onset times in any consistent, proportional scheme (e.g., seconds,
+            quarter notes, etc.)
         method : str, optional
             Method to use for contour calculation, either "fantastic" or "amads".
             Defaults to "amads".
-            The FANTASTIC method is the original implementation, and identifies turning points
-            using contour extrema via a series of rules. The AMADS method instead identifies
-            reversals for all melody lengths, and is the default method.
+            The FANTASTIC method is the original implementation, and identifies
+            turning points using contour extrema via a series of rules. The
+            AMADS method instead identifies reversals for all melody lengths,
+            and is the default method.
 
         Raises
         ------
@@ -71,12 +83,14 @@ class InterpolationContour:
 
         References
         ----------
-        [1] Müllensiefen, D. (2009). Fantastic: Feature ANalysis Technology Accessing
-        STatistics (In a Corpus): Technical Report v1.5
-        [2] W. Steinbeck, Struktur und Ähnlichkeit: Methoden automatisierter
+         1. Müllensiefen, D. (2009). Fantastic: Feature ANalysis Technology
+            Accessing STatistics (In a Corpus): Technical Report v1.5
+
+         2. W. Steinbeck, Struktur und Ähnlichkeit: Methoden automatisierter
             Melodieanalyse. Bärenreiter, 1982.
-        [3] Müllensiefen, D. & Frieler, K. (2004). Cognitive Adequacy in the Measurement
-        of Melodic Similarity: Algorithmic vs. Human Judgments
+
+         3. Müllensiefen, D. & Frieler, K. (2004). Cognitive Adequacy in the
+            Measurement of Melodic Similarity: Algorithmic vs. Human Judgments
         """
         if len(times) != len(pitches):
             raise ValueError(
@@ -90,7 +104,9 @@ class InterpolationContour:
         self.times = times
         self.pitches = pitches
         self.method = method
-        self.contour = self.calculate_interpolation_contour(pitches, times, method)
+        self.contour = self.calculate_interpolation_contour(
+            pitches, times, method
+        )
 
     @staticmethod
     def _is_turning_point_fantastic(pitches: list[int], i: int) -> bool:
@@ -134,7 +150,9 @@ class InterpolationContour:
             Array containing the interpolation contour representation
         """
         if method == "fantastic":
-            return InterpolationContour._calculate_fantastic_contour(pitches, times)
+            return InterpolationContour._calculate_fantastic_contour(
+                pitches, times
+            )
 
         return InterpolationContour._calculate_amads_contour(pitches, times)
 
@@ -144,7 +162,9 @@ class InterpolationContour:
     ) -> list[float]:
         """
         Calculate the interpolation contour using the FANTASTIC method.
-        Utilises the helper function _is_turning_point_fantastic to identify turning points.
+
+        Utilises the helper function _is_turning_point_fantastic to identify
+        turning points.
         """
         # Find candidate points
         candidate_points_pitch = [pitches[0]]  # Start with first pitch
@@ -187,7 +207,9 @@ class InterpolationContour:
 
         # Create weighted gradients vector
         sample_rate = 10  # 10 samples per second
-        samples_per_duration = abs(np.round(durations * sample_rate).astype(int))
+        samples_per_duration = abs(
+            np.round(durations * sample_rate).astype(int)
+        )
         interpolation_contour = np.repeat(gradients, samples_per_duration)
 
         return [float(x) for x in interpolation_contour]
@@ -197,6 +219,7 @@ class InterpolationContour:
         pitches: list[int], times: list[float]
     ) -> tuple[list[int], list[float]]:
         """Helper function to remove repeated notes, keeping only the middle occurrence.
+
         This is used for the AMADS method to produce the interpolated gradient values
         at the middle of a sequence of repeated notes, should there be a reversal
         between the repeated notes.
@@ -214,16 +237,21 @@ class InterpolationContour:
         return unique_pitches, unique_times
 
     @staticmethod
-    def _calculate_amads_contour(pitches: list[int], times: list[float]) -> list[float]:
+    def _calculate_amads_contour(
+        pitches: list[int], times: list[float]
+    ) -> list[float]:
         """
         Calculate the interpolation contour using the AMADS method.
+
         Utilises the helper function _remove_repeated_notes.
         """
         reversals_pitches = [pitches[0]]
         reversals_time = [times[0]]
 
         # Remove repeated notes
-        pitches, times = InterpolationContour._remove_repeated_notes(pitches, times)
+        pitches, times = InterpolationContour._remove_repeated_notes(
+            pitches, times
+        )
 
         # Find reversals
         for i in range(2, len(pitches)):
@@ -261,8 +289,9 @@ class InterpolationContour:
 
     @property
     def global_direction(self) -> int:
-        """Calculate the global direction of the interpolation contour by taking
-        the sign of the sum of all contour values.
+        """Calculate the global direction of the interpolation contour.
+
+        Takes the sign of the sum of all contour values.
         Can be invoked for either FANTASTIC or AMADS method.
 
         Returns
@@ -316,6 +345,7 @@ class InterpolationContour:
     @property
     def gradient_std(self) -> float:
         """Calculate the standard deviation of the interpolation contour gradients.
+
         Can be invoked for either FANTASTIC or AMADS method.
 
         Returns
@@ -381,6 +411,7 @@ class InterpolationContour:
     @property
     def class_label(self) -> str:
         """Classify an interpolation contour into gradient categories.
+
         Can be invoked for either FANTASTIC or AMADS method.
 
         The contour is sampled at 4 equally spaced points and each gradient is

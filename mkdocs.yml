@@ -10,17 +10,33 @@ markdown_extensions:
   - toc:
       permalink: true
       toc_depth: 2
+  - attr_list  # required for custom anchors
+#  - pymdownx.arithmatex:
+#      generic: true
+
+extra_javascript:
+  - javascripts/fix-properties.js
+  - javascripts/mathjax.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+extra_css:
+  - stylesheets/extra.css
 
 plugins:
   - search
+  - autorefs:
+      resolve_closest: true
   - mkdocstrings:
       handlers:
         python:
-          # paths: [src]  # depends where your package is
           inventories:
           - https://docs.python.org/3/objects.inv
           # load other object inventories here
           options:
+#             docstring_style: google
+            extra:
+              paths: [.]  # depends where your package is
             docstring_style: numpy
             docstring_options:
               ignore_init_summary: true
@@ -28,35 +44,87 @@ plugins:
             filters: public  # sponsors only, will be released soon
             heading_level: 2
             inherited_members: true
-            line_length: 88  # to format signatures with Ruff/Black if installed
+            line_length: 72  # to format signatures with Ruff/Black if installed
+            # 72 empirically determined to avoid scrolling signatures with our
+            # choice of font and font size
             merge_init_into_class: true
             modernize_annotations: true
             parameter_headings: true
             separate_signature: true
             show_root_heading: true
             show_root_full_path: false
+            show_object_full_path: false
             show_signature_annotations: true
             show_symbol_type_heading: true
             show_symbol_type_toc: true
             signature_crossrefs: true
             summary: true
             unwrap_annotated: true
+            show_docstring_parameters: true
+            show_docstring_returns: true
+            show_docstring_examples: true
+            group_by_category: true
+            show_category_heading: true
+            members_order: source
+#            show_root_members_full_path: false
 
 nav:
   - Home: index.md
+  - Project Overview: paper.md
+  - API Reference:
+    - Core:
+      - Overview: core.md
+      - Basic Score Elements: reference/basics.md
+      - More Classes: reference/basics_more.md
+      - Pitch: reference/pitch.md
+      - Distribution: reference/distribution.md
+      - Utility Functions: reference/utils.md
+      - Vector Functions: reference/vector.md
+    - Input and Output: reference/io.md
+    - Pitch:
+      - reference/pitch/hz2midi.md
+      - Interval Distributions: reference/pitch/intervals.md
+      - Pitch Distributions: reference/pitch/pitches.md
+      - Key Profiles: reference/pitch/key.md
+      - Serial: reference/pitch/serial.md
+    - Time:
+      - Duration Distributions: reference/time/durations.md
+      - Meter: reference/time/meter.md
+      - Note Density: reference/time/notedensity.md
+      - Rhythm: reference/time/rhythm.md
+      - Swing: reference/time/swing.md
+      - Tempo: reference/time/tempo.md
+      - Variability: reference/time/variability.md
+    - Melody:
+      - reference/melody/boundary.md
+      - reference/melody/contour.md
+      - reference/melody/segment.md
+      - reference/melody/segment_gestalt.md
+      - reference/melody/similarity.md
+    - Harmony:
+      - reference/harmony/consonance.md
+      - reference/harmony/root_finding.md
+    - Polyphony:
+      - reference/polyphony/skyline.md
+    - Algorithms:
+      - reference/algorithms/complexity.md
+      - reference/algorithms/entropy.md
+      - GCD: reference/algorithms/gcd.md
+      - reference/algorithms/mtype_tokenizer.md
+      - reference/algorithms/ngrams.md
+      - reference/algorithms/nnotes.md
+      - reference/algorithms/norm.md
+      - reference/algorithms/scale.md
+      - reference/algorithms/slice.md
+    - Schemata: reference/schemata.md
   - Install: user_guide/installation.md
   - Developer:
-      - Documentation: developer_notes/documentation.md
-      - Making a Release: developer_notes/making_a_release.md
-      - Modules: developer_notes/modules.md
-      - Testing: developer_notes/testing.md
-      - Contributing: developer_notes/contributing.md
-      - Style: developer_notes/style.md
-      - Music21: developer_notes/music21.md
-  - API Reference:
-      - Core:
-        - Overview: core.md
-        - Basic Score Elements: reference/basics.md
-        - Pitch: reference/pitch.md
-        - Distribution: reference/distribution.md
-      - Melody: reference/melody.md
+    - Documentation: developer_notes/documentation.md
+    - Making a Release: developer_notes/making_a_release.md
+    - Modules: developer_notes/modules.md
+    - Testing: developer_notes/testing.md
+    - Contributing: developer_notes/contributing.md
+    - Style: developer_notes/style.md
+    - Music21: developer_notes/music21.md
+    - Todo: developer_notes/todo.md
+

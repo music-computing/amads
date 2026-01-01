@@ -61,10 +61,14 @@ def test_beats_to_tempo():
     )
     # Test another performance that accelerates: IBIs decrease, BPMs increase
     accelerating_bpms = beats_to_tempo(ACCELERATING_PERFORMANCE)
-    assert np.array_equal(accelerating_bpms.round(1), np.array([66.7, 75, 85.7]))
+    assert np.array_equal(
+        accelerating_bpms.round(1), np.array([66.7, 75, 85.7])
+    )
     # Test another performance that decelerates: IBIs increase, BPMs decrease
     decelerating_bpms = beats_to_tempo(DECELERATING_PERFORMANCE)
-    assert np.array_equal(decelerating_bpms.round(1), np.array([54.5, 50.0, 46.2]))
+    assert np.array_equal(
+        decelerating_bpms.round(1), np.array([54.5, 50.0, 46.2])
+    )
 
 
 def test_validate_beats():

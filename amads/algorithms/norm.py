@@ -1,11 +1,11 @@
 """
-Local implementation of standard normalization routines centrally for use in various functions.
-The local implementation serves to obviate the need for external libraries (e.g., scipy) in basic cases.
+Local implementation of standard normalization routines centrally
+for use in various functions.  The local implementation serves to
+obviate the need for external libraries (e.g., scipy) in basic cases.
 
-Comparisons on this module support any pair of profiles.
-Example use cased include pitch class profile matching for 'best key' measurement,
-and the metrical equivalent.
-"""
+Comparisons on this module support any pair of profiles.  Example use
+cases include pitch class profile matching for 'best key' measurement,
+and the metrical equivalent.  """
 
 from typing import Iterable
 
@@ -16,7 +16,15 @@ __author__ = "Mark Gotham"
 
 # ------------------------------------------------------------------------------
 
-l1_names = ["sum", "manhattan", "city", "cityblock", "city block", "taxicab", "l1"]
+l1_names = [
+    "sum",
+    "manhattan",
+    "city",
+    "cityblock",
+    "city block",
+    "taxicab",
+    "l1",
+]
 l2_names = ["euclidean", "l2"]
 max_names = ["max", "maximum", "inf", "infinity"]
 
@@ -31,26 +39,32 @@ def normalize(
     Normalize usage profiles in standard ways.
 
     Parameters
-    -------
-    profile: list
+    ----------
+    profile : list
         Any 1-D list of numeric data.
 
-    method: str
+    method : str
         The desired normalization routine. Chose from any of
-        'Euclidean' or 'l2' (scale so that the vector length is 1);
-        'Sum', 'Manhattan', or 'l1' (divide each value by the total across the profile);
-        'max', 'maximum', 'inf' or 'infinity' (divide each value by the largest value).
+
+         - `'Euclidean'` or `'l2'` (scale so that the vector length is 1);
+         - `'Sum'`, `'Manhattan'`, or `'l1'` (divide each value by the total
+            across the profile);
+         - `'max'`, `'maximum'`, `'inf'` or `'infinity'` (divide each value
+            by the largest value).
+
         These strings are not case-sensitive.
 
-    round_output: bool
+    round_output : bool
         Optionally, round the output values (default False).
 
-    round_places: int
-        If rounding, how many decimal places to use (default=3). Moot if `round_output` if False (default).
+    round_places : int
+        If rounding, how many decimal places to use (default=3).
+        Moot if `round_output` if False (default).
 
     Returns
     -------
     np.array
+        The normalized vector
 
     Examples
     --------
@@ -69,7 +83,7 @@ def normalize(
 
     """
 
-    if np.max(profile) == 0:
+    if not np.array(profile).any():
         return profile  # All 0s: don't divide by 0 (or indeed do anything!)
 
     method = method.lower()
@@ -96,6 +110,8 @@ def shared_length(profile_1: Iterable, profile_2: Iterable) -> int:
     Simple checks that two lists are of the same length.
     If so, returns the length of the list; if not, raises an error.
 
+    Examples
+    --------
     >>> shared_length([1, 2], [2, 1])
     2
     """
@@ -111,7 +127,8 @@ def manhattan_distance(
     profile_1: Iterable, profile_2: Iterable, norm_: bool = False
 ) -> float:
     """
-    The 'l1' aka 'Manhattan' distance between two points in N dimensional space.
+    The 'L1' aka 'Manhattan' distance between two points in N dimensional space.
+    The distance is the sum of the absoluted differences along each axis.
     List length checks are included.
     Normalization is optional (defaults to False).
 
@@ -177,14 +194,15 @@ def pnorm_distance(
         Another 1-D numpy array of numeric data.
     p: int
         The order of the normalisation.
-        The default is 2 (for Euclidean distance), alternatives include 1 for Manhattan.
+        The default is 2 (for Euclidean distance), alternatives include 1
+        for Manhattan.
 
     Returns
     -------
     float: The p-norm distance.
 
-    Example
-    -------
+    Examples
+    --------
     >>> profile_1 = [0, 1, 2, 3, 4]
     >>> profile_2 = [1, 2, 3, 4, 5]
     >>> pnorm_distance(profile_1, profile_2)

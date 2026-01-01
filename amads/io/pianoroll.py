@@ -33,13 +33,35 @@ def midi_num_to_name(midi_num: int, accidental) -> str:
 
     match accidental:
         case "sharp":
-            base = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"][
-                midi_num % 12
-            ]
+            base = [
+                "C",
+                "C#",
+                "D",
+                "D#",
+                "E",
+                "F",
+                "F#",
+                "G",
+                "G#",
+                "A",
+                "A#",
+                "B",
+            ][midi_num % 12]
         case "flat":
-            base = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"][
-                midi_num % 12
-            ]
+            base = [
+                "C",
+                "Db",
+                "D",
+                "Eb",
+                "E",
+                "F",
+                "Gb",
+                "G",
+                "Ab",
+                "A",
+                "Bb",
+                "B",
+            ][midi_num % 12]
 
     return base + octave
 

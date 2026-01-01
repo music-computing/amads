@@ -1,42 +1,114 @@
 """
 Pitch class distribution analysis.
 
+Implements the Midi Toolbox `pcdist1` function.
+
 Original doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=80.
 """
 
+import math
+from typing import cast
+
 from ..core.basics import Note, Score
+from ..core.distribution import Distribution
+from ..core.histogram import Histogram1D
 
 
-def pcdist1(score: Score, weighted: bool = True) -> list[float]:
+def duraccent(note: Note) -> float:
+    """
+    Calculate Parncutt's durational accent (1994) for a note.
+
+    Based on Matlab MIDI Toolbox implementation.
+
+    References
+    ----------
+
+    - Parncutt, R. (1994). A perceptual model of pulse salience and
+      metrical accent in musical rhythms. *Music Perception*. 11(4), 409-464.
+
+    Parameters
+    ----------
+    note : Note
+        The note for which to calculate the durational accent.
+
+    Returns
+    -------
+    float
+        The durational accent value.
+    """
+    accent = 1 - math.exp(-note.duration / 0.5) ** 2
+    return accent
+
+
+def pitch_class_distribution_1(
+    score: Score,
+    name: str = "Pitch Class Distribution",
+    weighted: bool = True,
+    miditoolbox_compatible: bool = False,
+) -> Distribution:
     """
     Calculate the pitch-class distribution of a musical score.
 
     Parameters
     ----------
-    score
+    score : Score
         The musical score to analyze
-    weighted
-        If True, weight the pitch-class distribution by note durations.
-        Default is True.
+    name : str
+        Name for the distribution; plot title if plotted.
+    weighted : bool, optional
+        If True, weight the pitch-class distribution by note durations
+        in seconds that are modified according to Parncutt's durational
+        accent model (1994), by default True.
+    miditoolbox_compatible : bool
+        If True, bins are initialized with 1e-12 to avoid division by
+        zero. If False and all bins are zero, division is avoided and
+        the resulting bins remain all zero. Default is False.
 
     Returns
     -------
-    list[float]
-        A 12-element list representing the normalized probabilities of each pitch
-        class (C, C#, D, D#, E, F, F#, G, G#, A, A#, B). If the score is empty,
-        returns a list with all elements set to zero.
+    Distribution
+        A 12-element distribution representing the probabilities of each
+        pitch class (C, C#, D, D#, E, F, F#, G, G#, A, A#, B). If the score
+        is empty, the function returns a list with all elements set to zero.
     """
-    pcd = [0] * 12
+    score = cast(Score, score.merge_tied_notes())
+    if weighted:
+        score.convert_to_seconds()  # need seconds for duraccent calculation
+    initial_value = 1e-12 if miditoolbox_compatible else 0.0
+    bin_centers = [float(i) for i in range(12)]  # 25 bins from -12 to +12
+    xcategories = [
+        "C",
+        "C#",
+        "D",
+        "D#",
+        "E",
+        "F",
+        "F#",
+        "G",
+        "G#",
+        "A",
+        "A#",
+        "B",
+    ]
+    h = Histogram1D(bin_centers, None, "linear", False, initial_value)
 
-    if weighted:  # no need to merge ties due to weighting
-        for note in score.find_all(Note):
-            pc = note.pitch_class
-            pcd[pc] += note.duration
-    else:  # count tied notes as single notes
-        score = score.merge_tied_notes()
-        for note in score.find_all(Note):
-            pcd[pc] += 1
-    total = sum(pcd)
-    if total > 0:
-        pcd = [i / total for i in pcd]
-    return pcd
+    for note in score.find_all(Note):
+        note = cast(Note, note)
+        h.add_point(
+            round(note.pitch_class) % 12, duraccent(note) if weighted else 1.0
+        )
+
+    # normalize
+    h.normalize()
+
+    # xcategories is List[str], but Distribution takes int | float | str
+    return Distribution(
+        name,
+        h.bins,
+        "pitch_class",
+        [12],
+        xcategories,  # type: ignore
+        "Pitch Class",
+        None,
+        "Proportion",
+    )

@@ -11,7 +11,7 @@ from amads.core.timemap import TimeMap
 
 """
 Let's begin by creating the simplest kind of score:
-a flattened score with a single part. We'll use the
+a flat score with a single part. We'll use the
 "declarative" style using nested constructors. Since
 Note onsets are not specified, Notes will be arranged
 sequentially.
@@ -20,14 +20,22 @@ The score will be C-G-C with 2 quarters followed by a half
 note. (The default duration of a Note is 1 quarter == 1)
 """
 
-score = Score(Part(Note(pitch="C5"), Note(pitch="G4"), Note(pitch="C5", duration=2)))
+score = Score(
+    Part(
+        Note(pitch="C5"),
+        Note(pitch="G4"),
+        Note(pitch="C5", duration=2),
+        flat=True,
+    )
+)
 
 score.show()
 
 """
-The result of pack is to place the notes consecutively, but what
-if we want something different? Here is the same score, but the
-first two notes are eighth notes followed by eighth rests.
+Since the notes have no onset specified and flat=True, the notes
+are placed consecutively, but what if we want something different?
+Here is the same score, but the first two notes are eighth notes
+followed by eighth rests.
 """
 score = Score(
     Part(
@@ -41,9 +49,9 @@ score = Score(
 score.show()
 
 """
-A well-formed flattened score does not have Rest objects, so we need
-a different approach to create a proper flattened score. To make a
-flattened score (no Rests) but with non-consecutive notes, onsets
+A well-formed flat score does not have Rest objects, so we need
+a different approach to create a proper flat score. To make a
+flat score (no Rests) but with non-consecutive notes, onsets
 are made explicit.
 """
 score = Score(
@@ -90,16 +98,16 @@ score.show()
 
 """
 Now, create a full score with Part, Staff, and Measure objects
-using the declarative approach.
+using the declarative approach. Measures will get their duration
+from the contained Events, so if they do not add up to the time
+signature, the measure duration can be set explicitly or Rest
+objects can be used to fill out the measure.
 """
 score = Score(
     Part(
         Staff(
             Measure(
-                Note(pitch="C5"),
-                Note(pitch="D4"),
-                Note(pitch="E4", duration=2),
-                pack=True,
+                Note(pitch="C5"), Note(pitch="D4"), Note(pitch="E4", duration=2)
             )
         )
     )

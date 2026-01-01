@@ -71,7 +71,20 @@ def pitch_class(dist_array: np.ndarray) -> figure.Figure:
     fig, ax = plt.subplots()
 
     # Used code from pcdist1_test.py
-    pitch_classes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+    pitch_classes = [
+        "C",
+        "C#",
+        "D",
+        "D#",
+        "E",
+        "F",
+        "F#",
+        "G",
+        "G#",
+        "A",
+        "A#",
+        "B",
+    ]
 
     ax.bar(pitch_classes, dist_array, color="skyblue")
     ax.set_xlabel("Pitch Class")
@@ -242,7 +255,20 @@ def pitch_class_transition(dist_array: np.ndarray) -> figure.Figure:
     ax.set_ylabel("Pitch Class (from)")
     ax.set_title("2nd Order Pitch-Class Distribution")
 
-    pitch_classes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+    pitch_classes = [
+        "C",
+        "C#",
+        "D",
+        "D#",
+        "E",
+        "F",
+        "F#",
+        "G",
+        "G#",
+        "A",
+        "A#",
+        "B",
+    ]
     ax.set_xticks(range(12), pitch_classes)
     ax.set_yticks(range(12), pitch_classes)
 

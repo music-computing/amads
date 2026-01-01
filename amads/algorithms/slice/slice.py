@@ -11,6 +11,8 @@ class Slice(Concurrence):
     and end times, as well as references to the original notes from which these
     were derived.
 
+    <small>**Author**: Peter Harrison</small>
+
     Parameters
     ----------
     original_notes : List[Note]
@@ -27,5 +29,7 @@ class Slice(Concurrence):
         onset: float = 0,
         duration: float = 0,
     ):
-        super().__init__(parent=None, onset=onset, duration=duration, content=[])
+        super().__init__(
+            parent=None, onset=onset, duration=duration, content=[]
+        )
         self.original_notes = original_notes

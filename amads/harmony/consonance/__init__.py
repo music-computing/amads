@@ -6,23 +6,28 @@ with a focus on the application to consonance.
 from math import floor
 
 
-def approximate_fraction_consonance(x, d: float = 0.001):
+def approximate_fraction_consonance(x, d: float = 0.001) -> tuple:
     """
     Takes a float and approximates the value as a fraction.
 
-    Args:
-    -------
-    x: Input float to be approximated as a fraction.
-    d: Tolerance ratio.
+    Based on [1] via an implementation in R by Peter Harrison.
+
+    Parameters
+    ----------
+    x: float
+        Input float to be approximated as a fraction.
+    d: float
+        Tolerance ratio.
 
     Returns
     -------
-    A tuple (numerator, denominator) representing the fraction.
-
-    Based on [1] via an implementation in R by Peter Harrison.
+    tuple
+        A tuple (numerator, denominator) representing the fraction.
 
     References
-    [1] Frieder Stolzenburg. 2015. Harmony perception by periodicity detection. DOI: 10.1080/17459737.2015.1033024
+    ----------
+    [1] Frieder Stolzenburg. 2015. Harmony perception by periodicity detection.
+    DOI: 10.1080/17459737.2015.1033024
 
     Examples
     --------

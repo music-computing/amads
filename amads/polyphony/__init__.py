@@ -5,4 +5,4 @@ strictly organized into voices (e.g. choral music) as well as music where
 the notes are not organized into voices (e.g. keyboard music).
 """
 
-from .skyline import skyline
+from .skylinemod import skyline

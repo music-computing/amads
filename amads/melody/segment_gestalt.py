@@ -1,46 +1,40 @@
 """
-This function implements the segment gestalt function
+This module implements the segment gestalt function
 by Tenney & Polansky (1980)
 
 We can broadly categorise the algorithm's limitations to 2 categories:
-(1) Soft restrictions
-(2) Hard restrictions on what scores we can take, either because
-the algorithm exhibits undefined behavior when these scores are given,
-or because it isn't designed for said restrictions.
+
+ 1. Soft restrictions
+
+ 2. Hard restrictions on what scores we can take, either because
+    the algorithm exhibits undefined behavior when these scores are given,
+    or because it isn't designed for said restrictions.
 
 With these categories in mind, we have the following limitations.
 The algorithm does not consider these things within its scope
 (given a monophonic input):
-(1) the monophonic music may have stream segregation
-(i.e. 1 stream of notes can be interpreted as 2 or more separate interspersed
-entities)
-(2) does not consider harmony or shape
-(see beginning of section 2 for the OG paper for more details)
-(3) does not give semantic meaning (we're still stuck giving arbitrary ideals
-to arbitrary things)
 
-The algorithm has the following restrictions to the score:
-(1) the score must be monophonic (perception differences)
-If we consider polyphonic scores, we will need a definition of what
-a substructure is for said score (in said algorithm) with respect to how we
-carve the note strutures.
-Since, in this algorithm, we don't consider stream
-segregation and other features that require larger context clues,
-we can just simply define a score substructure "temporally" as a contiguous
-subsequence of notes
-Hence, it is safe to assume that the current algorithm is undefined when
-it comes to polyphonic music.
+ 1. the monophonic music may have stream segregation
+    (i.e. 1 stream of notes can be interpreted as 2 or
+    more separate interspersed entities)
 
-Function input:
-    Musical score (as specified in basics.py)
+ 2. does not consider harmony or shape (see beginning of section 2
+    for the OG paper for more details)
 
-Function output:
-    None if no clangs can be formed
-    else, 2-tuple of:
-    Note here that the clangs and segments will *probably* be represented
-    by a collection of scores each...
-    (0) sorted list of starts denoting clangs boundaries
-    (1) sorted list of starts denoting segments segment boundaries
+ 3. does not give semantic meaning (we're still stuck giving
+    arbitrary ideals to arbitrary things)
+
+The algorithm has the following restriction to the score:
+
+ - the score must be monophonic (perception differences)
+    If we consider polyphonic scores, we will need a definition of what
+    a substructure is for said score (in said algorithm) with respect to
+    how we carve the note strutures. Since, in this algorithm, we don't
+    consider stream segregation and other features that require larger
+    context clues, we can just simply define a score substructure
+    “temporally” as a contiguous subsequence of notes. Hence, it is safe
+    to assume that the current algorithm is undefined when it comes to
+    polyphonic music.
 
 Some thoughts (and questions):
 (1) Should our output preserve the internal structure of the score
@@ -64,13 +58,13 @@ the *exact* same implementation and 2 filenames...
 """
 
 from operator import lt
+from typing import List, cast
 
-from ..core.basics import Part, Score
-from ..pitch.ismonophonic import ismonophonic
+from ..core.basics import Note, Part, Score
 from ..pitch.pitch_mean import pitch_mean
 
 
-def construct_score_list(notes, intervals):
+def _construct_score_list(notes, intervals):
     """
     given an iterator of intervals and a global list of notes,
     we construct a list of scores containing the notes specified within the intervals
@@ -80,18 +74,20 @@ def construct_score_list(notes, intervals):
         new_score = Score()
         new_part = Part(new_score)
         for note in notes[interval[0] : interval[1]]:
-            note.deepcopy_into(new_part)
+            note.insert_copy_into(new_part)
         score_list.append(new_score)
     return score_list
 
 
-def find_peaks(target_list, comp=lt):
+def _find_peaks(target_list, comp=lt):
     """
     returns a list of indices identifying peaks in the list
     according to a comparison
     """
     peaks = []
-    for i, triplet in enumerate(zip(target_list, target_list[1:], target_list[2:])):
+    for i, triplet in enumerate(
+        zip(target_list, target_list[1:], target_list[2:])
+    ):
         if comp(triplet[0], triplet[1]) and comp(triplet[2], triplet[1]):
             peaks.append(i + 1)
     return peaks
@@ -99,15 +95,32 @@ def find_peaks(target_list, comp=lt):
 
 def segment_gestalt(score: Score) -> tuple[list[float], list[float]]:
     """
-    Given a score, returns the following:
-    (1) If score is not monophonic, we raise an exception
-    (2) If score is monophonic, we return a 2-tuple of lists for clang boundary
-    starts and segment boundary starts, respectively
+    Given a monophonic score, returns clang and segment boundary onsets
+
+    Parameters
+    ----------
+    score: Score
+        The score to be segmented
+
+    Returns
+    -------
+    tuple[list[float], list[float]]
+        None if no clangs can be formed, else, 2-tuple of:
+        (sorted list of onsets denoting clangs boundaries,
+        sorted list of onsets denoting segments segment boundaries)
+
+
+    Raises
+    ------
+    Exception
+        if the score is not monophonic
     """
-    if not ismonophonic(score):
+    if not score.ismonophonic():
         raise Exception("score not monophonic, input is not valid.")
 
-    notes = score.flatten(collapse=True).content
+    notes: List[Note] = cast(
+        List[Note], score.flatten(collapse=True).list_all(Note)
+    )
 
     if len(notes) <= 0:
         return ([], [])
@@ -123,7 +136,7 @@ def segment_gestalt(score: Score) -> tuple[list[float], list[float]]:
     if len(cl_values) < 3:
         return ([], [])
 
-    clang_soft_peaks = find_peaks(cl_values)
+    clang_soft_peaks = _find_peaks(cl_values)
     cl_indices = [0]
     # worry about indices here
     # starting index here
@@ -137,7 +150,9 @@ def segment_gestalt(score: Score) -> tuple[list[float], list[float]]:
         return (clang_onsets, [])
 
     # we can probably split the clangs here and organize them into scores
-    clang_scores = construct_score_list(notes, zip(cl_indices[:-1], cl_indices[1:]))
+    clang_scores = _construct_score_list(
+        notes, zip(cl_indices[:-1], cl_indices[1:])
+    )
     # calculate segment boundaries
     # we need to basically follow segment_gestalt.m
     # (1) calculate individual clang pitch means
@@ -151,10 +166,13 @@ def segment_gestalt(score: Score) -> tuple[list[float], list[float]]:
         # be careful of the indices when calculating segdist here
         local_seg_dist += abs(mean_pitches[i + 1] - mean_pitches[i])
         # first first distance
-        local_seg_dist += notes[cl_indices[i + 1]].onset - notes[cl_indices[i]].onset
+        local_seg_dist += (
+            notes[cl_indices[i + 1]].onset - notes[cl_indices[i]].onset
+        )
         # first of next clang to last of distance
         local_seg_dist += abs(
-            notes[cl_indices[i + 1]].key_num - notes[cl_indices[i + 1] - 1].key_num
+            notes[cl_indices[i + 1]].key_num
+            - notes[cl_indices[i + 1] - 1].key_num
         )
         local_seg_dist += 2 * (
             notes[cl_indices[i + 1]].onset - notes[cl_indices[i + 1] - 1].onset
@@ -163,7 +181,7 @@ def segment_gestalt(score: Score) -> tuple[list[float], list[float]]:
     if len(seg_dist_values) < 3:
         return (clang_onsets, [])
 
-    seg_soft_peaks = find_peaks(seg_dist_values)
+    seg_soft_peaks = _find_peaks(seg_dist_values)
     assert seg_soft_peaks[-1] < len(cl_indices) - 1
     seg_indices = [0]
     # do we need to add 1 here? where do we add 1

@@ -5,6 +5,7 @@ from amads.music import example
 
 # "midi/tones.mid"
 my_midi_file = example.fullpath("midi/twochan.mid")
+assert my_midi_file is not None
 # "midi/tempo.mid"
 
 print("------- input from music21")

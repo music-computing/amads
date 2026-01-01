@@ -63,7 +63,9 @@ def demo_simple_similarity():
     c_major_scale = melodies["c_major_scale"]
     modified_scale = melodies["modified_scale"]
 
-    similarity = get_similarity(c_major_scale, modified_scale, "Jaccard", "pitch")
+    similarity = get_similarity(
+        c_major_scale, modified_scale, "Jaccard", "pitch"
+    )
     return {
         "method": "Jaccard",
         "transformation": "pitch",
@@ -93,7 +95,9 @@ def demo_batch_similarity():
             for j, name2 in enumerate(melody_names):
                 if i < j:  # Only store upper triangle to avoid duplicates
                     similarity = matrix[name1][name2]
-                    organized_results[method][f"{name1}_vs_{name2}"] = similarity
+                    organized_results[method][
+                        f"{name1}_vs_{name2}"
+                    ] = similarity
 
     return organized_results
 

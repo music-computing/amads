@@ -8,6 +8,8 @@ and is not suitable for calling on scores, for instance.
 
 This also includes some measures of rhythmic _complexity_
  (which is clearly not the same as syncopation, but related, and often studied together.
+
+<small>**Author**: Mark Gotham</small>
 """
 
 __author__ = "Mark Gotham"
@@ -26,19 +28,23 @@ from amads.core.vectors_sets import vector_to_multiset
 
 def has_oddity_property(vector: Union[list[int], tuple[int, ...]]) -> bool:
     """
-    Given a rhythm cycle (i.e., with the expectation of repetition) as a vector,
-    check if it has Arom's "rhythmic-oddity" property:
+    Given a rhythm cycle (i.e., with the expectation of repetition) as a
+    vector, check if it has Arom's “rhythmic-oddity” property:
     no two onsets partition the cycle into two equal parts.
     This is slightly confusing to get the right way around:
-    the function returns `True` (i.e., yes, has the property) in the _absence_ of this equal division.
+    the function returns `True` (i.e., yes, has the property)
+    in the _absence_ of this equal division.
 
     Parameters
     ----------
-    vector: A vector for either the event positions in the cycle time span, or the beat pattern (sic, either).
+    vector
+        A vector for either the event positions in the cycle time span, or
+        the beat pattern (sic, either).
 
     Returns
     -------
-    True if the rhythm has the rhythmic-oddity property, False otherwise.
+    bool
+        True if the rhythm has the rhythmic-oddity property, False otherwise.
 
     Examples
     --------
@@ -80,8 +86,11 @@ def has_oddity_property(vector: Union[list[int], tuple[int, ...]]) -> bool:
 def keith_via_toussaint(vector):
     """
     Although Keith's measures is described in terms of beats,
-    it is inflexible to metric structure and fully defined by the onset pattern.
+    it is inflexible to metric structure and fully defined by
+    the onset pattern.
 
+    Examples
+    --------
     >>> son = [1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0]
     >>> keith_via_toussaint(son)
     2
@@ -94,8 +103,12 @@ def keith_via_toussaint(vector):
         )
 
     indices = indicator_to_indices(vector)  # Keith/Toussaint's `S`
-    deltas = indicator_to_interval(vector, wrap=True)  # Keith/Toussaint also `delta`
-    powers_of_2 = [2 ** int(math.log2(x)) for x in deltas]  # Keith/Toussaint's big D
+    deltas = indicator_to_interval(
+        vector, wrap=True
+    )  # Keith/Toussaint also `delta`
+    powers_of_2 = [
+        2 ** int(math.log2(x)) for x in deltas
+    ]  # Keith/Toussaint's big D
     count = 0
     for i in range(len(indices)):
         this_case = indices[i] / powers_of_2[i]
@@ -106,9 +119,10 @@ def keith_via_toussaint(vector):
 
 def has_deep_property(vector: Union[list[int], tuple[int, ...]]) -> bool:
     """
-    So-called "Deep" rhythms have distinct numbers of each interval class among all
-    (not-necessarily adjacent) intervals.
-    See `indicator_to_interval` with the arguments `wrap=True`, `adjacent_not_all=False`
+    So-called “Deep” rhythms have distinct numbers of each interval class
+    among all (not-necessarily adjacent) intervals.
+    See `indicator_to_interval` with the arguments `wrap=True`,
+    `adjacent_not_all=False`
 
     Examples
     --------
@@ -137,7 +151,7 @@ def has_deep_property(vector: Union[list[int], tuple[int, ...]]) -> bool:
 
 def off_beatness(vector: Union[list[int], tuple[int, ...]]) -> int:
     """
-    The "off-beatness" measure records the number of events in a rhythmic cycle
+    The “off-beatness” measure records the number of events in a rhythmic cycle
     at positions which cannot fall on a regular beat division of the cycle.
     For a more formal definition, see `totatives`.
     Currently, this measures the presence of any item at the given position
@@ -147,16 +161,17 @@ def off_beatness(vector: Union[list[int], tuple[int, ...]]) -> int:
     Examples
     --------
 
-    Gomez et al. explore 10 "canonical" 12-unit rhythms of which they find the Bembé notable
-    for being "the most frequently used" and because it realizes
-    the "highest value of off-beatness" among these 10.
+    Gomez et al. explore 10 “canonical” 12-unit rhythms of which they
+    find the Bembé notable for being "the most frequently used" and
+    because it realizes the “highest value of off-beatness” among these 10.
 
     >>> bembé = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)
     >>> off_beatness(bembé)
     3
 
-    Looking beyond these cases, the true highest value for a 12-unit cycle is 4
-    (using indices 1, 5, 7, 11), as shown in the minimal case here:
+    Looking beyond these cases, the true highest value for a 12-unit
+    cycle is 4 (using indices 1, 5, 7, 11), as shown in the minimal
+    case here:
 
     >>> off_beatness((0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1))
     4
@@ -173,19 +188,22 @@ def off_beatness(vector: Union[list[int], tuple[int, ...]]) -> int:
 
 def totatives(n):
     """
-    Calculates the totatives of n, which are the positive integers less than n
-    that are relatively prime to n.
+    Calculates the totatives of n, which are the positive integers less
+    than n that are relatively prime to n.
 
-    [Note: we may more this to somewhere more central if used beyond rhythm.
+    [Note: we may more this to somewhere more central if used beyond rhythm.]
 
     Parameters
     ----------
-    n: A positive integer. In the rhythmic case, this denotes cycle length.
+    n : int
+        A positive integer. In the rhythmic case, this denotes cycle length.
 
     Returns
     -------
-    A list of integers representing the totatives of n.
-    This list is empty if n is less than or equal to 1.
+    list[int]
+        A list of integers representing the totatives of n.
+        This list is empty if n is less than or equal to 1.
+
     Examples
     --------
     >>> totatives(12)

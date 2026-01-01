@@ -32,14 +32,14 @@ step = 0.01
 # %%
 # Flatten the score to get a single sequence of notes.
 
-flattened_score = my_score.flatten(collapse=True)
+flat_score = my_score.flatten(collapse=True)
 
 # %%
 # Perform the sliding window analysis. Each window will contain notes that are
 # sounding within its time boundaries.
 
 windows = sliding_window(
-    flattened_score,
+    flat_score,
     size=size,
     step=step,
     align="center",

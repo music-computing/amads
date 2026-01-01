@@ -18,8 +18,12 @@ print(clang_starts)
 print(segment_starts)
 xmin, xmax, ymin, ymax = plt.axis()
 
-plt.vlines(clang_starts, ymin, ymax, colors="purple", label="clang boundary starts")
-plt.vlines(segment_starts, ymin, ymax, colors="green", label="segment boundary starts")
+plt.vlines(
+    clang_starts, ymin, ymax, colors="purple", label="clang boundary starts"
+)
+plt.vlines(
+    segment_starts, ymin, ymax, colors="green", label="segment boundary starts"
+)
 plt.legend(loc="best")
 
 plt.show()

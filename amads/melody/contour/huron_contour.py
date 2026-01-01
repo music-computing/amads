@@ -1,24 +1,37 @@
 """
 Implementation of the contour classification scheme proposed by Huron (1996) [1]
-and also included in the FANTASTIC toolbox of Müllensiefen (2009) [2]
-(Features 19 `Huron Contour: h.contour`).
+
+The classification scheme is also included in the FANTASTIC toolbox of Müllensiefen (2009) [2]
+
+<small>**Author**: Mark Gotham</small>
+
+References
+----------
+1. Huron, D (2006). The Melodic Arch in Western Folksongs. *Computing in Musicology* 10.
+
+2. Müllensiefen, D. (2009). Fantastic: Feature ANalysis Technology Accessing
+        STatistics (In a Corpus): Technical Report v1.5
+
 """
 
 __author__ = "Mark Gotham"
 
-from .utils import sign
+from amads.core.utils import sign
 
 
 class HuronContour:
-    """Implementation of the contour classification scheme proposed by Huron (1996) [1]
-    and also included in the FANTASTIC toolbox of Müllensiefen (2009) [2]
-    (Features 19 `Huron Contour: h.contour`).
+    """The contour classification scheme proposed by Huron (1996) [1]
+
+    The classification scheme is also included in the FANTASTIC toolbox
+    of Müllensiefen (2009) [2] (as Feature 19 `Huron Contour: h.contour`).
 
     Huron categorises melodies by identifying the start, mean, and end pitches
     and describing contour in terms of the two directions: start-mean, and mean-end.
     """
 
-    def __init__(self, pitches: list[int], times: list[float], method: str = "amads"):
+    def __init__(
+        self, pitches: list[int], times: list[float], method: str = "amads"
+    ):
         """Initialize with pitch and time values.
 
         Parameters
@@ -63,9 +76,10 @@ class HuronContour:
 
         References
         ----------
-        [1] Huron, D (2006). The Melodic Arch in Western Folksongs. Computing in Musicology 10.
-        [2] Müllensiefen, D. (2009). Fantastic: Feature ANalysis Technology Accessing
-        STatistics (In a Corpus): Technical Report v1.5
+          1. Huron, D (2006). The Melodic Arch in Western Folksongs. *Computing in Musicology* 10.
+
+          2. Müllensiefen, D. (2009). Fantastic: Feature ANalysis Technology Accessing
+             STatistics (In a Corpus): Technical Report v1.5
         """
         if len(times) != len(pitches):
             raise ValueError(
@@ -88,11 +102,13 @@ class HuronContour:
     def calculate_mean_attributes(self):
         """
         Calculate the mean and populate the remaining attributes.
+
         Note that the mean pitch is rounded to the nearest integer,
         and that this rounding happens before calculating comparisons.
         """
         self.mean_pitch = int(
-            sum(x * y for x, y in zip(self.pitches, self.times)) / sum(self.times)
+            sum(x * y for x, y in zip(self.pitches, self.times))
+            / sum(self.times)
         )
 
         self.first_to_mean = self.mean_pitch - self.first_pitch
@@ -100,6 +116,7 @@ class HuronContour:
 
     def class_label(self):
         """Classify a contour into Huron's categories.
+
         This is based simply on the two directions from start to mean and mean to last.
         Huron proposes shorthands for some of these as follows:
         "Ascending-Descending" = "Convex",
@@ -125,9 +142,7 @@ class HuronContour:
         first_to_mean_sign = sign(self.first_to_mean)
         mean_to_last_sign = sign(self.mean_to_last)
 
-        return_string = (
-            f"{direction_dict[first_to_mean_sign]}-{direction_dict[mean_to_last_sign]}"
-        )
+        return_string = f"{direction_dict[first_to_mean_sign]}-{direction_dict[mean_to_last_sign]}"
 
         shorthand_dict = {
             "Ascending-Descending": "Convex",

@@ -1,5 +1,62 @@
 """
 Profiles of metrical position usage provided or deduced from the literature.
+
+See the code for details. Data includes:
+
+ - **WorldSample16**
+       - shiko
+       - son
+       - rumba
+       - soukous
+       - gahu
+       - bossa_nova
+ - **WorldSample12**
+       - soli
+       - tambú
+       - bembé
+       - bembé_2
+       - yoruba
+       - tonada
+       - asaadua
+       - sorsonet
+       - bemba
+       - ashanti
+ - **BPSD** (Beethoven piano sonata dataset)
+       - op002No2_01
+       - op054_01
+       - op027No1_01
+       - op049No1_01
+       - op013_01
+       - op101_01
+       - op111_01
+       - op031No2_01
+       - op014No1_01
+       - op010No2_01
+       - op007_01
+       - op078_01
+       - op109_01
+       - op081a_01
+       - op028_01
+       - op002No3_01
+       - op010No1_01
+       - op090_01
+       - op031No1_01
+       - op014No2_01
+       - op010No3_01
+       - op031No3_01
+       - op110_01
+       - op026_01
+       - op049No2_01
+       - op002No1_01
+       - op027No2_01
+       - op057_01
+       - op053_01
+       - op022_01
+       - op106_01
+       - op079_01
+       - all
+
+<small>**Author**: Mark Gotham</small>
 """
 
 __author__ = "Mark Gotham"

@@ -1,19 +1,24 @@
 import math
+from typing import Union
 
 from ..io.readscore import read_score, valid_score_extensions
 from .basics import Pitch
 
 
-def dir2coll(filenames):
+def dir_to_collection(filenames: list[str]):
     """
     Converts a list of music filenames to a dictionary where keys
     are filenames and values are corresponding Score objects.
 
-    Parameters:
-    filenames (list of str): List of filenames to process.
+    Parameters
+    ----------
+    filenames : list(str)
+        List of filenames to process.
 
-    Returns:
-    scores (dict): A dictionary mapping filenames to Score objects.
+    Returns
+    -------
+    dict
+        A dictionary mapping filenames to Score objects.
     """
     scores = {}
 
@@ -30,40 +35,101 @@ def dir2coll(filenames):
     return scores
 
 
-def hz2key_num(hertz):
+def _hz_to_key_num_single(hz: float, do_round: bool = True) -> float:
+    """Helper function for hz_to_key_num"""
+    key_num = 69 + 12 * math.log2(hz / 440.0)
+    return round(key_num) if do_round else key_num
+
+
+def hz_to_key_num(
+    hertz: Union[float, list[float]], do_round: bool = True
+) -> Union[float, list[float]]:
     """
     Converts a frequency in Hertz to the corresponding MIDI key number.
 
-    Parameters:
-    hertz (float or list of floats): The frequency or list of frequencies
-    in Hertz.
+    Parameters
+    ----------
+    hertz : Union(float, list(float))
+        The frequency or list of frequencies in Hertz.
 
-    Returns:
-    key_num (Pitch or list of Pitch): The corresponding MIDI key number(s)
-    as Pitch objects.
+    do_round : bool
+        Perform rounding to the nearest integer key_num.
+
+    Returns
+    -------
+    Union(float, list(float))
+        The corresponding MIDI key number(s).
+
+    Examples
+    --------
+    >>> hz_to_key_num(440.0)
+    69
+    >>> hz_to_key_num(260.0, False)
+    59.89209719404554
+    >>> hz_to_key_num([440, 260], True)
+    [69, 60]
     """
 
-    def hz_to_key_num_single(hz):
-        key_num = 69 + 12 * math.log2(hz / 440.0)
-        return Pitch(round(key_num))
-
     if isinstance(hertz, list):
-        return [hz_to_key_num_single(hz) for hz in hertz]
+        return [_hz_to_key_num_single(hz, do_round) for hz in hertz]
     else:
-        return hz_to_key_num_single(hertz)
+        return _hz_to_key_num_single(hertz, do_round)
 
 
-def key_num2hz(key_num):
+def hz_to_pitch(
+    hertz: Union[float, list[float]], round: bool = True
+) -> Union[Pitch, list[Pitch]]:
+    """
+    Converts a frequency to a Pitch object.
+
+    Parameters
+    ----------
+    hertz : Union(float, list(float))
+        The frequency or list of frequencies in Hertz.
+
+    round : bool
+        Perform rounding to the nearest integer key_num.
+
+    Returns
+    -------
+    Union(Pitch, list(Pitch))
+        The corresponding Pitch objects.
+
+    Examples
+    --------
+    >>> hz_to_pitch(440)
+    Pitch(name='A4', key_num=69)
+    """
+    key_nums = hz_to_key_num(hertz, round)
+    if isinstance(key_nums, list):
+        return [Pitch(kn) for kn in key_nums]
+    else:
+        return Pitch(key_nums)
+
+
+def key_num_to_hz(
+    key_num: Union[float, Pitch, list[Union[float, Pitch]]]
+) -> Union[float, list[float]]:
     """
     Converts a Pitch object or MIDI key number to the corresponding
     frequency in Hertz.
 
-    Parameters:
-    key_num (Pitch or int or list of Pitch or ints): The Pitch object(s) or
-    MIDI key number(s).
+    Parameters
+    ----------
+    key_num : Union(Pitch, float, list(Union(Pitch, float)))
+        The Pitch object(s) or MIDI key number(s).
 
-    Returns:
-    hz (float or list of floats): The corresponding frequency in Hertz.
+    Returns
+    -------
+    Union(float, list(float))
+        The corresponding frequency in Hertz.
+
+    Examples
+    --------
+    >>> key_num_to_hz(69)
+    440.0
+    >>> key_num_to_hz([Pitch("A5"), 60])
+    [880.0, 261.6255653005986]
     """
 
     def key_num_to_hz_single(k):
@@ -79,32 +145,70 @@ def key_num2hz(key_num):
         return key_num_to_hz_single(key_num)
 
 
-def keyname(n, detail="nameoctave"):
+def key_num_to_name(n, detail="nameoctave"):
     """
     Converts key numbers to key names (text).
 
-    Parameters:
-    n (int or list of ints): The key numbers.
-    detail (str, optional): 'nameonly' for just the note name (e.g., 'C#'),
-                            'nameoctave' for note name with octave
-                            (e.g., 'C#4') (default).
+    Parameters
+    ----------
+    n : Union(int, list(int))
+        The key numbers.
+    detail : Optional(str)
+        `'nameonly'` for just the note name (e.g., `'C#'`),
+        `'nameoctave'` for note name with octave (e.g., `'C#4'`) (default).
 
-    Returns:
-    name (str or list of str): The corresponding key names.
+    Returns
+    -------
+    Union(str, list(str))
+        The corresponding key names.
     """
 
-    def keyname_single(k):
+    def key_num_to_name_single(k):
         pitch = Pitch(k)
         if detail == "nameonly":
-            return pitch.name  # Handles sharps, flats, and natural notes correctly
+            return pitch.name  # Handles sharps, flats, and naturals correctly
         elif detail == "nameoctave":
-            return pitch.name_with_octave  # Includes both the note name and octave
+            return pitch.name_with_octave  # Includes note name and octave
         else:
             raise ValueError(
                 "Invalid detail option. Use 'nameonly' or " "'nameoctave'."
             )
 
     if isinstance(n, list):
-        return [keyname_single(k) for k in n]
+        return [key_num_to_name_single(k) for k in n]
     else:
-        return keyname_single(n)
+        return key_num_to_name_single(n)
+
+
+def sign(x: float) -> int:
+    """
+    Get the sign of a numeric value as -1, 0, or +1.
+
+    >>> sign(-15)
+    -1
+
+    >>> sign(-1)
+    -1
+
+    >>> sign(-0.5)
+    -1
+
+    >>> sign(-0)
+    0
+
+    >>> sign(+0)
+    0
+
+    >>> sign(+0.5)
+    1
+
+    >>> sign(15.2)
+    1
+
+    >>> sign(None) is None
+    True
+    """
+    if x is None:
+        return None  # type: ignore
+    else:
+        return bool(x > 0) - bool(x < 0)

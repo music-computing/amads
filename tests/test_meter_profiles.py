@@ -14,7 +14,10 @@ __author__ = "Mark Gotham"
 
 from fractions import Fraction
 
-from amads.core.vector_transforms_checks import indicator_to_interval, is_maximally_even
+from amads.core.vector_transforms_checks import (
+    indicator_to_interval,
+    is_maximally_even,
+)
 from amads.time.meter import profiles, syncopation
 from amads.time.rhythm import (
     has_deep_property,
@@ -65,7 +68,14 @@ def test_toussaint_17_13():
     Test the 16-unit rhythms with a beat pattern every 4th element
     against "Figure" 17.13 (p.120) in Toussaint 2013 (partial, work in progress)
     """
-    tested_profile_order = (SHIKO, SON, SOUKOUS, RUMBA, GAHU, BOSSA)  # sic GAHU, BOSSA
+    tested_profile_order = (
+        SHIKO,
+        SON,
+        SOUKOUS,
+        RUMBA,
+        GAHU,
+        BOSSA,
+    )  # sic GAHU, BOSSA
 
     # TODO Pressing, Lempel-Ziv, Entropy, "Metric", etc.
 
@@ -77,7 +87,12 @@ def test_toussaint_17_13():
 
     # nPVI
     assert [
-        round(normalized_pairwise_variability_index(indicator_to_interval(profile)), 1)
+        round(
+            normalized_pairwise_variability_index(
+                indicator_to_interval(profile)
+            ),
+            1,
+        )
         for profile in tested_profile_order
     ] == [66.7, 40.5, 70.5, 41.0, 23.8, 14.3]
 
@@ -90,7 +105,14 @@ def test_toussaint_37_11():
     - 'Off-beatness'
     - Distinct durations
     """
-    tested_profile_order = (SHIKO, SON, SOUKOUS, RUMBA, BOSSA, GAHU)  # sic BOSSA, GAHU
+    tested_profile_order = (
+        SHIKO,
+        SON,
+        SOUKOUS,
+        RUMBA,
+        BOSSA,
+        GAHU,
+    )  # sic BOSSA, GAHU
 
     assert [is_maximally_even(profile) for profile in tested_profile_order] == [
         False,
@@ -101,7 +123,9 @@ def test_toussaint_37_11():
         False,
     ]
 
-    assert [has_oddity_property(profile) for profile in tested_profile_order] == [
+    assert [
+        has_oddity_property(profile) for profile in tested_profile_order
+    ] == [
         False,
         True,
         False,
@@ -182,9 +206,14 @@ def test_wnbd_16():
 
         assert off_beat_metric == off_beatness(cycle)
 
-        onset_beats = syncopation.vector_to_onset_beat(cycle, beat_unit_length=4)
+        onset_beats = syncopation.vector_to_onset_beat(
+            cycle, beat_unit_length=4
+        )
         sm = syncopation.SyncopationMetric()
-        assert sm.weighted_note_to_beat_distance(onset_beats=onset_beats) == wnbd
+        assert (
+            sm.weighted_note_to_beat_distance(onset_beats=onset_beats)
+            == wnbd  # type: ignore
+        )
 
 
 def test_wnbd_12():
@@ -200,12 +229,16 @@ def test_wnbd_12():
         (
             SOLI,
             1,
-            Fraction(12, 7),  # TODO divergence. Paper has 2.142 (15/7, rounded down)
+            Fraction(
+                12, 7
+            ),  # TODO divergence. Paper has 2.142 (15/7, rounded down)
         ),
         (
             TAMBU,
             2,
-            Fraction(12, 7),  # TODO divergence. Paper has 2.142 (15/7, rounded down)
+            Fraction(
+                12, 7
+            ),  # TODO divergence. Paper has 2.142 (15/7, rounded down)
         ),
         (
             BEMBE,
@@ -215,7 +248,9 @@ def test_wnbd_12():
         (
             BEMBE_2,
             2,
-            Fraction(12, 7),  # TODO divergence. Paper has 2.142 (15/7, rounded down)
+            Fraction(
+                12, 7
+            ),  # TODO divergence. Paper has 2.142 (15/7, rounded down)
         ),
         (
             YORUBA,
@@ -225,12 +260,16 @@ def test_wnbd_12():
         (
             TONADA,
             1,
-            Fraction(12, 7),  # TODO divergence. Paper has 2.142 (15/7, rounded down)
+            Fraction(
+                12, 7
+            ),  # TODO divergence. Paper has 2.142 (15/7, rounded down)
         ),
         (
             ASAADUA,
             1,
-            Fraction(12, 7),  # TODO divergence. Paper has 2.142 (15/7, rounded down)
+            Fraction(
+                12, 7
+            ),  # TODO divergence. Paper has 2.142 (15/7, rounded down)
         ),
         (
             SORSONET,
@@ -240,7 +279,9 @@ def test_wnbd_12():
         (
             BEMBA,
             2,
-            Fraction(12, 7),  # TODO divergence. Paper has 2.142 (15/7, rounded down)
+            Fraction(
+                12, 7
+            ),  # TODO divergence. Paper has 2.142 (15/7, rounded down)
         ),
         (
             ASHANTI,
@@ -257,7 +298,10 @@ def test_wnbd_12():
 
         onset_beats = vector_to_onset_beat(cycle, beat_unit_length=3)
         sm = syncopation.SyncopationMetric()
-        assert sm.weighted_note_to_beat_distance(onset_beats=onset_beats) == wnbd
+        assert (
+            sm.weighted_note_to_beat_distance(onset_beats=onset_beats)
+            == wnbd  # type: ignore
+        )
 
 
 def test_oddity_12():
@@ -273,7 +317,9 @@ def test_oddity_12():
         BEMBA,
         ASHANTI,
     ]
-    assert [has_oddity_property(profile) for profile in tested_profile_order] == [
+    assert [
+        has_oddity_property(profile) for profile in tested_profile_order
+    ] == [
         False,
         False,
         False,

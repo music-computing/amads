@@ -1,6 +1,12 @@
 """
-Tempo representation and conversion between quarters and seconds.
+Mapping between quarters and seconds (beats and time).
+
+    from amads.core import *
+
+Note: `amads.core` includes `amads.core.basics`, `amads.core.distribution` and amads.core.timemap`.
 """
+
+import sys
 
 
 class MapQuarter:
@@ -31,20 +37,38 @@ class MapQuarter:
     time: float
     quarter: float
 
-    def __init__(self, time, quarter):
+    def __init__(self, time: float, quarter: float):
         self.time = time
         self.quarter = quarter
 
-    def copy(self):
-        """return a copy of this MapQuarter"""
+    def copy(self) -> "MapQuarter":
+        """return a copy of this MapQuarter
+
+        Returns
+        -------
+        MapQuarter
+            A copy of this MapQuarter instance.
+        """
         return MapQuarter(self.time, self.quarter)
 
 
 class TimeMap:
     """
-    A map to convert between musical quarters and seconds.
+    Implement the `time_map` attribute of `Score` class.
 
-    A TimeMap is an attribute of Score and used for tempo specification.
+    Every `Score` has a `time_map` attribute whose value is a
+    `TimeMap` that maintains a mapping between time in seconds
+    and beats in quarters. A `TimeMap` encodes the information
+    in a MIDI File tempo track as well as tempo information from
+    a Music XML score.
+
+    This class holds a list representing tempo changes as a list of
+    (time, quarter) pairs, which you can think of as tempo changes.
+    More mathematically, they are breakpoints in a piece-wise linear
+    function that maps from time to quarter or from quarter to time.
+
+    Since tempo is not continuous, the tempo at a breakpoint is
+    defined to be the tempo just *after* the breakpoint.
 
     Parameters
     ----------
@@ -76,18 +100,39 @@ class TimeMap:
         self.quarters = [MapQuarter(0.0, 0.0)]  # initial quarter
         self.last_tempo = qpm / 60.0  # 100 qpm default
 
-    def show(self, indent: int = 0) -> None:
-        """Print a summary of this time map"""
-        print(" " * indent, "TimeMap: [ ", sep="", end="")
+    def show(self, indent: int = 0, file=sys.stdout) -> None:
+        """Print a summary of this time map.
+
+        Parameters
+        ----------
+        indent : int, optional
+            Number of spaces to indent (default is 0).
+        file : TextIO, optional
+            The file to print to (default is sys.stdout).
+
+        Returns
+        -------
+        None
+        """
+        print(" " * indent, "TimeMap: [ ", sep="", end="", file=file)
         for i, mb in enumerate(self.quarters):
-            tempo = self.index_to_tempo(i + 1)
+            tempo = self._index_to_tempo(i + 1)
             print(
-                f"({mb.quarter:.2g}, {mb.time:.3g}s, {tempo:.3g}qpm) ", sep="", end=""
+                f"({mb.quarter:.2g}, {mb.time:.3g}s, {tempo:.3g}qpm) ",
+                sep="",
+                end="",
+                file=file,
             )
-        print("]")
+        print("]", file=file)
 
     def deep_copy(self) -> "TimeMap":
-        """Make a full copy of this time map"""
+        """Make a full copy of this time map.
+
+        Returns
+        -------
+        TimeMap
+            A deep copy of this TimeMap instance.
+        """
         newtm = TimeMap(qpm=self.last_tempo * 60)
         for i in self.quarters[1:]:
             newtm.quarters.append(i.copy())
@@ -96,11 +141,12 @@ class TimeMap:
     def append_quarter_tempo(self, quarter: float, tempo: float) -> None:
         """Append a tempo change at a given quarter.
 
-        Append a MapQuarter specifying a change to tempo at quarter.
-        quarter must be >= last MapQuarter's quarter. You cannot insert a tempo
-        change before the end of the TimeMap. tempo will hold forever
-        beginning at quarter unless you call append_quarter_tempo again to
-        change the tempo somewhere beyond quarter.
+        Append a `MapQuarter` specifying a change to tempo at quarter.
+        quarter must be at least as great as last MapQuarter's quarter.
+        You cannot insert a tempo change before the end of the TimeMap.
+        The `tempo` will hold forever beginning at `quarter` unless you call
+        `append_quarter_tempo` again to change the tempo somewhere beyond
+        `quarter`.
 
         Parameters
         ----------
@@ -110,15 +156,21 @@ class TimeMap:
             The new tempo at quarter measured in quarters per minute.
             Typically, this is the same as beats per minute (BPM),
             but only when a beat lasts one quarter.
+
+        Returns
+        -------
+        None
         """
         last_quarter = self.quarters[-1].quarter  # get the last quarter
         assert quarter >= last_quarter
         if quarter > last_quarter:
-            self.quarters.append(MapQuarter(self.quarter_to_time(quarter), quarter))
+            self.quarters.append(
+                MapQuarter(self.quarter_to_time(quarter), quarter)
+            )
         self.last_tempo = tempo / 60.0  # from qpm to qps
         # print("append_quarter_tempo", tempo, self.quarters[-1])
 
-    def locate_time(self, time: float) -> int:
+    def _locate_time(self, time: float) -> int:
         """Find the insertion index for a given time in seconds.
 
         Returns the index of the first MapQuarter whose `time` attribute
@@ -136,48 +188,54 @@ class TimeMap:
             The insertion index for the given time.
         """
         i = 0
-        while i < len(self.quarters) and time > self.quarters[i].time:
+        while i < len(self.quarters) and time >= self.quarters[i].time:
             i = i + 1
         return i
 
-    def locate_quarter(self, quarter: float) -> int:
+    def _locate_quarter(self, quarter: float) -> int:
         """Find the insertion index for a given time in seconds.
 
-        Returns the index of the first MapQuarter whose `quarter` attribute
-        is greater than the specified `quarter`. If `quarter` is greater than
-        all entries, returns the length of `self.quarters`.
+        Returns the index of the first MapQuarter whose `quarter`
+        attribute is greater than the specified
+        `quarter`. If `quarter` is greater than all entries, returns the
+        length of `self.quarters`.
 
         Parameters
         ----------
         quarter : float
-            The quarter note position to locate.
+        The quarter note position to locate.
 
         Returns
         -------
         int
-            The insertion index for the given quarter position.
+        The insertion index for the given quarter position.
         """
         i = 0
-        while i < len(self.quarters) and quarter > self.quarters[i].quarter:
+        while i < len(self.quarters) and quarter >= self.quarters[i].quarter:
             i = i + 1
         return i
 
     def quarter_to_time(self, quarter: float) -> float:
-        """Convert quarter time to seconds."""
+        """Convert time in quarters to time to seconds.
+
+        Parameters
+        ----------
+        quarter: float
+            A score position in quarters.
+
+        Returns
+        -------
+        float
+            The time in seconds corresponding to `quarter`.
+        """
         if quarter <= 0:  # there is no negative time or tempo before 0
             return quarter  # so just pretend like tempo is 60 qpm
-        i = self.locate_quarter(quarter)
+        i = self._locate_quarter(quarter)
         if i == len(self.quarters):
             # special case: quarter >= than last time,quarter pair
             # so extrapolate using last_tempo
             mb1 = self.quarters[i - 1]
-            if self.last_tempo:
-                return mb1.time + (quarter - mb1.quarter) / self.last_tempo
-            elif i == 1:  # only one time point and no last_tempo!
-                # assume a tempo of 100
-                return quarter * 0.6  # (60sec/min / 100qpm)
-            else:  # extrapolate from last two time map entries
-                mb0 = self.quarters[i - 2]
+            return mb1.time + (quarter - mb1.quarter) / self.last_tempo
         else:  # interpolate between i - 1 and i
             # note: i is at least 1 because first MapQuarter is at time 0
             # and quarter > 0
@@ -191,17 +249,27 @@ class TimeMap:
     def quarter_to_tempo(self, quarter: float) -> float:
         """Get the tempo in qpm at a given quarter.
 
-        If there is a tempo change here, use the tempo on the left
-        (before the change)
-        """
-        return self.index_to_tempo(self.locate_quarter(quarter))
+        Parameters
+        ----------
+        quarter: float
+            A score position in quarters.
 
-    def index_to_tempo(self, i: int) -> float:
+        Returns
+        -------
+        float
+            The tempo at `quarter`. If there is a tempo change here,
+            returns the tempo on the right (after the change).
+        """
+        return self._index_to_tempo(self._locate_quarter(quarter))
+
+    def _index_to_tempo(self, i: int) -> float:
         """Return the tempo at entry i in the tempo map.
 
         The tempo at entry i is the tempo in effect JUST BEFORE entry i,
-        Typically, i is related to locate_quarter(quarter), so i
-        refers to the first map entry BEYOND quarter. If i is 0 or there
+        Typically, i is related to `_locate_quarter(quarter)`, so i
+        refers to the first map entry BEYOND quarter. (In particular,
+        if the quarter of interest is exactly one of the breakpoints,
+        i will be at the *next* breakpoint. If i is 0 or there
         are no MapQuarter entries, return the tempo AFTER entry i.
 
         Parameters
@@ -221,14 +289,7 @@ class TimeMap:
         if i == len(self.quarters) or len(self.quarters) <= 1:
             # special case: quarter >= last time.quarter pair
             # so extrapolate using last_tempo if it is there
-            if self.last_tempo:
-                return self.last_tempo * 60.0
-            elif i <= 1:  # only one time point and no last tempo!
-                # assume a tempo of 100
-                return 100.0 / 60.0
-            else:  # extrapolate from last two time map entries
-                mb0 = self.quarters[i - 2]
-                mb1 = self.quarters[i - 1]
+            return self.last_tempo * 60.0
         elif i == 0:
             mb0 = self.quarters[0]
             mb1 = self.quarters[1]
@@ -240,25 +301,45 @@ class TimeMap:
         return quarter_dif * 60.0 / time_dif
 
     def time_to_quarter(self, time: float) -> float:
-        """Convert time in seconds to quarter position."""
+        """Convert time in seconds to quarter position.
+
+        Parameters
+        ----------
+        time: float
+            A score time in seconds.
+
+        Returns
+        -------
+        float
+            The score position in quarters corresponding to `time`.
+        """
         if time <= 0:
             return time
-        i = self.locate_time(time)
+        i = self._locate_time(time)
         if i == len(self.quarters):  # quarter is beyond last time map entry
-            if self.last_tempo:  # extrapolate beyond last time map entry
-                mb0 = self.quarters[i - 1]
-                return mb0.quarter + (time - mb0.time) * self.last_tempo
-            elif i == 1:  # only one time point and no last tempo!
-                return time * 100 / 60  # assume 100 qpm
-            else:  # extrapolate from last two time map entries
-                mb0 = self.quarters[i - 2]
-                mb1 = self.quarters[i - 1]
-        else:  # interpolate between the surrounding time map entries
             mb0 = self.quarters[i - 1]
-            mb1 = self.quarters[i]
+            return mb0.quarter + (time - mb0.time) * self.last_tempo
+        mb0 = self.quarters[i - 1]
+        mb1 = self.quarters[i]
         time_dif = mb1.time - mb0.time
         quarter_dif = mb1.quarter - mb0.quarter
         return mb0.quarter + (time - mb0.time) * quarter_dif / time_dif
+
+    def time_to_tempo(self, time: float) -> float:
+        """Get the tempo in qpm at a given time (in seconds).
+
+        Parameters
+        ----------
+        time: float
+            A score time in seconds.
+
+        Returns
+        -------
+        float
+            The tempo at `time`. If there is a tempo change here,
+            use the tempo on the right (aftr the change).
+        """
+        return self._index_to_tempo(self._locate_time(time))
 
     """
     if we support any extraction of data from scores and want to retain
@@ -390,7 +471,7 @@ class TimeMap:
         // find time,quarter pair that determines tempo at start
         // compute quarter offset = (delta quarter / delta time) * len
         // add len,quarter offset to each following Alg_quarter
-        var i = locate_time(start) // start <= quarters[i].time
+        var i = _locate_time(start) // start <= quarters[i].time
         if quarters[i].time == start:
             i = i + 1
         if i > 0 and i < len(quarters):
@@ -409,7 +490,7 @@ class TimeMap:
         // add len,quarter offset to each following Alg_quarter
         //print "time map before insert quarters"
         //show()
-        var i = locate_quarter(start) // start <= quarters[i].time
+        var i = _locate_quarter(start) // start <= quarters[i].time
         if quarters[i].quarter == start:
             i = i + 1
         if i > 0 and i < len(quarters):

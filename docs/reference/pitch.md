@@ -1,3 +1,7 @@
 # Pitch
 
-::: amads.core.pitch
+::: amads.core.pitch.Pitch
+
+----------------
+
+::: amads.core.pitch.PitchCollection

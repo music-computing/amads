@@ -23,10 +23,12 @@ need to convert this to a TimeMap.
 __author__ = "Roger B. Dannenberg <rbd@cs.cmu.edu>"
 
 import warnings
+from typing import cast
 
 from pretty_midi import PrettyMIDI
 
 from ..core.basics import Measure, Note, Part, Score, Staff
+from ..core.pitch import Pitch
 from ..core.timemap import TimeMap
 
 _pitch_names = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
@@ -44,7 +46,10 @@ def _show_pretty_midi(pmscore: PrettyMIDI, filename: str) -> None:
                 f"    KeySignature(time={sig.time},"
                 f" key_number={sig.key_number}) {key}"
             )
-    if pmscore.time_signature_changes and len(pmscore.time_signature_changes) > 0:
+    if (
+        pmscore.time_signature_changes
+        and len(pmscore.time_signature_changes) > 0
+    ):
         for sig in pmscore.time_signature_changes:
             print(
                 f"    TimeSignature(time={sig.time},"
@@ -53,11 +58,17 @@ def _show_pretty_midi(pmscore: PrettyMIDI, filename: str) -> None:
             )
     for ins in pmscore.instruments:
         drum_str = ", is_drum" if ins.is_drum else ""
-        print(f"    Instrument(name={ins.name}," f" program={ins.program}{drum_str})")
+        print(
+            f"    Instrument(name={ins.name},"
+            f" program={ins.program}{drum_str})"
+        )
         if ins.pitch_bends and len(ins.pitch_bends) > 0:
             print(f"        ignoring {len(ins.pitch_bends)} pitch bends")
         if ins.control_changes and len(ins.control_changes) > 0:
-            print(f"        ignoring {len(ins.control_changes)}" " control changes")
+            print(
+                f"        ignoring {len(ins.control_changes)}"
+                " control changes"
+            )
         for note in ins.notes:
             print(
                 f"        Note(start={note.start},"
@@ -71,7 +82,7 @@ def _show_pretty_midi(pmscore: PrettyMIDI, filename: str) -> None:
     if (
         hasattr(pmscore, "text_events")
         and pmscore.text_events
-        and pmscore(pmscore.text_events) > 0
+        and len(pmscore.text_events) > 0
     ):
         print("    Text events (not imported by AMADS):")
         for text in pmscore.text_events:
@@ -92,7 +103,11 @@ def _time_map_from_tick_scales(tick_scales, resolution: int) -> TimeMap:
 
 
 def _create_measures(
-    staff: Staff, time_map: TimeMap, end_beat: float, notes: list, pmscore: PrettyMIDI
+    staff: Staff,
+    time_map: TimeMap,
+    end_beat: float,
+    notes: list,
+    pmscore: PrettyMIDI,
 ) -> None:
     """Create measures in Staff according to pmscore data
 
@@ -172,7 +187,7 @@ def _add_notes_to_measures(
                     parent=next_measure,
                     onset=next_measure.onset,
                     duration=duration,
-                    pitch=note.pitch,
+                    pitch=Pitch(note.pitch),
                     dynamic=note.dynamic,
                 )
                 prev_note.tie = tied_note
@@ -183,17 +198,22 @@ def _add_notes_to_measures(
 
 
 def pretty_midi_midi_import(
-    filename: str, flatten: bool = False, collapse: bool = False, show: bool = False
+    filename: str,
+    flatten: bool = False,
+    collapse: bool = False,
+    show: bool = False,
 ) -> Score:
     """
     Use PrettyMIDI to import a MIDI file and convert it to a Score.
+
+    <small>**Author**: Roger B. Dannenberg</small>
 
     Parameters
     ----------
     filename : Union(str, PosixPath)
         The path to the MIDI file to import.
     flatten : bool, optional
-        If True, create a flattened score where notes are direct children of
+        If True, create a flat score where notes are direct children of
         parts. Defaults to collapse, which defaults to False.
     collapse : bool, optional
         If True, merge all parts into a single part. Implies flatten=True.
@@ -224,7 +244,9 @@ def pretty_midi_midi_import(
         _show_pretty_midi(pmscore, filename)
 
     # Create an empty Score object
-    time_map = _time_map_from_tick_scales(pmscore._tick_scales, pmscore.resolution)
+    time_map = _time_map_from_tick_scales(
+        pmscore._tick_scales, pmscore.resolution
+    )
     score = Score(time_map=time_map)
     score.convert_to_seconds()  # convert to seconds for PrettyMIDI
 
@@ -241,7 +263,7 @@ def pretty_midi_midi_import(
                 parent=part,
                 onset=note.start,
                 duration=note.get_duration(),
-                pitch=note.pitch,
+                pitch=Pitch(note.pitch),
                 dynamic=note.velocity,
             )
             part.duration = max(part.duration, note.end)
@@ -256,10 +278,13 @@ def pretty_midi_midi_import(
     # and move notes into measures, creating ties where they cross.
     if not flatten:
         for part in score.content:
+            part = cast(Part, part)  # tell type checker that part is a Part
             notes = part.content
             part.content = []  # Remove existing content
             # now notes have part as parent, but parent does not have notes
-            staff = Staff(parent=part, onset=0.0, duration=part.duration, number=1)
+            staff = Staff(
+                parent=part, onset=0.0, duration=part.duration, number=1
+            )
             end_time = pmscore.get_end_time()  # total duration of score
             end_beat = score.time_map.time_to_quarter(end_time)
             # in principle we could do this once for the first staff and
@@ -269,6 +294,11 @@ def pretty_midi_midi_import(
             # staff. Besides, _create_measures might even be faster than
             # calling deepcopy on a Staff to copy the measures.
             _create_measures(staff, score.time_map, end_beat, notes, pmscore)
-            _add_notes_to_measures(notes, staff.content, pmscore.resolution)
+            notes = cast(
+                list[Note], notes
+            )  # tell type checker notes is list of Note
+            _add_notes_to_measures(
+                notes, cast(list[Measure], staff.content), pmscore.resolution
+            )
 
     return score

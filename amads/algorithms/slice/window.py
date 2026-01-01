@@ -36,6 +36,8 @@ class Window(Slice):
     constructor is used directly where arithmetic with time and size is
     inexact, this may not be the case.
 
+    <small>**Author**: Peter Harrison</small>
+
     Parameters
     ----------
     time : float
@@ -44,16 +46,16 @@ class Window(Slice):
         The size of the window in time units
     align : str
         How to align the window relative to the reference time:
-        - "left": window starts at reference time
-        - "center": reference time is at window center
-        - "right": window ends at reference time
+        "left": window starts at reference time, "center": reference time
+        is at window center, or "right": window ends at reference time.
     candidate_notes : Iterable[Note]
-        Notes to consider for inclusion in this window, sorted by onset time and pitch
+        Notes to consider for inclusion in this window, sorted by onset
+        time and pitch
     skip : int, default=0
-        Index to start searching from in candidate_notes. This is used to optimize
-        performance when iterating through multiple windows - each window can tell
-        the next window which notes it can safely skip because they end before the
-        window starts.
+        Index to start searching from in candidate_notes. This is used
+        to optimize performance when iterating through multiple
+        windows - each window can tell the next window which notes
+        it can safely skip because they end before the window starts.
     """
 
     def __init__(
@@ -123,7 +125,7 @@ class Window(Slice):
 
             # We use deepcopy_into instead of creating a new Note because we want to
             # preserve any other attributes that might be useful in downstream tasks.
-            note = note.copy(parent=self)
+            note = note.insert_copy_into(parent=self)
             # Clip the note to fit within the window
             note.onset = max(note.onset, onset)
             note.offset = min(note.offset, offset)
@@ -139,6 +141,8 @@ def sliding_window(
     times: Optional[Iterable[float]] = None,
 ) -> Iterator[Window]:
     """Slice a score into (possibly overlapping) windows of a given size.
+
+    <small>**Author**: Peter Harrison</small>
 
     Parameters
     ----------
@@ -181,8 +185,9 @@ def sliding_window(
     if isinstance(passage, Score):
         if not passage.is_flat_and_collapsed():
             raise NotImplementedError(
-                "Currently this function only supports flattened and collapsed scores. "
-                "You can flatten a score using `score.flatten(collapse=True)`."
+                "Currently this function only supports flat scores with a "
+                "single Part. You can flatten a score using "
+                "`score.flatten(collapse=True)`."
             )
         notes = passage.find_all(Note)
     else:

@@ -19,8 +19,9 @@ and basic arithmetic operations.
 See `vector_transforms_checks` for
 transformations (e.g., `rotate`) and
 checks (e.g., `is_rotation_equivalent`) on vectors.
-"""
 
+<small>**Author**: Mark Gotham</small>
+"""
 __author__ = "Mark Gotham"
 
 from typing import Iterable, Union
@@ -35,11 +36,12 @@ import numpy as np
 def multiset_to_vector(
     multiset: Iterable,
     max_index: Union[int, None] = None,
-) -> tuple:
+) -> tuple[int, ...]:
     """
     Converts any "set" or "multiset" (any iterable object containing only integers)
     into a "vector" (count of those integers organized by index).
-    This is similar to the collections.Counter function, simply returning an ordered tuple instead of a dict.
+    This is similar to the collections.Counter function, simply returning
+    an ordered tuple instead of a dict.
 
     Parameters
     ----------
@@ -52,7 +54,8 @@ def multiset_to_vector(
 
     Returns
     -------
-    tuple: The corresponding vector.
+    tuple[int, ...]
+        The corresponding vector of counts for elements 0, 1, 2, etc.
 
     Examples
     --------
@@ -94,18 +97,21 @@ def multiset_to_vector(
     return tuple(counts)
 
 
-def vector_to_multiset(vector: tuple[int, ...]) -> tuple:
+def vector_to_multiset(vector: tuple[int, ...]) -> tuple[int, ...]:
     """
     Converts any "vector" (count of integers organised by index)
     to a corresponding "multiset" (unordered integers).
 
     Parameters
     ----------
-    vector: The input vector.
+    vector:  tuple[int, ...]
+        The input vector where each index i contains the number
+        of occurrences of i.
 
     Returns
     -------
-    tuple: The corresponding set as a tuple (because it will often be a multiset).
+    tuple[int, ...]
+        The corresponding set as a tuple (because it will often be a multiset).
 
     Examples
     --------
@@ -127,17 +133,21 @@ def vector_to_multiset(vector: tuple[int, ...]) -> tuple:
 
 def vector_to_set(vector: tuple[int, ...]) -> set:
     """
-    Converts any "vector" (count of integers organised by index)
-    to a corresponding "set" of the distinct non-0 indices.
+    Converts any "vector" of counts to a corresponding "set" of the distinct non-0 indices.
     cf `vector_to_multiset`
 
     Parameters
     ----------
-    vector: The input vector.
+    vector: tuple[int, ...]
+        The input vector. Each index i contains the count of elements
+        equal to i. The vector can therefore be an indicator vector
+        with 0's and 1's.
 
     Returns
     -------
-    set: The corresponding set.
+    set
+        The corresponding set of integers (equivalently, the indices
+        at which the input `vector` is non-zero.
 
     Examples
     --------
@@ -165,13 +175,15 @@ def multiset_to_set(multiset: Iterable):
     return set(multiset)
 
 
-def weighted_to_indicator(weighted_vector: tuple, threshold: float = 0.0) -> tuple:
+def weighted_to_indicator(
+    weighted_vector: tuple[float, ...], threshold: float = 0.0
+) -> tuple[int, ...]:
     """
     Converts a weighted vector to an indicator vector.
 
     Parameters
     ----------
-    weighted_vector: tuple
+    weighted_vector: tuple[float, ...]
         Represents the weighted vector.
     threshold: float
         Values below this threshold will be set to 0.
@@ -179,7 +191,7 @@ def weighted_to_indicator(weighted_vector: tuple, threshold: float = 0.0) -> tup
 
     Returns
     -------
-    tuple
+    tuple[int, ...]
         Representing the indicator vector (0s and 1s).
 
     Examples
@@ -276,12 +288,15 @@ def scalar_multiply(input: tuple, scale_factor: int = 2) -> tuple:
     Parameters
     ----------
     input: tuple
+        a vector
 
     scale_factor: int
-        The "scale factor" aka "multiplicative operand".
-        Multiply all terms by this amount.
+        The scale factor aka "multiplicative operand".
+        Multiply all elements of `input` by this amount.
         Defaults to 2.
 
+    Examples
+    --------
     >>> scalar_multiply((0, 1, 2))
     (0, 2, 4)
 
@@ -323,30 +338,29 @@ def is_set(input: Iterable) -> bool:
 
 def is_indicator_vector(vector: tuple) -> bool:
     """
-     Check whether an input vector (tuple) is an indicator vector, featuring only 0s and 1s.
+    Check whether an input vector (tuple) is an indicator vector,
+    containing only 0s and 1s.
 
-     Examples
-     --------
+    Examples
+    --------
+    >>> is_indicator_vector((0, 1))
+    True
 
-     >>> is_indicator_vector((0, 1))
-     True
-
-     Can be all 0s
-     >>> is_indicator_vector((0, 0))
-     True
+    Can be all 0s
+    >>> is_indicator_vector((0, 0))
+    True
 
     Can be all 1s
-     >>> is_indicator_vector((1, 1))
-     True
+    >>> is_indicator_vector((1, 1))
+    True
 
     Cannot have any non-0 or 1 entry
-     >>> is_indicator_vector((1, 2))
-     False
+    >>> is_indicator_vector((1, 2))
+    False
 
     Note: cannot be empty
-     >>> is_indicator_vector(())
-     False
-
+    >>> is_indicator_vector(())
+    False
     """
     if len(vector) == 0:
         return False

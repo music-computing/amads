@@ -14,21 +14,25 @@ from ..core.basics import Score
 __author__ = "Tai Nakamura"
 
 
-def notedensity(score: Score, timetype: Optional[str] = "quarters") -> float:
+def note_density(score: Score, timetype: Optional[str] = "quarters") -> float:
     """
-    Returns the number of notes per quarter or second in a Score as a float.
+    Returns the number of notes per quarter or per second in a Score as a float.
 
-    Specifically, it computes note density as (number of notes - 1) divided by
+    Specifically, compute note density as (number of notes - 1) divided by
     the time span from the first note onset to the last note onset.
     The subtraction of 1 ensures that density is measured in terms
     of intervals between notes.
-    If there are no notes, it returns 0.0.
+    If there are no notes, return 0.0.
+
+    <small>**Author**: Tai Nakamura</small>
 
     Parameters
     ----------
-    score (Score): The musical score to analyze.
-    timetype (str, optional, default='quarters'):
+    score : Score
+        The musical score to analyze.
+    timetype : str, optional, default='quarters'
         Time unit for calculation:
+
         - 'quarters': notes per quarter (default)
         - 'seconds' : notes per second
 
@@ -42,7 +46,7 @@ def notedensity(score: Score, timetype: Optional[str] = "quarters") -> float:
     Raises
     ------
     ValueError
-        If 'timetype' is not 'quarters' or 'seconds'.
+        If `timetype` is not 'quarters' or 'seconds'.
 
     Examples
     --------
@@ -77,7 +81,9 @@ def notedensity(score: Score, timetype: Optional[str] = "quarters") -> float:
             start_onset = notes[0].onset
             end_onset = notes[-1].onset
     else:
-        raise ValueError(f"Invalid timetype: {timetype}. Use 'quarters' or 'seconds'.")
+        raise ValueError(
+            f"Invalid timetype: {timetype}. Use 'quarters' or 'seconds'."
+        )
     duration = end_onset - start_onset
     if duration <= 0:
         return 0.0

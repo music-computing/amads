@@ -1,20 +1,18 @@
 from collections import OrderedDict
-from collections.abc import Hashable
 from typing import List, Optional
 
-from amads.core.basics import Note, Score
-from amads.pitch.ismonophonic import ismonophonic
+from amads.core.basics import Score
 
 
 class MelodyTokenizer:
-    """Base class for tokenizing melodies into n-grams."""
+    """Abstract base class for tokenizing melodies into n-grams."""
 
     def __init__(self):
         """Initialize the tokenizer."""
         self.ioi_data = {}  # Dictionary to store IOI information for notes
 
     def tokenize(self, score: Score) -> List[List]:
-        """Tokenize a melody into phrases.
+        """Tokenize a melody into phrases. (Unimplemented abstract method.)
 
         Parameters
         ----------
@@ -25,56 +23,13 @@ class MelodyTokenizer:
         -------
         list[list]
             List of tokenized phrases
+
+        Raises
+        ------
+        NotImplementedError
+            if this method of MelodyTokenizer is called
         """
         raise NotImplementedError
-
-    def get_notes(self, score: Score) -> List[Note]:
-        """Extract notes from score and calculate IOI values.
-
-        Parameters
-        ----------
-        score : Score
-            Score object to extract notes from
-
-        Returns
-        -------
-        list[Note]
-            List of notes with IOI and IOI ratio values calculated
-        """
-        # First check if score is monophonic
-        if not ismonophonic(score):
-            raise ValueError("Score must be monophonic")
-
-        flattened_score = score.flatten(collapse=True)
-        notes = list(flattened_score.find_all(Note))
-
-        # Clear any previous IOI data
-        self.ioi_data = {}
-
-        # Calculate IOIs and IOI ratios
-        # n.b. when #68 is merged, this should be revised
-        # Calculate IOIs
-        for i, note in enumerate(notes):
-            # Initialize entry for this note
-            self.ioi_data[note] = {"ioi": None, "ioi_ratio": None}
-
-            if i > 0:
-                self.ioi_data[note]["ioi"] = note.onset - notes[i - 1].onset
-            else:
-                self.ioi_data[note]["ioi"] = None
-
-            if i == 0:
-                self.ioi_data[note]["ioi_ratio"] = None
-            else:
-                prev_note = notes[i - 1]
-                prev_ioi = self.ioi_data[prev_note]["ioi"]
-                ioi = self.ioi_data[note]["ioi"]
-                if ioi is None or prev_ioi is None:
-                    self.ioi_data[note]["ioi_ratio"] = None
-                else:
-                    self.ioi_data[note]["ioi_ratio"] = ioi / prev_ioi
-
-        return notes
 
 
 class FantasticTokenizer(MelodyTokenizer):
@@ -113,40 +68,41 @@ class FantasticTokenizer(MelodyTokenizer):
         score : Score
             Score object containing melody to tokenize
 
+        Raises
+        ------
+        ValueError
+            if score has more than one part, if the part has concurrent
+            notes (IOI == 0) or if a Note in the part has a tie.
+
         Returns
         -------
         list
             List of M-Type tokens
         """
         # Extract notes and calculate IOIs using get_notes
-        notes = self.get_notes(score)
+        notes = score.calc_differences(["ioi-ratio", "interval"])
+        if len(notes) != 1:
+            raise ValueError("score has more than one Part")
+        notes = notes[0]
         tokens = []
 
         # Skip if phrase is too short
         if len(notes) < 2:
             return tokens
 
-        for prev_note, current_note in zip(notes[:-1], notes[1:]):
-            pitch_interval = current_note.key_num - prev_note.key_num
-            if (
-                self.ioi_data[prev_note]["ioi"] is None
-                or self.ioi_data[current_note]["ioi"] is None
-            ):
-                ioi_ratio = None
-            else:
-                ioi_ratio = (
-                    self.ioi_data[current_note]["ioi"] / self.ioi_data[prev_note]["ioi"]
-                )
-
-            pitch_interval_class = self.classify_pitch_interval(pitch_interval)
-            ioi_ratio_class = self.classify_ioi_ratio(ioi_ratio)
-
+        for note in notes[1:]:
+            pitch_interval = note.get("interval")
+            pitch_interval_class: Optional[str] = self.classify_pitch_interval(
+                pitch_interval
+            )
+            ioi_ratio_class = self.classify_ioi_ratio(note.get("ioi_ratio"))
             token = MType(pitch_interval_class, ioi_ratio_class)
             tokens.append(token)
-
         return tokens
 
-    def classify_pitch_interval(self, pitch_interval: Optional[int]) -> Hashable:
+    def classify_pitch_interval(
+        self, pitch_interval: Optional[int]
+    ) -> Optional[str]:
         """Classify pitch interval according to Fantastic's interval class scheme.
 
         Parameters
@@ -156,12 +112,12 @@ class FantasticTokenizer(MelodyTokenizer):
 
         Returns
         -------
-        str or None
+        Optional[str]
             Interval class label (e.g. 'd8', 'd7', 'u2', etc.)
-            'd' = downward interval
-            'u' = upward interval
-            's' = same pitch
-            't' = tritone
+            'd' = downward interval,
+            'u' = upward interval,
+            's' = same pitch, and
+            't' = tritone.
             Returns None if input is None
         """
         # Clamp interval to [-12, 12] semitone range
@@ -176,7 +132,7 @@ class FantasticTokenizer(MelodyTokenizer):
         # Map intervals to class labels based on Fantastic's scheme
         return self.interval_map[pitch_interval]
 
-    interval_map = OrderedDict(
+    interval_map: OrderedDict[Optional[int], Optional[str]] = OrderedDict(
         [
             (None, None),  # missing interval
             (-12, "d8"),  # Descending octave
@@ -210,10 +166,11 @@ class FantasticTokenizer(MelodyTokenizer):
     interval_classes = OrderedDict.fromkeys(interval_map.values())
 
     interval_class_codes = {
-        string: integer for integer, string in enumerate(interval_classes.keys())
+        string: integer
+        for integer, string in enumerate(interval_classes.keys())
     }
 
-    def classify_ioi_ratio(self, ioi_ratio: Optional[float]) -> str:
+    def classify_ioi_ratio(self, ioi_ratio: Optional[float]) -> Optional[str]:
         """Classify an IOI ratio into relative rhythm classes.
 
         Parameters
@@ -224,10 +181,10 @@ class FantasticTokenizer(MelodyTokenizer):
         Returns
         -------
         str or None
-            'q' for quicker (<0.8119)
-            'e' for equal (0.8119-1.4946)
-            'l' for longer (>1.4946)
-            Returns None if input is None
+            'q' for quicker (<0.8119),
+            'e' for equal (0.8119-1.4946), and
+            'l' for longer (>1.4946).
+            Returns None if input is None.
         """
         if ioi_ratio is None:
             return None
