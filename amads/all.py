@@ -102,6 +102,3 @@ from .time.rhythm import *
 from .time.swing import *
 from .time.tempo import *
 from .time.variability import *
-
-# utils
-from .utils import *

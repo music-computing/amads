@@ -8,11 +8,11 @@ Author
 Peter Harrison
 """
 
-from typing import Iterable, Iterator, Optional, Union
+from typing import Iterable, Iterator, List, Optional, Union, cast
 
 from amads.algorithms.slice.slice import Slice
 from amads.core.basics import Note, Score
-from amads.utils import float_range
+from amads.core.utils import float_range
 
 
 class Window(Slice):
@@ -193,7 +193,7 @@ def sliding_window(
     else:
         notes = passage
 
-    notes = list(notes)
+    notes = cast(List[Note], list(notes))
     notes.sort(key=lambda n: (n.onset, n.pitch))
 
     # We could rely on Window to obey `align`, but here we convert onset and

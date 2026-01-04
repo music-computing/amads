@@ -17,6 +17,8 @@ https://doi.org/10.1080/17459737.2014.980343
 __author__ = "Mark Gotham"
 
 
+from typing import Optional
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -81,8 +83,8 @@ class MetricalSalience:
 
     def __init__(
         self,
-        symbolic_pulses: np.ndarray = None,
-        quarter_bpm: float = None,
+        symbolic_pulses: Optional[np.ndarray] = None,
+        quarter_bpm: Optional[float] = None,
         mu: float = 0.6,
         sig: float = 0.3,
     ):

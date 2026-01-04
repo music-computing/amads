@@ -218,7 +218,7 @@ class ParncuttRootAnalysis:
             self.root_strengths,
             "root_support_weights",
             [12],
-            CHROMATIC_NAMES,
+            CHROMATIC_NAMES,  # type: ignore
             "Pitch class",  # type: ignore
             None,
             "Root strength",
