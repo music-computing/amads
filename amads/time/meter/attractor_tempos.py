@@ -81,7 +81,7 @@ class MetricalSalience:
 
     def __init__(
         self,
-        symbolic_pulses: np.array = None,
+        symbolic_pulses: np.ndarray = None,
         quarter_bpm: float = None,
         mu: float = 0.6,
         sig: float = 0.3,

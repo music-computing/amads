@@ -19,7 +19,7 @@ For multiple authors, use a list:
 See [documentation][] for notes on getting your name into formatted
 documentation (`__author__` will not do it).
 
-####Code organization
+### Code organization
 
 Modules should be organized in a logical hierarchy that reflects their
 purpose. For example, complexity algorithms go in:
@@ -36,22 +36,39 @@ of the package more explicit. The second style is more appropriate for
 interactive use.
 
 In order to support the second style, we add import statements to the
-`__init__.py` file of each module. For example, the `__init__.py` file
-for the `root_finding` module contains:
+`amads/all.py` file for *everything*.
 
-    from .parncutt_1988 import root as root_parncutt_1988
+Then the `__init__.py` file for nearly all directories is empty.
 
-Then the `__init__.py` file for the `harmony` module contains:
+#### Details on module organization and naming
 
-    from .root_finding import *
+We initially set up `__init__.py` files to include everything beneath
+them. This might be nice so that you could simply write
 
-Finally, the `all.py` file for the `amads` package contains:
+    from amads.harmony import get_root
 
-    from .harmony import *
+skipping the detail that `get_root` might actually be in a
+submodule `amads.harmony.root_finding` or
+`amads.harmony.root_finding.parncutt` but this "aggressive" loading
+is:
 
-Function naming \~\~\~\~\~\~\~\~\~\~\~\~\~\~
+ - well, aggressive, loading much more than necessary
+ - caused some cyclical dependencies
+ - does not match mkdocs documentation, which would describe
+    `get_root` as `amads.harmony.root_finding.parncutt.get_root`,
+    not `amads.harmony.get_root`
 
-Be explicit about what functions return. Don\'t make users guess:
+In short, attempts to create “virtual” namespaces that do not match
+the directory structure conflict in subtle ways with Python tools.
+In spite of Python's popularity and goals of simplicity, I think there
+is obvious confusion and design failure in Python abstractions. In
+the end, it seems “simpler is better,” and trying to create “helpful”
+abstractions (like a harmony module with all things harmony) just
+adds to confusion and maintenance problems.
+
+### Function naming
+
+Be explicit about what functions return. Don't make users guess:
 
     # Good
     lz77_size()
@@ -60,17 +77,17 @@ Be explicit about what functions return. Don\'t make users guess:
     # Bad
     lz77()  # Unclear what this returns
 
-Code structure \~\~\~\~\~\~\~\~\~\~\~\~\~
+### Code structure
 
 Local function definitions should be avoided as they can negatively
 impact performance. Instead, define functions at module level:
 
     # Good
-    def helper_function(x):
+    def _helper_function(x):
         return x * 2
 
     def main_function(x):
-        return helper_function(x)
+        return _helper_function(x)
 
     # Bad
     def main_function(x):
@@ -78,8 +95,13 @@ impact performance. Instead, define functions at module level:
             return x * 2
         return helper_function(x)
 
-We plan to implement a pipeline for standardizing code formatting using
-`black`. This will ensure consistent code style across the project.
+We implement a pipeline for standardizing code formatting using
+`black`. This will ensure consistent code style across the project
+at the expense of allowing “custom” formatting in special cases.
+You can override `black` (e.g., this is done in `amads.core.basics`)
+and “do it yourself” but please stick to the general Python
+conventions seen throughout AMADS and avoid any surprising code
+layout.
 
 Docstrings should use numpydoc formatting:
 
@@ -122,18 +144,21 @@ functions for efficiency. This avoids loading unused dependencies:
 ### Types
 
 -   Provide type hints for function parameters and return types
--   If a function accepts either [float]{.title-ref} or
-    [int]{.title-ref} you can use [float]{.title-ref} as the type hint,
-    [int]{.title-ref} will be understood as being accepted too
+-   If a function accepts either `float` or `int` you can use
+    `float` as the type hint. `int` will be understood as being
+    accepted too
 -   Functions should accept Python base types as inputs but can
-    optionally support numpy arrays
+    optionally support numpy arrays.
 -   Return Python base types by default, use numpy types only when
     necessary
 -   For internal computations, either base Python or numpy is fine
--   Where possible, only take simple singular input types and let users
-    handle iteration
+-   Where possible, only take simple singular input types and let
+    users handle iteration (well, we're not consistent on this point,
+    so this policy may change. An argument for is simplifying type
+    specifications, which in some cases are too complex to be really
+    helpful.)
 
-Common patterns \~\~\~\~\~\~\~\~\~\~\~\~\~\~
+### Common patterns
 
 When implementing algorithms, we distinguish between internal and
 external functions. Internal functions implement the core algorithm or
@@ -149,7 +174,8 @@ For example:
     def calculate_entropy(pitches: list[int]) -> float:
         """Calculate the entropy of a pitch sequence.
 
-        Handles input validation and conversion before calling _calculate_entropy_core().
+        Handles input validation and conversion before
+        calling _calculate_entropy_core().
         """
         if not pitches:
             raise ValueError("Input pitch list cannot be empty")
@@ -171,20 +197,46 @@ For example:
         probabilities = [c/total for c in counts]
         return -sum(p * math.log2(p) for p in probabilities if p > 0)
 
-Put the external function at the beginning of the module, so that it\'s
+Put the external function at the beginning of the module, so that it's
 the first thing the user sees. Note that we prefix the internal function
-with an underscore, to indicate that it\'s not part of the public API.
+with an underscore, to indicate that it's not part of the public API.
+
+### Notes
+
+In documentation, you can put the main points at the top and put
+details in a collapsible box later on. We prefer to put Notes *after*
+Attributes, Parameters, Returns, and Raises sections. If there is a
+“note” that deserves to be seen more immediately, just write something
+like:
+
+    Note: see also [plot][amads.core.distribution.Distribution.plot]
+    
+while a full notes section would be written (below Parameters,
+Returns, etc.):
+
+    Notes
+    -----
+    
+    - here is one detail we omitted in the docstring above
+    - here is another detail
+    - and the details just keep coming!
+
 
 ### References
 
 Include references with DOIs/URLs where possible. Here are some
-examples:
+examples. Put References *below* Attributes, Parameters, Returns,
+Raises and Notes sections.
 
-    [1]: Ziv, J., & Lempel, A. (1977). A universal algorithm for sequential data compression.
+    References
+    ----------
+    [1] Ziv, J., & Lempel, A. (1977). A universal algorithm for
+         sequential data compression.
          IEEE Transactions on Information Theory. 23/3 (pp. 337–343).
          https://doi.org/10.1109/TIT.1977.1055714
 
-    [2]: Cheston, H., Schlichting, J. L., Cross, I., & Harrison, P. M. C. (2024).
-         Rhythmic qualities of jazz improvisation predict performer identity and style
-         in source-separated audio recordings. Royal Society Open Science. 11/11.
+    [2] Cheston, H., Schlichting, J. L., Cross, I., & Harrison, P. M. C. (2024).
+         Rhythmic qualities of jazz improvisation predict performer
+         identity and style in source-separated audio recordings.
+         Royal Society Open Science. 11/11.
          https://doi.org/10.1098/rsos.231023

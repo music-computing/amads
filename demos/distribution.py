@@ -127,7 +127,7 @@ def main():
         data=toy_distribution_1d,
         distribution_type="pitch_class",
         dimensions=[12],
-        x_categories=PITCHES,
+        x_categories=PITCHES,  # type: ignore (list[str] is compatible)
         x_label="Pitch class",
         y_categories=None,
         y_label="Probability",
@@ -137,9 +137,9 @@ def main():
         data=toy_distribution_2d,
         distribution_type="pitch_class",
         dimensions=[12, 12],
-        x_categories=RELATIVE_TO_TONIC,
+        x_categories=RELATIVE_TO_TONIC,  # type: ignore (list[str] is compatible)
         x_label="Chromatic Scale Degrees",
-        y_categories=PITCHES,
+        y_categories=PITCHES,  # type: ignore (list[str] is compatible)
         y_label="Key",
     )
     dist3 = Distribution(
@@ -147,7 +147,7 @@ def main():
         data=toy2_distribution_1d,
         distribution_type="pitch_class",
         dimensions=[12],
-        x_categories=PITCHES,
+        x_categories=PITCHES,  # type: ignore (list[str] is compatible)
         x_label="Pitch class",
         y_categories=None,
         y_label="Probability",
@@ -157,7 +157,7 @@ def main():
         data=toy3_distribution_1d,
         distribution_type="pitch_class",
         dimensions=[12],
-        x_categories=PITCHES,
+        x_categories=PITCHES,  # type: ignore (list[str] is compatible)
         x_label="Pitch class",
         y_categories=None,
         y_label="Probability",
