@@ -8,14 +8,14 @@ of notes in a MIDI file.
 # %%
 import matplotlib.pyplot as plt
 
-from amads.algorithms import duration_distribution_2
-from amads.io import music21_midi_import
+from amads.io.m21_midi_import import music21_midi_import
 from amads.music import example
+from amads.time.durdist2 import duration_distribution_2
 
 # %%
 # Load example MIDI file
 my_midi_file = example.fullpath("midi/sarabande.mid")
-
+assert my_midi_file is not None, "Example MIDI file not found."
 # %%
 # Import MIDI using partitura
 myscore = music21_midi_import(my_midi_file, show=False)

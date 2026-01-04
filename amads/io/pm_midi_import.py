@@ -20,18 +20,16 @@ PrettyMIDI has a "hidden" representation of teh MIDI tempo track in
 need to convert this to a TimeMap.
 """
 
-__author__ = "Roger B. Dannenberg <rbd@cs.cmu.edu>"
+__author__ = "Roger B. Dannenberg"
 
 import warnings
 from typing import cast
 
 from pretty_midi import PrettyMIDI
 
-from ..core.basics import Measure, Note, Part, Score, Staff
-from ..core.pitch import Pitch
-from ..core.timemap import TimeMap
-
-_pitch_names = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
+from amads.core.basics import Measure, Note, Part, Score, Staff
+from amads.core.pitch import CHROMATIC_NAMES, Pitch
+from amads.core.timemap import TimeMap
 
 
 def _show_pretty_midi(pmscore: PrettyMIDI, filename: str) -> None:
@@ -40,7 +38,7 @@ def _show_pretty_midi(pmscore: PrettyMIDI, filename: str) -> None:
     print(f"end_time: {pmscore.get_end_time()}")
     if pmscore.key_signature_changes and len(pmscore.key_signature_changes) > 0:
         for sig in pmscore.key_signature_changes:
-            key = _pitch_names[sig.key_number % 12]
+            key = CHROMATIC_NAMES[sig.key_number % 12]
             key += " major" if sig.key_number < 12 else " minor"
             print(
                 f"    KeySignature(time={sig.time},"

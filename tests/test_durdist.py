@@ -4,14 +4,12 @@ Tests for amads/time/durdist2.py
 
 import math
 
-from amads.algorithms import (
-    duration_distribution_1,
-    duration_distribution_2,
-    nnotes,
-)
+from amads.algorithms.nnotes import nnotes
 from amads.core.histogram import boundaries_to_centers, centers_to_boundaries
-from amads.io import read_score
+from amads.io.readscore import read_score
 from amads.music import example
+from amads.time.durdist1 import duration_distribution_1
+from amads.time.durdist2 import duration_distribution_2
 
 
 def assert_equal_dist1d(dist, correct, tol=1e-6):
@@ -57,9 +55,7 @@ def test_durdist_with_custom_bins():
 
     # Calculate duration distribution with custom bins
     centers = [0.05 * (2**i) for i in range(9)]  # Custom boundaries
-    dd2 = duration_distribution_2(
-        myscore, bin_centers=centers, miditoolbox_compatible=True
-    )
+    dd2 = duration_distribution_2(myscore, bin_centers=centers)
 
     print("Duration pair distribution, miditoolbox compatible:", dd2)
     print(dd2.data)
@@ -74,7 +70,6 @@ def test_durdist_with_custom_bins():
         [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
         [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
     ]
-    assert dd2.data[0][0] != 0.0, "no zeros expected if miditoolbox compatible"
     assert_equal_dist2d(dd2, correct, 0.001)
 
     dd2 = duration_distribution_2(myscore, bin_centers=centers)

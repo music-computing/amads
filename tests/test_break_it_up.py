@@ -4,8 +4,8 @@ Tests for the `break_it_up` module.
 Tests functionality for regrouping and quantizing musical durations.
 """
 
-from amads.time.meter import PulseLengths
 from amads.time.meter.break_it_up import MetricalSplitter
+from amads.time.meter.representations import PulseLengths
 
 
 def test_from_pulse_length():

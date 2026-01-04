@@ -10,9 +10,9 @@ Peter Harrison
 
 from typing import Iterable, Iterator, Optional, Union
 
-from ...core.basics import Note, Score
-from ...utils import float_range
-from .slice import Slice
+from amads.algorithms.slice.slice import Slice
+from amads.core.basics import Note, Score
+from amads.utils import float_range
 
 
 class Window(Slice):

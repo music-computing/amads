@@ -6,6 +6,8 @@ This example demonstrates ways to create and populate Score objects
 using the AMADS library.
 """
 
+from typing import Iterable, cast
+
 from amads.core.basics import Measure, Note, Part, Rest, Score, Staff
 from amads.core.timemap import TimeMap
 
@@ -89,6 +91,7 @@ part = Part()
 for i in range(12):  # another octave for a whole note
     note = Note(parent=part, onset=i, pitch=60 + i)
 # create a whole note at the end of the last note:
+assert note  # type: ignore  # satisfy type checker that note is defined
 note = Note(parent=part, onset=note.offset, pitch="C5", duration=4)
 # not strictly necessary, but since part.duration is not updated
 # when content is added, we set it explicitly here:
@@ -149,7 +152,8 @@ Here are just the flute notes from the previous score.
 # collapse_parts both flattens and selects notes:
 flute_score = score.collapse_parts(part="Flute")
 print("Flute notes:")
-for note in flute_score.find_all(Note):
+note: Note
+for note in cast(Iterable[Note], flute_score.find_all(Note)):
     note.show(indent=4)  # prints all notes in the flute part
 
 """
@@ -169,10 +173,10 @@ both part order and time order.
 """
 
 print("Full score notes in part order:")
-for note in score.find_all(Note):
+for note in cast(Iterable[Note], score.find_all(Note)):
     note.show(indent=4)
 print("Full score notes in time order:")
-for note in score.get_sorted_notes():
+for note in cast(Iterable[Note], score.get_sorted_notes()):
     note.show(indent=4)
 
 """
@@ -206,10 +210,10 @@ seconds, the notes will be half as long in seconds.
 """
 
 # change the tempo
-tempo = score.time_map.beat_to_tempo(0)  # initial tempo
+tempo = score.time_map.quarter_to_tempo(0)  # initial tempo
 print("Initial tempo:", tempo)
 score.time_map = TimeMap(tempo * 2)  # double the tempo
-print("New tempo:", score.time_map.beat_to_tempo(0))
+print("New tempo:", score.time_map.quarter_to_tempo(0))
 # convert to seconds
 score.convert_to_seconds()
 print("Full score notes in time order (seconds, after tempo change):")

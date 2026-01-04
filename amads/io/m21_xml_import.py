@@ -14,7 +14,7 @@ from music21 import (
     tempo,
 )
 
-from ..core.basics import (
+from amads.core.basics import (
     Chord,
     Clef,
     KeySignature,

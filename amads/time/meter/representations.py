@@ -60,7 +60,7 @@ def is_non_negative_integer_power_of_two(n: float) -> bool:
 
 
 def switch_pulse_length_beat_type(
-    pulse_length_or_beat_type: Union[float, np.array]
+    pulse_length_or_beat_type: Union[float, np.ndarray]
 ):
     """
     Switch between a pulse length and beat type.
@@ -101,8 +101,8 @@ class StartTimeHierarchy:
         The only “well-formed” criteria we expect are
         use of 0.0 and full cycle length at the top level, and
         presence of all timepoints from one level in each subsequent level.
-        For creating this information from pulse lengths, time signatures, and more
-        see the `to_start_hierarchy` methods on those classes.
+        For creating this information from pulse lengths, time signatures,
+        and more see the `to_start_hierarchy` methods on those classes.
     names
         Optionally create a dict mapping temporal positions to names.
         Currently, this supports one textual value per temporal position (key),
@@ -264,6 +264,7 @@ class StartTimeHierarchy:
 
         """
         self.to_pulse_lengths()
+        assert self.pulse_lengths is not None, ""
         fastest = self.pulse_lengths[-1]
         if fastest is None:
             raise ValueError(
@@ -331,7 +332,7 @@ class TimeSignature:
 
     def __init__(
         self,
-        beats: Optional[Union[tuple[int]]] = None,
+        beats: Optional[tuple[int]] = None,
         beat_type: Optional[int] = None,
         # delta: Optional[float] = 0,  # TODO if merging with basics
         as_string: Optional[str] = None,

@@ -181,9 +181,8 @@ class Event:
 
         Parameters
         ----------
-        property : str
+        property : str.
             The name of the property to get.
-
         default : Any
             The default value to return if the property is not found.
             
@@ -274,7 +273,7 @@ class Event:
     
         Returns
         -------
-        float
+        float | None
             The onset (start) time.
 
         Raises
@@ -323,6 +322,9 @@ class Event:
         Event
             self, after quantization.
         """
+        if self._onset is None or self.duration is None:
+            raise ValueError(
+                "Cannot quantize Event with None onset or duration")
         self.onset = round(self.onset * divisions) / divisions
         quantized_offset = round(self.offset * divisions) / divisions
 
@@ -840,6 +842,8 @@ class Note(Event):
 
         If the note is unpitched (pitch is None), raise ValueError.
 
+        If the note is unpitched (pitch is None), raise ValueError.
+
         Returns
         -------
         int
@@ -897,6 +901,8 @@ class Note(Event):
 
         If the note is unpitched (pitch is None), raise ValueError.
 
+        If the note is unpitched (pitch is None), raise ValueError.
+
         Returns
         -------
         Pitch
@@ -912,6 +918,8 @@ class Note(Event):
 
         It follows that the alt is decreased by 1 or 2, e.g., C###
         (with `alt` = +3) becomes D# (with `alt` = +1).
+
+        If the note is unpitched (pitch is None), raise ValueError.
 
         If the note is unpitched (pitch is None), raise ValueError.
 
@@ -935,6 +943,8 @@ class Note(Event):
 
         If the note is unpitched (pitch is None), raise ValueError.
 
+        If the note is unpitched (pitch is None), raise ValueError.
+
         Returns
         -------
         Pitch
@@ -951,7 +961,8 @@ class Note(Event):
             sharp_or_flat: Optional[str] = "default") -> "Pitch":
         """Return a valid Pitch with the simplest enharmonic representation.
 
-        (See [simplest_enharmonic][amads.core.pitch.Pitch.simplest_enharmonic].)
+        (See [simplest_enharmonic]
+         [amads.core.pitch.Pitch.simplest_enharmonic].)
 
         Parameters
         ----------
@@ -1438,7 +1449,8 @@ class EventGroup(Event):
         return c  #type: ignore (c will always be an EventGroup)
 
 
-    def expand_chords(self, parent: Optional["EventGroup"] = None) -> "EventGroup":
+    def expand_chords(self,
+                      parent: Optional["EventGroup"] = None) -> "EventGroup":
         """Replace chords with the multiple notes they contain.
 
         Returns a deep copy with no parent unless parent is provided.
@@ -1530,7 +1542,7 @@ class EventGroup(Event):
             # score will have one Part, content of which is all Notes:
             return self.flatten(collapse=True).content[0].content  # type: ignore
         else:
-            notes : List[Note] = self.list_all(Note)
+            notes : List[Note] = cast(List[Note], self.list_all(Note))
             for note in notes:
                 if note.tie is not None:
                     raise ValueError(
@@ -1704,11 +1716,13 @@ class EventGroup(Event):
         """Create a new `EventGroup` with tied notes replaced by single notes.
 
         If ties cross staffs, the replacement is placed in the staff of the
-        first note in the tied sequence. Insert the new `EventGroup` into `parent`.
+        first note in the tied sequence. Insert the new `EventGroup` into
+        `parent`.
 
         Ordinarily, this method is called on a Score with no parameters. The
         parameters are used when `Score.merge_tied_notes()` calls this method
-        recursively on `EventGroup`s within the Score such as `Part`s and `Staff`s.
+        recursively on `EventGroup`s within the Score such as `Part`s and
+        `Staff`s.
 
         Parameters
         ----------
@@ -1903,7 +1917,8 @@ class EventGroup(Event):
         Returns
         -------
         EventGroup
-            A deep copy of the EventGroup instance with all Rest objects removed.
+            A deep copy of the EventGroup instance with all Rest
+            objects removed.
         """
         # implementation detail: when called without argument, remove_rests
         # makes a deep copy of the subtree and returns the copy without a
@@ -2118,6 +2133,7 @@ class Concurrence(EventGroup):
                  content: Optional[list[Event]] = None):
         super().__init__(parent, onset, duration, content)
  
+
 
 class Chord(Concurrence):
     """A collection of notes played together.
@@ -2508,7 +2524,7 @@ class Score(Concurrence):
         return self._units_are_seconds
 
 
-    def calc_differences(self: Part, what: List[str]) -> List[List[Note]]:
+    def calc_differences(self, what: List[str]) -> List[List[Note]]:
         """Calculate inter-onset intervals (IOIs), IOI-ratios and intervals.
 
         This method is a convenience function that calls Part.calc_differences()
@@ -2611,13 +2627,13 @@ class Score(Concurrence):
             as part of flattening. If the parts are flat already,
             setting has_ties=False will save some computation.
 
-        Exceptions
-        ----------
-        If staff is given without a part specification, an Exception
-            is raised.
+        Raises
+        ------
+        ValueError
+            A ValueError is raised if:
 
-        If staff is given and this is a flat score (no staves),
-            an Exception is raised.
+            - staff is given without a part specification
+            - staff is given and this is a flat score (no staves)
 
         Note
         ----
@@ -2629,7 +2645,6 @@ class Score(Concurrence):
         so you would have to write collapse_parts(part=((0))). With [n]
         notation, you write collapse_parts(part=[0]) to indicate an index.
         This is prettier and less prone to error.
-
         """
 
         # Algorithm: Since we might be selecting individual Staffs and
@@ -2732,7 +2747,8 @@ class Score(Concurrence):
             new_part.content = notes  # type: ignore (List[Note] < List[Event])
 
             # set the Part duration so it ends at the max offset of all Parts:
-            offset = max((part.offset for part in self.find_all(Part)), default=0)
+            offset = max((part.offset for part in self.find_all(Part)),
+                         default=0)
             new_part.duration = offset - score.onset
 
         else:  # flatten each part separately
@@ -3016,6 +3032,7 @@ class Score(Concurrence):
         return self
 
 
+
 class Part(EventGroup):
     """A Part models a staff or staff group such as a grand staff.
 
@@ -3184,7 +3201,8 @@ class Part(EventGroup):
             a new part that has been flattened
         """
         part = self if in_place else self.merge_tied_notes()
-        notes : List[Note] = part.list_all(Note)  # type: ignore (Notes < Events)
+        notes : List[Note] \
+              = part.list_all(Note)  # type: ignore (Notes < Events)
         for note in notes:
             note.parent = part
         notes.sort(key=lambda x: (x.onset, x.pitch))
@@ -3244,7 +3262,7 @@ class Part(EventGroup):
         return part
 
 
-    def calc_differences(self: Part, what: List[str]) -> List[Note]:
+    def calc_differences(self, what: List[str]) -> List[Note]:
         """Calculate inter-onset intervals (IOIs), IOI-ratios and intervals.
 
         This method modifies the Part in place, calculating several
@@ -3319,9 +3337,9 @@ class Part(EventGroup):
             if do_ioi_ratio:
                 if prev_ioi is None:
                     note.set("ioi_ratio", None)
-                else:
-                    note.set("ioi_ratio", ioi / prev_ioi)
-                prev_ioi = ioi
+                else:  # ignore typing because ioi is bound earlier:
+                    note.set("ioi_ratio", ioi / prev_ioi)  # type: ignore
+                prev_ioi = ioi  # type: ignore (ioi is bound if do_ioi) 
             if do_interval:
                 note.set("interval", note.key_num - prev_note.key_num)
             prev_note = note

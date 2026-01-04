@@ -110,6 +110,11 @@ def duration_distribution_2(
 
     if ignore_extrema == "unspecified":
         ignore_extrema = miditoolbox_compatible
+    else:
+        if not isinstance(ignore_extrema, bool):
+            raise ValueError(
+                "ignore_extrema must be a boolean value or 'unspecified'"
+            )
     initial_value = 1e-12 if miditoolbox_compatible else 0.0
     x_categories = None
 

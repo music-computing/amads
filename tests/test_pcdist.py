@@ -2,8 +2,9 @@
 Tests for amads/pitch/pcdist1.py
 """
 
-from amads.all import import_midi, pitch_class_distribution_1
+from amads.io.readscore import import_midi
 from amads.music import example
+from amads.pitch.pcdist1 import pitch_class_distribution_1
 
 from .test_durdist import assert_equal_dist1d
 

@@ -4,7 +4,7 @@ Provides the `skyline` function
 
 from typing import List, Optional, cast
 
-from ..core.basics import Note, Part, Score
+from amads.core.basics import Note, Part, Score
 
 
 def skyline(score: Score, threshold: float = 0.1) -> Score:

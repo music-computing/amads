@@ -4,7 +4,7 @@ Provides the `nnotes` function
 Original doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=77
 """
 
-from ..core.basics import Note, Score
+from amads.core.basics import Note, Score
 
 
 def nnotes(score: Score, merge_ties: bool = False) -> int:
@@ -28,7 +28,7 @@ def nnotes(score: Score, merge_ties: bool = False) -> int:
     Examples
     --------
     >>> from amads.music import example
-    >>> from amads.io import read_score
+    >>> from amads.io.readscore import read_score
     >>> import contextlib
     >>> # Load example score while suppressing output:
     >>> with contextlib.redirect_stdout(None):

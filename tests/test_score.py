@@ -462,7 +462,7 @@ def test_key_sig():
 def test_eventgroup():
     note1 = Note(onset=0, duration=1, pitch="C4")
     note2 = Note(onset=1, duration=1, pitch="E4")
-    eg = Part(note1, note2, onset=0, pack=True)
+    eg = Part(note1, note2, onset=0)
     try:
         _ = Part(note1, note2)
     except Exception:

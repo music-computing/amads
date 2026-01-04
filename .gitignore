@@ -176,5 +176,7 @@ docs/sg_execution_times.rst
 
 # local stuff to keep out of repo
 /ignore/
-
+amads-venv/
 /docs/api/
+
+/docs/developer_notes/todo.md

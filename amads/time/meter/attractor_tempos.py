@@ -56,7 +56,7 @@ class MetricalSalience:
     Examples
     --------
 
-    >>> from amads.time.meter import PulseLengths
+    >>> from amads.time.meter.representations import PulseLengths
     >>> pl = [4, 2, 1, 0.5]
     >>> pls = PulseLengths(pulse_lengths=pl, cycle_length=4)
     >>> arr = pls.to_array()
@@ -125,7 +125,10 @@ class MetricalSalience:
         return (self.symbolic_pulses > 0).astype(int)
 
     def plot(
-        self, symbolic_not_absolute: bool = False, reverse_to_plot: bool = True
+        self,
+        symbolic_not_absolute: bool = False,
+        reverse_to_plot: bool = True,
+        show: bool = True,
     ):
         """
         Plot the salience values with their respective contribution.
@@ -135,6 +138,11 @@ class MetricalSalience:
         symbolic_not_absolute: If True, plot only the indicator values (one per level).
             If False (default), plot the tempo- and meter-sensitive, weighted salience values.
         reverse_to_plot: If True (default), plot the fastest values at the bottom.
+
+        Returns
+        -------
+        Figure
+            A matplotlib.figure.Figure of the plotted salience values.
         """
         if symbolic_not_absolute:
             data = self.indicator
@@ -165,7 +173,9 @@ class MetricalSalience:
         ax.set_ylabel("Weighting")
         ax.legend()
         ax.grid(True)
-        return plt, fig
+        if show:
+            plt.show()
+        return fig
 
 
 def log_gaussian(arr: np.ndarray, mu: float = 0.6, sig: float = 0.3):

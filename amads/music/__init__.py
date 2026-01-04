@@ -1,0 +1,1 @@
+# amads.music package initializer

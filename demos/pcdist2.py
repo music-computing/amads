@@ -1,4 +1,4 @@
-# pcdist2_test.py - simple test of pcdist2()
+# pcdist2_test.py - simple test of pitch_class_distribution_2()
 
 from amads.all import import_midi, pitch_class_distribution_2
 from amads.music import example

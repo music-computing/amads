@@ -35,7 +35,7 @@ def entropy(
 
     Parameters
     ----------
-    d
+    d : List[float]
         The input distribution.
 
     in_bits : bool, optional
@@ -67,22 +67,22 @@ def entropy(
     >>> entropy([0.0, 1.0])
     0.0
     """
-    d = np.asarray(d).flatten()  # Convert to a 1D numpy array
-    sum = np.sum(d)
+    darray = np.asarray(d).flatten()  # Convert to a 1D numpy array
+    sum = np.sum(darray)
     if miditoolbox_compatible:
         sum += 1e-12  # Avoid division by zero
     elif sum == 0:
         return 1.0  # Avoid division by zero; return maximum entropy
-    d = d / sum  # Normalize
+    darray = darray / sum  # Normalize
     if miditoolbox_compatible:
-        logd = np.log(d + 1e-12)  # Avoid log(0)
+        logd = np.log(darray + 1e-12)  # Avoid log(0)
     else:
         logd = np.where(
-            d > 0, np.log(d), 0
+            darray > 0, np.log(darray), 0
         )  # Compute log(d), treating log(0) as 0
-    h = -np.sum(d * logd)
+    h = -np.sum(darray * logd)
     if in_bits:
         h = h / np.log(2)  # Unnormalized entropy in bits
     else:
-        h = h / np.log(len(d))  # Normalize to relative entropy
+        h = h / np.log(len(darray))  # Normalize to relative entropy
     return float(h)

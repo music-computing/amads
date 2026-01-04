@@ -1,6 +1,6 @@
 from typing import List
 
-from ...core.basics import Concurrence, Note
+from amads.core.basics import Concurrence, Note
 
 
 class Slice(Concurrence):

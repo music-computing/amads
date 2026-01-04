@@ -6,11 +6,11 @@ Tests functionality for regrouping and quantizing musical durations.
 
 import pytest
 
-from amads.time.meter import (
+from amads.time.meter import examples
+from amads.time.meter.representations import (
     PulseLengths,
     StartTimeHierarchy,
     TimeSignature,
-    examples,
 )
 
 metres = []

@@ -1,6 +1,6 @@
 """Scale event timings in a score by a given factor."""
 
-from ..core.basics import EventGroup
+from amads.core.basics import EventGroup
 
 
 def scale(

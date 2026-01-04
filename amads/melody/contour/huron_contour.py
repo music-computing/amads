@@ -1,7 +1,8 @@
 """
 Implementation of the contour classification scheme proposed by Huron (1996) [1]
 
-The classification scheme is also included in the FANTASTIC toolbox of Müllensiefen (2009) [2]
+The classification scheme is also included in the FANTASTIC toolbox of
+Müllensiefen (2009) [2]
 
 <small>**Author**: Mark Gotham</small>
 
@@ -39,7 +40,8 @@ class HuronContour:
         pitches : list[int]
             Pitch values in any numeric format (e.g., MIDI numbers).
         times : list[float]
-            Onset times in any consistent, proportional scheme (e.g., seconds, quarter notes, etc.)
+            Onset times in any consistent, proportional scheme
+            (e.g., seconds, quarter notes, etc.)
 
         Raises
         ------
@@ -76,14 +78,16 @@ class HuronContour:
 
         References
         ----------
-          1. Huron, D (2006). The Melodic Arch in Western Folksongs. *Computing in Musicology* 10.
+          1. Huron, D (2006). The Melodic Arch in Western Folksongs.
+             *Computing in Musicology* 10.
 
           2. Müllensiefen, D. (2009). Fantastic: Feature ANalysis Technology Accessing
              STatistics (In a Corpus): Technical Report v1.5
         """
         if len(times) != len(pitches):
             raise ValueError(
-                f"Times and pitches must have the same length, got {len(times)} and {len(pitches)}"
+                f"Times and pitches must have the same length, "
+                f"got {len(times)} and {len(pitches)}"
             )
 
         self.times = times

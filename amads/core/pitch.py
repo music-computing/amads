@@ -11,6 +11,8 @@ from typing import Optional, Tuple, Union
 
 from amads.core.vectors_sets import multiset_to_vector, weighted_to_indicator
 
+CHROMATIC_NAMES = ["C", "C#", "D", "Eb", "E", "F",
+                   "F#", "G", "Ab", "A", "Bb", "B"]
 LETTER_TO_NUMBER = {"C": 0, "D": 2, "E": 4, "F": 5, "G": 7, "A": 9, "B": 11}
 DIATONIC = [0, 2, 4, 5, 7, 9, 11]
 
@@ -46,13 +48,16 @@ class Pitch:
         Optional MIDI key_num or string Pitch name. Syntax is A-G followed
         by accidentals (see `accidental_chars` below) followed by octave
         number. (Defaults to 60)
-    alt_or_oct: Union[int, float, None], optional
-        If pitch is a number, alt_or_oct is an optional alteration (Defaults to 0).
-        If `pitch - alt_or_oct` does not result in a diatonic pitch number, alt is
-        adjusted, normally choosing spellings C#, Eb, F#, Ab, and Bb.
-        If pitch is a string, alt_or_oct is the optional octave (an integer)
-        (Overridden by any octave specification in pitch,
-        otherwise defaults to -1, which yields pitch class `key_num`s 0-11).
+    alt : Union[int, float, None], optional
+        If pitch is a number, alt is an optional alteration (Defaults to 0).
+        If `pitch - alt` does not result in a diatonic pitch number,
+        alt is adjusted, normally choosing spellings C#, Eb, F#, Ab, and Bb.
+        If pitch is a string, alt must be None.
+    octave : Optional[int]
+        If pitch is a string without an octave specification and `octave`
+        is an int, then `octave` is used to specify the octave, where
+        4 denotes the `key_num` range 60 through 71. `octave` defaults
+        defaults to -1, which yields pitch class `key_num`s 0-11).
     accidental_chars: Union[list[str], None], optional
         Allows parsing of pitch names with customized accidental characters.
         The value is a tuple or list consisting of a string of flat characters
@@ -158,13 +163,13 @@ class Pitch:
 
     def __init__(self,
                  pitch: Union["Pitch", int, float, str, None] = 60,
-                 alt_or_oct: Union[int, float, None] = None,
+                 alt: Union[int, float, None] = None,
+                 octave: Union[int, None] = None,
                  accidental_chars: Optional[str] = None):
-        if isinstance(pitch, str):  # alt_or_oct is interpreted as octave here
-            if alt_or_oct is not None and not isinstance(alt_or_oct, int):
-                raise ValueError("If pitch is a string, alt_or_oct must be None" +
-                                 " or an integer octave.")
-            self.key_num, self.alt = Pitch.from_name(pitch, alt_or_oct, 
+        if isinstance(pitch, str):
+            if alt is not None:
+                raise ValueError("If pitch is a string, alt must be None")
+            self.key_num, self.alt = Pitch.from_name(pitch, octave, 
                                                      accidental_chars)
         elif isinstance(pitch, Pitch):
             self.key_num = pitch.key_num
@@ -173,14 +178,14 @@ class Pitch:
             self.key_num = None  # type: ignore (None is allowed, but if we put
             # that in the type annotation, we have to annotate every use of
             # arithmetic on key_num.)
-            self.alt = (0 if alt_or_oct is None else alt_or_oct)
+            self.alt = (0 if alt is None else alt)
         else:  # pitch is a number (int or float)
             # this will raise a ValueError if pitch is not some kind of number:
             pitch = float(pitch)  # converts numpy.int64, nympy.floating, etc.
             if pitch.is_integer():  # for nicer printing
                 pitch = int(pitch)  # pitch numbers as integers.
             self.key_num = pitch
-            self.alt = (0 if alt_or_oct is None else alt_or_oct)
+            self.alt = (0 if alt is None else alt)
             self._fix_alteration()
 
 

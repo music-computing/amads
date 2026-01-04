@@ -1,7 +1,7 @@
 from music21 import converter, metadata, stream
 
-from ..core.basics import Score
-from .m21_xml_import import music21_convert_part
+from amads.core.basics import Score
+from amads.io.m21_xml_import import music21_convert_part
 
 
 def music21_midi_import(

@@ -60,8 +60,8 @@ the *exact* same implementation and 2 filenames...
 from operator import lt
 from typing import List, cast
 
-from ..core.basics import Note, Part, Score
-from ..pitch.pitch_mean import pitch_mean
+from amads.core.basics import Note, Part, Score
+from amads.pitch.pitch_mean import pitch_mean
 
 
 def _construct_score_list(notes, intervals):

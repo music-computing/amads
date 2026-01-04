@@ -17,8 +17,8 @@ and not really named algorithms in sense used elsewhere on this code base.
 
 from typing import List, Tuple, Union
 
-from . import pc_sets
-from . import transformations as pitch_list_transformations
+from amads.pitch import pc_sets
+from amads.pitch import transformations as pitch_list_transformations
 
 
 def set_classes_from_cardinality(cardinality: int):
@@ -35,7 +35,7 @@ def set_classes_from_cardinality(cardinality: int):
         return pc_sets.set_classes[cardinality]
 
 
-def prime_to_combinatoriality(prime: Tuple[int]):
+def prime_to_combinatoriality(prime: Tuple[int, ...]):
     """
     Find the combinatoriality status for a given prime form.
 
@@ -44,13 +44,14 @@ def prime_to_combinatoriality(prime: Tuple[int]):
     Out: the combinatoriality status as a string.
     """
     data = set_classes_from_cardinality(len(prime))
+    assert data is not None
     for x in data:
         if x[1] == prime:
             return x[3]
     raise ValueError(f"{prime} is not a valid prime form")
 
 
-def interval_vector_to_combinatoriality(vector: Tuple[int]):
+def interval_vector_to_combinatoriality(vector: Tuple[int, ...]):
     """
     Find the combinatoriality status for a given interval vector.
 
@@ -65,13 +66,14 @@ def interval_vector_to_combinatoriality(vector: Tuple[int]):
     total = sum(vector)
     total_to_cardinality = {1: 2, 3: 3, 6: 4, 15: 6}
     data = set_classes_from_cardinality(total_to_cardinality[total])
+    assert data is not None
     for x in data:
         if x[2] == vector:
             return x[-1]
     raise ValueError(f"{vector} is not a valid interval vector")
 
 
-def pitches_to_combinatoriality(pitches: Union[List[int], Tuple[int]]):
+def pitches_to_combinatoriality(pitches: Union[List[int], Tuple[int, ...]]):
     """
     Find the combinatoriality status for a given list of pitches.
 
@@ -96,7 +98,7 @@ def distinct_PCs(pitches: Union[List, Tuple]) -> list:
     return [p % 12 for p in pitches]
 
 
-def pitches_to_interval_vector(pitches: Union[List[int], Tuple[int]]):
+def pitches_to_interval_vector(pitches: Union[List[int], Tuple[int, ...]]):
     """
     Find the interval vector for a given list of pitches.
 
@@ -130,6 +132,7 @@ def pitches_to_forte_class(pitches: Union[List[int], Tuple[int]]):
     """
     data = set_classes_from_cardinality(len(pitches))
     prime = pitches_to_prime(pitches)
+    assert data is not None
     for x in data:
         if x[1] == prime:
             return x[0]
@@ -159,6 +162,7 @@ def pitches_to_prime(pitches: Union[List[int], Tuple[int]]):
     primes = []
     data = set_classes_from_cardinality(len(set(pitches)))
 
+    assert data is not None
     for x in data:
         if x[2] == vector:
             primes.append(x[1])

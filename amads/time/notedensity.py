@@ -9,7 +9,7 @@ Original Doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e0
 
 from typing import Optional
 
-from ..core.basics import Score
+from amads.core.basics import Score
 
 __author__ = "Tai Nakamura"
 
@@ -51,15 +51,15 @@ def note_density(score: Score, timetype: Optional[str] = "quarters") -> float:
     Examples
     --------
     >>> score = Score.from_melody([60, 62, 64, 65])  # all quarter notes
-    >>> notedensity(score, timetype='quarters')
+    >>> note_density(score, timetype='quarters')
     1.0
     >>> from amads.core.timemap import TimeMap
     >>> score = Score.from_melody([60, 62, 64, 65])  # all quarter notes
     >>> score.time_map = TimeMap(qpm = 120)  # set QPM to 120
-    >>> notedensity(score, timetype='seconds')
+    >>> note_density(score, timetype='seconds')
     2.0
     >>> score = Score.from_melody([60, 62, 64, 65], durations = [1.0, 2.0, 3.0, 4.0])  # mixed durations
-    >>> notedensity(score, timetype='quarters')
+    >>> note_density(score, timetype='quarters')
     0.5
     """
     notes = score.get_sorted_notes()

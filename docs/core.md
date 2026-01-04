@@ -71,22 +71,14 @@ To implement this hierarchical representation, we have an abstract
 superclass, [amads.core.basics.Event][]. Every Event has the
 following attributes:
 
-> `onset`
-> :   (float) The time of the event
-> 
-> `duration`
-> :   (float) The duration (in beats or seconds) of the event
-> 
-> `parent`
-> :   (EventGroup) The object containing this event
-> 
-> `info`
-> :   a dictionary with (optional) additional information
+- **`onset`** (float) - the time of the event
+- **`duration`** (float) - the duration (in beats or seconds) of the event
+- **`parent`** (EventGroup) - the object containing this event
+- **`info`** (Dictionary) - with (optional) additional information
 
 Anything that can be a `parent` is an `EventGroup`
 ([`amads.core.basics.EventGroup`][]). 
 EventGroups including Part, Staff, Measure and Chord are also children,
-so as you would expect, they are also Events. There is no conflict because
 EventGroup *inherits from* Event. Everything is an Event! But not every
 Event is an EventGroup.
 
@@ -110,17 +102,10 @@ constructors to infer onset times.
 The most important class is [`amads.core.basics.Note`][]. In addition to `onset`,
 `duration` and `parent`, inherited from [`Event`][amads.core.basics.Event], a `Note` has
 
-> `pitch`
-> :   (Pitch) A pitch object (see below)
-> 
-> `dynamic`
-> :   (optional int or str) dynamic (loudness) level
-> 
-> `lyric`
-> :   (optional str) lyric text
-> 
-> `tie`
-> :   (optional Note) the Note this Note is tied to, if any
+- **`pitch`** (Pitch) - a pitch object (see below)
+- **`dynamic`** (optional int or str) - dynamic (loudness) level
+- **`lyric`** (optional str) - lyric text
+- **`tie`** (optional Note) - the Note this Note is tied to, if any
 
 
 ### Pitches
@@ -128,12 +113,8 @@ The most important class is [`amads.core.basics.Note`][]. In addition to `onset`
 Pitches are complex enough to get their own class (an integer will not
 do). The pitch class has these attributes:
 
-> `key_num`
-> :   (float) MIDI-like key number, e.g. C4 = 60
-> 
-> `alt`
-> :   (float) Alteration, e.g. one flat = -1
-
+- **`key_num`** (float) - MIDI-like key number, e.g. C4 = 60
+- **`alt`** (float) - alteration, e.g. one flat = -1
 
 Notice that you can always ignore `alt` and just use `key_num`, but if
 you care about note spelling, you will need `alt`.
@@ -195,5 +176,3 @@ The [`score.find_all()`][amads.core.basics.EventGroup.find_all]
 and [`score.list_all()`][amads.core.basics.EventGroup.list_all]
 methods can be used to retrieve other objects, e.g., to find
 all `Part` or `Staff` or `Measure` objects.
-
-

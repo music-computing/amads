@@ -46,7 +46,7 @@ leverage the fact that each note start has a unique note in the score and
 emit start and strength pairs...
 """
 
-from ..core.basics import Score
+from amads.core.basics import Score
 
 
 def boundary(score: Score) -> Score:

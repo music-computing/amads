@@ -1,1 +1,1 @@
-from .parncutt import ParncuttRootAnalysis
+# amads.harmony.root_finding package initializer

@@ -15,7 +15,7 @@ From the root directory of the project, run:
 
     pytest
 
-Running specific tests \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--
+### Running specific tests
 
 To run tests in a specific file:
 
@@ -37,11 +37,11 @@ Install anyio:
     pip install anyio
 
 In VSCode, type Command Shift P and from the (large) command menu, find
-\"Python: Configure Tests\". Select \"pytest\" and then \". (Root
-directory)\". Then all tests appear in the Test Explorer.
+“Python: Configure Tests”. Select “pytest” and then “. (Root
+directory)”. Then all tests appear in the Test Explorer.
 
 To get to Test Explorer, select the Erlenmeyer (conical) flask icon in
-the far left column (pop-up description is \"Testing\".
+the far left column (pop-up description is “Testing”.
 
 Select a test or set of tests. In the selected test, there are small
 icons to run, run with debugger, or run with coverage, so pick one.
@@ -99,7 +99,7 @@ Tests are automatically run via GitHub Actions CI on pushes to main and
 pull requests.
 
 You can view the CI configuration in `.github/workflows/tests.yml` and
-check test results in the \"Actions\" tab of the GitHub repository.
+check test results in the “Actions” tab of the GitHub repository.
 
 By default tests are run in the tests_main CI job. However, some tests
 that require bespoke dependencies are run in separate CI jobs (e.g.

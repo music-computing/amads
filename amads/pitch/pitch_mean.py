@@ -1,7 +1,7 @@
 # pitchmean.py - compute mean or duration-weighted mean of pitch
 #
 
-from ..core.basics import Note
+from amads.core.basics import Note
 
 
 def pitch_mean(score, weighted=False):

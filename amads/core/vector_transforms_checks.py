@@ -11,7 +11,7 @@ __author__ = "Mark Gotham"
 from itertools import combinations
 from typing import List, Optional, Union
 
-from .vectors_sets import is_indicator_vector, vector_to_set
+from amads.core.vectors_sets import is_indicator_vector, vector_to_set
 
 # ----------------------------------------------------------------------------
 

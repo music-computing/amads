@@ -1,1 +1,1 @@
-from .key import *
+# amads.pitch.key package initializer

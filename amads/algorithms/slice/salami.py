@@ -14,8 +14,8 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Iterable, List, Optional, Union
 
-from ...core.basics import Note, Score
-from .slice import Slice
+from amads.algorithms.slice.slice import Slice
+from amads.core.basics import Note, Score
 
 
 @dataclass

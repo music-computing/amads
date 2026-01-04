@@ -7,7 +7,7 @@ Can emulate the `ivdurdist1` function in Midi Toolbox.
 Original doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=58
 """
 
-from typing import Union
+from typing import Union, cast
 
 from amads.core.basics import Note, Score
 from amads.core.distribution import Distribution
@@ -146,7 +146,11 @@ def duration_distribution_1(
         ]
 
     h = Histogram1D(
-        bin_centers, bin_boundaries, "log", ignore_extrema, initial_value
+        bin_centers,
+        bin_boundaries,
+        "log",
+        cast(bool, ignore_extrema),
+        initial_value,
     )  # type: ignore
     tied_notes = set()
     for note in score.find_all(Note):

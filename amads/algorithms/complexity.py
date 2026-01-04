@@ -71,12 +71,12 @@ def lz77_encode(input_list: list[Hashable]) -> list:
     return encoded
 
 
-def lz77_decode(encoded: list[int, int, Hashable]) -> list[Hashable]:
+def lz77_decode(encoded: list[tuple[int, int, Hashable]]) -> list[Hashable]:
     """Decode a list of LZ77 tokens, each of which are 3-tuples with form (distance, length, symbol)
 
     Parameters
     ----------
-    encoded : list[int, int, Hashable]
+    encoded : list[tuple[int, int, Hashable]]
         A list of LZ77 encoded tokens.
 
     Returns
@@ -128,6 +128,7 @@ def lz77_complexity(
     """
 
     # Compress the sequence
+    sequence = list(sequence)
     compressed = lz77_encode(sequence)
     # Express with relation to length of input string if required: returns a float
     if normalized:

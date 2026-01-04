@@ -4,4 +4,5 @@
 
 ----------------
 
-::: amads.core.pitch.PitchCollection
+::: amads.core.pitch.PitchCollection 
+

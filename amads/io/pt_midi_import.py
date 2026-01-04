@@ -1,7 +1,7 @@
 import partitura as pt
 
-from ..core.basics import Score
-from .pt_xml_import import partitura_convert_part
+from amads.core.basics import Score
+from amads.io.pt_xml_import import partitura_convert_part
 
 # plan: multiple passes over iter_all()
 # for each part: add the part to a Concurrence

@@ -6,8 +6,8 @@
 
 This repository represents the very earliest stages of an attempt to collect and organise algorithms for
 music analysis and data science.
-If you are interested in participating, please get in touch with one of
-Peter Harrison (pmch2@cam.ac.uk), [Mark Gotham](https://markgotham.github.io/), or Roger Dannenberg.
+If you are interested in participating, please get in touch with
+[Mark Gotham](https://markgotham.github.io/) or Roger Dannenberg.
 
 Much functionality in this package still remains to be tested/implemented/documented.
 Use at your own risk!

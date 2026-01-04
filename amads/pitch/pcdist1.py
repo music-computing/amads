@@ -9,9 +9,10 @@ Original doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e0
 import math
 from typing import cast
 
-from ..core.basics import Note, Score
-from ..core.distribution import Distribution
-from ..core.histogram import Histogram1D
+from amads.core.basics import Note, Score
+from amads.core.distribution import Distribution
+from amads.core.histogram import Histogram1D
+from amads.core.pitch import CHROMATIC_NAMES
 
 
 def duraccent(note: Note) -> float:
@@ -47,7 +48,7 @@ def pitch_class_distribution_1(
     miditoolbox_compatible: bool = False,
 ) -> Distribution:
     """
-    Calculate the pitch-class distribution of a musical score.
+    Calculate the pitch-class distribution of a note collection.
 
     Parameters
     ----------
@@ -76,20 +77,7 @@ def pitch_class_distribution_1(
         score.convert_to_seconds()  # need seconds for duraccent calculation
     initial_value = 1e-12 if miditoolbox_compatible else 0.0
     bin_centers = [float(i) for i in range(12)]  # 25 bins from -12 to +12
-    xcategories = [
-        "C",
-        "C#",
-        "D",
-        "D#",
-        "E",
-        "F",
-        "F#",
-        "G",
-        "G#",
-        "A",
-        "A#",
-        "B",
-    ]
+    xcategories = CHROMATIC_NAMES
     h = Histogram1D(bin_centers, None, "linear", False, initial_value)
 
     for note in score.find_all(Note):

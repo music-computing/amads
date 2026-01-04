@@ -5,7 +5,7 @@
 This document outlines the coding style guidelines for contributing to
 this project.
 
-Author attribution \~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~
+### Author attribution
 
 Author attribution should be included at the top of each module using
 `__author__`. Use only names, no email addresses:
@@ -16,7 +16,10 @@ For multiple authors, use a list:
 
     __author__ = ["Huw Cheston", "Mark Gotham"]
 
-Code organization \~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~
+See [documentation][] for notes on getting your name into formatted
+documentation (`__author__` will not do it).
+
+####Code organization
 
 Modules should be organized in a logical hierarchy that reflects their
 purpose. For example, complexity algorithms go in:

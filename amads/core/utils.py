@@ -1,8 +1,8 @@
 import math
-from typing import Union
+from typing import Iterator, Optional, Union
 
-from ..io.readscore import read_score, valid_score_extensions
-from .basics import Pitch
+from amads.core.basics import Pitch
+from amads.io.readscore import read_score, valid_score_extensions
 
 
 def dir_to_collection(filenames: list[str]):
@@ -166,7 +166,8 @@ def key_num_to_name(n, detail="nameoctave"):
     def key_num_to_name_single(k):
         pitch = Pitch(k)
         if detail == "nameonly":
-            return pitch.name  # Handles sharps, flats, and naturals correctly
+            # Handles sharps, flats, and naturals correctly
+            return pitch.name
         elif detail == "nameoctave":
             return pitch.name_with_octave  # Includes note name and octave
         else:
@@ -184,6 +185,13 @@ def sign(x: float) -> int:
     """
     Get the sign of a numeric value as -1, 0, or +1.
 
+    Returns
+    ----------
+    int
+        -1 if `x` < 0, 0 if `x` == 0, 1 if `x` > 0
+
+    Examples
+    --------
     >>> sign(-15)
     -1
 
@@ -212,3 +220,55 @@ def sign(x: float) -> int:
         return None  # type: ignore
     else:
         return bool(x > 0) - bool(x < 0)
+
+
+def float_range(
+    start: float, end: Optional[float], step: float
+) -> Iterator[float]:
+    """Generate a range of floats.
+
+    Similar to Python's built-in range() function but supports floating
+    point numbers. If end is None, generates an infinite sequence.
+
+    Parameters
+    ----------
+    start : float
+        The starting value of the range
+    end : float or None
+        The end value of the range (exclusive). If None, generates an
+        infinite sequence
+    step : float
+        The increment between values
+
+    Yields
+    ------
+    float
+        The next value in the sequence
+    """
+    curr = start
+    while end is None or curr < end:
+        yield curr
+        curr += step
+
+
+def check_python_package_installed(package_name: str):
+    """
+    Check if a Python package is installed, raise error if not.
+
+    Parameters
+    ----------
+    package_name : str
+        Name of the package to check
+
+    Raises
+    ------
+    ImportError
+        If package is not installed, with message suggesting pip install
+    """
+    try:
+        __import__(package_name)
+    except ImportError:
+        raise ImportError(
+            f"Package '{package_name}' is required but not installed. "
+            f"Please install it using: pip install {package_name}"
+        )

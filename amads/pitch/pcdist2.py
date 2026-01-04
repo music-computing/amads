@@ -11,6 +11,7 @@ from typing import cast
 from amads.core.basics import Note, Part, Score
 from amads.core.distribution import Distribution
 from amads.core.histogram import Histogram2D
+from amads.core.pitch import CHROMATIC_NAMES
 from amads.pitch.pcdist1 import duraccent
 
 
@@ -76,20 +77,7 @@ def pitch_class_distribution_2(
         score.convert_to_seconds()  # need seconds for duraccent calculation
     initial_value = 1e-12 if miditoolbox_compatible else 0.0
     bin_centers = [float(i) for i in range(12)]  # 25 bins from -12 to +12
-    x_categories = [
-        "C",
-        "C#",
-        "D",
-        "D#",
-        "E",
-        "F",
-        "F#",
-        "G",
-        "G#",
-        "A",
-        "A#",
-        "B",
-    ]
+    x_categories = CHROMATIC_NAMES
     h = Histogram2D(bin_centers, None, "linear", False, initial_value)
 
     # do not count transitions from one part to the next

@@ -203,7 +203,7 @@ class TimeMap:
         Parameters
         ----------
         quarter : float
-        The quarter note position to locate.
+            The quarter note position to locate.
 
         Returns
         -------
@@ -290,6 +290,7 @@ class TimeMap:
             # special case: quarter >= last time.quarter pair
             # so extrapolate using last_tempo if it is there
             return self.last_tempo * 60.0
+
         elif i == 0:
             mb0 = self.quarters[0]
             mb1 = self.quarters[1]

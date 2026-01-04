@@ -91,7 +91,7 @@ class MetricalSplitter:
     Examples
     -------
 
-    >>> from amads.time.meter import TimeSignature, PulseLengths
+    >>> from amads.time.meter.representations import TimeSignature, PulseLengths
     >>> m = TimeSignature(as_string="4/4")
     >>> start_hierarchy = m.to_start_hierarchy()
     >>> start_hierarchy
