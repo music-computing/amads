@@ -633,10 +633,10 @@ def interval_sequence_to_indicator(
 
 
 def saturated_subsequence_repetition(
-    sequence: Union[list[int], tuple[int, ...]],
+    sequence: Union[List[int], tuple[int, ...]],
     all_rotations: bool = True,
     subsequence_period: Optional[int] = None,
-) -> Union[List[List[int]]]:
+) -> List[List[int]]:
     """
     Check if a sequence contains a repeated subsequence such that
     the subsequence saturates the whole (no sequence items "left over").

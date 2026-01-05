@@ -78,6 +78,7 @@ from amads.core.vectors_sets import *
 
 ::: amads.core.vectors_sets.weighted_to_indicator
 
+
 ----------------
 
 ::: amads.core.vectors_sets.apply_constant

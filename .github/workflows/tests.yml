@@ -60,7 +60,7 @@ jobs:
 
     - name: Install Python packages
       run: |
-#        pip install -e .[test,melsim]
+        # pip install -e .[test,melsim]
         pip install -e .[test]
         pip install typing_extensions
 

@@ -27,16 +27,16 @@ dependencies = [
     "pretty_midi",
     "setuptools",  # required for partitura
     "pytest",
-    "sphinx-gallery",
     "tenacity",
     "tqdm",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "sphinx",
-    "sphinx-book-theme",
-    "sphinx-autodoc-typehints",
+    "mkdocs",
+    "mkdocstrings",
+    "griffe",
+    "black",
     "myst-parser",
     "pre-commit",
 ]
