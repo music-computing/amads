@@ -129,7 +129,7 @@ class Pitch:
         if abs(unaltered - round(unaltered)) < 1e-6:
             unaltered = round(unaltered)
             self.alt = self.key_num - unaltered
-        if unaltered.is_integer() and (unaltered % 12) in DIATONIC:
+        if isinstance(unaltered, int) and (unaltered % 12) in DIATONIC:
             return  # valid key_num and alt
 
         # If alt is not an integer, we adjust it to be as small as
