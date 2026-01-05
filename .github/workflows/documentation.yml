@@ -22,17 +22,15 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Setup R dependencies
-        uses: ./.github/actions/setup-r
-
       - name: Install dependencies
         run: |
           pip install -e ".[dev]"
           pip install typing_extensions
+          pip install mkdocs mkdocs-material "mkdocstrings[python]"
 
-      - name: Sphinx build
-        run: |
-          sphinx-build docs _build
+      - name: mkdocs build
+        run:
+          mkdocs build --site-dir _build/
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3

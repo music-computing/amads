@@ -57,19 +57,12 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: "3.11"
-#
-#    - name: Setup R dependencies
-#      uses: ./.github/actions/setup-r
 
     - name: Install Python packages
       run: |
 #        pip install -e .[test,melsim]
         pip install -e .[test]
         pip install typing_extensions
-
-#    - name: Run melsim tests with coverage
-#      run: |
-#        python -c "from amads.ci import run_ci_group_tests; run_ci_group_tests('tests_melsim')"
 
     - name: Upload coverage to Codecov
       if: success()
