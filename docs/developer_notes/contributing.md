@@ -1,7 +1,7 @@
 # Contributing
 
 We welcome contributions to the project! Whether you want to fix bugs,
-improve documentation, or add new features, here\'s how you can
+improve documentation, or add new features, here's how you can
 contribute:
 
 ## Core Data Structures and Functions
@@ -11,14 +11,13 @@ Most of AMADS shares a common representation for music information, so
 you should be familiar with the core data structures and methods
 described in `core-sec`{.interpreted-text role="ref"}.
 
-In addition, check out `General algorithms
-<general-algorithms-sec>`{.interpreted-text role="ref"}, which include
-various functions to compute common analysis and statistical properties
-such as entropy, and there are also operations related to collections
-(sets, vectors, etc.). Even if it is a little work to put data in the
-right form to use these shared algorithms, we prefer this to avoid a
-proliferation of implementations of the same algorithm (which might have
-subtle bugs or surprising differences.
+In addition, check out the general “[Algorithms](../../core)” topics,
+which include various functions to compute common analysis and
+statistical properties such as entropy, and there are also operations
+related to collections (sets, vectors, etc.). Even if it is a little
+work to put data in the right form to use these shared algorithms, we
+prefer this to avoid a proliferation of implementations of the same
+algorithm (which might have subtle bugs or surprising differences.
 
 ## GitHub contribution workflow
 
@@ -58,7 +57,7 @@ restart Python (e.g. start the next debugging session).
 
 #### A. For team members
 
-In the this section, please replace \"feature-name\" with the name of
+In the this section, please replace “feature-name” with the name of
 your branch.
 
 1.  Create a new branch from main:
@@ -67,7 +66,7 @@ your branch.
 
 2.  Make your changes and commit them
 
-3.  See \"Before you push, there might be new changes \...\" below.
+3.  See “Before you push, there might be new changes ...” below.
 
 4.  Push the branch:
 
@@ -144,7 +143,7 @@ to be able to check your changes. They are the one who should resolve
 the comment once they are satisfied.
 
 Once you have finished responding to all the comments, you can
-re-request review by clicking the \"Re-request review\" button in the
+re-request review by clicking the “Re-request review” button in the
 GitHub UI.
 
 ### 6. Merging
@@ -152,10 +151,10 @@ GitHub UI.
 Once your pull request passes CI and receives approval from a reviewer,
 it can be merged into the main codebase. You as author can merge it
 yourself, or you can ask a reviewer to merge it for you. When merging,
-please use the \"Squash and merge\" option, which will combine all the
+please use the “Squash and merge” option, which will combine all the
 commits into a single commit. This helps keep the commit history clean
-and easy to understand. There\'s one case, though, where squashing is a
-bad idea, and that\'s when someone else is working on another branch
+and easy to understand. There's one case, though, where squashing is a
+bad idea, and that's when someone else is working on another branch
 that branched off your branch (in general we try to avoid this, but
 sometimes it happens!). In this case, you should merge the pull request
 as a normal merge, not a squash merge.
@@ -176,7 +175,7 @@ When submitting pull requests, follow these guidelines:
     -   Break large changes into smaller, logical PRs
     -   This makes review easier and reduces merge conflicts
 2.  Write clear PR descriptions
-    -   Explain what the changes do and why they\'re needed
+    -   Explain what the changes do and why they're needed
     -   Reference any related issues
     -   Include before/after examples if relevant
     -   List any breaking changes or dependencies
@@ -194,7 +193,7 @@ review process.
 ## How do I contribute a new algorithm?
 
 When contributing a new algorithm, first review existing examples in the
-source code to understand the project\'s structure and conventions.
+source code to understand the project's structure and conventions.
 Consider carefully where your algorithm fits in the codebase hierarchy.
 
 When writing your code, try to follow our style guidlines. Write clear
@@ -205,6 +204,6 @@ Your contribution should include comprehensive tests, including both
 doctests and unit tests. See `testing`{.interpreted-text role="doc"} for
 more information.
 
-If you haven\'t already, make sure you have installed the pre-commit
+If you haven't already, make sure you have installed the pre-commit
 hooks (see `style`{.interpreted-text role="doc"}). The hooks will help
-ensure your code meets the project\'s formatting and style requirements.
+ensure your code meets the project's formatting and style requirements.

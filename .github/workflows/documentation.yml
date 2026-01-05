@@ -27,6 +27,7 @@ jobs:
           pip install -e ".[dev]"
           pip install typing_extensions
           pip install mkdocs mkdocs-material "mkdocstrings[python]"
+          pip install black
 
       - name: mkdocs build
         run:
