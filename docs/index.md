@@ -1,4 +1,7 @@
-# Algorithms for Music Analysis and Data Science (AMADS)
+<div style="display: flex; align-items: center; margin-bottom: 20px;">
+  <img src="assets/logo-graphic.png" alt="AMADS Logo" style="width: 120px; margin-right: 15px; flex-shrink: 0;">
+  <h1 style="margin: 0; line-height: 1.3;">Algorithms for Music Analysis and Data Science (AMADS)</h1>
+</div>
 
 This repository collects and organises algorithms for
 music analysis and data science.

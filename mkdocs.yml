@@ -5,6 +5,8 @@ theme:
     - navigation.sections
     - navigation.expand
     - navigation.tabs
+  # logo: assets/logo-graphic.png  # use custom logo image from docs/assets/
+  icon: assets/home  # plain and simple home icon
 
 markdown_extensions:
   - toc:
@@ -127,5 +129,6 @@ nav:
     - Testing: developer_notes/testing.md
     - Contributing: developer_notes/contributing.md
     - Style: developer_notes/style.md
+    - Github: developer_notes/github.md
     - Music21: developer_notes/music21.md
     - Todo: developer_notes/todo.md

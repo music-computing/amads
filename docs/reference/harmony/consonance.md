@@ -1,4 +1,2 @@
-::: amads.harmony.consonance
-    options:
-      extra:
-        members: true
+::: amads.harmony.consonance.consonance.approximate_fraction_consonance 
+
