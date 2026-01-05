@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.10", "3.11"]
+        python-version: ["3.10", "3.11", "3.12"]
 
     steps:
     - uses: actions/checkout@v4
@@ -39,7 +39,7 @@ jobs:
       run: |
         pwd
         ls -la
-        find . -name "*.mid" -o -name "*.mid*"
+        find . -name "*.mid" -o -name "*.mid"
         echo "Python working directory:"
         python -c "import os; print(os.getcwd())"
 

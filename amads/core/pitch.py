@@ -129,13 +129,17 @@ class Pitch:
         if abs(unaltered - round(unaltered)) < 1e-6:
             unaltered = round(unaltered)
             self.alt = self.key_num - unaltered
+        # if unaltered was even close to an integer, it will become an
+        # integer so the following test is correct:
         if isinstance(unaltered, int) and (unaltered % 12) in DIATONIC:
             return  # valid key_num and alt
 
         # If alt is not an integer, we adjust it to be as small as
         # possible (< 1 when unaltered is in C-to-E or G-to-B, and < 0.5
-        # when pc is in E-to-F or B to C).
-        if not self.key_num.is_integer():
+        # when pc is in E-to-F or B to C).  First, we need to force
+        # key_num to be an integer. For 3.10 compatibility, can only
+        # send .is_integer() to a float:
+        if not float(self.key_num).is_integer():
             # if alt could be less than 0.5, make it so:
             closest_pc = round(self.key_num) % 12
             self.alt = self.key_num - round(self.key_num)
