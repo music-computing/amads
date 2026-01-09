@@ -11,9 +11,9 @@ def test_timemap_deepcopy():
     import copy
 
     tm1 = TimeMap()
-    tm1.append_quarter_tempo(0.0, 100)
-    tm1.append_quarter_tempo(1.0, 120)
-    tm1.append_quarter_tempo(2.0, 140)
+    tm1.append_change(0.0, 100)
+    tm1.append_change(1.0, 120)
+    tm1.append_change(2.0, 140)
 
     tm1.show()
 
@@ -21,7 +21,7 @@ def test_timemap_deepcopy():
     tm2.show()
 
     assert tm1 is not tm2
-    for q1, q2 in zip(tm1.quarters, tm2.quarters):
+    for q1, q2 in zip(tm1.changes, tm2.changes):
         assert q1 is not q2
         assert q1.time == q2.time
         assert q1.quarter == q2.quarter
@@ -30,9 +30,9 @@ def test_timemap_deepcopy():
 def test_timemap_mapping():
     """Test quarter_to_tempo method of TimeMap."""
     tm1 = TimeMap()
-    tm1.append_quarter_tempo(0.0, 100)
-    tm1.append_quarter_tempo(1.0, 120)
-    tm1.append_quarter_tempo(2.0, 140)
+    tm1.append_change(0.0, 100)
+    tm1.append_change(1.0, 120)
+    tm1.append_change(2.0, 140)
 
     assert tm1.quarter_to_tempo(0) == pytest.approx(100)
     assert tm1.quarter_to_tempo(0.5) == pytest.approx(100)

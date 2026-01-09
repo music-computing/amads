@@ -129,7 +129,6 @@ class Event:
         duration = self.duration
         if duration is not None:
             duration = f"{self.duration:0.3f}"
-
         return f"{self._event_onset()}, duration={duration}"
 
 
@@ -211,8 +210,8 @@ class Event:
         bool
             True if the property exists, False otherwise.
         """
-        return property in self.info
-
+        return (self.info is not None) and (property in self.info)
+        
 
     def time_shift(self, increment: float) -> "Event":
         """
@@ -744,7 +743,7 @@ class Note(Event):
             lyric_info = f", lyric={self.lyric}"
 
         return (f"Note({self._event_times()}{dynamic_info}{lyric_info}, " +
-                f"pitch={self.name_with_octave})")
+                f"pitch={self.name_with_octave}/{self.key_num})")
 
 
     def show(self, indent: int = 0, file: Optional[TextIO] = None,
@@ -1277,6 +1276,12 @@ class EventGroup(Event):
                 elem.onset = member_onset
             elif elem._onset < prev_onset:
                 raise ValueError("content is not in onset time order")
+            # # Rounding can cause notes to get re-ordered when they should
+            # # be simultaneous. This finds notes that are within 1 usec and
+            # # overwrites the onsets after the first note so they are all
+            # # equal. Then get_sorted_notes() will sort these by pitch:
+            # elif elem._onset < prev_onset + 1.0e-6:
+            #     elem._onset = prev_onset
             else:
                 prev_onset = elem._onset
 
@@ -1516,10 +1521,11 @@ class EventGroup(Event):
     def get_sorted_notes(self, has_ties: bool = True) -> List[Note]:
         """Return a list of sorted notes with merged ties.
 
-        This should only be called on Parts and Scores since in
-        all other EventGroups, all Events are in time order and
-        sorting is unnecessary when Notes are retrieved with
-        `find_all()` or `list_all()`.
+        This should generally be called on Parts and Scores since
+        in all other EventGroups, Events are in time order and
+        Notes retrieved with `find_all()` or `list_all()` are in
+        time order. However, `get_sorted_notes` *also* sorts notes
+        into increasing pitch (`keynum`) where note onsets are equal.
 
         Parameters
         ----------
@@ -3069,7 +3075,7 @@ class Part(EventGroup):
     number : Optional[str]
         A string representing the part number.
     instrument : Optional[str]
-        A string representing the instrument name.
+        A string representing the instrument name.        
     flat : bool
         If true, content in `*args` with onset None are modified to start
         at the offset of the previous note (or at `onset` if this is the
@@ -3093,6 +3099,18 @@ class Part(EventGroup):
         A string representing the part number (if any). E.g., "22a".
     instrument : Union[str, None]
         A string representing the instrument name (if any).
+
+    Notes
+    -----
+        Standard MIDI File tracks often have text instrument names in
+        type 4 meta events. These are stored in the `instrument` attribute.
+        Tracks often contain events for a single MIDI channel and a single
+        “program” that is another representation of “instrument.” In fact,
+        the `pretty_midi` library considers MIDI program to be a property
+        of the track rather than a timed event within the track (many
+        sequencers use this model as well). Therefore, if there is a
+        single MIDI program in a track (or an AMADS Part), the program
+        number (int) is stored in `info` using the key `"midi_program"`.
     """
     __slots__ = ["number", "instrument"]
     number: Optional[str]

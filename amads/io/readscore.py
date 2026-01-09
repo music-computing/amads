@@ -8,11 +8,14 @@ from typing import Callable, Optional
 from amads.core.basics import Score
 
 # preferred_midi_reader is the subsystem to use for MIDI files.
-# It can be "music21", "partitura", or "prettymidi".
-preferred_midi_reader = "prettymidi"
+# It can be "music21", "partitura", or "pretty_midi".
+preferred_midi_reader = "pretty_midi"
 
 # preferred_xml_reader is the subsystem to use for MusicXML files.
 preferred_xml_reader = "music21"
+
+# remember the actual reader used in the last call to readscore()
+last_used_reader_fn = None
 
 
 def set_preferred_midi_reader(reader: str) -> str:
@@ -22,7 +25,7 @@ def set_preferred_midi_reader(reader: str) -> str:
     Parameters
     ----------
     reader : str
-        The name of the preferred MIDI reader. Can be "music21", "partitura", or "prettymidi".
+        The name of the preferred MIDI reader. Can be "music21", "partitura", or "pretty_midi".
 
     Returns
     -------
@@ -31,11 +34,11 @@ def set_preferred_midi_reader(reader: str) -> str:
     """
     global preferred_midi_reader
     previous_reader = preferred_midi_reader
-    if reader in ["music21", "partitura", "prettymidi"]:
+    if reader in ["music21", "partitura", "pretty_midi"]:
         preferred_midi_reader = reader
     else:
         raise ValueError(
-            "Invalid MIDI reader. Choose 'music21', 'partitura', or 'prettymidi'."
+            "Invalid MIDI reader. Choose 'music21', 'partitura', or 'pretty_midi'."
         )
     return previous_reader
 
@@ -77,7 +80,7 @@ def _check_for_subsystem(
     )
     try:
         if preferred_reader == "music21":
-            print(f"In readscore: importing music21-based {file_type} reader.")
+            print(f"In read_score: importing music21-based {file_type} reader.")
             if file_type == "midi":
                 from amads.io.m21_midi_import import music21_midi_import
 
@@ -88,7 +91,7 @@ def _check_for_subsystem(
                 return music21_xml_import
         elif preferred_reader == "partitura":
             print(
-                f"In readscore: importing partitura-based {file_type}"
+                f"In read_score: importing partitura-based {file_type}"
                 " reader."
             )
             if file_type == "midi":
@@ -99,9 +102,9 @@ def _check_for_subsystem(
                 from amads.io.pt_xml_import import partitura_xml_import
 
                 return partitura_xml_import
-        elif preferred_reader == "prettymidi":
+        elif preferred_reader == "pretty_midi":
             print(
-                f"In readscore: importing prettymidi-based {file_type}"
+                f"In read_score: importing pretty_midi-based {file_type}"
                 " reader."
             )
             from amads.io.pm_midi_import import pretty_midi_midi_import
@@ -127,6 +130,8 @@ def import_xml(
     """
     import_xml_fn = _check_for_subsystem("xml")
     if import_xml_fn is not None:
+        global last_used_reader_fn
+        last_used_reader_fn = import_xml_fn
         return import_xml_fn(filename, flatten, collapse, show)
     else:
         raise Exception(
@@ -147,6 +152,8 @@ def import_midi(
     """
     import_midi_fn = _check_for_subsystem("midi")
     if import_midi_fn is not None:
+        global last_used_reader_fn
+        last_used_reader_fn = import_midi_fn
         return import_midi_fn(filename, flatten, collapse, show)
     else:
         raise Exception(
@@ -197,15 +204,29 @@ def read_score(
         elif ext == ".mei":
             format = "mei"
     if format == "xml":
-        return import_xml(filename, show)
+        return import_xml(filename, flatten, collapse, show)
     elif format == "midi":
-        return import_midi(filename, show)
+        return import_midi(filename, flatten, collapse, show)
     elif format == "kern":
         raise Exception("Kern format input not implemented")
     elif format == "mei":
         raise Exception("MEI format input not implemented")
     else:
         raise Exception(str(format) + " format specification is unknown")
+
+
+def last_used_reader() -> Optional[str]:
+    """Return the name of the last used reader function.
+
+    Returns
+    -------
+    Optional[str]
+        The name of the actual function used in the last call to `read_score`,
+        or None if no reader has been used yet.
+    """
+    if last_used_reader_fn is not None:
+        return last_used_reader_fn.__name__
+    return None
 
 
 """

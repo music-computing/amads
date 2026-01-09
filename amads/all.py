@@ -31,15 +31,21 @@ from .core.vectors_sets import *
 # harmony
 from .harmony.consonance.consonance import *
 from .harmony.root_finding.parncutt import *
+from .io.m21_midi_export import *
 
 # io
 from .io.m21_midi_import import *
+from .io.m21_xml_export import *
 from .io.m21_xml_import import *
 from .io.pianoroll import *
+from .io.pm_midi_export import *
 from .io.pm_midi_import import *
+from .io.pt_midi_export import *
 from .io.pt_midi_import import *
+from .io.pt_xml_export import *
 from .io.pt_xml_import import *
 from .io.readscore import *
+from .io.writescore import *
 
 # melody
 from .melody.boundary import *
@@ -54,7 +60,7 @@ from .melody.segment_gestalt import *
 from .melody.similarity.melsim import *
 
 # music
-from .music import example
+from .music.example import *
 
 # pitch
 from .pitch.hz2midi import *

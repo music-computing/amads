@@ -1,4 +1,5 @@
 import warnings
+from typing import Dict, Optional, Union
 
 from music21 import (
     bar,
@@ -8,11 +9,11 @@ from music21 import (
     instrument,
     key,
     metadata,
-    meter,
     note,
     stream,
     tempo,
 )
+from music21.meter.base import TimeSignature as m21TimeSignature
 
 from amads.core.basics import (
     Chord,
@@ -71,26 +72,82 @@ def music21_xml_import(
     # Load the MusicXML file using music21
     m21score = converter.parse(filename, format="xml")
 
+    # m21score can be an Opus, but this is checked in music21_to_score, so we
+    # can ignore the type error here:
+    score = music21_to_score(m21score, flatten, collapse, show)  # type: ignore
+    return score
+
+
+# mapping from PartStaff id to list of AMADS Part, where each Part contains
+# a Staff. After everything is read, Parts with the same id should be
+# combined.
+_staff_id_to_part: Dict[str, list[Part]]  # declare global
+
+
+def _remember_staff(m21part, amads_part):
+    """Remember association between music21 PartStaff id and AMADS parts"""
+    part_list = _staff_id_to_part.get(m21part.id)
+    if part_list is not None:
+        part_list.append(amads_part)
+    else:
+        _staff_id_to_part[m21part.id] = [amads_part]  # new list of one Part
+
+
+def music21_to_score(
+    m21score: Union[stream.Score, stream.Part],
+    flatten: bool = False,
+    collapse: bool = False,
+    show: bool = False,
+    filename: Optional[str] = None,
+) -> Score:
+    global _staff_id_to_part
+    _staff_id_to_part = {}
+
     if show:
         # Print the music21 score structure for debugging
-        print(f"Music21 score structure from {filename}:")
+        print("Music21 score structure", end="")
+        if filename is not None:
+            print(f" for {filename}:")
+        else:
+            print(":")
         for element in m21score:
             if isinstance(element, metadata.Metadata):
                 print(element.all())
         print(m21score.show("text", addEndTimes=True))
 
     # Create an empty Score object
-    score = Score()
+    duration = m21score.duration.quarterLength
+    print("music21_to_score duration", duration)
+    score = Score(duration=float(duration))
 
     # Iterate over parts in the music21 score
-    for m21part in m21score.parts:
-        if isinstance(m21part, stream.base.Part):
-            # Convert the music21 part into an AMADS Part and append it to the Score
-            music21_convert_part(m21part, score)
-        else:
-            warnings.warn(
-                f"Ignoring non-Part element of Music21 score: {m21part}"
-            )
+    if isinstance(m21score, stream.Part):
+        music21_convert_part(m21score, score, duration)
+    elif isinstance(m21score, stream.Score):
+        for m21part in m21score.parts:
+            if isinstance(m21part, stream.Part):
+                # Convert the music21 part into an AMADS Part and
+                # append it to the Score:
+                part = music21_convert_part(m21part, score, duration)
+                # if m21part is a PartStaff (subclass of Part), keep
+                # a dictionary of names and Parts:
+                if isinstance(m21part, stream.PartStaff):
+                    _remember_staff(m21part, part)
+            else:
+                warnings.warn(
+                    f"Ignoring non-Part element of Music21 score: {m21part}"
+                )
+    else:
+        raise ValueError("expected Score or Part from music21 reader")
+
+    for tkey in _staff_id_to_part.keys():
+        parts = _staff_id_to_part[tkey]
+        staff_group: Part = parts[0]
+        for part in parts[1:]:  # merge the other parts
+            staff = part.content[0]
+            part.remove(staff)
+            staff_group.insert(staff)
+
     if flatten or collapse:
         score = score.flatten(collapse=collapse)
     return score
@@ -110,12 +167,13 @@ def music21_convert_note(m21note, measure):
     duration = float(m21note.duration.quarterLength)
     # print("music21_convert_note: m21note offset", m21note.offset,
     #       "float", float(m21note.offset))
-    print(
-        "music21_convert_note: m21note duration",
-        m21note.duration.quarterLength,
-        "float",
-        float(m21note.duration.quarterLength),
-    )
+    # print(
+    #     "music21_convert_note: m21note duration",
+    #     m21note.duration.quarterLength,
+    #     "float",
+    #     float(m21note.duration.quarterLength),
+    # )
+
     # Handle rests if present
     # Create a new Note object and associate it with the Measure
     # print("music21_convert_note: m21note pitch", m21note.pitch, "beat",
@@ -125,27 +183,27 @@ def music21_convert_note(m21note, measure):
     #     print(f"music21_convert_note: tie: {m21note},",
     #           f"time: {measure.onset + m21note.offset},",
     #           f"dur: {m21note.quarterLength}, tie type: {m21note.tie.type}")
-    if m21note.pitch.midi == 68:
-        print(
-            "music21_convert_note: m21note pitch",
-            m21note.pitch,
-            "beat",
-            m21note.beat,
-            "offset",
-            m21note.offset,
-            "measure onset",
-            measure.onset,
-            "measure offset",
-            measure.offset,
-        )
-        pass
+    # if m21note.pitch.midi == 68:
+    #     print(
+    #         "music21_convert_note: m21note pitch",
+    #         m21note.pitch,
+    #         "beat",
+    #         m21note.beat,
+    #         "offset",
+    #         m21note.offset,
+    #         "measure onset",
+    #         measure.onset,
+    #         "measure offset",
+    #         measure.offset,
+    #     )
     note = Note(
         parent=measure,
         onset=float(measure.onset + m21note.offset),
         pitch=Pitch(pitch=m21note.pitch.midi, alt=m21note.pitch.alter),
         duration=duration,
+        dynamic=min(max(m21note.volume.velocity, 1), 127),
     )
-    print("music21_convert_note created", note)
+    # print("music21_convert_note created", note)
     if m21note.tie is not None:
         music21_convert_tie(m21note.pitch.midi, note, m21note.tie.type)
 
@@ -275,7 +333,7 @@ def music21_convert_chord(m21chord, measure, offset):
 
 
 def append_items_to_measure(
-    measure: Measure, source: stream.base.Stream, offset: float
+    measure: Measure, source: stream.Stream, offset: float
 ) -> None:
     """
     Append items from a source to the Measure.
@@ -292,7 +350,7 @@ def append_items_to_measure(
             music21_convert_note(element, measure)
         elif isinstance(element, note.Rest):
             music21_convert_rest(element, measure)
-        elif isinstance(element, meter.base.TimeSignature):
+        elif isinstance(element, m21TimeSignature):
             # Create a TimeSignature object and associate it with the Measure
             TimeSignature(
                 parent=measure,
@@ -314,7 +372,7 @@ def append_items_to_measure(
             # update tempo
             time_map = measure.score.time_map  # type: ignore (measure has
             #     a parent)
-            last_beat = time_map.quarters[-1].quarter
+            last_beat = time_map.changes[-1].quarter
             tempo_change_onset = offset + element.offset
             if last_beat > tempo_change_onset:
                 warnings.warn(
@@ -332,13 +390,25 @@ def append_items_to_measure(
                 else:
                     # print("music21 MetronomeMark: tempo_change_onset",
                     #      tempo_change_onset, "qpm", qpm)
-                    time_map.append_quarter_tempo(tempo_change_onset, qpm)
+                    time_map.append_change(tempo_change_onset, qpm)
         elif isinstance(element, bar.Barline):
             pass  # ignore barlines, e.g. Barline type="final"
+        elif isinstance(element, instrument.Instrument):
+            print("FOUND INSTRUMENT")
+            part = measure.part
+            assert part is not None, "Measure has no parent"
+            if part.instrument is None:
+                part.instrument = element.instrumentName
+            else:
+                warnings.warn(
+                    f"Music21_convert_measure ignoring {element.__class__}"
+                    f" ({element}) because part already has instrument"
+                    f" {part.instrument}."
+                )
         else:
             warnings.warn(
                 "Music21_convert_measure ignoring non-Note element"
-                f" {element}."
+                f" {element} : {element.__class__}."
             )
 
 
@@ -365,7 +435,7 @@ def music21_convert_measure(m21measure, staff):
     return measure
 
 
-def music21_convert_part(m21part, score):
+def music21_convert_part(m21part, score, duration):
     """
     Convert a music21 part into an AMADS Part and append it to the Score.
 
@@ -378,7 +448,7 @@ def music21_convert_part(m21part, score):
     """
     global tied_notes  # temporary data to track tied notes
     # Create a new Part object and associate it with the Score
-    part = Part(parent=score, instrument=m21part.partName)
+    part = Part(parent=score, instrument=m21part.partName, duration=duration)
     staff = Staff(parent=part)  # Assuming a single staff for simplicity
     tied_notes.clear()
     # Iterate over elements in the music21 part
@@ -399,3 +469,4 @@ def music21_convert_part(m21part, score):
             f" {tied_notes.values()}"
         )
     tied_notes.clear()
+    return part

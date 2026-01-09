@@ -60,9 +60,11 @@ def pitch_class_distribution_2(
         in seconds that are modified according to Parncutt's durational
         accent model (1994), by default True.
     miditoolbox_compatible : bool
-        If True, bins are initialized with 1e-12 to avoid division by
-        zero. If False and all bins are zero, division is avoided and
-        the resulting bins remain all zero. Default is False.
+        Matlab MIDI Toolbox avoids zero division by dividing counts
+        by the total count plus (1e-12 times the number of bins).
+        True enables this behavior. Default is False, which simply skips
+        division when the total count is zero (this also returns a
+        zero matrix when the count is zero).
 
     Returns
     -------
@@ -75,10 +77,9 @@ def pitch_class_distribution_2(
     score = cast(Score, score.merge_tied_notes())
     if weighted:
         score.convert_to_seconds()  # need seconds for duraccent calculation
-    initial_value = 1e-12 if miditoolbox_compatible else 0.0
     bin_centers = [float(i) for i in range(12)]  # 25 bins from -12 to +12
     x_categories = CHROMATIC_NAMES
-    h = Histogram2D(bin_centers, None, "linear", False, initial_value)
+    h = Histogram2D(bin_centers, None, "linear", False)
 
     # do not count transitions from one part to the next
     for p in score.find_all(Part):
@@ -98,8 +99,11 @@ def pitch_class_distribution_2(
             prev_bin = h.add_point_2d(prev_pc, pc, w, prev_bin)
             prev_pc = pc
 
-    # normalize
-    h.normalize()
+    if miditoolbox_compatible:  # miditoolbox "normalization"
+        total = sum(h.bins) + len(h.bins) * 1e-12
+        h.bins = [b / total for b in h.bins]
+    else:  # normalize normally
+        h.normalize()
 
     return Distribution(
         name,

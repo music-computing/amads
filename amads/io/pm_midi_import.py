@@ -15,7 +15,7 @@ Do not use this module directly; see readscore.py.
 
 Notes
 -----
-PrettyMIDI has a "hidden" representation of teh MIDI tempo track in
+PrettyMIDI has a "hidden" representation of the MIDI tempo track in
 `_tick_scales`, which has the form [(tick, tick_duration), ...]. We
 need to convert this to a TimeMap.
 """
@@ -25,66 +25,11 @@ __author__ = "Roger B. Dannenberg"
 import warnings
 from typing import cast
 
-from pretty_midi import PrettyMIDI
+from pretty_midi import PrettyMIDI, program_to_instrument_name
 
 from amads.core.basics import Measure, Note, Part, Score, Staff
-from amads.core.pitch import CHROMATIC_NAMES, Pitch
+from amads.core.pitch import Pitch
 from amads.core.timemap import TimeMap
-
-
-def _show_pretty_midi(pmscore: PrettyMIDI, filename: str) -> None:
-    # Print the PrettyMIDI score structure for debugging
-    print(f"PrettyMIDI score structure from {filename}:")
-    print(f"end_time: {pmscore.get_end_time()}")
-    if pmscore.key_signature_changes and len(pmscore.key_signature_changes) > 0:
-        for sig in pmscore.key_signature_changes:
-            key = CHROMATIC_NAMES[sig.key_number % 12]
-            key += " major" if sig.key_number < 12 else " minor"
-            print(
-                f"    KeySignature(time={sig.time},"
-                f" key_number={sig.key_number}) {key}"
-            )
-    if (
-        pmscore.time_signature_changes
-        and len(pmscore.time_signature_changes) > 0
-    ):
-        for sig in pmscore.time_signature_changes:
-            print(
-                f"    TimeSignature(time={sig.time},"
-                f" numerator={sig.numerator},"
-                f" denominator={sig.denominator})"
-            )
-    for ins in pmscore.instruments:
-        drum_str = ", is_drum" if ins.is_drum else ""
-        print(
-            f"    Instrument(name={ins.name},"
-            f" program={ins.program}{drum_str})"
-        )
-        if ins.pitch_bends and len(ins.pitch_bends) > 0:
-            print(f"        ignoring {len(ins.pitch_bends)} pitch bends")
-        if ins.control_changes and len(ins.control_changes) > 0:
-            print(
-                f"        ignoring {len(ins.control_changes)}"
-                " control changes"
-            )
-        for note in ins.notes:
-            print(
-                f"        Note(start={note.start},"
-                f" duration={note.get_duration()},"
-                f" pitch={note.pitch},"
-                f" velocity={note.velocity})"
-            )
-    if pmscore.lyrics and len(pmscore.lyrics) > 0:
-        for lyric in pmscore.lyrics:
-            print(f"    Lyric(time={lyric.time}, text={lyric.text})")
-    if (
-        hasattr(pmscore, "text_events")
-        and pmscore.text_events
-        and len(pmscore.text_events) > 0
-    ):
-        print("    Text events (not imported by AMADS):")
-        for text in pmscore.text_events:
-            print(f"        Text(time={text.time}, text={text.text})")
 
 
 def _time_map_from_tick_scales(tick_scales, resolution: int) -> TimeMap:
@@ -94,7 +39,7 @@ def _time_map_from_tick_scales(tick_scales, resolution: int) -> TimeMap:
     ticks_per_second = 1.0 / tick_scales[0][1]
     time_map = TimeMap(qpm=ticks_per_second * 60 / resolution)
     for change in tick_scales[1:]:
-        time_map.append_quarter_tempo(
+        time_map.append_change(
             change[0] / resolution, 60.0 / (change[1] * resolution)
         )
     return time_map
@@ -239,7 +184,9 @@ def pretty_midi_midi_import(
     filename = str(filename)
     pmscore = PrettyMIDI(filename)
     if show:
-        _show_pretty_midi(pmscore, filename)
+        from amads.io.pm_show import pretty_midi_show
+
+        pretty_midi_show(pmscore, filename)
 
     # Create an empty Score object
     time_map = _time_map_from_tick_scales(
@@ -252,9 +199,14 @@ def pretty_midi_midi_import(
     # Then if collapse, merge and sort the notes
     # Then if not flatten, remove each part content, and staff and measures,
     # and move notes into measures, creating ties where they cross
+
     # Iterate over instruments of the PrettyMIDI score and build parts and notes
+    duration = 0
     for ins in pmscore.instruments:
-        part = Part(parent=score, onset=0.0, instrument=ins.name)
+        name = ins.name
+        if not ins.name:
+            name = program_to_instrument_name(ins.program)
+        part = Part(parent=score, onset=0.0, instrument=name)
         for note in ins.notes:
             # Create a Note object and associate it with the Part
             Note(
@@ -264,7 +216,11 @@ def pretty_midi_midi_import(
                 pitch=Pitch(note.pitch),
                 dynamic=note.velocity,
             )
-            part.duration = max(part.duration, note.end)
+            duration = max(duration, note.end)
+    # print("pretty_midi_midi_import got max duration", duration)
+    score.duration = duration
+    for part in score.content:
+        part.duration = duration  # all parts get same max duration
 
     # Then if collapse, merge and sort the notes
     if collapse:
@@ -280,9 +236,7 @@ def pretty_midi_midi_import(
             notes = part.content
             part.content = []  # Remove existing content
             # now notes have part as parent, but parent does not have notes
-            staff = Staff(
-                parent=part, onset=0.0, duration=part.duration, number=1
-            )
+            staff = Staff(parent=part, onset=0.0, duration=part.duration)
             end_time = pmscore.get_end_time()  # total duration of score
             end_beat = score.time_map.time_to_quarter(end_time)
             # in principle we could do this once for the first staff and

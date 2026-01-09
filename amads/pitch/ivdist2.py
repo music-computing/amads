@@ -37,9 +37,10 @@ def interval_distribution_2(
         accent model (1994), by default True.
     miditoolbox_compatible : bool
         miditoolbox_compatible introduces four changes to emulate `ivdist2`
-        in Midi Toolbox: (1) avoid zero division by initializing bins to
-        1e-12 (as opposed to simply skipping division when all bins are
-        zero), (2) assume octave (but not direction) equivalence, so the
+        in Midi Toolbox: (1) avoid zero division by dividing counts
+        by (total count plus (1e-12 time the number of bins), as
+        opposed to simply skipping division when all bins are zero,
+        (2) assume octave (but not direction) equivalence, so the
         intervals +1 and +13 update the same bin (as opposed to ignoring
         intervals larger than an octave), (3) a zero interval (unison) is
         inserted at the beginning of the sequence, (4) the weight is the
@@ -68,12 +69,11 @@ def interval_distribution_2(
     if weighted:
         score.convert_to_seconds()  # need seconds for duraccent function
 
-    initial_value = 1e-12 if miditoolbox_compatible else 0.0
     bin_centers = [float(i - 12) for i in range(25)]  # 25 bins from -12 to +12
     bin_boundaries = [i - 12 - 0.5 for i in range(26)]  # boundaries
     x_categories = [str(c) for c in bin_centers]
     y_categories = x_categories
-    h = Histogram2D(bin_centers, bin_boundaries, "linear", True, initial_value)
+    h = Histogram2D(bin_centers, bin_boundaries, "linear", True)
     for p in score.find_all(Part):
         part: Part = cast(Part, p)
         dur = 0.0  # (this value is never used)
@@ -102,6 +102,14 @@ def interval_distribution_2(
                 prev_iv = None if prev_bin is None else iv
             prev_pitch = note.key_num
             prev_dur = dur
+    if miditoolbox_compatible:
+        total = sum(sum(bin) for bin in h.bins) + (
+            len(h.bins) * len(h.bins) * 1e-12
+        )
+        h.bins = [[c / total for c in row] for row in h.bins]
+    else:  # normalize normally
+        h.normalize()
+
     return Distribution(
         name,
         h.bins,

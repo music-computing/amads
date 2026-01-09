@@ -18,15 +18,6 @@ from amads.core.basics import (
 )
 from amads.core.pitch import Pitch
 
-# plan: multiple passes over iter_all()
-# for each part: add the part to a Concurrence
-#      1st pass: get staff numbers from notes, extract measures, get div/qtr
-#           create a Concurrence of staves if more than one,
-#           create measures in each staff
-#      2nd pass (A): get notes, rests, insert parameters into lists
-#      2nd pass (B): build Note and Rest objects, insert into Measures
-#      2nd pass (C): set ties attribute of Notes ?
-
 # Partitura seems to have a rounding error, reporting measure length
 # of 1919 instead of 1920 when divs per quarter is 480. This can lead
 # to measures with fractional duration (e.g. 3.997916666666667) and
@@ -119,9 +110,9 @@ def if_tied(note: pt.score.Note) -> bool:
     return (note.tie_prev or note.tie_next) is not None
 
 
-def retie_notes(event, staff, rnd: bool):
+def retie_notes(event, staff):
     """Adjust tied notes that cross barlines
-
+     
     This method accounts for rounding in Partitura that can change
     measure timing. It adjusts the onsets and durations of tied notes
     so that ties occur at measure boundaries when they are already
@@ -232,7 +223,7 @@ def partitura_convert_part(ppart, score, rnd=True) -> Part:
     Returns
     -------
       Part - the newly created AMADS Part
-    """
+    """   
     # these are globals so we don't have to pass to every
     # helper function that needs to do lookups:
     global measure_map, pt_note_to_note
@@ -257,11 +248,13 @@ def partitura_convert_part(ppart, score, rnd=True) -> Part:
     # pass 1: count staves and collect measure, signature, notes lists
     tied_count = 0  # debug to count notes in part
     for item in ppart.iter_all():
-        if isinstance(item, pt.score.Note) or isinstance(item, pt.score.Rest):
+        # compare classes directly instead of isinstance() to speed up
+        # tests:
+        if item.__class__ is pt.score.Note or item.__class__ is pt.score.Rest:
             staff_numbers.add(item.staff)
 
         onset = div_to_quarter(durs, item.start.t)
-        if isinstance(item, pt.score.Measure):
+        if item.__class__ is pt.score.Measure:
             # convert divs duration to quarters
             duration = div_to_quarter(
                 durs, item.end.t, rnd=rnd
@@ -283,11 +276,11 @@ def partitura_convert_part(ppart, score, rnd=True) -> Part:
                 while offset >= len(measure_map) * 10:
                     measure_map.append(len(measures))
                 measures.append((onset, duration))
-        elif isinstance(item, pt.score.TimeSignature):
+        elif item.__class__ is pt.score.TimeSignature:
             signatures.append(("time_sig", onset, item.beats, item.beat_type))
-        elif isinstance(item, pt.score.KeySignature):
+        elif item.__class__ is pt.score.KeySignature:
             signatures.append(("key_sig", onset, item.fifths))
-        elif isinstance(item, pt.score.Note):
+        elif item.__class__ is pt.score.Note:
             duration = (item.end.t - item.start.t) / item.start.quarter
             is_tied = if_tied(item)
             notes.append(
@@ -305,10 +298,10 @@ def partitura_convert_part(ppart, score, rnd=True) -> Part:
             if is_tied:
                 pt_note_to_note[item] = [notes[-1]]
                 tied_count += 1  # debug
-        elif isinstance(item, pt.score.Rest):
+        elif item.__class__ is pt.score.Rest:
             duration = (item.end.t - item.start.t) / item.start.quarter
             notes.append(["rest", onset, duration, item.staff])
-        elif isinstance(item, pt.score.Tempo):
+        elif item.__class__ is pt.score.Tempo:
             # Note: partitura "bpm" is really beats per second!
             factor = 1.0  # conversion factor from partitura bpm to AMADS qps
             if item.unit is not None:  # unit string provided
@@ -335,15 +328,8 @@ def partitura_convert_part(ppart, score, rnd=True) -> Part:
     # print("Part has", len(notes), "notes, with", tied_count, "tied notes")  # debug
 
     # for each staff, create measures
-    for staff_num in staff_numbers:
-        # not sure what staff_num can be, so trying to be robust here:
-        if staff_num is not None and not isinstance(staff_num, int):
-            staff_num = str(staff_num)
-            assert str(staff_num).isdigit(), (
-                "Unexpected staff value" " from Partitura note"
-            )
-            staff_num = int(staff_num)
-        staff = Staff(parent=part, number=staff_num)
+    for staff_num in range(0, len(staff_numbers)):
+        staff = Staff(parent=part, number=staff_num + 1)
         # staff_signatures will be "consumed" by new measures, so make a copy:
         staff_signatures = signatures.copy()
         for m_info in measures:
@@ -362,7 +348,7 @@ def partitura_convert_part(ppart, score, rnd=True) -> Part:
         for i, event in enumerate(notes):
             staff = staff_for_note(part, event)
             if event[6]:  # tied
-                retie_notes(event, staff, rnd)
+                retie_notes(event, staff)
 
     # pass 4: insert notes and rests into score
     mindex = 0

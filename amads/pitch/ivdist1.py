@@ -37,7 +37,7 @@ def interval_distribution_1(
         accent model (1994), by default True.
     miditoolbox_compatible : bool
         Matlab MIDI Toolbox avoids zero division by dividing counts
-        by the total count plus 1e-12 times the number of counts.
+        by the total count plus (1e-12 times the number of bins).
         True enables this behavior. Default is False, which simply skips
         division when the total count is zero (this also returns a
         zero matrix when the count is zero).
@@ -63,11 +63,10 @@ def interval_distribution_1(
     if weighted:
         score.convert_to_seconds()
 
-    initial_value = 1e-12 if miditoolbox_compatible else 0.0
     bin_centers = [float(i - 12) for i in range(25)]  # 25 bins from -12 to +12
     bin_boundaries = [i - 12 - 0.5 for i in range(26)]  # boundaries
     x_categories = [str(c) for c in bin_centers]
-    h = Histogram1D(bin_centers, bin_boundaries, "linear", True, initial_value)
+    h = Histogram1D(bin_centers, bin_boundaries, "linear", True)
 
     for p in score.find_all(Part):
         part: Part = cast(Part, p)
@@ -91,8 +90,11 @@ def interval_distribution_1(
             if weighted and prev_dur is None:
                 prev_dur = duraccent(note)
 
-    # normalize
-    h.normalize()
+    if miditoolbox_compatible:  # miditoolbox "normalization"
+        total = sum(h.bins) + len(h.bins) * 1e-12
+        h.bins = [b / total for b in h.bins]
+    else:  # normalize normally
+        h.normalize()
 
     return Distribution(
         name,
