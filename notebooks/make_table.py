@@ -22,7 +22,7 @@ items = [  # NB: use caps and underscore. (Title, difficulty, notes) tuples.
 
 
 colab_part = "[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)]"
-git_base_part = "(https://colab.research.google.com/github/music-computing/amads/blob/main/"
+git_base_part = "(https://colab.research.google.com/github/music-computing/amads/blob/main/notebooks/"
 
 
 def test_match() -> None:
