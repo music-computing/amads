@@ -1,9 +1,7 @@
 """
-Correlations of pitch-class distribution with Krumhansl-Kessler tonal
-hierarchies
+Computes cross-correlation between the pitch-class distribution of a score 
+and a selection of pitch profiles.
 
-Compute correlation of a score's pitch distribution with
-a specified pitch histogram in 12 transpositions.
 
 <small>**Author**: Tai Nakamura, Di Wang</small>
 
@@ -43,6 +41,26 @@ def key_cc(
     attribute name (e.g., "major") and the corresponding 12 correlation
     coefficients.
 
+    (Current Version):
+    When salience_flag is True, the pitch class distribution from the score
+    (pcd) is replaced by a new one (pcd2) where each element is a weighted sum
+    of the elements of pcd. The weights are rotated for each element. Thus,
+    pcd2[I] = sum(pcd[j] * weight[(j + i) mod 12].
+
+    (My Practice Version):
+    salience_flag is a boolean indicator to indicate whether to preprocess 
+    (when true) the pitch class distribution derived from an input score. 
+    Each element of the postprocessed pitch class distribution (pcd1) after
+    salience is applied given the old pitch-class distribution (pcd) is defined
+    as follows:
+    for all 0 <= i < 12, pcd1[i] = pcd * salm[:, i], where '*' is the matrix 
+    multiplication operation
+
+    The idea here is that the perception of significance of a certain pitch in 
+    a score depends not only on its naive unweighted frequency, but also (to a
+    lesser extent) on the frequency of functionally harmonic pitches present 
+    in the score.
+
     Parameters
     ----------
     score: Score
@@ -56,14 +74,14 @@ def key_cc(
         within the KeyProfile to compute correlations for. An example
         `attribute_names` for profile prof.vuvan could be
         `["natural_minor", "harmonic_minor"]`, which says to
-        compute the crosscorrelation between the pitch-class distribution
+        compute the cross-correlation between the pitch-class distribution
         of the score and both prof.vuvan's natural_minor and prof.vuvan's
         harmonic_minor. `None` can be supplied when we want to specify all
         valid pitch profiles within a given key profile.
 
     salience_flag: bool
-        If True, apply salience weighting to the pitch-class according
-        to Huron & Parncutt (1993).
+        If True, apply salience pitch-wise bias weights to the score's
+        pitch-class distribution.
 
     Returns
     -------
@@ -86,12 +104,15 @@ def key_cc(
 
     # Apply salience weighting if requested
     if salience_flag:
-        sal = [1, 0, 0.25, 0, 0, 0.5, 0, 0, 0.33, 0.17, 0.2, 0]
+        # NOTE: this is not the weight vector,
+        # the salience weights for the c-pitch in the pitch-class distribution
+        # is [1, 0, 0.2, 0.17, 0.33, 0, 0, 0.5, 0, 0, 0.25, 0].
+        # These weights form the first column of the 12x12 matrix salm.
+        sal2 = [1, 0, 0.25, 0, 0, 0.5, 0, 0, 0.33, 0.17, 0.2, 0] * 2
         salm = np.zeros((12, 12))
         for i in range(salm.shape[0]):
-            salm[i] = sal
-            sal = sal[-1:] + sal[:-1]  # rotate right
-        pcd = np.matmul(pcd, salm)  # shape (1, 12)
+            salm[i] = sal2[12-i: 23-i]
+        pcd = np.matmul(pcd, salm.T)  # shape (1, 12)
 
     results = []
 
