@@ -246,10 +246,55 @@ def keysom_toroid_clamped(
 
 class KeyProfileSOM:
     """
-    Define coordinate of a node as the coordinate within the array of output nodes
+    The primary use-case for Key Profile SOM is to extract tonal features of a
+    pair of major and minor pitch profiles and project them onto a 2-D map.
 
-    in a self-organizing map.
-    Since each output node is
+    We provide methods to allows users to do the following:
+    (1) For initialization, supply the structure of the key profile SOM.
+    (2) For training, the following is customizeable:
+    (2.1) Customize the key profile used for training data, and only accessing
+    the 'major' and 'minor' PitchProfile attributes within the supplied key 
+    profile.
+    If either attribute does not exist, a value error is raised before training.
+    (2.2) Customize training behavior by supplying functions denoting both the
+    neighborhood propagation function and global decay function.
+    (2.3) Record a log of information to track the training process. This
+    feature isn't fleshed out fully.
+    (3) projection of a supplied pitch-class distribution onto a trained SOM.
+    (4) Visualization facilities, primarily:
+    (4.1) Visualization of projection from a single pitch-class distribution
+    onto the internal SOM.
+    (4.2) Animation of projections from a sequence of pitch-class distributions
+    onto the internal SOM.
+
+    The internal data unique to each KeyProfileSOM object is as follows:
+    (1) SOM structural specifications (output layer dimensions), stored as a
+    2-tuple of ints specifying the width and height of the SOM output layer.
+    (2) the trained SOM according to the structural specifications,
+    stored as a 3-D numpy array with shape
+    (output_width, output_height, input_length).
+    (3) a list of 2-D coordinates for the trained, where each list element at
+    index i specifies the location of the ith label in the trained SOM.
+    The coordinate is the BMU of the ith pitch's corresponding pitch-class
+    profile in the trained SOM.
+    Note that capital pitches denote major key pitches, while lower-case pitches
+    denote minor key pitches.
+    (4) training log containing simple training information per update instance
+    of the SOM (for debugging purposes if logging is turned on during training).
+    (5) a name (string identifier) for the SOM that can be optionally specified.
+
+
+    Class Attributes (in this case, attributes specifying possible class
+    configuration options and visualization elements)
+    ----------
+    _input_length:
+        the number of pitches in a pitch-class distribution, or the number
+        of tonal pitches in a western music system
+    _default_output_dimensions:
+        output dimensions for the pretrained SOM in the original MATLAB version
+        of miditoolbox
+    _labels:
+        list of strings denoting the pitch labels
     """
 
     # corresponds to the number of weights in a pitch-class distribution
