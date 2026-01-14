@@ -68,8 +68,8 @@ def basic_note_compare(
     [
         "tempochange.mid",
         "sarabande.mid",
-        # "chopin_prelude_7.mid",  # chopin_prelude_7.mid has overlapping notes on same pitch
-        # partitura treats this differently than music21 and pretty_midi
+        # "chopin_prelude_7.mid",  # chopin_prelude_7.mid has overlapping notes
+        # on same pitch, which is no well-defined
         "twochan.mid",
     ],
 )
@@ -134,13 +134,3 @@ def test_import_midi(midi_filename):
         f"using {last_used_reader()}."
     )
     basic_note_compare(m2score.get_sorted_notes(), pm_notes)
-
-    set_preferred_midi_reader(reader="partitura")
-    pscore = read_score(midi_file, show=VERBOSE)
-    pscore.convert_to_seconds()
-    assert isinstance(pscore, Score)
-    print(
-        f"Imported MIDI file {midi_filename} into AMADS Score "
-        f"using {last_used_reader()}."
-    )
-    basic_note_compare(pscore.get_sorted_notes(), pm_notes)

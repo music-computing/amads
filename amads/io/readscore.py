@@ -90,26 +90,26 @@ def _check_for_subsystem(
 
                 return music21_xml_import
         elif preferred_reader == "partitura":
-            print(
-                f"In read_score: importing partitura-based {file_type}"
-                " reader."
-            )
-            if file_type == "midi":
-                from amads.io.pt_midi_import import partitura_midi_import
-
-                return partitura_midi_import
-            else:
+            if file_type == "xml":
+                print(
+                    f"In read_score: importing partitura-based {file_type}"
+                    " reader."
+                )
                 from amads.io.pt_xml_import import partitura_xml_import
 
                 return partitura_xml_import
+            else:  # Partitura can read into a score, but it has no MIDI
+                # velocity, or it can read into a performance, but it
+                # has no tempo track, key signature, etc.
+                raise ImportError("Partitura does not support midi import.")
         elif preferred_reader == "pretty_midi":
-            print(
-                f"In read_score: importing pretty_midi-based {file_type}"
-                " reader."
-            )
-            from amads.io.pm_midi_import import pretty_midi_midi_import
-
             if file_type == "midi":
+                print(
+                    f"In read_score: importing pretty_midi-based {file_type}"
+                    " reader."
+                )
+                from amads.io.pm_midi_import import pretty_midi_midi_import
+
                 return pretty_midi_midi_import
             else:
                 raise ImportError("PrettyMIDI does not support XML import.")
@@ -125,6 +125,14 @@ def import_xml(
     show: bool = False,
 ) -> Score:
     """Use Partitura or music21 to import a MusicXML file.
+
+    In Music21, the first measure may be a partial measure containing
+    an anacrusis (“pickup”). This is somewhat ambiguous and does not
+    translate well to MIDI which is less expressive than MusicXML.
+
+    Therefore, if the first measure read with Music21 is not a full
+    measure, a rest is inserted and the remainder is shifted to
+    form a full measure according to its time signature.
 
     <small>**Author**: Roger B. Dannenberg</small>
     """
@@ -146,9 +154,65 @@ def import_midi(
     collapse: bool = False,
     show: bool = False,
 ) -> Score:
-    """Use Partitura or music21 or pretty_midi to import a Standard MIDI file.
+    """Use music21 or pretty_midi to import a Standard MIDI file.
 
     <small>**Author**: Roger B. Dannenberg</small>
+
+    Notes
+    -----
+    Each Standard MIDI File track corresponds to a Staff when
+    creating a full AMADS Score. Everything is combined into one
+    part when `flatten` and `collapse` are specified.
+
+    AMADS assumes that instruments (midi program numbers) are fixed
+    for each Staff (or Part in flat scores), and MIDI channels are
+    not represented. The use of program change messages within a
+    track to change the program are ignored, but may generate warnings.
+
+    In general, AMADS instrument name corresponds to the MIDI track
+    name, and MIDI program numbers are stored as `"midi_program"`
+    in the `info` attribute of the Staff or Part corresponding to
+    the track.
+
+    MIDI files do not have a Part/Staff structure, but you can
+    write multiple tracks with the same name. Both the `"music21"`
+    and `"pretty_midi"` readers will group tracks with matching
+    names as Staffs in a single Part. This may result in an
+    unexpected Part/Staff hierarchy if tracks are not named or
+    if tracks are named something like "Piano-Treble" and
+    "Piano-Bass", which would produce two Parts as different
+    instruments as opposed to one Part with two Staffs.
+
+    Unless `flatten` or `collapse`, the MIDI file time signature
+    information will be used to form Measures with Staffs, and
+    Notes will be broken where they cross measure boundaries and
+    then tied.  The default time signature is 4/4.
+
+    Pretty MIDI Import Notes
+    ------------------------
+    If there is no program change in a file, the `"pretty_midi"`
+    reader will use 0, and 0 will be stored as `"midi_program"`
+    in the Part or Staff's `info` (see
+    [get][amads.core.basics.Event.get] and
+    [set][amads.core.basics.Event.set]).
+
+    If there is no track name, the `Part.instrument` is derived
+    from the track program number (defaults to zero).
+
+    If the MIDI file track name is `"Unknown"`, the `Part.instrument`
+    is set to None. This is because when the `"pretty_midi"` writer
+    writes a part where `Part.instrument is None`, the name `"Unknown"`
+    is used instead. Therefore, the reader will recreate the AMADS
+    Part where `Part.instrument is None`.
+
+    Pretty MIDI will not insert any KeySignature unless key signature
+    meta-events are found.
+
+    Music21 MIDI Import Notes
+    -------------------------
+    Music21 may infer a Clef and KeySignature even though MIDI
+    does not even have a meta-event for clefs, and even if the
+    MIDI file has no key signature meta-event.
     """
     import_midi_fn = _check_for_subsystem("midi")
     if import_midi_fn is not None:
@@ -192,6 +256,11 @@ def read_score(
 
     format: string
         one of 'xml', 'midi', 'kern', 'mei'
+
+    Note
+    ----
+    See individual readers and writers for details on how they handle
+    various features like instrument, MIDI metadata, etc.
     """
     if format is None:
         ext = pathlib.Path(filename).suffix

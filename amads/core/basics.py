@@ -48,6 +48,7 @@ onsets are optional and default to None. To make this simple example work:
 """
 
 import copy
+from math import isclose
 from typing import (
     Any,
     Dict,
@@ -116,6 +117,14 @@ class Event:
             self.parent = None
 
 
+    def __repr__(self) -> str:
+        """All Event subclasses inherit this to use str().
+
+        Thus, a list of Events is printed using their __str__ methods
+        """
+        return str(self)
+
+    
     def _event_onset(self) -> str:
         """produce onset string for __str__
         """
@@ -502,7 +511,7 @@ class Event:
         Optional[Score]
             The Score containing this event or None if not found."""
         p = self.parent
-        while p and not isinstance(p, Score):
+        while (p is not None) and (not isinstance(p, Score)):
             p = p.parent
         return p
 
@@ -987,45 +996,40 @@ class Note(Event):
 
 
 
-class TimeSignature(Event):
-    """TimeSignature is a zero-duration Event with time signaturee information.
+class TimeSignature:
+    """TimeSignature is an element of Score.time_signatures.
+    
+    Contains time signature representation and a time in units that match
+    Score._units_are_seconds.
 
     Parameters
     ----------
-    parent : Optional[EventGroup]
-        The containing object or None.
-    onset : float
-        The onset (start) time. An initial value of None might
-        be assigned when the TimeSignature is inserted into an EventGroup.
-    upper : float
+    time : float
+        The time of the TimeSignature.
+    upper : Optional[float]
         The “numerator” of the key signature: subdivisions units per
-        measure, a number, which may be a fraction.
-    lower : int
+        measure, a number, which may be a fraction. Default is 4.
+    lower : Optional[int]
         The “denominator” of the key signature: a whole number power
         of 2, e.g., 1, 2, 4, 8, 16, 32, 64, representing
         the symbol for one subdivision, e.g., 4 implies quarter note.
+        Default is 4.
 
     Attributes
     ----------
-    parent : Optional[EventGroup]
-        The containing object or None.
-    _onset : float
-        The onset (start) time.
-    duration : float
-        Always zero for this subclass.
+    time : float
+        The time of the TimeSignature
     upper : float
         The "numerator" of the key signature: subdivisions per measure.
     lower : int
         The "denominator" of the key signature: a whole number power of 2.
     """
-    __slots__ = ["upper", "lower"]
+    __slots__ = ["time", "upper", "lower"]
     upper: float
     lower: int
 
-    def __init__(self,
-                 parent: Optional["EventGroup"] = None,
-                 onset: float = 0.0, upper: float = 4.0, lower: int = 4):
-        super().__init__(parent, 0, onset)
+    def __init__(self, time: float, upper: float = 4.0, lower: int = 4):
+        self.time = time
         self.upper = upper
         self.lower = lower
 
@@ -1033,8 +1037,19 @@ class TimeSignature(Event):
     def __str__(self) -> str:
         """Short string representation
         """
-        return (f"TimeSignature({self._event_onset()}, " +
+        return (f"TimeSignature(at {self.time}, " +
                 f"{self.upper}/{self.lower})")
+
+    @property
+    def quarters(self) -> float:
+        """Get duration in quarters.
+
+        Returns
+        -------
+        float
+            Duration of one full measure of this time signature in quarters.
+        """
+        return self.upper * 4 / self.lower
 
 
     def show(self, indent: int = 0,
@@ -1065,7 +1080,7 @@ class Clef(Event):
         The containing object or None.
     onset : float
         The onset (start) time. An initial value of None might
-        be assigned when the TimeSignature is inserted into an EventGroup.
+        be assigned when the Clef is inserted into an EventGroup.
     clef : str
         The clef name, one of "treble", "bass", "alto", "tenor", 
         "percussion", "treble8vb" (Other clefs may be added later.)
@@ -1177,6 +1192,7 @@ class KeySignature(Event):
         """
         print(" " * indent, self, sep="", file=file)
         return self
+
 
 
 
@@ -1662,9 +1678,15 @@ class EventGroup(Event):
         -------
         EventGroup
             The EventGroup instance (self) with the event inserted.
+
+        Raises
+        ------
+        ValueError
+            If event._onset is None (it must be a number)
         """
         assert not event.parent
-        assert event._onset != None  # must be a number
+        if event._onset is None:  # must be a number
+            raise ValueError(f"event's _onset attribute must be a number")
         atend = self.last()
         if atend and event.onset < atend.onset:
             # search in reverse from end
@@ -2218,8 +2240,7 @@ class Measure(Sequence):
     """A Measure models a musical measure (bar).
 
     A Measure can contain many object types including Note, Rest, Chord,
-    KeySignature, TimeSignature and (in theory) custom Events. Measures
-    are elements of a Staff.
+    and (in theory) custom Events. Measures are elements of a Staff.
 
     See <a href="#constructor-details">Constructor Details</a>.
 
@@ -2291,6 +2312,27 @@ class Measure(Sequence):
         return True
 
 
+    def time_signature(self) -> TimeSignature:
+        """Retrieve the time signature that applies to this measure.
+
+        Returns
+        -------
+        TimeSignature
+            The time signature from the score corresponding to the
+            time of this measure.
+
+        Raises
+        ------
+        ValueError
+            If there is no Score or no onset time.
+        """
+        score = self.score
+        if score is None:
+            raise ValueError("Measure has no Score")
+        else:  # find time sig at onset + a little to avoid rounding error:
+            return score._find_time_signature(self.onset + 0.001)
+
+
 
 class Score(Concurrence):
     """A Score (abstract class) represents a musical work.
@@ -2334,19 +2376,24 @@ class Score(Concurrence):
         Elements contained within this collection.
     time_map : TimeMap
         A map from quarters to seconds (or seconds to quarters).
+    time_signatures : list[TimeSignature]
+        A list of all time signature changes
     _units_are_seconds : bool
         True if the units are seconds, False if the units are quarters.
     """
-    __slots__ = ["time_map", "_units_are_seconds"]
+    __slots__ = ["time_map", "_units_are_seconds", "time_signatures"]
     time_map: TimeMap
     _units_are_seconds: bool
 
     def __init__(self, *args: Event,
                  onset: Optional[float] = 0,
                  duration: Optional[float] = None,
-                 time_map: Optional["TimeMap"] = None):
-        super().__init__(None, onset, duration, list(args))  # score parent is None
+                 time_map: Optional["TimeMap"] = None,
+                 time_signatures: Optional[List[TimeSignature]] = None):
+        super().__init__(None, onset, duration, list(args))  # parent is None
         self.time_map = time_map if time_map else TimeMap()
+        self.time_signatures = (
+                time_signatures if time_signatures else [TimeSignature(0)])
         self._units_are_seconds = False
 
 
@@ -2530,6 +2577,24 @@ class Score(Concurrence):
         return self._units_are_seconds
 
 
+    def append_time_signature(self, time_signature: TimeSignature) -> None:
+        """Append a time signature change to the score.
+
+        If there is already a time signature at the given time, it is
+        replaced.
+
+        Parameters
+        ----------
+        time_signature : TimeSignature
+            The time signature to append.
+        """
+        # Remove any existing time signature at the same time
+        if isclose(self.time_signatures[-1].time, time_signature.time,
+                   abs_tol=0.003):
+            self.time_signatures.pop()
+        self.time_signatures.append(time_signature)
+
+
     def calc_differences(self, what: List[str]) -> List[List[Note]]:
         """Calculate inter-onset intervals (IOIs), IOI-ratios and intervals.
 
@@ -2567,6 +2632,8 @@ class Score(Concurrence):
         """
         if self.units_are_seconds:
             return
+        for ts in self.time_signatures:
+            ts.time = self.time_map.quarter_to_time(ts.time)
         super()._convert_to_seconds(self.time_map)
         self._units_are_seconds = True   # set the flag
 
@@ -2578,6 +2645,8 @@ class Score(Concurrence):
         """
         if not self.units_are_seconds:
             return
+        for ts in self.time_signatures:
+            ts.time = self.time_map.time_to_quarter(ts.time)
         super()._convert_to_quarters(self.time_map)
         self._units_are_seconds = False   # clear the flag
 
@@ -2703,7 +2772,28 @@ class Score(Concurrence):
         score.content = [new_part]
         return score
 
+    
 
+    def _find_time_signature(self, when : float) -> TimeSignature:
+        """Look up TimeSignature in effect at time `when`
+
+        Parameters
+        ----------
+        when : float
+            The time to look up the time signature for. Be careful
+            about rounding errors at time signature change times.
+
+        Returns
+        -------
+        TimeSignature
+            The time signature in effect at time `when`.
+        """
+        for ts in reversed(self.time_signatures):
+            if ts.time <= when:
+                return ts
+        assert False, "No time signature found"
+
+    
     def flatten(self, collapse=False):
         """Deep copy notes in a score to a flat score.
 
@@ -3032,6 +3122,20 @@ class Score(Concurrence):
 
         print(" " * indent, self, sep="", file=file)
         self.time_map.show(indent + 4, file=file)
+
+        print(" " * indent, "    time_signatures [", sep="", end="") 
+        need_blank = ""
+        col = indent + 21
+        for ts in self.time_signatures:
+            tss = str(ts)
+            if len(tss) + col > 79:
+                print("\n", " " * (indent + 20), end="")
+                col = indent + 21
+            print(need_blank, tss, sep="", end="")
+            col += len(tss)
+            need_blank = " "
+        print("]")  # newline after time signatures
+    
         for elem in self.content:
             elem.show(indent + 4, file=file)  # type: ignore
             # type ignore because (all Events have show())
@@ -3169,38 +3273,6 @@ class Part(EventGroup):
             if isinstance(staff, Staff) and not staff._is_well_formed():
                 return False
         return True
-
-
-    # @classmethod
-    # def _find_tied_group(cls, notes, i):
-    #     """Find notes tied to notes[i]"""
-    #     group = [notes[i]]  # start the list
-    #     while notes[i].tie == "start" or notes[i].tie == "continue":
-    #         offset = notes[i].offset
-    #         key_num = notes[i].key_num  # allow ties to enharmonics
-    #         candidates = []  # save indices of possible tied notes
-    #         j = i + 1  # search for candidates starting at i + 1
-    #         while j < len(notes) and notes[j].onset < offset + 0.0001:
-    #             if (notes[j].key_num == key_num
-    #                 and (notes[j].tie == "stop" or notes[j].tie == "continue")
-    #                 and notes[j].onset > offset - 0.0001):
-    #                 candidates.append(j)  # found one!
-    #             j += 1
-    #         if len(candidates) == 0:
-    #             raise Exception("no note can resolve tie")
-    #         elif len(candidates) > 1:  # do extra work to compare Staffs
-    #             staff = notes[i].staff
-    #             candidates = [c for c in candidates if notes[c].staff == staff]
-    #             if len(candidates) != 1:
-    #                 raise Exception("could not resolve ambiguous tie")
-    #         # else note that we can tie notes between Staffs when it is not
-    #         #     ambiguous
-    #         i = candidates[0]
-    #         group.append(notes[i])
-    #         # note that the loop will collect notes until we satisfy
-    #         #     notes[i].tie == 'stop', so notes[i].tie == 'continue'
-    #         #     cause the loop to find the next tied note.
-    #     return group
 
 
     def flatten(self, in_place=False):
@@ -3424,7 +3496,7 @@ class Staff(Sequence):
         """Short string representation
         """
         nstr = f", number={self.number}" if self.number else ""
-        return f"Staff({self._event_onset()}{nstr})"
+        return f"Staff({self._event_times()}{nstr})"
 
 
     def _is_well_formed(self):

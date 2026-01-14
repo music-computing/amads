@@ -12,9 +12,8 @@ Do not use this module directly; see writescore.py.
 
 Notes
 -----
-PrettyMIDI has a "hidden" representation of the MIDI tempo track in
-`_tick_scales`, which has the form [(tick, tick_duration), ...]. We
-need to create this from TimeMap.
+See `export_midi` notes for translation-to-MIDI-file details.
+
 """
 
 from typing import cast
@@ -60,6 +59,21 @@ def pretty_midi_midi_export(
     score.convert_to_seconds()
     # 600 gives 1 ms resolution at 100 bpm
     pmscore = pm.PrettyMIDI(resolution=600)
+
+    # Create tempo changes from TimeMap
+    tm = score.time_map
+    if tm is not None:
+        tick_scales = []
+        for i in range(len(tm.changes)):
+            bpm = tm.get_tempo_at(i)
+            resolution = pmscore.resolution
+            # form breakpoints with units of (ticks, seconds/tick)
+            tick_scale = 60.0 / (bpm * resolution)
+            tick_scales.append(
+                (int(tm.changes[i].quarter * resolution), tick_scale)
+            )
+        pmscore._tick_scales = tick_scales
+
     # Create instruments and add notes
     for part in score.find_all(Part):
         part = cast(Part, part)
@@ -89,22 +103,24 @@ def pretty_midi_midi_export(
             instrument.notes.append(pm_note)
         pmscore.instruments.append(instrument)
 
-    # Create tempo changes from TimeMap
-    tm = score.time_map
-    if tm is not None:
-        tick_scales = []
-        for i in range(len(tm.changes)):
-            bpm = tm.get_tempo_at(i)
-            resolution = pmscore.resolution
-            tick_scale = 60.0 / (bpm * resolution)
-            tick_scales.append(
-                (int(tm.changes[i].time * resolution), tick_scale)
-            )
-        pmscore._tick_scales = tick_scales
+    # Create time signature changes
+    for ts in score.time_signatures:
+        # Convert onset (in quarters) to seconds using time_map
+        time_in_seconds = score.time_map.quarter_to_time(ts.time)
+        pm_ts = pm.TimeSignature(
+            numerator=int(ts.upper),
+            denominator=int(ts.lower),
+            time=time_in_seconds,
+        )
+        pmscore.time_signature_changes.append(pm_ts)
+
+    # Force pretty_midi to use custom _tick_scales before writing:
+    _ = pmscore.get_end_time()
 
     if show:
         from amads.io.pm_show import pretty_midi_show
 
         pretty_midi_show(pmscore, filename)
+
     # Write to MIDI file
     pmscore.write(filename)

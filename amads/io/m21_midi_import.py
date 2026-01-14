@@ -1,4 +1,7 @@
+from typing import cast
+
 from music21 import converter
+from music21.stream import Score as m21Score
 
 from amads.core.basics import Score
 from amads.io.m21_xml_import import music21_to_score
@@ -32,6 +35,6 @@ def music21_midi_import(
     m21score = converter.parse(
         filename, format="midi", forceSource=True, quantizePost=False
     )
-
-    score = music21_to_score(m21score, flatten, collapse, show)
+    m21score = cast(m21Score, m21score)
+    score = music21_to_score(m21score, flatten, collapse, show, filename)
     return score

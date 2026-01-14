@@ -114,15 +114,18 @@ class TimeMap:
         -------
         None
         """
-        print(" " * indent, "TimeMap: [ ", sep="", end="", file=file)
+        print(" " * indent, "time_map: [", sep="", end="", file=file)
+        col = indent + 11
+        need_blank = ""
         for i, mb in enumerate(self.changes):
             tempo = self.get_tempo_at(i)
-            print(
-                f"({mb.quarter:.2g}, {mb.time:.3g}s, {tempo:.3g}qpm) ",
-                sep="",
-                end="",
-                file=file,
-            )
+            mbs = f"({mb.quarter:.2f}, {mb.time:.3f}s, {tempo:.3f}qpm)"
+            if len(mbs) + col > 79:
+                print("\n", " " * (indent + 10), end="", file=file)
+                col = indent + 11
+            print(need_blank, mbs, sep="", end="", file=file)
+            col += len(mbs)
+            need_blank = " "
         print("]", file=file)
 
     def deep_copy(self) -> "TimeMap":

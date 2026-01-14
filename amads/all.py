@@ -40,8 +40,9 @@ from .io.m21_xml_import import *
 from .io.pianoroll import *
 from .io.pm_midi_export import *
 from .io.pm_midi_import import *
-from .io.pt_midi_export import *
-from .io.pt_midi_import import *
+
+# from .io.pt_midi_export import *
+# from .io.pt_midi_import import *
 from .io.pt_xml_export import *
 from .io.pt_xml_import import *
 from .io.readscore import *

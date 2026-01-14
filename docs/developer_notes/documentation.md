@@ -1,7 +1,7 @@
 # Documentation
 
 This guide explains how to build and maintain the project\'s
-documentation using Sphinx.
+documentation using mkdocs.
 
 ## Prerequisites
 

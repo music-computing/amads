@@ -35,7 +35,8 @@ def set_preferred_midi_writer(writer: str) -> str:
         preferred_midi_writer = writer
     else:
         raise ValueError(
-            "Invalid MIDI writer. Choose 'music21', 'partitura', or 'pretty_midi'."
+            "Invalid MIDI writer. Choose 'music21', 'partitura', or "
+            "'pretty_midi'."
         )
     return previous_writer
 
@@ -87,26 +88,26 @@ def _check_for_subsystem(
 
                 return music21_xml_export
         elif preferred_writer == "partitura":
-            print(
-                f"In writescore: importing partitura-based {file_type}"
-                " writer."
-            )
-            if file_type == "midi":
-                from amads.io.pt_midi_export import partitura_midi_export
-
-                return partitura_midi_export
-            else:
+            if file_type == "xml":
+                print(
+                    f"In writescore: importing partitura-based {file_type}"
+                    " writer."
+                )
                 from amads.io.pt_xml_export import partitura_xml_export
 
                 return partitura_xml_export
+            else:  # Partitura can write a subset of MIDI using Performed.Part,
+                # but not tempo changes or key signatures. A score can
+                # represent these things but not MIDI velocity.
+                raise Exception("Partitura does not support midi export.")
         elif preferred_writer == "pretty_midi":
-            print(
-                f"In writescore: importing pretty_midi-based {file_type}"
-                " writer."
-            )
-            from amads.io.pm_midi_export import pretty_midi_midi_export
-
             if file_type == "midi":
+                print(
+                    f"In writescore: importing pretty_midi-based {file_type}"
+                    " writer."
+                )
+                from amads.io.pm_midi_export import pretty_midi_midi_export
+
                 return pretty_midi_midi_export
             else:
                 raise Exception("PrettyMIDI does not support XML export.")
@@ -122,6 +123,11 @@ def export_xml(
 ) -> None:
     """Use Partitura or music21 to export a MusicXML file.
 
+    Partitura does not seem to support per-staff key signatures,
+    so key signatures from AMADS are simply added to Partitura
+    parts. When there are multiple staffs, there could be
+    duplicate key signatures (to be tested).
+
     <small>**Author**: Roger B. Dannenberg</small>
     """
     export_xml_fn = _check_for_subsystem("xml")
@@ -130,7 +136,7 @@ def export_xml(
     else:
         raise Exception(
             "Could not find a MusicXML export function. "
-            "Preferred subsystem is" + str(preferred_xml_writer)
+            "Preferred subsystem is " + str(preferred_xml_writer)
         )
 
 
@@ -139,9 +145,35 @@ def export_midi(
     filename: str,
     show: bool = False,
 ) -> None:
-    """Use Partitura or music21 or pretty_midi to export a Standard MIDI file.
+    """Use music21 or pretty_midi to export a Standard MIDI file.
 
     <small>**Author**: Roger B. Dannenberg</small>
+
+    Notes
+    -----
+    AMADS assumes that instruments (midi program numbers) are fixed
+    for each Staff (or Part in flat scores), and MIDI channels are
+    not represented. This corresponds to some DAWs such as LogicPro,
+    which represents channels but ignores them when tracks are
+    synthesized in software by a single instrument. The MIDI program
+    is stored as info (see [get][amads.core.basics.Event.get] and
+    [set][amads.core.basics.Event.set]) under key `"midi_program"`
+    on the Staff, or if there is no Staff or no `"midi_program"` on
+    the Staff, under key `"midi_program"` on the Part.
+
+    Parts also have an `instrument` attribute, which is stored as
+    the MIDI track name. (Therefore, if a Part has two Staffs, there
+    will be two tracks with the same name.)  If there is no MIDI
+    program for the track, the `'pretty_midi'` writer will use
+    `pretty_midi.instrument_name_to_program` to determine a program
+    number since a program number is required. (As opposed to Standard
+    MIDI Files, which need not have any MIDI program message at all.)
+    If `pretty_midi.instrument_name_to_program` fails, the program is
+    set to 0 (“Acoustic Grand Piano”).
+
+    Pretty MIDI also requires an instrument name. If the AMADS Part
+    `instrument` attribute is `None`, then `"Unknown"` is used. The
+    Pretty MIDI reader will convert `"Unknown"` back to `None`.
     """
     export_midi_fn = _check_for_subsystem("midi")
     if export_midi_fn is not None:
@@ -168,20 +200,20 @@ def write_score(
 
     Parameters
     ----------
+    score : Score
+        the score to write
     filename : str
         the path (relative or absolute) to the music file
-
-    flatten : bool
-        the returned score will be flat (Score, Parts, Notes)
-
-    collapse: bool
-        if collapse and flatten, the parts will be merged into one
-
     show : bool
         print a text representation of the data
-
     format: string
         one of 'xml', 'midi', 'kern', 'mei'
+
+    Note
+    ----
+    See individual export methods, e.g. midi_export, xml_export, etc.,
+    for details on how they handle various features like instrument,
+    MIDI metadata, etc.
     """
     if format is None:
         ext = pathlib.Path(filename).suffix

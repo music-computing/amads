@@ -24,7 +24,7 @@ def transpose2c(score: Score, profile_name: str = "KRUMHANSL-KESSLER") -> Score:
     ----------
     score (Score): The musical score to analyze.
     profile_name (str): string argument denoting the relevant miditoolbox
-    string option for kkcc
+        string option for kkcc
 
     Returns
     -------

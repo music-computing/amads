@@ -2,11 +2,16 @@
 
 __author__ = "Roger B. Dannenberg"
 
+import warnings
+from math import isclose
 from typing import Optional
 
 import partitura as pt
+from partitura import score as ptScore
 
 from amads.core.basics import (
+    Chord,
+    Clef,
     KeySignature,
     Measure,
     Note,
@@ -112,7 +117,7 @@ def div_to_quarter(durs, div, rnd=False):
     return qtrs
 
 
-def if_tied(note: pt.score.Note) -> bool:
+def if_tied(note: ptScore.Note) -> bool:
     """Given a partitura note, return the note itself if it is
     either tied-to or tied-from. Otherwise, return None.
     """
@@ -203,27 +208,76 @@ def staff_for_note(part: Part, event: list) -> Staff:
         return part.content[event[3] - 1]  # find the staff
 
 
-def process_signatures(measure: Measure, signatures: list[list]):
+def process_signatures(
+    measure: Measure, staff_num: int, signatures: list[list]
+) -> None:
     """
     If one or more signatures belong in measure, create them. This is
     called here because sometimes signatures appear before the Partitura
     measure, so we have to wait for the measure to be created before
     putting signature in the Score.
+
+    Also, this functions sorts events into conventional order: clef < key_sig.
+
+    The intent is to pass the list of signatures to every measure of every
+    staff. For efficiency, the signatures are in order and as we process each
+    measure, we remove any signature that we use or do not want. Since
+    signatures is modified, a copy is made for each staff so that when we
+    go to a new staff, we start with the full original list.
+
+    Parameters
+    ----------
+    measure: Measure
+        where to add the signature
+    staff_num: int
+        what staff does measure belong to?
+    signatures: list
+        list of tuples, currently either ("key_sig", onset, fifths) or
+        ("clef", onset, staff_num, clef). "clef"s are included for all
+        staffs, so this function skips
+
     """
     while len(signatures) > 0:
         sig = signatures[0]
+        if sig[0] == "clef" and sig[2] != staff_num:
+            del signatures[0]  # skip clefs for other staves
+            continue
+        if (
+            len(signatures) > 1
+            and signatures[1][0] == "clef"
+            and signatures[1][2] != staff_num
+        ):
+            del signatures[1]  # skip clefs for other staves even when
+            # there is a key signature at the front so that we can swap
+            # clef and key signature if needed below
         if sig[1] >= measure.onset:
+            # "cheap and dirty" sort since there are only 2 categories:
+            if (
+                len(signatures) > 1
+                and isclose(sig[1], signatures[1][1], abs_tol=0.001)
+                and sig[0] == "key_sig"
+                and signatures[1][0] == "clef"
+                and signatures[1][2] == staff_num
+            ):
+                signatures[0] = signatures[1]  # swap 0 and 1
+                signatures[1] = sig
+                sig = signatures[0]
             if sig[0] == "key_sig":
                 KeySignature(measure, sig[1], sig[2])
-                del signatures[0]
-            if sig[0] == "time_sig":
-                TimeSignature(measure, sig[1], sig[2], sig[3])
-                del signatures[0]
+                print("added key_sig to measure:", measure.content)
+            elif sig[0] == "clef" and sig[2] == staff_num:
+                Clef(measure, sig[1], sig[3])
+                print("added clef to measure:", measure.content)
+            else:
+                assert False, f"Internal error, unexpected sig {sig}"
+            del signatures[0]
         else:
             return  # need to wait for measure to be created
 
 
-def partitura_convert_part(ppart, score, rnd=True) -> Part:
+def partitura_convert_part(
+    ppart: ptScore.Part, score: Score, rnd: bool = True
+) -> Part:
     """Convert a Partitura part to an AMADS Part and add it to the Score.
     ppart - the Partitura part
     score - the AMADS Score to which the Part will be added
@@ -237,7 +291,7 @@ def partitura_convert_part(ppart, score, rnd=True) -> Part:
     # helper function that needs to do lookups:
     global measure_map, pt_note_to_note
     # note ppart.quarter_map(x) maps divs to quarters
-    part = Part(parent=score, instrument=ppart.part_name)
+    part: Part = Part(parent=score, instrument=ppart.part_name)
     durs = ppart.quarter_durations()
     staff_numbers = set()
     # data is stored in ppart in a different order than we want, so
@@ -247,8 +301,8 @@ def partitura_convert_part(ppart, score, rnd=True) -> Part:
     # to do it once.) We traverse measures and signatures for each
     # staff in a subsequent pass.
     measures = []  # list of (measure number, start time, end time) tuples
-    signatures = []  # list of ("time_sig", beats, beat_type) or
-    # ("key_sig", fifths) information
+    signatures = []  # list of ("key_sig", onset, fifths) and
+    # ("clef", onset, staff_num, clef) info
     notes = []  # list of ("note", ...), ("rest", ...) or ("tempo", ...)
     # information
     measure_map = []
@@ -257,15 +311,17 @@ def partitura_convert_part(ppart, score, rnd=True) -> Part:
     # pass 1: count staves and collect measure, signature, notes lists
     tied_count = 0  # debug to count notes in part
     for item in ppart.iter_all():
-        if isinstance(item, pt.score.Note) or isinstance(item, pt.score.Rest):
+        if isinstance(item, ptScore.Note) or isinstance(item, ptScore.Rest):
             staff_numbers.add(item.staff)
 
-        onset = div_to_quarter(durs, item.start.t)
-        if isinstance(item, pt.score.Measure):
+        onset = div_to_quarter(durs, item.start.t)  # type: ignore
+        if isinstance(item, ptScore.Measure):
             # convert divs duration to quarters
             duration = div_to_quarter(
-                durs, item.end.t, rnd=rnd
-            ) - div_to_quarter(durs, item.start.t, rnd=rnd)
+                durs, item.end.t, rnd=rnd  # type: ignore
+            ) - div_to_quarter(
+                durs, item.start.t, rnd=rnd
+            )  # type: ignore
             if duration > 0:  # all staves have the same
                 # measure count and timing, so we only build the map for
                 # staff 0; do not append zero-length measures that arise
@@ -283,12 +339,59 @@ def partitura_convert_part(ppart, score, rnd=True) -> Part:
                 while offset >= len(measure_map) * 10:
                     measure_map.append(len(measures))
                 measures.append((onset, duration))
-        elif isinstance(item, pt.score.TimeSignature):
-            signatures.append(("time_sig", onset, item.beats, item.beat_type))
-        elif isinstance(item, pt.score.KeySignature):
+        elif isinstance(item, ptScore.TimeSignature):
+            upper = item.beats
+            lower = item.beat_type
+            # find the time signature in effect at onset, add small offset
+            # to avoid floating point rounding errors:
+            ts = score._find_time_signature(onset + 1e-6)
+            if ts.upper != upper or ts.lower != lower:
+                last_ts = score.time_signatures[-1]
+                if last_ts.time > onset:
+                    warnings.warn(
+                        "Encountered a new Partitura time signature"
+                        " placed BEFORE an earlier time signature:"
+                        " {element}. Something is probably wrong"
+                        " with this score. Ignoring the time"
+                        " signature in conversion to AMADS."
+                    )
+                else:
+                    ts = TimeSignature(onset, upper, lower)
+                    score.append_time_signature(ts)
+        elif isinstance(item, ptScore.KeySignature):
+            print("adding key_sig to signatures")
             signatures.append(("key_sig", onset, item.fifths))
-        elif isinstance(item, pt.score.Note):
-            duration = (item.end.t - item.start.t) / item.start.quarter
+        elif isinstance(item, ptScore.Clef):
+            clef = None
+            if not item.octave_change or item.octave_change == 0:
+                if item.sign == "G":
+                    if item.line == 2:
+                        clef = "treble"
+                elif item.sign == "F":
+                    if item.line == 4:
+                        clef = "bass"
+                elif item.sign == "C":
+                    if item.line == 3:
+                        clef == "alto"
+                    elif item.line == 4:
+                        clef == "tenor"
+            elif (
+                item.octave_change == -1 and item.sign == "G" and item.line == 2
+            ):
+                clef = "treble8vb"
+            elif item.sign == "percussion":
+                clef = "percussion"
+            if clef is None:
+                warnings.warn(
+                    f'Unrecognized Partitura clef "{item}"'
+                    f" octave_change {item.octave_change} ignored."
+                )
+            else:
+                print("adding clef to signatures")
+                signatures.append(("clef", onset, item.staff, clef))
+        elif isinstance(item, ptScore.Note):
+            qtr = item.start.quarter  # type: ignore
+            duration = (item.end.t - item.start.t) / qtr  # type: ignore
             is_tied = if_tied(item)
             notes.append(
                 [
@@ -305,10 +408,11 @@ def partitura_convert_part(ppart, score, rnd=True) -> Part:
             if is_tied:
                 pt_note_to_note[item] = [notes[-1]]
                 tied_count += 1  # debug
-        elif isinstance(item, pt.score.Rest):
-            duration = (item.end.t - item.start.t) / item.start.quarter
+        elif isinstance(item, ptScore.Rest):
+            qtr = item.start.quarter  # type: ignore
+            duration = (item.end.t - item.start.t) / qtr  # type: ignore
             notes.append(["rest", onset, duration, item.staff])
-        elif isinstance(item, pt.score.Tempo):
+        elif isinstance(item, ptScore.Tempo):
             # Note: partitura "bpm" is really beats per second!
             factor = 1.0  # conversion factor from partitura bpm to AMADS qps
             if item.unit is not None:  # unit string provided
@@ -344,11 +448,12 @@ def partitura_convert_part(ppart, score, rnd=True) -> Part:
             )
             staff_num = int(staff_num)
         staff = Staff(parent=part, number=staff_num)
+        print(f"staff {staff_num} created: {staff}")
         # staff_signatures will be "consumed" by new measures, so make a copy:
         staff_signatures = signatures.copy()
         for m_info in measures:
             m = Measure(parent=staff, onset=m_info[0], duration=m_info[1])
-            process_signatures(m, staff_signatures)
+            process_signatures(m, staff_num, staff_signatures)
         staff.inherit_duration()
 
     # Data formats (note that staff number is always event[3])
@@ -361,7 +466,7 @@ def partitura_convert_part(ppart, score, rnd=True) -> Part:
     if rnd:
         for i, event in enumerate(notes):
             staff = staff_for_note(part, event)
-            if event[6]:  # tied
+            if event[0] == "note" and event[6]:  # tied
                 retie_notes(event, staff, rnd)
 
     # pass 4: insert notes and rests into score
@@ -403,9 +508,55 @@ def partitura_convert_part(ppart, score, rnd=True) -> Part:
                         pt_note = pt_note.tie_prev
                         pt_note_to_note[pt_note][1].tie = note
         elif event[0] == "rest":
-            Rest(parent=measure, onset=measure.onset, duration=event[2])
+            Rest(parent=measure, onset=event[1], duration=event[2])
         else:
             assert False, f"Unknown event type {event[0]}"
+
+    # expand first measures to a full measure if necessary
+    # what is the maximum offset of the first measure?
+    for staff in part.content:
+        print(f"m1 fixup {staff}")
+        if len(staff.content) > 0:
+            m1 = staff.content[0]
+            max_offset = 0
+            for elem in m1.content:
+                max_offset = max(max_offset, elem.offset)
+            m1_ts_dur = m1.time_signature().quarters
+            print(f"in m21_xml_import, m1 {m1}, max_offset {max_offset}")
+            print(f"   m1_ts_dur {m1_ts_dur}")
+            if max_offset < m1_ts_dur - 0.001:  # need to insert rest
+                gap = m1_ts_dur - max_offset
+                for elem in m1.content:
+                    if (
+                        isinstance(elem, Note)
+                        or isinstance(elem, Rest)
+                        or isinstance(elem, Chord)
+                    ):
+                        print(f"   shift by {gap}")
+                        elem.time_shift(gap)
+                        print(f"   updated {elem}")
+                # insert Rest, Since m1 is first, m1.onset == 0
+                _ = Rest(m1, m1.onset, duration=gap)
+                print(f"    -> final m1.content {m1.content}")
+
+                # if m1 duration increases, shift all other measures
+                gap = m1_ts_dur - m1.offset
+                if gap > 0.001:
+                    m1.duration = m1_ts_dur  # fix m1 duration
+                    staff.pack()
+
+                # also need to update time map and time_signatures
+                for ts in score.time_signatures[1:]:
+                    ts.time += gap
+                # we're adding gap beats at the initial tempo,
+                # so convert that to a time shift in seconds,
+                # then add (time_gap, gap) to (time, quarter) pairs
+                time_gap = gap * score.time_map.get_tempo_at(0)
+                for mq in score.time_map.changes[1:]:
+                    mq.time += time_gap
+                    mq.quarter += gap
+
+    part.duration = part.content[0].duration  # set to equal staff duration
     return part
 
 

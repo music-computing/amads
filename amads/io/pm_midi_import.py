@@ -23,11 +23,14 @@ need to convert this to a TimeMap.
 __author__ = "Roger B. Dannenberg"
 
 import warnings
+from math import isclose
 from typing import cast
 
 from pretty_midi import PrettyMIDI, program_to_instrument_name
 
-from amads.core.basics import Measure, Note, Part, Score, Staff
+# this should not be necessary, but Python confuses AMADS with
+#     pretty_midi's TimeSignature class:
+from amads.core.basics import Measure, Note, Part, Score, Staff, TimeSignature
 from amads.core.pitch import Pitch
 from amads.core.timemap import TimeMap
 
@@ -39,6 +42,11 @@ def _time_map_from_tick_scales(tick_scales, resolution: int) -> TimeMap:
     ticks_per_second = 1.0 / tick_scales[0][1]
     time_map = TimeMap(qpm=ticks_per_second * 60 / resolution)
     for change in tick_scales[1:]:
+        # tick_scales is not documented, but since this works, we
+        # can say that tick_scales is a list of breakpoints where
+        # tempo changes. time (sec) = change[0] / resolution, and
+        # beat (quarters) = 60 / (change[1] * resolution), so
+        # each tuple is (score time in units of ticks, seconds/tick)
         time_map.append_change(
             change[0] / resolution, 60.0 / (change[1] * resolution)
         )
@@ -48,38 +56,58 @@ def _time_map_from_tick_scales(tick_scales, resolution: int) -> TimeMap:
 def _create_measures(
     staff: Staff,
     time_map: TimeMap,
-    end_beat: float,
     notes: list,
     pmscore: PrettyMIDI,
 ) -> None:
-    """Create measures in Staff according to pmscore data
+    """Create measures in Staff according to pmscore time_signature_changes
+
+    At each iteration, insert measures up to the signature time, and
+    on the last iteration, insert measures up to the end of the score
 
     To deal with float approximation, we round beat times to 1/32 since
     time signatures are always n/(2^d), e.g. 4/4, 3/16, ....
     """
     # insert measures according to time_signature_changes:
-    current_duration = 4  # default is 4/4
-    current_beat = 0  # we have created measures up to this time
-    for sig in pmscore.time_signature_changes:
-        beat = time_map.time_to_quarter(sig.time)
-        beat = round(beat * 32) / 32  # quantize measure boundaries
-        while current_beat < beat:  # fill in measures using current_duration
-            staff.insert(Measure(onset=current_beat, duration=current_duration))
-            current_beat += current_duration
-        if current_beat != beat:
-            sig_str = str(sig.numerator) + "/" + str(sig.denominator)
-            warnings.warn(
-                f"MIDI file time signature change at beat {beat}"
-                " is not on the expected measure boundary at"
-                f" {current_beat}. The time signature {sig_str}"
-                f" will be applied at {current_beat}."
-            )
-        current_duration = sig.numerator * 4 / sig.denominator
+    cur_upper = 4
+    cur_lower = 4
+    cur_duration = 4  # default is 4/4 starting at beat 0
+    cur_beat = 0  # we have created measures up to this time
+    # print(pmscore.key_signature_changes)
+    sigs = pmscore.time_signature_changes
+    i = 0
+    score = cast(Score, staff.score)
+    while i <= len(sigs):
+        if i < len(sigs):
+            sig = sigs[i]
+            beat = time_map.time_to_quarter(sig.time)
+        else:
+            sig = None
+            beat = score.duration  # should we add 1e-6 here?
+        need_time_signature = True
+        while cur_beat < beat - 1e-6:  # avoid rounding
+            measure = Measure(onset=cur_beat, duration=cur_duration)
+            if need_time_signature:  # first measure after time signature change
+                ts = TimeSignature(cur_beat, cur_upper, cur_lower)
+                score.append_time_signature(ts)
+                need_time_signature = False
+            staff.insert(measure)
+            cur_beat += cur_duration
 
-    # fill out measures to end_beat
-    while current_beat < end_beat:
-        staff.insert(Measure(onset=current_beat, duration=current_duration))
-        current_beat += current_duration
+        # now set up for next iteration
+        if sig is not None:
+            sig_str = str(sig.numerator) + "/" + str(sig.denominator)
+            if not isclose(cur_beat, beat, abs_tol=1e-6):
+                warnings.warn(
+                    f"MIDI file time signature change at beat {beat}"
+                    " is not on the expected measure boundary at"
+                    f" {cur_beat}. The time signature {sig_str}"
+                    f" will be applied at {cur_beat}."
+                )
+            cur_upper = sig.numerator
+            cur_lower = sig.denominator
+            cur_duration = cur_upper * 4 / cur_lower
+        # else sig is None means we've reached the end of the score
+        i += 1
 
 
 def _add_notes_to_measures(
@@ -205,7 +233,12 @@ def pretty_midi_midi_import(
     for ins in pmscore.instruments:
         name = ins.name
         if not ins.name:
+            # print("pretty_midi ins.program", ins.program)
             name = program_to_instrument_name(ins.program)
+        if name == "Unknown":  # AMADS uses "Unknown" to represent None.
+            # Of course, if a user really names an instrument "Unknown",
+            # that particular name will not be stored in the Part.
+            name = None
         part = Part(parent=score, onset=0.0, instrument=name)
         for note in ins.notes:
             # Create a Note object and associate it with the Part
@@ -237,15 +270,14 @@ def pretty_midi_midi_import(
             part.content = []  # Remove existing content
             # now notes have part as parent, but parent does not have notes
             staff = Staff(parent=part, onset=0.0, duration=part.duration)
-            end_time = pmscore.get_end_time()  # total duration of score
-            end_beat = score.time_map.time_to_quarter(end_time)
             # in principle we could do this once for the first staff and
             # then copy the created staff with measures for any other
             # staff, but then we would have to save off the notes and
             # write another loop to insert each note list to a corresponding
             # staff. Besides, _create_measures might even be faster than
             # calling deepcopy on a Staff to copy the measures.
-            _create_measures(staff, score.time_map, end_beat, notes, pmscore)
+            print("    calling _create_measures", score.time_map)
+            _create_measures(staff, score.time_map, notes, pmscore)
             notes = cast(
                 list[Note], notes
             )  # tell type checker notes is list of Note

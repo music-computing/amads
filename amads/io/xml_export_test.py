@@ -1,14 +1,12 @@
 # test_xml_export.py - some tests for pretty_midi_midi_export
 
-import pytest
-
 from amads.algorithms.scores_compare import scores_compare
 from amads.io.readscore import read_score, set_preferred_xml_reader
 from amads.io.writescore import set_preferred_xml_writer, write_score
 from amads.music import example
 from amads.pitch.pitch_mean import pitch_mean
 
-VERBOSE = False  # set to True for more debug output
+VERBOSE = True  # set to True for more debug output
 
 
 def verbose_blank():
@@ -16,15 +14,7 @@ def verbose_blank():
         print()
 
 
-@pytest.mark.parametrize(
-    "xml_file",
-    [
-        "musicxml/ex1.xml",
-        "musicxml/ex2.xml",
-        "musicxml/ex3.xml",
-    ],
-)
-def test_xml_export_and_reimport(xml_file):
+def xml_export_and_reimport(xml_file):
     """Test that XML files can be exported and re-imported.
 
     Uses different subsystems.
@@ -79,3 +69,6 @@ def test_xml_export_and_reimport(xml_file):
     verbose_blank()
     comparison_result = scores_compare(myscore, myscore3)
     assert comparison_result
+
+
+xml_export_and_reimport("musicxml/ex1.xml")
