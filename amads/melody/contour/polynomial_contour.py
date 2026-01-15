@@ -263,9 +263,9 @@ class PolynomialContour:
                 best_bic = bic
 
         return [
-            best_coeffs[1],
-            best_coeffs[2],
-            best_coeffs[3],
+            best_coeffs[1].item(),  # convert to native float
+            best_coeffs[2].item(),
+            best_coeffs[3].item(),
         ]  # Return c1, c2, c3 coefficients
 
     def _calculate_bic(

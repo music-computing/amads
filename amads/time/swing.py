@@ -136,8 +136,11 @@ def beat_upbeat_ratio(
             "No matches found between beats and upbeats, cannot calculate BUR"
         )
     # Calculate the BUR for upbeats between consecutive beats
+    #
+    # Use isitem() because Python 3.10 will print np.float64(...) instead of ...
+    # when the value is a numpy float:
     burs = [
-        _bur(b1, upbeat, b2) if not np.isnan(upbeat) else None
+        _bur(b1, upbeat, b2).item() if not np.isnan(upbeat) else None
         for b1, upbeat, b2 in matched
     ]
     # Apply our filtering if required

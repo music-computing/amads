@@ -22,7 +22,7 @@ def set_preferred_midi_writer(writer: str) -> str:
     Parameters
     ----------
     writer : str
-        The name of the preferred MIDI writer. Can be "music21", "partitura", or "pretty_midi".
+        The name of the preferred MIDI writer. Can be "music21" or "pretty_midi".
 
     Returns
     -------

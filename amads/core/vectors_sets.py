@@ -207,7 +207,15 @@ def weighted_to_indicator(
     >>> weighted_to_indicator(weighted_vector2, threshold=0.1)
     (1, 0, 1, 0, 0)
     """
-    return tuple(np.where(np.array(weighted_vector) > threshold, 1, 0))
+    # The simpler/faster version commented below works but returns a
+    # tuple of np.int which in Python 3.10 prints as "np.int(1)"
+    # rather than "1" (but in Python 3.12, it prints "1" either way).
+
+    # return tuple(np.where(np.array(weighted_vector) > threshold, 1, 0))
+
+    return tuple(
+        x.item() for x in np.where(np.array(weighted_vector) > threshold, 1, 0)
+    )
 
 
 # ----------------------------------------------------------------------------
@@ -301,7 +309,13 @@ def scalar_multiply(input: tuple, scale_factor: int = 2) -> tuple:
     (0, 2, 4)
 
     """
-    return tuple(np.array(input) * scale_factor)
+    # The simpler/faster version commented below works but returns a
+    # tuple of np.int which in Python 3.10 prints as "np.int(1)"
+    # rather than "1" (but in Python 3.12, it prints "1" either way).
+
+    # return tuple(np.array(input) * scale_factor)
+
+    return tuple(x.item() for x in np.array(input) * scale_factor)
 
 
 # ----------------------------------------------------------------------------
