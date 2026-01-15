@@ -3,10 +3,8 @@ For a given key profile and attribute name list, find the individual pitch
 profiles that have the strongest cross-correlation between the score to analyze
 and the profile at pitch C.
 
-This function is primarily used to find the maximum similarity of a score's
-pitch-class distribution to the C pitch-class distribution in the various pitch
-profiles of a key profile.
-! (Honestly, I never saw a use-case for this function in midi-toolbox)
+This function is primarily used to estimate the keymode, or attribute of a given
+KeyProfile collection, with the various pitch profiles.
 
 Reference
 ---------

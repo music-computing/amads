@@ -1,6 +1,6 @@
 """
 Computes cross-correlation between the pitch-class distribution of a score 
-and a selection of pitch profiles.
+and a specified selection of pitch profiles from a key profile.
 
 
 <small>**Author**: Tai Nakamura, Di Wang</small>
@@ -54,7 +54,9 @@ def key_cc(
     salience is applied given the old pitch-class distribution (pcd) is defined
     as follows:
     for all 0 <= i < 12, pcd1[i] = pcd * salm[:, i], where '*' is the matrix 
-    multiplication operation
+    multiplication operation.
+    (Probably worse because I introduced more concepts to describe something,
+    when it is often better to describe things in as simple terms as I can)
 
     The idea here is that the perception of significance of a certain pitch in 
     a score depends not only on its naive unweighted frequency, but also (to a

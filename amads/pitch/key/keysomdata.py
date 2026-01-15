@@ -6,6 +6,9 @@ Self-organizing maps trained on pitch class usage profiles from literature.
 A self-organizing map can be trained on key profile with 'major' and 'minor'
 data fields. The caller can define the decay rate and neighborhood
 function that the profile is trained on.
+A projection of a pitch-class distribution onto a self-organizing map is defined
+as the sum of the constituent input weights multiplied by their corresponding
+pitch-class distribution weights, over the input weights of all output nodes.
 When visualizing a projection of a pitch-class profile onto a trained
 self-organizing map, there are 24 key labels scattered across the map.
 The positions of these key labels (upper-case for major, lower-case for minor)
