@@ -6,14 +6,17 @@ Self-organizing maps trained on pitch class usage profiles from literature.
 A self-organizing map can be trained on key profile with 'major' and 'minor'
 data fields. The caller can define the decay rate and neighborhood
 function that the profile is trained on.
-A projection of a pitch-class distribution onto a self-organizing map is defined
-as the sum of the constituent input weights multiplied by their corresponding
-pitch-class distribution weights, over the input weights of all output nodes.
+A projection of a pitch-class distribution (pc_projection) onto a
+self-organizing map given the constituent input weights (input_weights) and
+their corresponding pitch-class distribution weights (pcdist), is defined for
+all valid row, column = i, j as
+pc_projection[i, j, :] = sum(input_weights[i, j, k] * pcdist[k] for all k in range(12)).
+
 When visualizing a projection of a pitch-class profile onto a trained
 self-organizing map, there are 24 key labels scattered across the map.
 The positions of these key labels (upper-case for major, lower-case for minor)
-are determined by the position of the BMU node in the trained map after
-training using the corresponding key profiles.
+are determined by the position of the best matching unit of the corresponding
+pitch profile in the trained map.
 
 Reference
 ---------
@@ -286,6 +289,23 @@ class KeyProfileSOM:
     of the SOM (for debugging purposes if logging is turned on during training).
     (5) a name (string identifier) for the SOM that can be optionally specified.
 
+    Examples
+    --------
+    Load a set of pretrained weights and visualize the pitch-class distribution
+    of a small score:
+    >>> from amads.core.basics import Score
+    >>> score = Score.from_melody([60, 62, 64, 65, 67, 69, 71, 72])
+    >>> pcdist_of_score = pitch_class_distribution_1(score)
+    >>> example_SOM = pretrained_weights_script()
+    >>> example_SOM.project_and_visualize(pcdist_of_score)
+    projection matrix, matplotlib figure
+
+    Train a set of weights from a key profile with 'major' and 'minor'
+    attributes with supplied training parameters:
+    >>> training_profile = prof.krumhansl_kessler # from key/profiles.py
+    >>> test_SOM = KeyProfileSOM() # default output dimensions used
+    >>> test_SOM.train_SOM(training_profile) # default training parameters used
+    test_SOM
 
     Class Attributes (in this case, attributes specifying possible class
     configuration options and visualization elements)

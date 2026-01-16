@@ -64,4 +64,9 @@
 ----------------
 
 ::: amads.pitch.key.keysomdata
+    options: 
+      members: False 
 
+----------------
+
+::: amads.pitch.key.keysomdata.KeyProfileSOM
