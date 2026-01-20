@@ -119,7 +119,6 @@ def _add_measure_content(m21measure, measure, ties) -> None:
         content = measure.content.copy()
         voices = []
         while len(content) > 0:
-            print("need_voices, content:", content)
             # scan content, moving non-overlapping items into voice[].
             # overlapping items are saved at index i for the next voice(s)
             i = 0  # i is index of left-overs
@@ -136,7 +135,6 @@ def _add_measure_content(m21measure, measure, ties) -> None:
             # now, i is the length of overlapping items we want to keep
             del content[i:]
             voices.append(voice)
-        print("voices:", voices)
 
         for voice_num, voice in enumerate(voices):
             m21voice = stream.Voice(id=str(voice_num + 1))
@@ -158,7 +156,6 @@ def _add_measure_content_from_list(m21parent, measure, content, dur, ties):
     Voices are needed when content overlaps. `content` must be non-overlapping.
     m21parent is padded with a rest to achieve a duration of `dur`
     """
-    print("_add_measure_content_from_list", content)
     max_offset = measure.onset
     measure_position = 0  # keeps track of expected next onset time
     for item in content:
@@ -170,16 +167,6 @@ def _add_measure_content_from_list(m21parent, measure, content, dur, ties):
             or isinstance(item, Rest)
             or isinstance(item, Chord)
         ) and (measure_delta > measure_position + 1e-6):
-            print(
-                "   Padding with rest: offset",
-                measure_position,
-                "duration",
-                measure_delta - measure_position,
-                "delta",
-                measure_delta,
-                "item",
-                item,
-            )
             m21rest = note.Rest()
             m21rest.offset = measure_position
             m21rest.duration.quarterLength = measure_delta - measure_position
@@ -190,7 +177,6 @@ def _add_measure_content_from_list(m21parent, measure, content, dur, ties):
         # we need to pad with a rest
         measure_position = measure_delta + duration
 
-        print("   Inserting item:", item)
         # now that we've padded to measure_position with a rest if necessary,
         # insert the Note, Rest, or Chord from the score:
         if isinstance(item, Note):
@@ -233,9 +219,7 @@ def _add_measure_content_from_list(m21parent, measure, content, dur, ties):
         # otherwise, it will shorten the duration of the measure
         m21rest = note.Rest()
         # music21 offset is relative to measure:
-        print("inserting rest", max_offset, measure.onset, measure.offset)
         m21rest.offset = max_offset - measure.onset
-        print("  inserting rest, m21 offset", m21rest.offset)
         m21rest.duration.quarterLength = measure.offset - max_offset
         m21parent.insert(m21rest.offset, m21rest)
 
@@ -290,11 +274,9 @@ def score_to_music21(
             if make_staff_group:
                 id = f"P{part_num + 1}-Staff{staff_num + 1}"
                 m21container = stream.PartStaff(id=id, partName=str(part_num))
-                print("Setting part_id:", part_id)
                 m21container.id = part_id
                 m21container.groups.append(part_id)
                 m21staffs.append(m21container)
-                print("Is make_staff_group, id", id)
             else:
                 m21container = stream.Part(id=part_id)
 
@@ -371,7 +353,6 @@ def score_to_music21(
             # as suggested by Claude
             m21staffs[0].id = part_id
         else:
-            print("not make_staff_group, container", m21container)
             m21score.insert(0, m21container)  # staff info is in an m21 Part
 
     # fix up ties

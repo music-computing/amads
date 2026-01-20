@@ -158,7 +158,6 @@ def add_event_to_part(
         pt_part.add(pt_key_sig, round(event.onset * DIVS))
     elif isinstance(event, Clef):
         event = cast(Clef, event)
-        print("Creating Partitura Clef:", event.clef, "staff:", staff)
         pt_clef = ptClef(
             staff=staff,
             sign=CLEF_SIGN[event.clef],

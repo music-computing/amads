@@ -29,11 +29,12 @@ def verbose_blank():
 @pytest.mark.parametrize(
     "midi_file",
     [
-        # "midi/sarabande.mid",
+        "midi/short2staff.mid",
+        "midi/sarabande.mid",
         "midi/tempo.mid",
-        # "midi/tempochange.mid",
-        # "midi/twochan.mid",
-        # "midi/tones.mid",
+        "midi/tempochange.mid",
+        "midi/twochan.mid",
+        "midi/tones.mid",
     ],
 )
 def test_midi_export_and_reimport(midi_file):
@@ -106,7 +107,6 @@ def test_midi_export_and_reimport(midi_file):
     verbose_blank()
     print("mean orig", pitch_mean(myscore3))
     print("weighted mean orig", pitch_mean(myscore3, weighted=True))
-
     comparison_result = scores_compare(myscore, myscore3, True)
     assert comparison_result
 

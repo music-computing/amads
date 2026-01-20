@@ -1037,6 +1037,9 @@ class TimeSignature:
     def __str__(self) -> str:
         """Short string representation
         """
+        upper = self.upper
+        if int(upper) == upper:  # convert to integer for better printing
+            upper = int(upper)   # but only if it is really an integer
         return (f"TimeSignature(at {self.time}, " +
                 f"{self.upper}/{self.lower})")
 

@@ -12,6 +12,7 @@ def music21_midi_import(
     flatten: bool = False,
     collapse: bool = False,
     show: bool = False,
+    group_by_instrument: bool = True,
 ) -> Score:
     """Use music21 to import a MIDI file and convert it to a Score.
 
@@ -25,6 +26,9 @@ def music21_midi_import(
         If True and flatten is true, also collapse parts.
     show : bool, optional
         If True, print the music21 score structure for debugging.
+    group_by_instrument: bool, optional
+        If True, group parts by instrument name into staffs. Defaults to True.
+        See `music21_to_score` for details.
 
     Returns
     -------
@@ -36,5 +40,12 @@ def music21_midi_import(
         filename, format="midi", forceSource=True, quantizePost=False
     )
     m21score = cast(m21Score, m21score)
-    score = music21_to_score(m21score, flatten, collapse, show, filename)
+    score = music21_to_score(
+        m21score,
+        flatten,
+        collapse,
+        show,
+        filename,
+        group_by_instrument=group_by_instrument,
+    )
     return score

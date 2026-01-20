@@ -3,6 +3,7 @@
 __author__ = "Roger B. Dannenberg"
 
 import pathlib
+import warnings
 from typing import Callable, Optional
 
 from amads.core.basics import Score
@@ -13,6 +14,9 @@ preferred_midi_writer = "pretty_midi"
 
 # preferred_xml_writer is the subsystem to use for MusicXML files.
 preferred_xml_writer = "music21"
+
+# set default warning level for write_score
+_writer_warning_level = "default"
 
 
 def set_preferred_midi_writer(writer: str) -> str:
@@ -59,6 +63,41 @@ def set_preferred_xml_writer(writer: str) -> str:
     return previous_writer
 
 
+def set_writer_warning_level(level: str) -> str:
+    """Set the warning level for writescore functions.
+
+        - "none" - will suppress all warnings during write_score().
+        - "low" - will show print one notice if there are any warnings.
+        - "default" - will obey environment settings to control warnings.
+        - "high" - will print all warnings during write_score(), overriding
+            environment settings.
+
+    Parameters
+    ----------
+    level : str
+        The warning level to set. Can be "none", "low", "default", "high".
+
+    Returns
+    -------
+    str
+        Previous warning level.
+
+    Raises
+    -------
+    ValueError
+        If an invalid warning level is provided.
+    """
+    global _writer_warning_level
+    previous_level = _writer_warning_level
+    if level in ["none", "low", "default", "high"]:
+        _writer_warning_level = level
+    else:
+        raise ValueError(
+            "Invalid warning level. Choose 'none', 'low', 'default', or 'high'."
+        )
+    return previous_level
+
+
 def _check_for_subsystem(
     file_type: str,
 ) -> Optional[Callable[[Score, str, bool], None]]:
@@ -78,7 +117,6 @@ def _check_for_subsystem(
     )
     try:
         if preferred_writer == "music21":
-            print(f"In writescore: importing music21-based {file_type} writer.")
             if file_type == "midi":
                 from amads.io.m21_midi_export import music21_midi_export
 
@@ -89,10 +127,6 @@ def _check_for_subsystem(
                 return music21_xml_export
         elif preferred_writer == "partitura":
             if file_type == "xml":
-                print(
-                    f"In writescore: importing partitura-based {file_type}"
-                    " writer."
-                )
                 from amads.io.pt_xml_export import partitura_xml_export
 
                 return partitura_xml_export
@@ -102,10 +136,6 @@ def _check_for_subsystem(
                 raise Exception("Partitura does not support midi export.")
         elif preferred_writer == "pretty_midi":
             if file_type == "midi":
-                print(
-                    f"In writescore: importing pretty_midi-based {file_type}"
-                    " writer."
-                )
                 from amads.io.pm_midi_export import pretty_midi_midi_export
 
                 return pretty_midi_midi_export
@@ -132,6 +162,11 @@ def export_xml(
     """
     export_xml_fn = _check_for_subsystem("xml")
     if export_xml_fn is not None:
+        if _writer_warning_level != "none":
+            print(
+                f"Exporting {filename} using MusicXML writer"
+                f" {export_xml_fn.__name__}."
+            )
         export_xml_fn(score, filename, show)
     else:
         raise Exception(
@@ -177,6 +212,11 @@ def export_midi(
     """
     export_midi_fn = _check_for_subsystem("midi")
     if export_midi_fn is not None:
+        if _writer_warning_level != "none":
+            print(
+                f"Exporting {filename} using MIDI writer"
+                f" {export_midi_fn.__name__}."
+            )
         export_midi_fn(score, filename, show)
     else:
         raise Exception(
@@ -209,32 +249,61 @@ def write_score(
     format: string
         one of 'xml', 'midi', 'kern', 'mei'
 
+    Raises
+    ------
+    ValueError
+        if format is unknown
+
     Note
     ----
     See individual export methods, e.g. midi_export, xml_export, etc.,
     for details on how they handle various features like instrument,
     MIDI metadata, etc.
     """
-    if format is None:
-        ext = pathlib.Path(filename).suffix
-        if ext == ".xml":
-            format = "xml"
-        elif ext == ".mid" or ext == ".midi" or ext == ".smf":
-            format = "midi"
-        elif ext == ".kern":
-            format = "kern"
-        elif ext == ".mei":
-            format = "mei"
-    if format == "xml":
-        return export_xml(score, filename, show)
-    elif format == "midi":
-        return export_midi(score, filename, show)
-    elif format == "kern":
-        raise Exception("Kern format output not implemented")
-    elif format == "mei":
-        raise Exception("MEI format output not implemented")
-    else:
-        raise Exception(str(format) + " format specification is unknown")
+    with warnings.catch_warnings(record=True) as w:
+        if _writer_warning_level == "none":
+            warnings.simplefilter("ignore")
+        else:
+            warnings.simplefilter("always")
+
+        if format is None:
+            ext = pathlib.Path(filename).suffix
+            if ext == ".xml":
+                format = "xml"
+            elif ext == ".mid" or ext == ".midi" or ext == ".smf":
+                format = "midi"
+            elif ext == ".kern":
+                format = "kern"
+            elif ext == ".mei":
+                format = "mei"
+        if format == "xml":
+            export_xml(score, filename, show)
+        elif format == "midi":
+            export_midi(score, filename, show)
+        elif format == "kern":
+            raise ValueError("Kern format output not implemented")
+        elif format == "mei":
+            raise ValueError("MEI format output not implemented")
+        else:
+            raise ValueError(str(format) + " format specification is unknown")
+
+        if _writer_warning_level == "low":
+            if len(w) > 0:
+                print(
+                    f"Warning: {len(w)} warnings were generated in"
+                    f" write_score({filename}). Use"
+                    " amads.io.writescore.set_writer_warning_level() for"
+                    " more details."
+                )
+        else:  # "none", "default", or "high"
+            for warning in w:
+                formatted = warnings.formatwarning(
+                    warning.message,
+                    warning.category,
+                    warning.filename,
+                    warning.lineno,
+                )
+                print(formatted, end="")
 
 
 """

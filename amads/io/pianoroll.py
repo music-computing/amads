@@ -98,7 +98,6 @@ def pianoroll(
             max_time = offset_time
 
         # Draws the note
-        print("draw note from", onset_time, "to", offset_time, "at", pitch)
         rect = patches.Rectangle(
             (onset_time, pitch),
             offset_time - onset_time,

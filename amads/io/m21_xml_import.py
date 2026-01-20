@@ -50,6 +50,7 @@ def music21_xml_import(
     flatten: bool = False,
     collapse: bool = False,
     show: bool = False,
+    group_by_instrument: bool = True,
 ) -> Score:
     """
     Use music21 to import a MusicXML file and convert it to a Score.
@@ -64,6 +65,9 @@ def music21_xml_import(
         If True and flatten is true, also collapse parts.
     show : bool, optional
         If True, print the music21 score structure for debugging.
+    group_by_instrument : bool, optional
+        If True, group parts by instrument name into staffs. Defaults to True.
+        See music21_to_score() for more details.
 
     Returns
     -------
@@ -75,7 +79,13 @@ def music21_xml_import(
 
     # m21score can be an Opus, but this is checked in music21_to_score, so we
     # can ignore the type error here:
-    score = music21_to_score(m21score, flatten, collapse, show)  # type: ignore
+    score = music21_to_score(
+        m21score,
+        flatten,
+        collapse,
+        show,  # type: ignore
+        group_by_instrument=group_by_instrument,
+    )
     return score
 
 
@@ -91,6 +101,7 @@ def music21_to_score(
     collapse: bool = False,
     show: bool = False,
     filename: Optional[str] = None,
+    group_by_instrument: bool = True,
 ) -> Score:
     global _staff_id_to_part
     _staff_id_to_part = {}
@@ -102,19 +113,46 @@ def music21_to_score(
     duration = m21score.duration.quarterLength
     score = Score(duration=float(duration))
 
+    parts: list[Part | None] = []  # All the Parts in score
+    m21parts: list[stream.Part] = []  # Corresponding m21 parts
+    group_ids: list[int] = []  # list of group identifiers
+    next_group_id = 0  # groups are named by small integers
+    if isinstance(m21score, stream.Score):
+        group_ids = [-1] * len(m21score.parts)
+
     # Iterate over parts in the music21 score
+
+    # We start with separate Part with Staff for each original part or staff.
+    # We also have three lists that are "parallel" with Parts:
+    # parts[i] is a list of all the Parts in order
+    # m21parts[i] is the list of m21 parts corresponding to parts[i]
+    # group_ids[i] is the group that the ith Part belongs to, so we can search
+    #     to find all Parts whose Staff belong together.
+
     if isinstance(m21score, stream.Part):
         music21_convert_part(m21score, score, duration)
     elif isinstance(m21score, stream.Score):
-        for m21part in m21score.parts:
+        for i, m21part in enumerate(m21score.parts):
             if isinstance(m21part, stream.Part):
                 # Convert the music21 part into an AMADS Part and
                 # append it to the Score:
                 part = music21_convert_part(m21part, score, duration)
+                parts.append(part)
+                m21parts.append(m21part)
                 # if m21part is a PartStaff (subclass of Part), keep
                 # a dictionary of names and Parts:
                 if isinstance(m21part, stream.PartStaff):
-                    _staff_id_to_part[str(m21part.id)] = (m21part, part)
+                    next_group_id += 1
+                    group_id = next_group_id
+                    spanners = m21part.getSpannerSites()
+                    for spanner in spanners:
+                        if spanner.__class__.__name__ == "StaffGroup":
+                            for elem in spanner.getSpannedElements():
+                                if isinstance(elem, stream.PartStaff):
+                                    assert elem in m21parts
+                                    j = m21parts.index(elem)
+                                    group_ids[j] = group_id
+                                    break  # only one PartStaff spanner
             else:
                 warnings.warn(
                     f"Ignoring non-Part element of Music21 score: {m21part}"
@@ -122,60 +160,54 @@ def music21_to_score(
     else:
         raise ValueError("expected Score or Part from music21 reader")
 
-    # We have a separate Parts with Staff for each original part or staff.
-    # We also have _staff_id_to_part that maps
-    #       m21staffname -> (PartStaff, Part)
-    # We will modify the score in place, removing parts whose staffs are
-    #     grouped, putting the staves into new parts, and leaving parts
-    #     that are not grouped.
-    # Start with _staff_id_to_part.keys() and process the first until there
-    # are none left. But as we process, we'll also be removing keys that
-    # are for grouped partstaffs.
-    #   1. pick the first key
-    #   2. get the PartStaff for the key
-    #   3. getSpannerSites to get spanners. One will be a StaffGroup spanner
-    #   4. make a new Part in Score
-    #   5. iterate through the getSpannedElements
-    #   6. for each, use its m21staffname to get the corresponding Part
-    #   7. move the Part's Staff into the Part
-    # Finally, delete _staff_id_to_part to free up orignal Parts
+    # If group_by_instrument, we form groups by looking for matching
+    # instruments:
+    if group_by_instrument:
+        instruments = []
+        for i in range(len(parts)):
+            try:
+                # later, parts[i] can be None, so type checker complains here:
+                j = instruments.index(parts[i].instrument)  # type: ignore
+            except ValueError:
+                instruments.append(parts[i].instrument)  # type: ignore
+                continue
+            instruments.append(parts[i].instrument)  # type: ignore
+            if group_ids[i] == -1:  # part j is not in a group
+                if group_ids[j] == -1:  # neither is i, so make a new group
+                    next_group_id += 1
+                    group_ids[j] = next_group_id
+                    group_ids[i] = next_group_id
+                    next_group_id += 1
+                else:  # j is in a group, so assign that to i
+                    group_ids[i] = group_ids[j]
+            # else both i and j are in groups already, must be from MusicXML
+            # staff grouping; probably correct already, so do no merge them
 
-    print("After processing m21 parts, len(score.content)", len(score.content))
-    part_staff_ids = list(_staff_id_to_part.keys())
-    while len(part_staff_ids) > 0:
-        part_staff_id = part_staff_ids[0]
-        print("Putting score together: part_staff_id is", part_staff_id)
-        (m21partstaff, part) = _staff_id_to_part[part_staff_id]
-        spanners = m21partstaff.getSpannerSites()
-        group_ids = None
-        print("  found spanners:", spanners)
-        for spanner in spanners:
-            if spanner.__class__.__name__ == "StaffGroup":
-                print("Found StaffGroup spanner:", spanner)
-                group_ids = [
-                    str(el.id)
-                    for el in spanner.getSpannedElements()
-                    if isinstance(el, stream.PartStaff)
-                ]
-                break
-        assert group_ids and len(group_ids) > 0
-        print("  spanning PartStaffs:", group_ids)
-        new_part = Part(
-            parent=score, onset=score.onset, duration=score.duration
-        )
-        print("   after new_part, len(score.content)", len(score.content))
-        for staff_id in group_ids:
-            old_part = _staff_id_to_part[str(staff_id)][1]
-            # move instrument from old_part to new_part
-            if new_part.instrument is None:
-                new_part.instrument = old_part.instrument
-            # move the Staff from old_part to new_part:
-            score.remove(old_part)
-            old_staff = old_part.content[0]
-            old_part.remove(old_staff)
-            new_part.insert(old_staff)
-            part_staff_ids.remove(staff_id)
-    print("After merging m21 staffs, len(score.content)", len(score.content))
+    # Now, grouping is complete.
+    # To process Parts, for each i, see if group_ids[i] is not None. If not,
+    # find all other Parts with matching group_id and merge them. As you do it,
+    # remove the other Parts from the score.
+
+    for i in range(len(parts)):
+        to_part = cast(Part, parts[i])
+        if group_ids[i] != -1:
+            # find all other parts with matching group_ids[j]:
+            group_id = group_ids[i]
+            j = i
+            while True:
+                group_ids[j] = -1  # so j will not match
+                try:
+                    j = group_ids.index(group_id)
+                except ValueError:  # no match, nothing else in group
+                    break  # no more staffs to merge
+                from_part = cast(Part, parts[j])
+                parts[j] = None  # soon this part will be gone
+                if to_part.instrument is None:
+                    to_part.instrument = from_part.instrument
+                score.remove(from_part)
+                from_staff = cast(Staff, from_part.content[0])
+                from_part.remove(from_staff)
+                to_part.insert(from_staff)
 
     if flatten or collapse:
         score = score.flatten(collapse=collapse)
@@ -204,7 +236,6 @@ def music21_convert_note(m21note, measure):
         duration=duration,
         dynamic=dynamic,
     )
-    # print("music21_convert_note created", note)
     if m21note.tie is not None:
         music21_convert_tie(m21note.pitch.midi, note, m21note.tie.type)
 
@@ -252,7 +283,6 @@ def music21_convert_tie(key_num: int, note: Note, tie_type: str) -> None:
                 origin = origin_note
             else:
                 tied_notes[key_num] = note  # to be continued :-)
-            # print("music21_convert_note: tie continue:", origin, "to", note)
             origin.tie = note
         else:  # missing start note
             import warnings
@@ -273,7 +303,6 @@ def music21_convert_tie(key_num: int, note: Note, tie_type: str) -> None:
             else:
                 del tied_notes[key_num]  # remove the origin
             origin.tie = note
-            # print("music21_convert_note: tie stop:", origin, "to", note)
         else:  # missing start note
             import warnings
 
@@ -336,16 +365,6 @@ def music21_convert_chord(m21chord, measure, offset):
 def update_part_instrument(caller_id, part, m21instr):
     assert part is not None
     name = m21instr.partName
-    print(
-        "update_part_instrument:",
-        caller_id,
-        "name",
-        name,
-        "m21instr",
-        m21instr,
-        "existing",
-        part.instrument,
-    )
     name = None if name == "Unknown" else name
     if part.instrument is None:
         part.instrument = name
@@ -462,8 +481,6 @@ def append_items_to_measure(
                         " has no BPM, ignoring"
                     )
                 else:
-                    # print("music21 MetronomeMark: tempo_change_onset",
-                    #      tempo_change_onset, "qpm", qpm)
                     time_map.append_change(tempo_change_onset, qpm)
         elif isinstance(element, bar.Barline):
             pass  # ignore barlines, e.g. Barline type="final"
@@ -548,7 +565,6 @@ def music21_convert_part(m21part, score, duration):
         max_offset = 0
         for elem in m1.content:
             max_offset = max(max_offset, elem.offset)
-        print(f"in m21_xml_import, m1 {m1}, max_offset {max_offset}")
         if max_offset < m1.offset - 0.001:  # need to insert rest
             gap = m1.offset - max_offset
             for elem in m1.content:

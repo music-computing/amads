@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from amads.all import Part, Score, interval_distribution_1, music21_midi_import
 from amads.music import example
 
-my_midi_file = example.fullpath("midi/twochan.mid")
+my_midi_file = example.fullpath("midi/tones.mid")
 assert my_midi_file is not None
 
 print("------- input from partitura")

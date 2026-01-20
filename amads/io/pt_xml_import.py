@@ -150,7 +150,6 @@ def retie_notes(event, staff, rnd: bool):
     notes with duration of 0, which now indicates they have been deleted
     from a series of tied notes.
     """
-    print("BEGIN retie_note", event)
     pt_note = event[7]
     if pt_note.tie_prev is not None or pt_note.tie_next is None:
         return
@@ -163,7 +162,6 @@ def retie_notes(event, staff, rnd: bool):
         ev = pt_note_to_note[pt_note][0]
         group.append(ev)
 
-    print("GROUP BEFORE: ", group)
     for i, ev in enumerate(group[:-1]):  # check all but last event
         # does ev end near a measure boundary? If so assume it's a tie across
         # the bar:
@@ -185,9 +183,9 @@ def retie_notes(event, staff, rnd: bool):
             # now if group[i+1] duration rounds to zero, we eliminate it
             if group[i + 1][2] < 0.5 / DIV_TO_QUARTER_ROUNDING:
                 if group[i + 1][7].tie_next is not None:
-                    print(
-                        "Unexpected very short note event in tied group",
-                        group[i + 1],
+                    warnings.warn(
+                        "Unexpected very short note event in tied group "
+                        + str(group[i + 1])
                     )
                 group[i + 1][2] = 0  # indicate that note is removed
                 break  # (maybe redundant, we should be done with iteration)
@@ -264,10 +262,8 @@ def process_signatures(
                 sig = signatures[0]
             if sig[0] == "key_sig":
                 KeySignature(measure, sig[1], sig[2])
-                print("added key_sig to measure:", measure.content)
             elif sig[0] == "clef" and sig[2] == staff_num:
                 Clef(measure, sig[1], sig[3])
-                print("added clef to measure:", measure.content)
             else:
                 assert False, f"Internal error, unexpected sig {sig}"
             del signatures[0]
@@ -359,7 +355,6 @@ def partitura_convert_part(
                     ts = TimeSignature(onset, upper, lower)
                     score.append_time_signature(ts)
         elif isinstance(item, ptScore.KeySignature):
-            print("adding key_sig to signatures")
             signatures.append(("key_sig", onset, item.fifths))
         elif isinstance(item, ptScore.Clef):
             clef = None
@@ -387,7 +382,6 @@ def partitura_convert_part(
                     f" octave_change {item.octave_change} ignored."
                 )
             else:
-                print("adding clef to signatures")
                 signatures.append(("clef", onset, item.staff, clef))
         elif isinstance(item, ptScore.Note):
             qtr = item.start.quarter  # type: ignore
@@ -433,10 +427,6 @@ def partitura_convert_part(
                 else:
                     ValueError(f"Unknown tempo unit in partitura: {item.unit}")
             score.time_map.append_change(onset, item.bpm * factor)
-    # print("partitura_convert_part: after pass 1, measures are")
-    # print(measures)
-
-    # print("Part has", len(notes), "notes, with", tied_count, "tied notes")  # debug
 
     # for each staff, create measures
     for staff_num in staff_numbers:
@@ -448,7 +438,6 @@ def partitura_convert_part(
             )
             staff_num = int(staff_num)
         staff = Staff(parent=part, number=staff_num)
-        print(f"staff {staff_num} created: {staff}")
         # staff_signatures will be "consumed" by new measures, so make a copy:
         staff_signatures = signatures.copy()
         for m_info in measures:
@@ -478,13 +467,13 @@ def partitura_convert_part(
         while event[1] >= measure.offset:
             mindex += 1
             if mindex == len(staff.content):
-                print("Something is wrong; could not find measure for", event)
+                warnings.warn(
+                    f"Something is wrong; could not find measure"
+                    f" for {event}"
+                )
                 break  # use previous measure, but probably there is a bug here
             measure = staff.content[mindex]  # type: ignore
         if event[0] == "note":
-            # print(f"ptnote {i} at {score.time_map.quarter_to_time(event[1])}"
-            #       f" qtr {event[1]} dur {event[2]} pitch {event[4]} tied"
-            #       f" {event[6]}")
             if event[2] > 0:  # zero duration means skip note
                 note = Note(
                     parent=measure,
@@ -515,15 +504,12 @@ def partitura_convert_part(
     # expand first measures to a full measure if necessary
     # what is the maximum offset of the first measure?
     for staff in part.content:
-        print(f"m1 fixup {staff}")
         if len(staff.content) > 0:
             m1 = staff.content[0]
             max_offset = 0
             for elem in m1.content:
                 max_offset = max(max_offset, elem.offset)
             m1_ts_dur = m1.time_signature().quarters
-            print(f"in m21_xml_import, m1 {m1}, max_offset {max_offset}")
-            print(f"   m1_ts_dur {m1_ts_dur}")
             if max_offset < m1_ts_dur - 0.001:  # need to insert rest
                 gap = m1_ts_dur - max_offset
                 for elem in m1.content:
@@ -532,12 +518,9 @@ def partitura_convert_part(
                         or isinstance(elem, Rest)
                         or isinstance(elem, Chord)
                     ):
-                        print(f"   shift by {gap}")
                         elem.time_shift(gap)
-                        print(f"   updated {elem}")
                 # insert Rest, Since m1 is first, m1.onset == 0
                 _ = Rest(m1, m1.onset, duration=gap)
-                print(f"    -> final m1.content {m1.content}")
 
                 # if m1 duration increases, shift all other measures
                 gap = m1_ts_dur - m1.offset
@@ -560,7 +543,13 @@ def partitura_convert_part(
     return part
 
 
-def partitura_xml_import(filename, flatten=False, collapse=False, show=False):
+def partitura_xml_import(
+    filename,
+    flatten=False,
+    collapse=False,
+    show=False,
+    group_by_instrument: bool = True,
+) -> Score:
     """Use Partitura to import a MusicXML file.
 
     <small>**Author**: Roger B. Dannenberg</small>
