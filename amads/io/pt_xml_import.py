@@ -316,7 +316,7 @@ def partitura_convert_part(
             duration = div_to_quarter(
                 durs, item.end.t, rnd=rnd  # type: ignore
             ) - div_to_quarter(
-                durs, item.start.t, rnd=rnd
+                durs, item.start.t, rnd=rnd  # type: ignore
             )  # type: ignore
             if duration > 0:  # all staves have the same
                 # measure count and timing, so we only build the map for
@@ -367,9 +367,9 @@ def partitura_convert_part(
                         clef = "bass"
                 elif item.sign == "C":
                     if item.line == 3:
-                        clef == "alto"
+                        clef = "alto"
                     elif item.line == 4:
-                        clef == "tenor"
+                        clef = "tenor"
             elif (
                 item.octave_change == -1 and item.sign == "G" and item.line == 2
             ):
@@ -504,8 +504,8 @@ def partitura_convert_part(
     # expand first measures to a full measure if necessary
     # what is the maximum offset of the first measure?
     for staff in part.content:
-        if len(staff.content) > 0:
-            m1 = staff.content[0]
+        if len(staff.content) > 0:  # type: ignore
+            m1 = staff.content[0]  # type: ignore
             max_offset = 0
             for elem in m1.content:
                 max_offset = max(max_offset, elem.offset)
@@ -526,7 +526,7 @@ def partitura_convert_part(
                 gap = m1_ts_dur - m1.offset
                 if gap > 0.001:
                     m1.duration = m1_ts_dur  # fix m1 duration
-                    staff.pack()
+                    staff.pack()  # type: ignore
 
                 # also need to update time map and time_signatures
                 for ts in score.time_signatures[1:]:

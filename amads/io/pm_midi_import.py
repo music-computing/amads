@@ -110,7 +110,7 @@ def _create_measures(
             # if needed now, insert key signature into measure
             if cur_beat > kbeat - 1e-6:  # avoid rounding error
                 _ = KeySignature(
-                    measure, cur_beat, ksig.key_number
+                    measure, cur_beat, ksig.key_number  # type: ignore
                 )  # type: ignore
                 # get next key signature
                 k += 1

@@ -1,5 +1,7 @@
 # test_xml_export.py - some tests for pretty_midi_midi_export
 
+import tempfile
+
 import pytest
 
 from amads.algorithms.scores_compare import scores_compare
@@ -51,7 +53,11 @@ def test_xml_export_and_reimport(xml_file):
 
     # Write the score with music21
     verbose_blank()
-    exported_file = str(my_xml_file)[:-4] + "_m21exported.xml"
+    temp_file = tempfile.NamedTemporaryFile(
+        suffix="_m21exported.xml", delete=False
+    )
+    exported_file = temp_file.name
+    temp_file.close()
     write_score(myscore, exported_file, show=VERBOSE)
     verbose_blank()
     myscore2 = read_score(exported_file, show=VERBOSE)
@@ -67,7 +73,11 @@ def test_xml_export_and_reimport(xml_file):
     set_preferred_xml_reader("music21")
     set_preferred_xml_writer("partitura")
     # Test with partitura
-    exported_file = str(my_xml_file)[:-4] + "_ptexported.xml"
+    temp_file = tempfile.NamedTemporaryFile(
+        suffix="_ptexported.xml", delete=False
+    )
+    exported_file = temp_file.name
+    temp_file.close()
     write_score(myscore, exported_file, show=VERBOSE)
     verbose_blank()
     myscore3 = read_score(exported_file, show=VERBOSE)

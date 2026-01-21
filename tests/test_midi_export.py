@@ -10,6 +10,8 @@ The test sequence is:
     compare myscore and myscore4
 """
 
+import tempfile
+
 import pytest
 
 from amads.algorithms.scores_compare import scores_compare
@@ -49,8 +51,16 @@ def test_midi_export_and_reimport(midi_file):
         midi_path is not None
     ), f"Could not find example MIDI file {midi_file}"
     verbose_blank()
-    m21_write_path = str(midi_path)[:-4] + "_m21exported.mid"
-    pm_write_path = str(midi_path)[:-4] + "_pmexported.mid"
+    m21_temp_file = tempfile.NamedTemporaryFile(
+        suffix="_m21exported.mid", delete=False
+    )
+    m21_write_path = m21_temp_file.name
+    m21_temp_file.close()
+    pm_temp_file = tempfile.NamedTemporaryFile(
+        suffix="_pmexported.mid", delete=False
+    )
+    pm_write_path = pm_temp_file.name
+    pm_temp_file.close()
 
     #
     # test with music21 writer

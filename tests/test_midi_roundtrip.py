@@ -6,6 +6,8 @@ read and write with music21
 testing is done outside using allegroconvert
 """
 
+import tempfile
+
 from amads.io.readscore import read_score, set_preferred_midi_reader
 from amads.io.writescore import set_preferred_midi_writer, write_score
 from amads.music import example
@@ -31,8 +33,16 @@ def test_midi_export_and_reimport():
         midi_path is not None
     ), f"Could not find example MIDI file {midi_file}"
     verbose_blank()
-    m21_write_path = str(midi_path)[:-4] + "_m21exported.mid"
-    pm_write_path = str(midi_path)[:-4] + "_pmexported.mid"
+    m21_temp_file = tempfile.NamedTemporaryFile(
+        suffix="_m21exported.mid", delete=False
+    )
+    m21_write_path = m21_temp_file.name
+    m21_temp_file.close()
+    pm_temp_file = tempfile.NamedTemporaryFile(
+        suffix="_pmexported.mid", delete=False
+    )
+    pm_write_path = pm_temp_file.name
+    pm_temp_file.close()
 
     #
     # test with music21 writer
