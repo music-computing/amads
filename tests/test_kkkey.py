@@ -22,10 +22,9 @@ def test_zero_pitch_variance_melodies():
 
 def test_crafted_nonempty_melody():
     """
-    This is a sanity check nonempty crafted melody (so far)...
-    I probably need some help with these tests...
+    This is a sanity check using a simple C# major scale
     """
-    pitches_in = list(range(56, 68)) + list(range(56, 68, 2))
+    pitches_in = [61, 63, 65, 66, 68, 70, 72, 73]
     melody = Score.from_melody(pitches=pitches_in)
     max_coef_pair = kkkey(melody)
     desired_result = ("major", 8)
