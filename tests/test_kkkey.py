@@ -27,7 +27,7 @@ def test_crafted_nonempty_melody():
     pitches_in = [61, 63, 65, 66, 68, 70, 72, 73]
     melody = Score.from_melody(pitches=pitches_in)
     max_coef_pair = kkkey(melody)
-    desired_result = ("major", 8)
+    desired_result = ("major", 1)  # C# is key number 1
     assert max_coef_pair == desired_result
 
     return
