@@ -53,6 +53,16 @@
 
 ----------------
 
+::: amads.pitch.key.transpose2c 
+    options: 
+      members: False 
+
+----------------
+
+::: amads.pitch.key.transpose2c.transpose2c
+
+----------------
+
 ::: amads.pitch.key.keysom 
     options: 
       members: False 

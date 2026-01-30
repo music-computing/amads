@@ -78,7 +78,7 @@ from .pitch.pcdist2 import *
 from .pitch.pitch_mean import *
 from .pitch.serial import *
 from .pitch.transformations import *
-from .pitch.transpose2c import *
+from .pitch.key.transpose2c import *
 
 # polyphony
 from .polyphony.skyline import *

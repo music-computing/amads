@@ -12,9 +12,13 @@ markdown_extensions:
   - toc:
       permalink: true
       toc_depth: 2
+  - def_list
+  - pymdownx.tasklist:
+     custom_checkbox: true
   - attr_list  # required for custom anchors
 #  - pymdownx.arithmatex:
 #      generic: true
+
 
 extra_javascript:
   - javascripts/fix-properties.js
@@ -85,7 +89,6 @@ nav:
     - Input and Output: reference/io.md
     - Pitch:
       - reference/pitch/ismonophonic.md
-      - reference/pitch/transpose2c.md
       - reference/pitch/hz2midi.md
       - Interval Distributions: reference/pitch/intervals.md
       - Pitch Distributions: reference/pitch/pitches.md

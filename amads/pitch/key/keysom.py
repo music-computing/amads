@@ -51,8 +51,6 @@ def keysom(
     The SOM (self-organized map) is trained on key profile data.
     Returns the resulting projection matrix.
 
-    TODO: interpolation argument?
-
     Parameters
     ----------
     note_collection : Score
