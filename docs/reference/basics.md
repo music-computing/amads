@@ -1,4 +1,4 @@
-# Classses Representing Basic Score Elements
+# Classes Representing Basic Score Elements
 
 ::: amads.core.basics
     options: 
