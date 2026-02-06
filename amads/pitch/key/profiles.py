@@ -204,16 +204,15 @@ class PitchProfile(Distribution):
          for both singular plot and multiple plots from its parent
          class Distribution.
 
-    **Class Attributes** (in this case, attributes specifying possible class
-    configuration options and visualization elements):
-
-    - **`_profile_label`** (str) &mdash;
+    Attributes
+    ----------
+    _profile_label : str, Class Attribute
         histogram label for 1-D histogram (x-axis), or representing the
         key of the current profile in the 2-D heatmap (y-axis)
-    - **`_data_cats_2d`** (List[int]) &mdash;
+    _data_cats_2d : List[int], Class Attribute
         data categories for the 2-D heatmap, which are labelled in terms
         of relative chromatic degree
-    - **`_data_labels`** (List[str]) &mdash;
+    _data_labels : List[str], Class Attribute
         possible data labels, Relative Chromatic Degree for 2-D case (x-axis),
         and Weights for 1-D case (y-axis)
     """

@@ -291,16 +291,15 @@ class KeyProfileSOM:
     of the SOM (for debugging purposes if logging is turned on during training).
     5. a name (string identifier) for the SOM that can be optionally specified.
 
-    **Class Attributes** (in this case, attributes specifying possible class
-    configuration options and visualization elements):
-
-    - **`_input_length`** (int) &mdash;
+    Attributes
+    ----------
+    _input_length : int, Class Attribute
         the number of pitches in a pitch-class distribution, or the number
         of tonal pitches in a western music system
-    - **`_default_output_dimensions`** (Tuple[int]) &mdash;
+    _default_output_dimensions : Tuple[int], Class Attribute
         output dimensions for the pretrained SOM in the original MATLAB version
         of miditoolbox
-    - **`_labels`** (List[str]) &mdash;
+    _labels : List[str], Class Attribute
         list of strings denoting the pitch labels
 
     Examples

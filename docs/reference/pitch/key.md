@@ -1,5 +1,15 @@
 
-::: amads.pitch.key.profiles 
+::: amads.pitch.key.profiles
+    options: 
+      members: False 
+
+----------------
+
+::: amads.pitch.key.profiles.PitchProfile 
+
+----------------
+
+::: amads.pitch.key.profiles.KeyProfile
 
 ----------------
 
