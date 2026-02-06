@@ -3,82 +3,105 @@
 __author__ = "Roger B. Dannenberg"
 
 import pathlib
+import tempfile
+import urllib.request
 import warnings
 from typing import Callable, Optional
 
 from amads.core.basics import Score
 
-# preferred_midi_reader is the subsystem to use for MIDI files.
-# It can be "music21", "partitura", or "pretty_midi".
-preferred_midi_reader = "pretty_midi"
 
-# preferred_xml_reader is the subsystem to use for MusicXML files.
-preferred_xml_reader = "music21"
+class ReaderConfig:
+    """Central configuration for score readers."""
 
-# remember the actual reader used in the last call to readscore()
-last_used_reader_fn = None
+    def __init__(
+        self,
+        preferred_midi: str = "pretty_midi",
+        preferred_xml: str = "music21",
+        reader_warning_level: str = "default",
+    ):
+        self.preferred_midi = preferred_midi
+        self.preferred_xml = preferred_xml
+        self.reader_warning_level = reader_warning_level
+        self.last_used_reader = None
 
-# warning levels for read_score
-_reader_warning_level = "default"
+
+CONFIG = ReaderConfig()
 
 
 def set_preferred_midi_reader(reader: str) -> str:
-    """Set the preferred MIDI reader. Returns the previous reader
-    preference so you can restore it if desired.
+    """
+    Set the preferred MIDI reader.
+    Returns the previous reader preference.
 
     Parameters
     ----------
     reader : str
-        The name of the preferred MIDI reader. Can be "music21", "partitura", or "pretty_midi".
+        The name of the preferred MIDI reader. Can be "music21" or "pretty_midi".
 
     Returns
     -------
     str
         The previous name of the preferred MIDI reader.
+
+    Raises
+    ------
+    ValueError
+        If an invalid reader is provided.
     """
-    global preferred_midi_reader
-    previous_reader = preferred_midi_reader
-    if reader in ["music21", "partitura", "pretty_midi"]:
-        preferred_midi_reader = reader
-    else:
-        raise ValueError(
-            "Invalid MIDI reader. Choose 'music21', 'partitura', or 'pretty_midi'."
-        )
-    return previous_reader
+    allowed = ["music21", "pretty_midi"]
+    if reader not in allowed:
+        raise ValueError(f"Invalid MIDI reader. Must be one of {allowed}")
+
+    previous = CONFIG.preferred_midi
+    CONFIG.preferred_midi = reader
+    return previous
 
 
 def set_preferred_xml_reader(reader: str) -> str:
-    """Set the preferred XML reader. Returns the previous reader
-    preference so you can restore it if desired.
+    """
+    Set the preferred XML reader.
+    Returns the previous reader preference.
 
     Parameters
     ----------
     reader : str
         The name of the preferred XML reader. Can be "music21" or "partitura".
+
+    Returns
+    -------
+    str
+        The previous name of the preferred XML reader.
+
+    Raises
+    ------
+    ValueError
+        If an invalid reader is provided.
     """
-    global preferred_xml_reader
-    previous_reader = preferred_xml_reader
-    if reader in ["music21", "partitura"]:
-        preferred_xml_reader = reader
-    else:
-        raise ValueError("Invalid XML reader. Choose 'music21' or 'partitura'.")
-    return previous_reader
+    allowed = ["music21", "partitura"]
+    if reader not in allowed:
+        raise ValueError(f"Invalid XML reader. Must be one of {allowed}")
+
+    previous = CONFIG.preferred_xml
+    CONFIG.preferred_xml = reader
+    return previous
 
 
 def set_reader_warning_level(level: str) -> str:
-    """Set the warning level for readscore functions.
-
-        - "none" - will suppress all warnings during read_score().
-            Also suppresses notice of reader subsystem and file name.
-        - "low" - will show print one notice if there are any warnings.
-        - "default" - will obey environment settings to control warnings.
-        - "high" - will print all warnings during read_score(), overriding
-            environment settings.
+    """
+    Set the warning level for `readscore` functions.
 
     Parameters
     ----------
     level : str
-        The warning level to set. Can be "none", "low", "default", "high".
+        The warning level to set.
+        Options are "none", "low", "default", "high".
+        "none" will suppress all warnings during `read_score()`.
+        and also suppresses notice of reader subsystem and file name.
+        "low" will show print one notice if there are any warnings.
+        "default" will obey environment settings to control warnings.
+        "high" will print all warnings during `read_score()`, overriding
+            environment settings.
 
     Returns
     -------
@@ -86,25 +109,34 @@ def set_reader_warning_level(level: str) -> str:
         Previous warning level.
 
     Raises
-    -------
+    ------
     ValueError
         If an invalid warning level is provided.
     """
-    global _reader_warning_level
-    previous_level = _reader_warning_level
-    if level in ["none", "low", "default", "high"]:
-        _reader_warning_level = level
-    else:
-        raise ValueError(
-            "Invalid warning level. Choose 'none', 'low', 'default', or 'high'."
-        )
-    return previous_level
+    allowed = ["none", "low", "default", "high"]
+    if level not in allowed:
+        raise ValueError(f"Invalid warning level. Must be one of {allowed}")
+
+    previous = CONFIG.reader_warning_level
+    CONFIG.reader_warning_level = level
+    return previous
 
 
 def _check_for_subsystem(
     file_type: str,
 ) -> Optional[Callable[[str, bool, bool, bool, bool], Score]]:
-    """Check if the preferred reader is available.
+    """
+    Check if the preferred reader is available.
+
+    We support:
+    `music21` for midi and xml,
+    `partitura` for xml,
+    and
+    `PrettyMIDI` for midi.
+
+    Partitura has basic MIDI import functionality, but is unsupported here
+    because when it reads in a score it has no MIDI velocity
+    and when it reads in a performance it has no tempo track, key signature, etc.
 
     Parameters
     ----------
@@ -113,13 +145,15 @@ def _check_for_subsystem(
 
     Returns
     -------
-    import_fn: functions for importing MIDI or XML file
+    Optional[Callable]
+        The import function if available.
     """
-    preferred_reader = (
-        preferred_midi_reader if file_type == "midi" else preferred_xml_reader
+    reader = (
+        CONFIG.preferred_midi if file_type == "midi" else CONFIG.preferred_xml
     )
+
     try:
-        if preferred_reader == "music21":
+        if reader == "music21":
             if file_type == "midi":
                 from amads.io.m21_midi_import import music21_midi_import
 
@@ -128,24 +162,24 @@ def _check_for_subsystem(
                 from amads.io.m21_xml_import import music21_xml_import
 
                 return music21_xml_import
-        elif preferred_reader == "partitura":
+        elif reader == "partitura":
             if file_type == "xml":
                 from amads.io.pt_xml_import import partitura_xml_import
 
                 return partitura_xml_import
-            else:  # Partitura can read into a score, but it has no MIDI
-                # velocity, or it can read into a performance, but it
-                # has no tempo track, key signature, etc.
-                raise ImportError("Partitura does not support midi import.")
-        elif preferred_reader == "pretty_midi":
+            else:
+                raise ImportError(
+                    "Partitura MIDI import not currently supported"
+                )
+        elif reader == "pretty_midi":
             if file_type == "midi":
                 from amads.io.pm_midi_import import pretty_midi_midi_import
 
                 return pretty_midi_midi_import
             else:
-                raise ImportError("PrettyMIDI does not support XML import.")
+                raise ImportError("PrettyMIDI does not support XML import")
     except ImportError as e:
-        print(f"Error importing {preferred_reader} for {file_type} files: {e}")
+        print(f"Error importing {reader} for {file_type} files: {e}")
     return None
 
 
@@ -170,12 +204,11 @@ def import_xml(
     """
     import_xml_fn = _check_for_subsystem("xml")
     if import_xml_fn is not None:
-        global last_used_reader_fn
-        last_used_reader_fn = import_xml_fn
-        if _reader_warning_level != "none":
+        CONFIG.last_used_reader = import_xml_fn
+        if CONFIG.reader_warning_level != "none":
             print(
-                f"Reading {filename} using MusicXML reader"
-                f" file={import_xml_fn.__name__}."
+                f"Reading {filename} using MusicXML reader "
+                f"file={import_xml_fn.__name__}."
             )
         return import_xml_fn(
             filename, flatten, collapse, show, group_by_instrument
@@ -183,7 +216,7 @@ def import_xml(
     else:
         raise Exception(
             "Could not find a MusicXML import function. "
-            "Preferred subsystem is" + str(preferred_xml_reader)
+            f"Preferred subsystem is {CONFIG.preferred_xml}"
         )
 
 
@@ -256,12 +289,11 @@ def import_midi(
     """
     import_midi_fn = _check_for_subsystem("midi")
     if import_midi_fn is not None:
-        global last_used_reader_fn
-        last_used_reader_fn = import_midi_fn
-        if _reader_warning_level != "none":
+        CONFIG.last_used_reader = import_midi_fn
+        if CONFIG.reader_warning_level != "none":
             print(
-                f"Reading {filename} using MIDI reader"
-                f" {import_midi_fn.__name__}."
+                f"Reading {filename} using MIDI reader "
+                f"{import_midi_fn.__name__}."
             )
         return import_midi_fn(
             filename, flatten, collapse, show, group_by_instrument
@@ -269,7 +301,7 @@ def import_midi(
     else:
         raise Exception(
             "Could not find a MIDI file import function. "
-            "Preferred subsystem is " + str(preferred_midi_reader)
+            f"Preferred subsystem is {CONFIG.preferred_midi}"
         )
 
 
@@ -278,7 +310,7 @@ def read_score(
     flatten: bool = False,
     collapse: bool = False,
     show: bool = False,
-    format=None,
+    format: Optional[str] = None,
     group_by_instrument: bool = True,
 ) -> Score:
     """Read a file with the given format, 'xml', 'midi', 'kern', 'mei'.
@@ -291,15 +323,16 @@ def read_score(
     Parameters
     ----------
     filename : str
-        the path (relative or absolute) to the music file
+        The path (relative or absolute) to the music file.
+        Can also be an URL.
     flatten : bool
-        the returned score will be flat (Score, Parts, Notes)
+        The returned score will be flat (Score, Parts, Notes)
     collapse: bool
-        if collapse and flatten, the parts will be merged into one
+        If collapse and flatten, the parts will be merged into one
     show : bool
-        print a text representation of the data
+        Print a text representation of the data
     format: string
-        one of 'xml', 'midi', 'kern', 'mei'
+        One from among limited standard options (e.g., 'xml', 'midi', 'kern', 'mei')
     group_by_instrument : bool
         If True (default), when the underlying reader (e.g. for "pretty_midi",
         "music21" or "partitura") reads Parts with the same instrument, their
@@ -323,34 +356,55 @@ def read_score(
     Returns
     -------
     Score
-        the imported score
+        The imported score
 
     Raises
     ------
     ValueError
         If the format is unknown or not implemented.
-
-    Note
-    ----
-    See individual readers and writers for details on how they handle
-    various features like instrument, MIDI metadata, etc.
     """
+    if filename.startswith("http") or "://" in filename:
+        with tempfile.NamedTemporaryFile(
+            suffix=pathlib.Path(filename).suffix or ".tmp", delete=False
+        ) as tmp_file:
+            urllib.request.urlretrieve(filename, tmp_file.name)
+            filename = tmp_file.name
+
+    valid_score_extensions = [
+        ".xml",
+        ".musicxml",
+        ".mxl",
+        ".mid",
+        ".midi",
+        ".smf",
+        ".kern",
+        ".krn",
+        ".mei",
+    ]
+
+    if format is None:
+        ext = pathlib.Path(filename).suffix.lower()
+        if ext in [".xml", ".musicxml", ".mxl"]:
+            format = "xml"
+        elif ext in [".mid", ".midi", ".smf"]:
+            format = "midi"
+        elif ext == ".kern":
+            format = "kern"
+        elif ext == ".mei":
+            format = "mei"
+        else:
+            raise ValueError(
+                f"Unsupported file extension: {ext}. "
+                f"Valid extensions: {valid_score_extensions}"
+            )
+
+    # File format handling
     with warnings.catch_warnings(record=True) as w:
-        if _reader_warning_level == "none":
+        if CONFIG.reader_warning_level == "none":
             warnings.simplefilter("ignore")
         else:
             warnings.simplefilter("always")
 
-        if format is None:
-            ext = pathlib.Path(filename).suffix
-            if ext == ".xml" or ext == ".musicxml" or ext == ".mxl":
-                format = "xml"
-            elif ext == ".mid" or ext == ".midi" or ext == ".smf":
-                format = "midi"
-            elif ext == ".kern":
-                format = "kern"
-            elif ext == ".mei":
-                format = "mei"
         if format == "xml":
             score = import_xml(
                 filename,
@@ -368,28 +422,34 @@ def read_score(
                 group_by_instrument=group_by_instrument,
             )
         elif format == "kern":
-            raise ValueError("Kern format input not implemented")
+            raise ValueError(
+                "Kern format input not implemented yet. "
+                "Consider using the `kernr` package."
+            )
         elif format == "mei":
-            raise ValueError("MEI format input not implemented")
+            raise ValueError(
+                "MEI format input not implemented yet. "
+                "Consider using the `mei` package."
+            )
         else:
-            raise ValueError(str(format) + " format specification is unknown")
+            raise ValueError(f"{format} format specification is unknown")
 
-        if _reader_warning_level == "low":
+        # Warning handling
+        if CONFIG.reader_warning_level == "low":
             if len(w) > 0:
                 print(
-                    f"Warning: {len(w)} warnings were generated in"
-                    f" read_score({filename})."
-                )
-                print(
-                    "  Use amads.io.readscore.set_reader_warning_level()"
-                    " for more details."
+                    f"Warning: {len(w)} warnings were generated in "
+                    f"read_score({filename}).\n"
+                    "  Use amads.io.readscore.set_reader_warning_level() "
+                    "for more details."
                 )
         else:  # "none", "default", or "high"
             for warning in w:
                 print(
-                    f"{warning.filename}:{warning.lineno}:"
-                    f" {warning.category.__name__}: {warning.message}"
+                    f"{warning.filename}:{warning.lineno}: "
+                    f"{warning.category.__name__}: {warning.message}"
                 )
+
         return score
 
 
@@ -402,20 +462,6 @@ def last_used_reader() -> Optional[str]:
         The name of the actual function used in the last call to `read_score`,
         or None if no reader has been used yet.
     """
-    if last_used_reader_fn is not None:
-        return last_used_reader_fn.__name__
+    if CONFIG.last_used_reader is not None:
+        return CONFIG.last_used_reader.__name__
     return None
-
-
-"""
-A list of supported file extensions for score reading.
-"""
-valid_score_extensions = [
-    ".xml",
-    ".musicxml",
-    ".mid",
-    ".midi",
-    ".smf",
-    ".kern",
-    ".mei",
-]
