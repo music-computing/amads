@@ -242,7 +242,8 @@ def test_quantize():
 def test_lyrics():
     note1 = Note(onset=0, duration=1, pitch="C4", lyric="Hello")
     assert (
-        str(note1) == "Note(onset=0.000, duration=1.000, lyric=Hello, pitch=C4)"
+        str(note1) == "Note(onset=0.000, duration=1.000,"
+        " lyric=Hello, pitch=C4/60)"
     )
 
 
@@ -523,11 +524,11 @@ def test_eventgroup():
     correct = """Part(onset=0.000, duration=6.000)
     Measure(onset=0.000, duration=4.000)
     Measure(onset=4.000, duration=2.000)
-        Note(onset=4.000, duration=1.000, pitch=C4)
-        Note(onset=5.000, duration=1.000, pitch=E4)
+        Note(onset=4.000, duration=1.000, pitch=C4/60)
+        Note(onset=5.000, duration=1.000, pitch=E4/64)
         Chord(onset=6.000, duration=1.000)
-            Note(onset=6.000, duration=1.000, pitch=D4)
-            Note(onset=6.000, duration=1.000, pitch=F#4)
+            Note(onset=6.000, duration=1.000, pitch=D4/62)
+            Note(onset=6.000, duration=1.000, pitch=F#4/66)
 """
     assert buf.getvalue() == correct
     assert chord.onset == 6.0

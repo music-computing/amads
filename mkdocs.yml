@@ -130,4 +130,5 @@ nav:
     - Contributing: developer_notes/contributing.md
     - Style: developer_notes/style.md
     - Github: developer_notes/github.md
+    - Design: developer_notes/design.md
     - Music21: developer_notes/music21.md

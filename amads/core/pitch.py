@@ -209,9 +209,9 @@ class Pitch:
 
 
     def __eq__(self, other):
-        """Check equality of two Pitch instances.
+        """Check equality of other to a Pitch instance.
 
-        Pitches are equal if
+        Pitches are equal if they are both Pitches, and
         both `key_num` and `alt` are equal. Enharmonics are therefore
         not equal, but enharmonic equivalence can be written simply as
         `p1.key_num == p2.key_num`
@@ -226,7 +226,7 @@ class Pitch:
         bool
             True if the `key_num` and `alt` values are equal, False otherwise.
         """
-        return self.as_tuple() == other.as_tuple()
+        return isinstance(other, Pitch) and self.as_tuple() == other.as_tuple()
 
 
     def __hash__(self) -> int:

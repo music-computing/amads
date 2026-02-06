@@ -55,8 +55,11 @@ def kkkey(
     key_cc
     """
     corrcoef_pairs = key_cc(score, profile, attribute_names, salience_flag)
-
+    # list of pairs (attribute_name, [correlation coefficients])
     max_val_iter = (coefs for (_, coefs) in corrcoef_pairs if coefs is not None)
+    # This code is a little unexpected: it first searches for the maximum
+    # correlation value across all attributes and keys, then finds the
+    # attribute and key index corresponding to that maximum value.
     max_val = max(chain.from_iterable(max_val_iter))
     nested_coefs_iter = (
         (attr, coefs.index(max_val))

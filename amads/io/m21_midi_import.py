@@ -1,7 +1,10 @@
-from music21 import converter, metadata, stream
+from typing import cast
+
+from music21 import converter
+from music21.stream import Score as m21Score
 
 from amads.core.basics import Score
-from amads.io.m21_xml_import import music21_convert_part
+from amads.io.m21_xml_import import music21_to_score
 
 
 def music21_midi_import(
@@ -9,34 +12,40 @@ def music21_midi_import(
     flatten: bool = False,
     collapse: bool = False,
     show: bool = False,
+    group_by_instrument: bool = True,
 ) -> Score:
-    """Use music21 to import a MIDI file and convert it to a Score."""
+    """Use music21 to import a MIDI file and convert it to a Score.
+
+    Parameters
+    ----------
+    filename : str
+        The path to the MIDI file.
+    flatten : bool, optional
+        If True, flatten the score structure.
+    collapse : bool, optional
+        If True and flatten is true, also collapse parts.
+    show : bool, optional
+        If True, print the music21 score structure for debugging.
+    group_by_instrument: bool, optional
+        If True, group parts by instrument name into staffs. Defaults to True.
+        See `music21_to_score` for details.
+
+    Returns
+    -------
+    Score
+        The converted AMADS Score object.
+    """
     # Load the MIDI file using music21
     m21score = converter.parse(
         filename, format="midi", forceSource=True, quantizePost=False
     )
-
-    if show:
-        # Print the music21 score structure for debugging
-        print(f"Music21 score structure from {filename}:")
-        for element in m21score:
-            if isinstance(element, metadata.Metadata):
-                print(element.all())
-        print(m21score.show("text", addEndTimes=True))
-
-    # Create an empty Score object
-    score = Score()
-
-    # Iterate over parts in the music21 score
-    for m21part in m21score:
-        if isinstance(m21part, stream.Part):
-            # Convert the music21 part into a part and append it to the Score
-            music21_convert_part(m21part, score)
-        else:
-            print("Ignoring non-Part element:", m21part)
-
-    # this might be optimized by building a flat score to start with:
-    if flatten or collapse:
-        score = score.flatten(collapse=collapse)
-
+    m21score = cast(m21Score, m21score)
+    score = music21_to_score(
+        m21score,
+        flatten,
+        collapse,
+        show,
+        filename,
+        group_by_instrument=group_by_instrument,
+    )
     return score

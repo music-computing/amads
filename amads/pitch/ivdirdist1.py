@@ -34,11 +34,13 @@ def interval_direction_distribution_1(
         in seconds that are modified according to Parncutt's durational
         accent model (1994), by default True.
     miditoolbox_compatible : bool
-        Matlab MIDI Toolbox avoids zero division by dividing counts
-        by the total count plus 1e-12 times the number of counts.
-        True enables this behavior. Default is False, which simply skips
-        division when the total count is zero (this also returns a
-        zero matrix when the count is zero).
+        Invokes interval_distribution_1 using miditoolbox_compatible=True,
+        which performs normalization slightly differently (see
+        [interval_distribution_1]
+        [amads.pitch.ivdist1.interval_distribution_1].
+        Default is False, which simply skips division when the total
+        count is zero (this also returns a zero matrix when the count
+        is zero).
 
     Returns
     -------

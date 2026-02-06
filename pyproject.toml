@@ -26,6 +26,7 @@ dependencies = [
     "music21",
     "pretty_midi",
     "setuptools",  # required for partitura
+    "typing_extensions",  # required for partitura
     "pytest",
     "tenacity",
     "tqdm",

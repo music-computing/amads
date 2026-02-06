@@ -8,6 +8,9 @@ There are two score representations: a *full* score retains most of the
 structure of Western classical notation, while a *flat* score is
 a more abstracted representation emphasizing notes.
 
+See also [Design Considerations](../developer_notes/design) for more
+in-depth coverage and rationale.
+
 ## Full Scores
 
 A "full" score looks like this:
@@ -23,9 +26,8 @@ contain multiple instances of the following: </div>
 <div style=margin-left:10em;"><b>Rest</b></div>
 <div style=margin-left:10em;"><b>Chord</b></div>
 <div style=margin-left:12em;"><b>Note</b> - one for each note of the chord</div>
-<div style=margin-left:10em;"><b>KeySignature</b></div>
-<div style=margin-left:10em;"><b>TimeSignature</b></div>
 <div style=margin-left:10em;"><b>Clef</b></div>
+<div style=margin-left:10em;"><b>KeySignature</b></div>
 
 ## Flat Scores
 
