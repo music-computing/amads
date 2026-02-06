@@ -1,7 +1,10 @@
 """
-Filters the list of attribute names to the ones that contain
-the maximal cross-correlation value for the scores in C,
-corresponds to keymode in miditoolbox.
+For a given key profile and attribute name list, find the individual pitch
+profiles that have the strongest cross-correlation between the score to analyze
+and the profile at pitch C.
+
+This function is primarily used to estimate the keymode, or attribute of a given
+KeyProfile collection, with the various pitch profiles.
 
 Reference
 ---------
@@ -24,8 +27,9 @@ def keymode(
     """
     Find the mode based on cross-correlation values.
 
-    Filters the list of attribute names so that their 0-crosscorrelation
-    value or C-crosscorrelation value are the maximal among all the attributes.
+    Filters the list of attribute names so that their 0th cross-correlation
+    value or C-pitch cross-correlation value are the maximal among all the
+    attributes that are compared
 
     The indices correspond to the following keys in ascending order:
     0 -> C, 1 -> C#, ..., 11 -> B

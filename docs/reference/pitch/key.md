@@ -1,5 +1,15 @@
 
-::: amads.pitch.key.profiles 
+::: amads.pitch.key.profiles
+    options: 
+      members: False 
+
+----------------
+
+::: amads.pitch.key.profiles.PitchProfile 
+
+----------------
+
+::: amads.pitch.key.profiles.KeyProfile
 
 ----------------
 
@@ -53,6 +63,16 @@
 
 ----------------
 
+::: amads.pitch.key.transpose2c 
+    options: 
+      members: False 
+
+----------------
+
+::: amads.pitch.key.transpose2c.transpose2c
+
+----------------
+
 ::: amads.pitch.key.keysom 
     options: 
       members: False 
@@ -64,4 +84,9 @@
 ----------------
 
 ::: amads.pitch.key.keysomdata
+    options: 
+      members: False 
 
+----------------
+
+::: amads.pitch.key.keysomdata.KeyProfileSOM
