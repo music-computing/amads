@@ -1,26 +1,17 @@
 """
 Projection of pitch-class distribution on a self-organizing map.
 
-Computes the projection of a pitch-class distribution on a self-organizing
-map, and visualize it.
+Computes the projection of a pitch-class distribution on a trained
+self-organizing map, and visualize it in a 2-D heatmap with a custom color
+gradient.
 
 Unlike the original miditoolbox implementation in matlab, the SOM here
-is allowed to use any key profile in literature as long as it contains
-valid major and minor pitch profile fields. See key/profiles.py for more
-details.
+is allowed to use any key profile as long as it contains major and
+minor pitch profile attributes. See key/profiles.py for more details.
 
 Warnings
 --------
 (Remove this after testing and experimentation)
-
-Things to watch out for:
-
-  - crank the learning rate low enough so that order of selection for the
-    very small (profile) data set doesn't really matter. (let's start with 0.2)
-  - Make sure the weight propagation is a toroid (circular propagation based
-    off of 1-norm?).
-  - non-normalized weights? (prefer normalized ones so far due to how
-    inconsistent literature weights are otherwise)
 
 References
 ----------
@@ -31,8 +22,9 @@ Toiviainen & Krumhansl, 2003
 """
 
 # for function types
-from typing import Tuple, Union
+from typing import Optional, Tuple, Union
 
+import matplotlib.colors as mcolors
 import numpy as np
 from matplotlib.figure import Figure
 
@@ -47,6 +39,9 @@ def keysom(
     note_collection: Score,
     map: Union[ksom.KeyProfileSOM, str],
     has_legend: bool = True,
+    scaled_legend: bool = True,
+    font_size: Optional[Union[float, str]] = None,
+    color_map: Optional[Union[str, mcolors.LinearSegmentedColormap]] = None,
     show: bool = True,
 ) -> Tuple[np.ndarray, Figure]:
     """
@@ -55,10 +50,6 @@ def keysom(
     The SOM (self-organized map) is trained on key profile data.
     Returns the resulting projection matrix.
 
-    TODO: need to support colormap and textsize
-
-    TODO: interpolation argument?
-
     Parameters
     ----------
     note_collection : Score
@@ -66,9 +57,25 @@ def keysom(
         project onto the pre-trained SOM.
     map : KeyProfileSOM
         A pretrained self-organizing map trained on major + minor pitch profiles.
-        Or, a file path string to load the map
+        Or, a path string to a .npz file with the map.
     has_legend : bool
         Whether or not the plot should include a color legend
+    scaled_legend: bool
+        Whether or not the color legend scales with the projection's minimum
+        and maximum, or (by default) scales with the trained SOM's global
+        minimum and maximum. Use the default to get consistent color scales
+        across multiple graphs of differing data.
+    font_size: Optional[Union[float, str]] = None,
+        Font size, either:
+        (1) Font size of the labels (in points) or a string option from
+        matplotlib
+        (2) None for the default font size provided by matplotlib
+        Shares the same effects as the option of the same name in the
+        project_and_visualize method of KeyProfileSOM.
+    color_map: Optional[Union[str, mcolors.LinearSegmentedColormap]]
+        Color map describing the color gradient of the resulting visualization.
+        Option has same functionality as the `color_map` argument of the
+        `project_and_visualize` method of `KeyProfileSOM`.
     show : bool
         Whether or not we suspend execution and display the plot before returning
         from this function
@@ -79,7 +86,8 @@ def keysom(
         Returns a 2-D numpy array that contains the projection of the input
         data onto the self-organizing map.
     Figure
-        Matplotlib figure that contains the axes with a plot of the projection
+        Matplotlib figure that contains a plot of the projection. (The axes
+        are also accessible because they are contained within the figure.)
     """
     target_map = None
     if isinstance(map, str):
@@ -90,7 +98,7 @@ def keysom(
         raise ValueError("invalid map argument!")
     input = tuple(pitch_class_distribution_1(note_collection).data)
     projection, Figure = target_map.project_and_visualize(
-        input, has_legend, show
+        input, has_legend, scaled_legend, font_size, color_map, show
     )
     # a good idea would probably be to return a tuple containing projection and
     # Figure/axes

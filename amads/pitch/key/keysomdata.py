@@ -6,11 +6,17 @@ Self-organizing maps trained on pitch class usage profiles from literature.
 A self-organizing map can be trained on key profile with 'major' and 'minor'
 data fields. The caller can define the decay rate and neighborhood
 function that the profile is trained on.
+A projection of a pitch-class distribution (pc_projection) onto a
+self-organizing map given the constituent input weights (input_weights) and
+their corresponding pitch-class distribution weights (pcdist), is defined for
+all valid row, column = i, j as
+pc_projection[i, j, :] = sum(input_weights[i, j, k] * pcdist[k] for all k in range(12)).
+
 When visualizing a projection of a pitch-class profile onto a trained
 self-organizing map, there are 24 key labels scattered across the map.
 The positions of these key labels (upper-case for major, lower-case for minor)
-are determined by the position of the BMU node in the trained map after
-training using the corresponding key profiles.
+are determined by the position of the best matching unit of the corresponding
+pitch profile in the trained map.
 
 Reference
 ---------
@@ -41,7 +47,7 @@ from amads.pitch.key import profiles as prof
 
 def zero_SOM_init(shape: Tuple[int, int, int]) -> np.array:
     """
-    Initializes all weights in the self-organizing map to 0
+    Constructs all-zero self-organizing map weights.
     """
     # zero SOM init...
     return np.zeros(shape)
@@ -49,7 +55,7 @@ def zero_SOM_init(shape: Tuple[int, int, int]) -> np.array:
 
 def random_SOM_init(shape: Tuple[int, int, int]) -> np.array:
     """
-    Randomly initializes all weights in the self-organizing map.
+    Constructs random self-organizing map weights.
 
     Initial values are between 0 and 0.5 inclusive.
     """
@@ -59,6 +65,9 @@ def random_SOM_init(shape: Tuple[int, int, int]) -> np.array:
 def handcrafted_SOM_init(shape: Tuple[int, int, int]) -> np.array:
     """
     Bespoke initialization for the pretrained weights.
+
+    These initial weights are intended to bias the resulting SOM
+    to a nicely symmetrical map with well-placed keys.
     """
     if shape != (
         *KeyProfileSOM._default_output_dimensions,
@@ -111,7 +120,7 @@ def handcrafted_SOM_init(shape: Tuple[int, int, int]) -> np.array:
 
 def keysom_inverse_decay(idx: int) -> float:
     """
-    Global learning rate per iteration.
+    Computes inverse decay global learning rate for a given iteration.
 
     Inverse to the current learning iteration...
     """
@@ -124,7 +133,7 @@ def keysom_inverse_decay(idx: int) -> float:
 
 def keysom_stepped_inverse_decay(idx: int) -> float:
     """
-    Global learning rate per iteration.
+    Compute stepped decay global learning rate for a given iteration.
 
     Inverse to a stepped multiplier of the current learning iteration...
 
@@ -141,7 +150,7 @@ def keysom_stepped_inverse_decay(idx: int) -> float:
 
 def keysom_stepped_log_inverse_decay(idx: int) -> float:
     """
-    Global learning rate per iteration.
+    Compute stepped log inverse decay global learning rate for a given iteration.
 
     Log inverse to a stepped multiplier of the current learning iteration...
 
@@ -246,10 +255,85 @@ def keysom_toroid_clamped(
 
 class KeyProfileSOM:
     """
-    Define coordinate of a node as the coordinate within the array of output nodes
+    The primary use-case for Key Profile SOM is to extract tonal features of a
+    pair of major and minor pitch profiles and project them onto a 2-D map.
 
-    in a self-organizing map.
-    Since each output node is
+    We provide methods to allows users to do the following:
+
+    1. For initialization, supply the structure of the key profile SOM.
+
+    2. For training, the following is customizeable:
+
+        2.1 Customize the key profile used for training data. Only
+    the 'major' and 'minor' PitchProfile attributes within the supplied key
+    profile are used.
+    If either attribute does not exist, a value error is raised before training.
+
+        2.2 Customize training behavior by supplying functions denoting both the
+    neighborhood propagation function and global decay function.
+
+        2.3 Record a log of information to track the training process. This
+    feature is not implemented completely.
+
+    3. Projection of a supplied pitch-class distribution onto a trained SOM.
+
+    4. Visualization facilities, primarily:
+
+        4.1 Visualization of projection from a single pitch-class distribution
+    onto the internal SOM.
+
+        4.2 Animation of projections from a sequence of pitch-class distributions
+    onto the internal SOM.
+
+    The internal data unique to each KeyProfileSOM object is as follows:
+
+    1. SOM structural specifications (output layer dimensions), stored as a
+    2-tuple of ints specifying the width and height of the SOM output layer.
+
+    2. The trained SOM according to the structural specifications,
+    stored as a 3-D numpy array with shape
+    (output_width, output_height, input_length).
+
+    3. A list of 2-D coordinates for the trained SOM, where each list element at
+    index i specifies the location of the ith label in the trained SOM.
+    The coordinate is the BMU of the ith pitch's corresponding pitch-class
+    profile in the trained SOM.
+    Note that capital pitches denote major key pitches, while lower-case pitches
+    denote minor key pitches.
+
+    4. Training log containing simple training information per update instance
+    of the SOM (for debugging purposes if logging is turned on during training).
+
+    5. A name (string identifier) for the SOM that can be optionally specified.
+
+    Attributes
+    ----------
+    _input_length : int, class attribute
+        the number of pitches in a pitch-class distribution, or the number
+        of tonal pitches in a western music system
+    _default_output_dimensions : Tuple[int], class attribute
+        output dimensions for the pretrained SOM in the original MATLAB version
+        of miditoolbox
+    _labels : List[str], class attribute
+        list of strings denoting the pitch labels
+
+    Examples
+    --------
+    Load a set of pretrained weights and visualize the pitch-class distribution
+    of a small score:
+    >>> from amads.core.basics import Score
+    >>> score = Score.from_melody([60, 62, 64, 65, 67, 69, 71, 72])
+    >>> from amads.pitch.pcdist1 import pitch_class_distribution_1
+    >>> pcdist_of_score = pitch_class_distribution_1(score)
+    >>> example_SOM = pretrained_weights_script()
+    >>> example_SOM.project_and_visualize(pcdist_of_score)
+
+    Train a set of weights from a key profile with 'major' and 'minor'
+    attributes with supplied training parameters:
+    >>> training_profile = prof.krumhansl_kessler # from key/profiles.py
+    >>> test_SOM = KeyProfileSOM() # default output dimensions used
+    >>> test_SOM.train_SOM(training_profile) # default training parameters used
+
     """
 
     # corresponds to the number of weights in a pitch-class distribution
@@ -276,7 +360,9 @@ class KeyProfileSOM:
         file_name: Optional[str] = None,
     ):
         """
-        saves a trained key profile SOM. Raises a value exception if the object
+        Save a trained key profile SOM.
+
+        Raises a value exception if the object
         does not contain a proper trained SOM or the directory path is not valid.
 
         Parameters
@@ -309,7 +395,7 @@ class KeyProfileSOM:
         cls, file_path: str = "./amads/pitch/key/KrumhanslKessler_SOM_data.npz"
     ) -> "KeyProfileSOM":
         """
-        Creates a new KeyProfileSOM object containing the trained KeyProfileSOM
+        Create a new KeyProfileSOM object containing the trained KeyProfileSOM.
 
         Data is loaded from the specified file.
 
@@ -352,7 +438,7 @@ class KeyProfileSOM:
         global_decay: Callable[[int], float],
     ) -> "KeyProfileSOM":
         """
-        Updates the SOM on the input data based off of the best matching unit.
+        Update the SOM on the input data based off of the best matching unit.
 
         Uses the current global training iteration.
 
@@ -409,7 +495,7 @@ class KeyProfileSOM:
 
     def find_best_matching_unit(self, input_data: np.array) -> Tuple[int]:
         """
-        Finds best matching unit given a self-organizing map and input data.
+        Find best matching unit given a self-organizing map and input data.
 
         Finds the coordinate of the output node whose weights has the smallest
         Euclidean distance from the input data.
@@ -537,8 +623,7 @@ class KeyProfileSOM:
         log_training: bool = False,
     ) -> "KeyProfileSOM":
         """
-        Trains a self-organizing map based off of the given training data
-        and training parameters.
+        Train a self-organizing map using the given training data and parameters.
 
         Parameters
         ----------
@@ -638,8 +723,7 @@ class KeyProfileSOM:
 
     def project_input_onto_SOM(self, input_data: np.array) -> np.array:
         """
-        Computes the resulting projection weights of the input on a
-        trained self-organizing map.
+        Compute the resulting projection weights of the input on a trained SOM.
 
         Parameters
         ----------
@@ -679,7 +763,7 @@ class KeyProfileSOM:
         show: bool = True,
     ) -> Tuple[np.array, Figure]:
         """
-        Projects a pitch-class distribution and visualizes it
+        Project a pitch-class distribution and visualizes it.
 
         Parameters
         ----------
@@ -776,7 +860,7 @@ class KeyProfileSOM:
         show: bool = True,
     ) -> Tuple[List[np.array], FuncAnimation]:
         """
-        Animates a collection of pitch-class distributions.
+        Animate a collection of pitch-class distributions.
 
         Parameters
         ----------

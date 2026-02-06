@@ -3,11 +3,11 @@ transposes a given score to C after we've attained
 the maximum correlation key of the score from
 the krumhansl-kessler algorithm (kkcc with default parameters).
 
-Author(s):
-Tai Nakamura
-Di Wang (diwang2)
+<small>**Author**: Tai Nakamura, Di Wang</small>
 
-Original Doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=93
+Reference
+---------
+https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=93
 """
 
 from amads.core.basics import Note, Score
@@ -22,13 +22,14 @@ def transpose2c(score: Score, profile_name: str = "KRUMHANSL-KESSLER") -> Score:
 
     Parameters
     ----------
-    score (Score): The musical score to analyze.
-    profile_name (str): string argument denoting the relevant miditoolbox
-        string option for kkcc
+    score : Score
+        The musical score to analyze.
+    profile_name : str
+        string argument denoting the relevant profile for key estimation
 
     Returns
     -------
-    Score:
+    Score
         a copy of the input score transposed to C-major/minor
     """
     # kkcc fails when an empty score is supplied.
@@ -39,7 +40,7 @@ def transpose2c(score: Score, profile_name: str = "KRUMHANSL-KESSLER") -> Score:
     corr_vals = kkcc(score, profile_name)
 
     key_idx = corr_vals.index(max(corr_vals)) % 12
-    # TODO: need to use pitch_shift which is to-be implemented in Score
+    # TODO: need to use pitch_shift which is to be implemented in Score
     score_copy = score.deepcopy()
     for note in score_copy.find_all(Note):
         keynum, alt = note.pitch.as_tuple()

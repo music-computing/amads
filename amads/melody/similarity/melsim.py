@@ -95,6 +95,8 @@ The following transformations are not currently functional in melsim:
 
 import json
 import math
+import os
+import shutil
 import subprocess
 from itertools import combinations
 from pathlib import Path
@@ -126,6 +128,75 @@ r_github_packages = ["melsim"]
 github_repos = {
     "melsim": "sebsilas/melsim",
 }
+
+# where to find Rscript (cached here after first lookup)
+_rscript_path: Optional[str] = None
+
+
+def run_script_in_r(script: str, text: bool = True) -> str:
+    """Run an R script and return its output.
+
+    Parameters
+    ----------
+    script : str
+        R script to run
+
+    Returns
+    -------
+    str
+        Standard output from the R script
+
+    Raises
+    ------
+    RuntimeError
+        If there is an error running the R script
+    """
+    global _rscript_path
+    if not _rscript_path:
+        _rscript_path = _find_rscript()
+    result = subprocess.run(
+        [_rscript_path, "-e", script],
+        capture_output=True,
+        text=text,
+        check=True,
+    )
+    return result.stdout.strip()
+
+
+def _find_rscript() -> str:
+    """Find the Rscript executable.
+
+    Returns
+    -------
+    str
+        Path to Rscript executable
+
+    Raises
+    ------
+    RuntimeError
+        If Rscript is not found
+    """
+    # Try common locations for Rscript
+    rscript_path = shutil.which("Rscript")
+
+    if rscript_path:
+        return rscript_path
+
+    # Try common macOS homebrew locations
+    common_paths = [
+        "/opt/homebrew/bin/Rscript",  # Apple Silicon homebrew
+        "/usr/local/bin/Rscript",  # Intel homebrew
+        "/Library/Frameworks/R.framework/Resources/bin/Rscript",  # R.app
+    ]
+
+    for path in common_paths:
+        if os.path.exists(path) and os.access(path, os.X_OK):
+            return path
+
+    raise RuntimeError(
+        "Rscript not found. Please install R and ensure Rscript is in your PATH. "
+        "You can install R from https://cran.r-project.org/ or using Homebrew: brew install r"
+    )
 
 
 def check_r_packages_installed(
@@ -166,13 +237,7 @@ def check_r_packages_installed(
 
     # Run R script
     try:
-        result = subprocess.run(
-            ["Rscript", "-e", check_script],
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-        output = result.stdout.strip()
+        output = run_script_in_r(check_script)
 
         # Parse the output - if empty, no missing packages
         if not output:
@@ -224,7 +289,7 @@ def install_r_package(package: str):
         utils::chooseCRANmirror(ind=1)
         utils::install.packages("{package}", dependencies=TRUE)
         """
-        subprocess.run(["Rscript", "-e", install_script], check=True)
+        _ = run_script_in_r(install_script)
     elif package in r_github_packages:
         print(f"Installing GitHub package '{package}'...")
         repo = github_repos[package]
@@ -234,7 +299,7 @@ def install_r_package(package: str):
         }}
         remotes::install_github("{repo}", upgrade="always", dependencies=TRUE)
         """
-        subprocess.run(["Rscript", "-e", install_script], check=True)
+        _ = run_script_in_r(install_script)
     else:
         raise ValueError(f"Unknown package type for '{package}'")
 
@@ -265,13 +330,7 @@ def install_dependencies():
     check_script_cran = check_script.format(packages=packages_str)
 
     try:
-        result = subprocess.run(
-            ["Rscript", "-e", check_script_cran],
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-        output = result.stdout.strip()
+        output = run_script_in_r(check_script_cran)
 
         # Parse the output - if empty, no missing packages
         if not output:
@@ -286,7 +345,7 @@ def install_dependencies():
             utils::chooseCRANmirror(ind=1)
             utils::install.packages(c({", ".join([f'"{p}"' for p in missing_cran])}), dependencies=TRUE)
             """
-            subprocess.run(["Rscript", "-e", cran_script], check=True)
+            _ = run_script_in_r(cran_script)
         else:
             print("Skipping install: All CRAN packages are already installed.")
     except subprocess.CalledProcessError as e:
@@ -297,13 +356,7 @@ def install_dependencies():
     check_script_github = check_script.format(packages=packages_str)
 
     try:
-        result = subprocess.run(
-            ["Rscript", "-e", check_script_github],
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-        output = result.stdout.strip()
+        output = run_script_in_r(check_script_github)
 
         # Parse the output - if empty, no missing packages
         if not output:
@@ -323,7 +376,7 @@ def install_dependencies():
                 }}
                 remotes::install_github("{repo}", upgrade="always", dependencies=TRUE)
                 """
-                subprocess.run(["Rscript", "-e", install_script], check=True)
+                _ = run_script_in_r(install_script)
         else:
             print(
                 "Skipping install: All GitHub packages are already installed."
@@ -575,14 +628,8 @@ def _get_similarity(
 
     # Run R script
     try:
-        result = subprocess.run(
-            ["Rscript", "-e", r_script],
-            capture_output=True,
-            text=True,
-            check=True,
-        )
+        output_str = run_script_in_r(r_script)
         # Extract JSON from output (may contain warnings before the JSON)
-        output_str = result.stdout.strip()
         # Find the JSON part - look for the last line or the part after newline
         lines = output_str.split("\n")
         json_str = lines[-1]  # JSON should be on the last line
@@ -760,14 +807,8 @@ def _batch_compute_similarities(args_list: List[Tuple]) -> List[float]:
 
     # Run R script with all arguments
     try:
-        result = subprocess.run(
-            ["Rscript", "-e", r_script] + all_args,
-            capture_output=True,
-            text=True,
-            check=True,
-        )
+        output_str = run_script_in_r(r_script)
         # Extract JSON from output (may contain warnings before the JSON)
-        output_str = result.stdout.strip()
         # Find the JSON part - look for the last line or the part after newline
         lines = output_str.split("\n")
         json_str = lines[-1]  # JSON should be on the last line

@@ -31,9 +31,9 @@ from .core.vectors_sets import *
 # harmony
 from .harmony.consonance.consonance import *
 from .harmony.root_finding.parncutt import *
-from .io.m21_midi_export import *
 
 # io
+from .io.m21_midi_export import *
 from .io.m21_midi_import import *
 from .io.m21_xml_export import *
 from .io.m21_xml_import import *
@@ -78,6 +78,7 @@ from .pitch.key.kkcc import *
 from .pitch.key.kkkey import *
 from .pitch.key.max_key_cc import *
 from .pitch.key.profiles import *
+from .pitch.key.transpose2c import *
 from .pitch.pc_set_functions import *
 from .pitch.pc_sets import *
 from .pitch.pcdist1 import *
@@ -85,7 +86,6 @@ from .pitch.pcdist2 import *
 from .pitch.pitch_mean import *
 from .pitch.serial import *
 from .pitch.transformations import *
-from .pitch.transpose2c import *
 
 # polyphony
 from .polyphony.skyline import *

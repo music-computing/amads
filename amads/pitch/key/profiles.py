@@ -204,20 +204,17 @@ class PitchProfile(Distribution):
          for both singular plot and multiple plots from its parent
          class Distribution.
 
-     Class Attributes (in this case, attributes specifying possible class
-     configuration options and visualization elements)
-     ----------
-    _pitches:
-         list of pitches in canonical order
-     _profile_label:
-         histogram label for 1-D histogram (x-axis), or representing the
-         key of the current profile in the 2-D heatmap (y-axis)
-     _data_cats_2d:
-         data categories for the 2-D heatmap, which are labelled in terms
-         of relative chromatic degree
-     _data_labels:
-         possible data labels, Relative Chromatic Degree for 2-D case (x-axis),
-         and Weights for 1-D case (y-axis)
+    Attributes
+    ----------
+    _profile_label : str, class attribute
+        histogram label for 1-D histogram (x-axis), or representing the
+        key of the current profile in the 2-D heatmap (y-axis)
+    _data_cats_2d : List[int], class attribute
+        data categories for the 2-D heatmap, which are labelled in terms
+        of relative chromatic degree
+    _data_labels : List[str], class attribute
+        possible data labels, Relative Chromatic Degree for 2-D case (x-axis),
+        and Weights for 1-D case (y-axis)
     """
 
     # possible pitches
@@ -299,9 +296,10 @@ class PitchProfile(Distribution):
 
     def normalize(self):
         """
-        normalize the pitch-class distributions within the PitchProfile s.t.
-        for each key, the sum of all weights in the corresponding key profile data
-        adds to 1.
+        Normalize the pitch-class distributions within the PitchProfile.
+
+        For each key, the sum of all weights in the corresponding key profile
+        is normalized to 1.
         """
         if self.distribution_type == "symmetric_key_profile":
             self.data = norm.normalize(self.data, "sum").tolist()
@@ -314,8 +312,10 @@ class PitchProfile(Distribution):
 
     def key_to_weights(self, key: str) -> List[float]:
         """
-        Given a key, computes the corresponding weights for the key profile
-        rotated to the key as the tonic and organized in relative chromatic degree
+        Given a key, computes the corresponding weights for the key profile.
+
+        The key profile is rotated to the key as the tonic and organized in
+        relative chromatic degree.
 
         Parameters
         ----------
@@ -346,13 +346,17 @@ class PitchProfile(Distribution):
 
     def as_canonical_matrix(self) -> np.ndarray:
         """
-        Computes a 12x12 matrix of the profile data where:
-        (1) The i-th row corresponds to the key profile of the
-        i-th chromatic degree
-        (2) Each row's weights begins from C and is ordered canonically
-        (by relative chromatic degree)
+        Computes a 12x12 matrix of the profile data.
 
-        Returns:
+            1. The i-th row corresponds to the key profile of the
+               i-th chromatic degree
+
+            2. Each row's weights begin from C and are ordered by
+               relative chromatic degree)
+
+        Returns
+        -------
+        np.ndarray
             a 12x12 numpy matrix of floats
         """
         assert self.dimensions[0] == 12
