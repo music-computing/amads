@@ -10,23 +10,10 @@ from typing import Callable, Optional
 
 from amads.core.basics import Score
 
-
-class ReaderConfig:
-    """Central configuration for score readers."""
-
-    def __init__(
-        self,
-        preferred_midi: str = "pretty_midi",
-        preferred_xml: str = "music21",
-        reader_warning_level: str = "default",
-    ):
-        self.preferred_midi = preferred_midi
-        self.preferred_xml = preferred_xml
-        self.reader_warning_level = reader_warning_level
-        self.last_used_reader = None
-
-
-CONFIG = ReaderConfig()
+preferred_midi_reader: str = "pretty_midi"
+preferred_xml_reader: str = "music21"
+reader_warning_level: str = "default"
+_last_used_reader: Optional[Callable] = None
 
 
 def set_preferred_midi_reader(reader: str) -> str:
@@ -49,12 +36,13 @@ def set_preferred_midi_reader(reader: str) -> str:
     ValueError
         If an invalid reader is provided.
     """
+    global preferred_midi_reader
     allowed = ["music21", "pretty_midi"]
     if reader not in allowed:
         raise ValueError(f"Invalid MIDI reader. Must be one of {allowed}")
 
-    previous = CONFIG.preferred_midi
-    CONFIG.preferred_midi = reader
+    previous = preferred_midi_reader
+    preferred_midi_reader = reader
     return previous
 
 
@@ -78,12 +66,13 @@ def set_preferred_xml_reader(reader: str) -> str:
     ValueError
         If an invalid reader is provided.
     """
+    global preferred_xml_reader
     allowed = ["music21", "partitura"]
     if reader not in allowed:
         raise ValueError(f"Invalid XML reader. Must be one of {allowed}")
 
-    previous = CONFIG.preferred_xml
-    CONFIG.preferred_xml = reader
+    previous = preferred_xml_reader
+    preferred_xml_reader = reader
     return previous
 
 
@@ -113,12 +102,13 @@ def set_reader_warning_level(level: str) -> str:
     ValueError
         If an invalid warning level is provided.
     """
+    global reader_warning_level
     allowed = ["none", "low", "default", "high"]
     if level not in allowed:
         raise ValueError(f"Invalid warning level. Must be one of {allowed}")
 
-    previous = CONFIG.reader_warning_level
-    CONFIG.reader_warning_level = level
+    previous = reader_warning_level
+    reader_warning_level = level
     return previous
 
 
@@ -149,7 +139,7 @@ def _check_for_subsystem(
         The import function if available.
     """
     reader = (
-        CONFIG.preferred_midi if file_type == "midi" else CONFIG.preferred_xml
+        preferred_midi_reader if file_type == "midi" else preferred_xml_reader
     )
 
     try:
@@ -202,10 +192,11 @@ def import_xml(
 
     <small>**Author**: Roger B. Dannenberg</small>
     """
+    global _last_used_reader
     import_xml_fn = _check_for_subsystem("xml")
     if import_xml_fn is not None:
-        CONFIG.last_used_reader = import_xml_fn
-        if CONFIG.reader_warning_level != "none":
+        _last_used_reader = import_xml_fn
+        if reader_warning_level != "none":
             print(
                 f"Reading {filename} using MusicXML reader "
                 f"file={import_xml_fn.__name__}."
@@ -216,7 +207,7 @@ def import_xml(
     else:
         raise Exception(
             "Could not find a MusicXML import function. "
-            f"Preferred subsystem is {CONFIG.preferred_xml}"
+            f"Preferred subsystem is {preferred_xml_reader}"
         )
 
 
@@ -287,10 +278,11 @@ def import_midi(
     does not even have a meta-event for clefs, and even if the
     MIDI file has no key signature meta-event.
     """
+    global _last_used_reader
     import_midi_fn = _check_for_subsystem("midi")
     if import_midi_fn is not None:
-        CONFIG.last_used_reader = import_midi_fn
-        if CONFIG.reader_warning_level != "none":
+        _last_used_reader = import_midi_fn
+        if reader_warning_level != "none":
             print(
                 f"Reading {filename} using MIDI reader "
                 f"{import_midi_fn.__name__}."
@@ -301,7 +293,7 @@ def import_midi(
     else:
         raise Exception(
             "Could not find a MIDI file import function. "
-            f"Preferred subsystem is {CONFIG.preferred_midi}"
+            f"Preferred subsystem is {preferred_midi_reader}"
         )
 
 
@@ -400,7 +392,7 @@ def read_score(
 
     # File format handling
     with warnings.catch_warnings(record=True) as w:
-        if CONFIG.reader_warning_level == "none":
+        if reader_warning_level == "none":
             warnings.simplefilter("ignore")
         else:
             warnings.simplefilter("always")
@@ -435,7 +427,7 @@ def read_score(
             raise ValueError(f"{format} format specification is unknown")
 
         # Warning handling
-        if CONFIG.reader_warning_level == "low":
+        if reader_warning_level == "low":
             if len(w) > 0:
                 print(
                     f"Warning: {len(w)} warnings were generated in "
@@ -462,6 +454,6 @@ def last_used_reader() -> Optional[str]:
         The name of the actual function used in the last call to `read_score`,
         or None if no reader has been used yet.
     """
-    if CONFIG.last_used_reader is not None:
-        return CONFIG.last_used_reader.__name__
+    if _last_used_reader is not None:
+        return _last_used_reader.__name__
     return None
