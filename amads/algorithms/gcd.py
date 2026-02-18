@@ -319,3 +319,9 @@ def float_gcd(floats: list[float], rtol=1e-05, atol=1e-08) -> float:
     for i in range(1, len(floats)):
         gcd = float_gcd_pair(gcd, floats[i], rtol=rtol, atol=atol)
     return gcd
+
+
+if __name__ == "__main__":
+    import doctest
+
+    doctest.testmod()
