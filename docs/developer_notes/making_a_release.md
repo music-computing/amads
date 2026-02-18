@@ -21,6 +21,8 @@ To make a release, follow these steps:
     version to `0.1.1`.
 
 2.  Update the version number in the `pyproject.toml` file.
+    (Note: you will also see version number in the `amads.eggs/PKG-INFO` file.
+    do not manually change that).
 
 3.  Commit the changes and push them to the `main` branch.
 
