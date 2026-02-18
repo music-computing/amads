@@ -151,7 +151,7 @@ def test_install_r_package_cran(monkeypatch):
     # Should have called subprocess.run with Rscript
     mock_run.assert_called_once()
     call_args = mock_run.call_args[0][0]
-    assert call_args[0] == "Rscript"
+    assert call_args[0].endswith("Rscript")
     assert "jsonlite" in call_args[2]
 
 
@@ -166,7 +166,7 @@ def test_install_r_package_github(monkeypatch):
     # Should have called subprocess.run with Rscript
     mock_run.assert_called_once()
     call_args = mock_run.call_args[0][0]
-    assert call_args[0] == "Rscript"
+    assert call_args[0].endswith("Rscript")
     assert "remotes::install_github" in call_args[2]
 
 

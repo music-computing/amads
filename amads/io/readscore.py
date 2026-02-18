@@ -1,4 +1,4 @@
-"""functions for file input"""
+"""Functions for music data input."""
 
 __author__ = "Roger B. Dannenberg"
 
@@ -10,16 +10,34 @@ from typing import Callable, Optional
 
 from amads.core.basics import Score
 
-preferred_midi_reader: str = "pretty_midi"
-preferred_xml_reader: str = "music21"
-reader_warning_level: str = "default"
-_last_used_reader: Optional[Callable] = None
+# This module, readscore, is regarded as a singleton class with
+# the following attributes:
+
+preferred_midi_reader: str = "pretty_midi"  # subsystem for MIDI file input
+preferred_xml_reader: str = "music21"  # subsystem for MusicXML input
+reader_warning_level: str = "default"  # controls verbocity of warnings
+#     from input processing
+_last_used_reader: Optional[Callable] = None  # See last_used_reader()
+
+valid_score_extensions = [  # valid file extensions for score files
+    ".xml",
+    ".musicxml",
+    ".mxl",
+    ".mid",
+    ".midi",
+    ".smf",
+    ".kern",
+    ".krn",
+    ".mei",
+]
 
 
 def set_preferred_midi_reader(reader: str) -> str:
     """
-    Set the preferred MIDI reader.
-    Returns the previous reader preference.
+    Set a (new) preferred MIDI reader.
+
+    Returns the previous reader preference. The current preference is stored
+    in `amads.io.reader.preferred_midi_reader`.
 
     Parameters
     ----------
@@ -48,8 +66,10 @@ def set_preferred_midi_reader(reader: str) -> str:
 
 def set_preferred_xml_reader(reader: str) -> str:
     """
-    Set the preferred XML reader.
-    Returns the previous reader preference.
+    Set a (new) preferred XML reader.
+
+    Returns the previous reader preference. The current preference is stored
+    in `amads.io.reader.preferred_xml_reader`.
 
     Parameters
     ----------
@@ -80,16 +100,27 @@ def set_reader_warning_level(level: str) -> str:
     """
     Set the warning level for `readscore` functions.
 
+    The translation from music data files to AMADS is not always well-defined
+    and may involve intermediate representations using Music21, Partitura or
+    others. Usually, warnings are produced when there is possible data loss or
+    ambiguity, but these can be more annoying than informative. The warning
+    level can be controlled using this function, which applies to all file
+    formats.
+
+    The current warning level is stored in
+    `amads.io.reader.reader_warning_level`.
+
     Parameters
     ----------
     level : str
         The warning level to set.
         Options are "none", "low", "default", "high".
-        "none" will suppress all warnings during `read_score()`.
-        and also suppresses notice of reader subsystem and file name.
-        "low" will show print one notice if there are any warnings.
-        "default" will obey environment settings to control warnings.
-        "high" will print all warnings during `read_score()`, overriding
+
+        - "none" will suppress all warnings during `read_score()`
+          and also suppresses notice of reader subsystem and file name.
+        - "low" will print one notice if there are any warnings.
+        - "default" will obey environment settings to control warnings.
+        - "high" will print all warnings during `read_score()`, overriding
             environment settings.
 
     Returns
@@ -305,10 +336,12 @@ def read_score(
     format: Optional[str] = None,
     group_by_instrument: bool = True,
 ) -> Score:
-    """Read a file with the given format, 'xml', 'midi', 'kern', 'mei'.
+    """Read a file with the given format, `'xml'`, `'midi'`, `'kern'`, `'mei'`.
 
     If format is None (default), the format is based on the filename
-    extension, which can be 'xml', 'mid', 'midi', 'smf', 'kern', or 'mei'
+    extension, which can be `'xml'`, `'mid'`, `'midi'`, `'smf'`, `'kern'`,
+    or `'mei'`. (Valid extensions are in
+    `amads.io.readscore.valid_score_extensions`.)
 
     <small>**Author**: Roger B. Dannenberg</small>
 
@@ -318,13 +351,14 @@ def read_score(
         The path (relative or absolute) to the music file.
         Can also be an URL.
     flatten : bool
-        The returned score will be flat (Score, Parts, Notes)
+        The returned score will be flat (Score, Parts, Notes).
     collapse: bool
-        If collapse and flatten, the parts will be merged into one
+        If collapse and flatten, the parts will be merged into one.
     show : bool
-        Print a text representation of the data
+        Print a text representation of the data.
     format: string
-        One from among limited standard options (e.g., 'xml', 'midi', 'kern', 'mei')
+        One from among limited standard options (e.g.,
+        `'xml'`, `'midi'`, `'kern'`, `'mei'`)
     group_by_instrument : bool
         If True (default), when the underlying reader (e.g. for "pretty_midi",
         "music21" or "partitura") reads Parts with the same instrument, their
@@ -361,18 +395,6 @@ def read_score(
         ) as tmp_file:
             urllib.request.urlretrieve(filename, tmp_file.name)
             filename = tmp_file.name
-
-    valid_score_extensions = [
-        ".xml",
-        ".musicxml",
-        ".mxl",
-        ".mid",
-        ".midi",
-        ".smf",
-        ".kern",
-        ".krn",
-        ".mei",
-    ]
 
     if format is None:
         ext = pathlib.Path(filename).suffix.lower()

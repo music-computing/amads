@@ -119,6 +119,8 @@ def pretty_midi_midi_export(
         The Score object to export.
     filename : str
         The path to the output MIDI file.
+    show : bool
+        Print a text representation of the data.
     """
     global tied_to_notes  # helps to merge tied notes
     tied_to_notes = {}

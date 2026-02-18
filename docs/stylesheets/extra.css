@@ -11,10 +11,21 @@
 
 .md-nav--secondary > .md-nav__list > .md-nav__item > .md-nav__link {
     font-size: 0.7rem !important;
-    color: %505050;
+    color: var(--md-default-fg-color--light);
     font-weight: normal !important;
 }
 
+.md-nav--secondary > .md-nav__list > .md-nav__item > .md-nav__link:not(:has(code)) {
+    font-size: 0.7rem !important;
+    color: var(--md-default-fg-color--light);
+    font-weight: bold !important;
+}
+
+.md-nav--secondary > .md-nav__list > .md-nav__item > .md-nav__link--passed:not(:has(code)) {
+    font-size: 0.7rem !important;
+    color: var(--md-default-fg-color--light);
+    font-weight: bold !important;
+}
 
 /* Target 3rd-level nav items (section headings under "API Reference") */
 .md-nav--primary > .md-nav__list > .md-nav__item .md-nav__list > .md-nav__item > .md-nav__link {
@@ -25,7 +36,7 @@
 /* Target 4th-level nav items (subheadings under sections) */
 .md-nav--primary > .md-nav__list > .md-nav__item .md-nav__list > .md-nav__item .md-nav__list .md-nav__link {
     font-size: 0.7rem !important;
-    color: #505050;
+    color: var(--md-default-fg-color--light);
     font-weight: normal !important;
 }
 

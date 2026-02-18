@@ -552,6 +552,27 @@ def partitura_xml_import(
 ) -> Score:
     """Use Partitura to import a MusicXML file.
 
+    Parameters
+    ----------
+    filename : str
+        The path (relative or absolute) to the music file.
+    flatten : bool = False
+        Returns a flat score (see `amads.core.basics.Part.flatten`)
+    collapse : bool = False
+        If `flatten` is True, all Notes are merged (collapsed) into
+        a single Part in the resulting Score.
+    show : bool = False
+        Print a text representation of the data.
+    group_by_instrument : bool = True
+        This parameter is ignored by Partitura, which automatically
+        produces parts with multiple staffs. The Partitura grouping
+        is respected, and `group_by_instrument` is ignored.
+
+    Returns
+    -------
+    Score
+        The imported Score
+
     <small>**Author**: Roger B. Dannenberg</small>
     """
     if filename is None:

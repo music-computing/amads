@@ -100,7 +100,7 @@ def key_cc(
         sal2 = [1, 0, 0.25, 0, 0, 0.5, 0, 0, 0.33, 0.17, 0.2, 0] * 2
         salm = np.zeros((12, 12))
         for i in range(salm.shape[0]):
-            salm[i] = sal2[12 - i : 23 - i]
+            salm[i] = sal2[12 - i : 24 - i]
         pcd = np.matmul(pcd, salm.T)  # shape (1, 12)
 
     results = []

@@ -326,13 +326,14 @@ class KeyProfileSOM:
     >>> from amads.pitch.pcdist1 import pitch_class_distribution_1
     >>> pcdist_of_score = pitch_class_distribution_1(score)
     >>> example_SOM = pretrained_weights_script()
-    >>> example_SOM.project_and_visualize(pcdist_of_score)
+    >>> _ = example_SOM.project_and_visualize(tuple(pcdist_of_score.data),
+    ...                                       show=False)
 
     Train a set of weights from a key profile with 'major' and 'minor'
     attributes with supplied training parameters:
     >>> training_profile = prof.krumhansl_kessler # from key/profiles.py
     >>> test_SOM = KeyProfileSOM() # default output dimensions used
-    >>> test_SOM.train_SOM(training_profile) # default training parameters used
+    >>> _ = test_SOM.train_SOM(training_profile) # use default parameters
 
     """
 
@@ -710,7 +711,7 @@ class KeyProfileSOM:
         for label, input in zip(KeyProfileSOM._labels, training_data):
             best_match = self.find_best_matching_unit(input)
             self.label_coord_list.append(best_match)
-            print(f"label: {label}, best_match: {best_match}")
+            # print(f"label: {label}, best_match: {best_match}")
 
         # setting colorbar scale here
         self.vmin = np.min(self.SOM)
@@ -802,8 +803,8 @@ class KeyProfileSOM:
         """
         if not input:
             raise ValueError("empty input not allowed")
-        if isinstance(input[0], tuple):
-            raise ValueError("only takes 1 pitch-class distribution")
+        if isinstance(input[0], Tuple):
+            raise ValueError("only takes pitch-class distribution data")
         # prep data
         projection = self.project_input_onto_SOM(np.array(input))
 

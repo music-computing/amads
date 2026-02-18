@@ -8,20 +8,21 @@ from typing import Callable, Optional
 
 from amads.core.basics import Score
 
-# preferred_midi_writer is the subsystem to use for MIDI files.
-# It can be "music21", "partitura", or "pretty_midi".
-preferred_midi_writer = "pretty_midi"
+# This module, writescore, is regarded as a singleton class with
+# the following attributes:
 
-# preferred_xml_writer is the subsystem to use for MusicXML files.
-preferred_xml_writer = "music21"
-
-# set default warning level for write_score
-_writer_warning_level = "default"
+preferred_midi_writer: str = "pretty_midi"  # subsystem for MIDI file output
+preferred_xml_writer: str = "music21"  # subsystem for MusicXML file output
+writer_warning_level: str = "default"  # controls verbocity of warnings
+#     from output processing
+_last_used_writer: Optional[Callable] = None  # See last_used_writer()
 
 
 def set_preferred_midi_writer(writer: str) -> str:
-    """Set the preferred MIDI writer. Returns the previous writer
-    preference so you can restore it if desired.
+    """Set a (new) preferred MIDI writer.
+
+    Returns the previous writer preference. The current preference is stored
+    in `amads.io.writer.preferred_midi_writer`.
 
     Parameters
     ----------
@@ -32,6 +33,12 @@ def set_preferred_midi_writer(writer: str) -> str:
     -------
     str
         The previous name of the preferred MIDI writer.
+
+    Raises
+    ------
+    ValueError
+        If an invalid writer is provided.
+
     """
     global preferred_midi_writer
     previous_writer = preferred_midi_writer
@@ -46,13 +53,27 @@ def set_preferred_midi_writer(writer: str) -> str:
 
 
 def set_preferred_xml_writer(writer: str) -> str:
-    """Set the preferred XML writer. Returns the previous writer
-    preference so you can restore it if desired.
+    """
+    Set a (new) preferred XML writer.
+
+    Returns the previous writer preference. The current preference is stored
+    in `amads.io.writer.preferred_xml_writer`.
+
 
     Parameters
     ----------
     writer : str
         The name of the preferred XML writer. Can be "music21" or "partitura".
+
+    Returns
+    -------
+    str
+        The previous name of the preferred XML writer.
+
+    Raises
+    ------
+    ValueError
+        If an invalid writer is provided.
     """
     global preferred_xml_writer
     previous_writer = preferred_xml_writer
@@ -64,18 +85,29 @@ def set_preferred_xml_writer(writer: str) -> str:
 
 
 def set_writer_warning_level(level: str) -> str:
-    """Set the warning level for writescore functions.
+    """
+    Set the warning level for writescore functions.
+
+    The translation from AMADS to music data files is not always well-defined
+    and may involve intermediate representations using Music21, Partitura or
+    others. Usually, warnings are produced when there is possible data loss or
+    ambiguity, but these can be more annoying than informative. The warning
+    level can be controlled using this function, which applies to all file
+    formats.
+
+    The current warning level is stored in
+    `amads.io.writer.writer_warning_level`.
+
+    Parameters
+    ----------
+    level : str
+        The warning level to set. Can be "none", "low", "default", "high".
 
         - "none" - will suppress all warnings during write_score().
         - "low" - will show print one notice if there are any warnings.
         - "default" - will obey environment settings to control warnings.
         - "high" - will print all warnings during write_score(), overriding
             environment settings.
-
-    Parameters
-    ----------
-    level : str
-        The warning level to set. Can be "none", "low", "default", "high".
 
     Returns
     -------
@@ -87,10 +119,10 @@ def set_writer_warning_level(level: str) -> str:
     ValueError
         If an invalid warning level is provided.
     """
-    global _writer_warning_level
-    previous_level = _writer_warning_level
+    global writer_warning_level
+    previous_level = writer_warning_level
     if level in ["none", "low", "default", "high"]:
-        _writer_warning_level = level
+        writer_warning_level = level
     else:
         raise ValueError(
             "Invalid warning level. Choose 'none', 'low', 'default', or 'high'."
@@ -162,7 +194,7 @@ def export_xml(
     """
     export_xml_fn = _check_for_subsystem("xml")
     if export_xml_fn is not None:
-        if _writer_warning_level != "none":
+        if writer_warning_level != "none":
             print(
                 f"Exporting {filename} using MusicXML writer"
                 f" {export_xml_fn.__name__}."
@@ -212,7 +244,7 @@ def export_midi(
     """
     export_midi_fn = _check_for_subsystem("midi")
     if export_midi_fn is not None:
-        if _writer_warning_level != "none":
+        if writer_warning_level != "none":
             print(
                 f"Exporting {filename} using MIDI writer"
                 f" {export_midi_fn.__name__}."
@@ -231,10 +263,11 @@ def write_score(
     show: bool = False,
     format=None,
 ) -> None:
-    """Write a file with the given format, 'xml', 'midi', 'kern', 'mei'.
+    """Write a file with the given format, `'xml'`, `'midi'`, `'kern'`, `'mei'`.
 
     If format is None (default), the format is based on the filename
-    extension, which can be 'xml', 'mid', 'midi', 'smf', 'kern', or 'mei'
+    extension, which can be `'xml'`, `'mid'`, `'midi'`, `'smf'`, `'kern'`,
+    or `'mei'`
 
     <small>**Author**: Roger B. Dannenberg</small>
 
@@ -247,7 +280,7 @@ def write_score(
     show : bool
         print a text representation of the data
     format: string
-        one of 'xml', 'midi', 'kern', 'mei'
+        one of `'xml'`, `'midi'`, `'kern'`, `'mei'`
 
     Raises
     ------
@@ -261,7 +294,7 @@ def write_score(
     MIDI metadata, etc.
     """
     with warnings.catch_warnings(record=True) as w:
-        if _writer_warning_level == "none":
+        if writer_warning_level == "none":
             warnings.simplefilter("ignore")
         else:
             warnings.simplefilter("always")
@@ -287,7 +320,7 @@ def write_score(
         else:
             raise ValueError(str(format) + " format specification is unknown")
 
-        if _writer_warning_level == "low":
+        if writer_warning_level == "low":
             if len(w) > 0:
                 print(
                     f"Warning: {len(w)} warnings were generated in"
