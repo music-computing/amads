@@ -14,7 +14,7 @@ This also includes some measures of rhythmic _complexity_
 
 __author__ = "Mark Gotham"
 
-import math
+
 from fractions import Fraction
 from typing import Union
 
@@ -29,7 +29,7 @@ from amads.core.vectors_sets import vector_to_multiset
 def has_oddity_property(vector: Union[list[int], tuple[int, ...]]) -> bool:
     """
     Given a rhythm cycle (i.e., with the expectation of repetition) as a
-    vector, check if it has Arom's “rhythmic-oddity” property:
+    vector, check if it has Arom's "rhythmic-oddity" property:
     no two onsets partition the cycle into two equal parts.
     This is slightly confusing to get the right way around:
     the function returns `True` (i.e., yes, has the property)
@@ -57,7 +57,7 @@ def has_oddity_property(vector: Union[list[int], tuple[int, ...]]) -> bool:
     >>> has_oddity_property(bembé)
     False
 
-    And here's a simple rhythm that does have the equal division
+    And here's a simple rhythm that does have the equal division:
     >>> has_oddity_property((1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1))
     False
 
@@ -72,22 +72,42 @@ def has_oddity_property(vector: Union[list[int], tuple[int, ...]]) -> bool:
     vector_length = len(vector)
     if vector_length % 2 != 0:
         return True  # By definition
-    half_length = int(vector_length / 2)
+    half_length = vector_length // 2
 
     indices = indicator_to_indices(vector)
+    indices_set = set(indices)
     for i in indices:
-        opposite = (i + half_length) % vector_length
-        if opposite in indices:
+        if (i + half_length) % vector_length in indices_set:
             return False
 
     return True
 
 
+def _is_power_of_2(n: int) -> bool:
+    """Return True if n is a positive power of 2."""
+    return n > 0 and (n & (n - 1)) == 0
+
+
+def _prev_power_of_2(x: int) -> int:
+    """Return the largest power of 2 that is <= x."""
+    return 1 << (x.bit_length() - 1)
+
+
 def keith_via_toussaint(vector):
     """
-    Although Keith's measures is described in terms of beats,
+    Although Keith's measure is described in terms of beats,
     it is inflexible to metric structure and fully defined by
     the onset pattern.
+
+    Parameters
+    ----------
+    vector
+        An indicator vector whose length must be a power of 2.
+
+    Raises
+    ------
+    ValueError
+        If the vector length is not a power of 2.
 
     Examples
     --------
@@ -96,8 +116,7 @@ def keith_via_toussaint(vector):
     2
 
     """
-    power = math.log2(len(vector))
-    if int(power) != power:
+    if not _is_power_of_2(len(vector)):
         raise ValueError(
             f"Vector length (currently {len(vector)}) must be a power of 2."
         )
@@ -107,7 +126,7 @@ def keith_via_toussaint(vector):
         vector, wrap=True
     )  # Keith/Toussaint also `delta`
     powers_of_2 = [
-        2 ** int(math.log2(x)) for x in deltas
+        _prev_power_of_2(x) for x in deltas
     ]  # Keith/Toussaint's big D
     count = 0
     for i in range(len(indices)):
@@ -119,10 +138,10 @@ def keith_via_toussaint(vector):
 
 def has_deep_property(vector: Union[list[int], tuple[int, ...]]) -> bool:
     """
-    So-called “Deep” rhythms have distinct numbers of each interval class
+    So-called "Deep" rhythms have distinct numbers of each interval class
     among all (not-necessarily adjacent) intervals.
     See `indicator_to_interval` with the arguments `wrap=True`,
-    `adjacent_not_all=False`
+    `adjacent_not_all=False`.
 
     Examples
     --------
@@ -136,34 +155,33 @@ def has_deep_property(vector: Union[list[int], tuple[int, ...]]) -> bool:
     >>> has_deep_property(shiko)
     True
 
-    TODO false case
+    The son clave is not deep, since multiple interval classes share the same count:
+
+    >>> son = (1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0)
+    >>> has_deep_property(son)
+    False
 
     """
     intervals = indicator_to_interval(vector, wrap=True, adjacent_not_all=False)
     non_zero_uses = [x for x in intervals if x != 0]
-    if len(non_zero_uses) == len(set(non_zero_uses)):
-        return True
-    # TODO consider storing interval vectors as Counter object. Then after the pop:
-    # if len(intervals_counter.values()) == len(set(intervals_counter.values())):
-    #     return True
-    return False
+    return len(non_zero_uses) == len(set(non_zero_uses))
 
 
 def off_beatness(vector: Union[list[int], tuple[int, ...]]) -> int:
     """
-    The “off-beatness” measure records the number of events in a rhythmic cycle
+    The "off-beatness" measure records the number of events in a rhythmic cycle
     at positions which cannot fall on a regular beat division of the cycle.
     For a more formal definition, see `totatives`.
-    Currently, this measures the presence of any item at the given position
-    (effectively assuming indicator vector).
-    In future, we may add weighting functionality.
+
+    This function expects an indicator vector (values of 0 or 1).
+    Behaviour with non-indicator (weighted) vectors is undefined.
 
     Examples
     --------
 
-    Gomez et al. explore 10 “canonical” 12-unit rhythms of which they
+    Gomez et al. explore 10 "canonical" 12-unit rhythms of which they
     find the Bembé notable for being "the most frequently used" and
-    because it realizes the “highest value of off-beatness” among these 10.
+    because it realizes the "highest value of off-beatness" among these 10.
 
     >>> bembé = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)
     >>> off_beatness(bembé)
@@ -177,21 +195,15 @@ def off_beatness(vector: Union[list[int], tuple[int, ...]]) -> int:
     4
 
     """
-    t = totatives(len(vector))
+    t = set(totatives(len(vector)))
     positions = vector_to_multiset(vector)
-    count = 0
-    for item in t:
-        if item in positions:
-            count += 1
-    return count
+    return sum(1 for item in t if item in positions)
 
 
 def totatives(n):
     """
     Calculates the totatives of n, which are the positive integers less
     than n that are relatively prime to n.
-
-    [Note: we may more this to somewhere more central if used beyond rhythm.]
 
     Parameters
     ----------
@@ -219,15 +231,10 @@ def totatives(n):
     8
 
     """
-
     if n <= 1:
         return []
 
-    totatives_list = []
-    for i in range(1, n):
-        if integer_gcd_pair(n, i) == 1:
-            totatives_list.append(i)
-    return totatives_list
+    return [i for i in range(1, n) if integer_gcd_pair(n, i) == 1]
 
 
 def vector_to_onset_beat(
@@ -236,16 +243,29 @@ def vector_to_onset_beat(
     """
     Map from a vector to onset beat data via `vector_to_multiset`.
 
+    Parameters
+    ----------
+    vector
+        An indicator vector.
+        When representing a cycle with rotation,
+        the final element should be a repeat of the first onset to mark the end of the cycle
+        (hence vectors of length `cycle_length + 1` are common here).
+    beat_unit_length
+        The number of subdivisions per beat.
+        Default is 2.
+
     Examples
     --------
-    >>> son = [1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1]  # Final 1 for cycle rotation
+
+    The son clave in 16 subdivisions.
+    The 17th element marks the cycle end:
+
+    >>> son = [1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1]
     >>> vector_to_onset_beat(vector=son, beat_unit_length=4)
     (Fraction(0, 1), Fraction(3, 4), Fraction(3, 2), Fraction(5, 2), Fraction(3, 1), Fraction(4, 1))
 
     """
-    onsets = vector_to_multiset(
-        vector
-    )  # Or equivalently [i for i, count in enumerate(vector) for _ in range(count)]
+    onsets = vector_to_multiset(vector)
     return tuple(Fraction(x, beat_unit_length) for x in onsets)
 
 
