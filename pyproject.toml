@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "amads"
-version = "0.1.0dev0"
+version = "1.0.0"
 description = "A toolkit for symbolic music analysis"
 readme = "README.md"
 maintainers = [
@@ -51,7 +51,7 @@ melsim = [
 ]
 
 [project.urls]
-"GitHub" = "https://github.com/music-computing/amads"  # Update with your repo URL
+"GitHub" = "https://github.com/music-computing/amads"
 "Documentation website" = "https://music-computing.github.io/amads/"
 
 [tool.setuptools.packages.find]
