@@ -11,6 +11,10 @@ Organized in simple dicts with keys for:
 - `"figures"`: harmony as expressed in figured bass (see toolkit issue #8).
 - `"note"`: optional.
 
+Ongoing considerations for the encoding:
+- figure numbers: encoding figures is a very pervasive issue. This "X,Y" format is interoperable with some libraries.
+- rhythmic differences between components. This "X-Y" preserves the N stages and metrical sides.
+
 <small>**Author**: Mark Gotham, 2019</small>
 """
 
@@ -85,7 +89,7 @@ prinner = {
     "strong_first": True,
     "melody": [6, 5, 4, 3],
     "bass": [4, 3, 2, 1],
-    "figures": [5, 6, 7, 6, 5],
+    "figures": [5, 6, "7-6", 5],
 }
 modulating_prinner = {
     "name": "Modulating Prinner",
@@ -93,7 +97,7 @@ modulating_prinner = {
     "strong_first": True,
     "melody": [3, 2, 1, 7],
     "bass": [8, 7, 6, 5],
-    "figures": [5, 6, 7, "#6", 5],
+    "figures": [5, 6, "7-#6", 5],
 }
 fonte = {
     "name": "Fonte",
@@ -108,7 +112,7 @@ monte = {
     "name": "Monte",
     "when": "Answer/Process/Transition, e.g. start of B",
     "strong_first": False,
-    "melody": ["1", "b7", "6", "2", "1", "7"],
+    "melody": ["1-b7", "6", "2-1", "7"],
     "bass": [3, 4, "#4", 5],
     "figures": [6, 5, 6, 5],
 }
