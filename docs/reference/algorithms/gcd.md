@@ -16,10 +16,6 @@
 
 ----------------
 
-::: amads.algorithms.gcd.gcd_pair 
-
-----------------
-
 ::: amads.algorithms.gcd.lcm_pair 
 
 ----------------
