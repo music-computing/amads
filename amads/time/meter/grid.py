@@ -54,15 +54,17 @@ __author__ = "Mark Gotham"
 
 # ------------------------------------------------------------------------------
 
-from collections import Counter
+from collections import Counter, deque
 from fractions import Fraction
 from numbers import Number
 from typing import Iterable, Optional, Union
 
-from amads.algorithms.gcd import fraction_gcd_pair
+from amads.algorithms.gcd import fraction_gcd
 
 
-def starts_to_int_relative_counter(starts: Iterable[float]):
+def starts_to_int_relative_counter(
+    starts: Iterable[float], decimal_places: int = 5
+):
     """
     Find and count all fractional parts of an iterable.
 
@@ -71,7 +73,9 @@ def starts_to_int_relative_counter(starts: Iterable[float]):
     1.5 becomes 0.5) to the number of occurrences of that fraction
     (e.g., starts 1.5 and 2.5 produce the mapping 0.5: 2 in the result).
 
-    Fractional parts are rounded to 5 decimal points. This may change.
+    Fractional parts are rounded to `decimal_places` decimal points (default 5),
+    which gives a tolerance down to 0.00001 and accommodates common musical
+    fractions such as thirds (0.33333) and sixths (0.16667).
 
     Examples
     --------
@@ -80,14 +84,12 @@ def starts_to_int_relative_counter(starts: Iterable[float]):
     Counter({0.0: 5, 0.5: 2, 0.75: 1, 0.33333: 1, 0.66667: 1})
     """
     for item in starts:
-        if not isinstance(
-            item, Number
-        ):  # int, float, Fraction, np.float32 etc.
+        if not isinstance(item, Number):
             raise TypeError(
                 f"All items in `starts` must be numeric (int or float). Found: {type(item)}"
             )
 
-    return Counter([round(x - int(x), 5) for x in starts])
+    return Counter([round(x - int(x), decimal_places) for x in starts])
 
 
 def approximate_pulse_match_with_priority_list(
@@ -110,19 +112,23 @@ def approximate_pulse_match_with_priority_list(
     pulse_priority_list : list[Fraction]
         Ordered list of pulse values to try.
         If unspecified, this defaults to 4, 3, 2, 1.5, 1, and the
-        default output of [generate_n_smooth_numbers]
-        [amads.time.meter.grid.generate_n_smooth_numbers].
+        default output of `generate_n_smooth_numbers`.
 
     Returns
     -------
     Union(None, Fraction)
         None for no match, or a Fraction(numerator, denominator).
 
+    Raises
+    ------
+    ValueError
+        If `pulse_priority_list` contains 0 or None.
+
     References
     ----------
     [1] Gotham, Mark R. H. (2025). Keeping Score: Computational Methods for the
-    Analysis of Encoded ("Symbolic") Musical Scores (v0.3)
-     Zenodo. https://doi.org/10.5281/zenodo.14938027
+    Analysis of Encoded ("Symbolic") Musical Scores (v0.3+) Zenodo.
+    https://doi.org/10.5281/zenodo.14938027
 
     Examples
     --------
@@ -147,7 +153,6 @@ def approximate_pulse_match_with_priority_list(
     Fraction(1, 12)
 
     """
-
     if pulse_priority_list is None:
         pulse_priority_list = [
             Fraction(4, 1),  # 4
@@ -159,11 +164,16 @@ def approximate_pulse_match_with_priority_list(
             invert=True
         )  # 1, 1/2, 1/3, ...
 
-    assert 0 not in pulse_priority_list
-    assert None not in pulse_priority_list
+    if 0 in pulse_priority_list:
+        raise ValueError("`pulse_priority_list` must not contain 0.")
+    if None in pulse_priority_list:
+        raise ValueError("`pulse_priority_list` must not contain None.")
 
     for p in pulse_priority_list:
-        assert isinstance(p, Fraction)
+        if not isinstance(p, (Fraction, int)):
+            raise ValueError(
+                f"All entries in `pulse_priority_list` must be Fraction or int. Found: {type(p)}"
+            )
         test_case = x / p
         diff = abs(round(test_case) - test_case)
         if diff < distance_threshold:
@@ -176,7 +186,7 @@ def generate_n_smooth_numbers(
     bases: list[int] = [2, 3], max_value: int = 100, invert: bool = True
 ) -> list:
     """
-    Generates a list of “N-smooth” numbers up to a specified maximum value.
+    Generates a sorted list of "N-smooth" numbers up to a specified maximum value.
 
     An N-smooth number is a positive integer whose prime factors are all
     less than or equal to the largest number in the `bases` list.
@@ -186,15 +196,22 @@ def generate_n_smooth_numbers(
     max_value : int, optional
         The maximum value to generate numbers up to. Defaults to 100.
     bases : list, optional
-        A list of base values (integers) representing the maximum allowed
+        A list of base values (integers > 1) representing the maximum allowed
         prime factor. Defaults to [2, 3].
-    invert : bool = True
-        If True, return not the n-smooth value x, but Fraction(1, x) instead.
+    invert : bool
+        If True, return Fraction(1, x) for each smooth number x instead of x itself.
+        Defaults to True.
 
     Returns
     -------
     list
-        A list of N-smooth numbers.
+        A sorted list of N-smooth numbers (or their reciprocals if `invert=True`).
+
+    Raises
+    ------
+    ValueError
+        If `bases` contains non-integers or values <= 1, or if `max_value` is
+        not a positive integer.
 
     Examples
     --------
@@ -210,7 +227,7 @@ def generate_n_smooth_numbers(
     >>> generate_n_smooth_numbers(max_value=50, bases=[2, 3, 5], invert=False)
     [1, 2, 3, 4, 5, 6, 8, 9, 10, 12, 15, 16, 18, 20, 24, 25, 27, 30, 32, 36, 40, 45, 48, 50]
 
-    By default, invert is True
+    By default, invert is True:
     >>> generate_n_smooth_numbers()[-1]
     Fraction(1, 96)
 
@@ -221,21 +238,18 @@ def generate_n_smooth_numbers(
     if not isinstance(max_value, int) or max_value <= 0:
         raise ValueError("max_value must be a positive integer.")
 
-    smooth_numbers = [1]
-    queue = [1]
+    seen = {1}
+    queue = deque([1])
 
     while queue:
-        current = queue.pop(0)
+        current = queue.popleft()
         for base in bases:
             next_num = current * base
-            if next_num <= max_value:
-                if next_num not in smooth_numbers:
-                    smooth_numbers.append(next_num)
-                    queue.append(next_num)
-            else:
-                break
+            if next_num <= max_value and next_num not in seen:
+                seen.add(next_num)
+                queue.append(next_num)
 
-    smooth_numbers.sort()
+    smooth_numbers = sorted(seen)
 
     if invert:
         return [Fraction(1, x) for x in smooth_numbers]
@@ -260,9 +274,9 @@ def get_tatum_from_floats_and_priorities(
     - the start of a measure (or other container), assuming those measures
         are of a constant duration.
 
-    It serves use cases including the attempted retrieval of true metrical
+    Use cases include the attempted retrieval of true metrical
     positions (fractions) from rounded versions thereof (floats).
-    See notes at the top of this module, as well as
+    See also notes at the top of this module
     for why standard algorithms fail at this task in a musical setting.
 
     This function serves those common cases where there is a need to balance
@@ -279,23 +293,23 @@ def get_tatum_from_floats_and_priorities(
         Each constituent start must be expressed relative to a reference value such that
         X.0 is the start of a unit,
         X.5 is the mid-point, etc.
-        Floats are the main expected type here (as above); we seek to reverse engineer a plausible fraction from it.
-        If any start is already an exact fraction, then it stays as it is, whatever the user setting:
+        Floats are the main expected type here (as above); we seek to reverse engineer a plausible fraction from each.
+        If any start is already an exact Fraction or int, then it stays as it is, whatever the user setting:
         this functionality serves to improve the accuracy of timing data; there's no question of ever reducing it,
         even if user settings suggest that.
     pulse_priority_list
-        The point of this function is to encode musically common pulse
-        values. This argument defaults to numbers under 100 with prime
-        factors of only 2 and 3 (“3-smooth”), in increasing order. The
-        user can define any alternative list, optionally making use of
-        `generate_n_smooth_numbers` for the purpose. See notes at
-        `approximate_fraction_with_priorities`. Make sure this list is
-        exhaustive: the function will raise an error if no match is found.
+        The point of this function is to encode musically common pulse values.
+        This argument defaults to numbers under 100 with prime
+        factors of only 2 and 3 (“3-smooth”), in increasing order.
+        The user can define any alternative list, optionally making use of
+        `generate_n_smooth_numbers` for the purpose.
+        See notes at `approximate_fraction_with_priorities`.
+        Make sure this list is exhaustive: the function will raise an error if no match is found.
     distance_threshold
         The rounding tolerance between a temporal position multiplied by
         the bin value and the nearest integer.
-        This is essential when working with floats, but can be set to any
-        value the user prefers.
+        This is essential when working with floats.
+        Defaults to 1/24, but can be set to any value.
     proportion_threshold
         Optionally, set a proportional number of events notes to account for.
         This option requires that the `starts` be expressed as a Counter,
@@ -319,7 +333,7 @@ def get_tatum_from_floats_and_priorities(
     >>> get_tatum_from_floats_and_priorities(tatum_1_6)
     Fraction(1, 6)
 
-    An example of values from the BPSD dataset (Zeilter et al.).
+    An example of values from the BPSD dataset (Zeitler et al.).
 
     >>> from amads.time.meter import profiles
     >>> bpsd_Op027No1 = profiles.BPSD().op027No1_01 # /16 divisions of the measure and /12 too (from m.48). Tatum 1/48
@@ -330,13 +344,11 @@ def get_tatum_from_floats_and_priorities(
     >>> get_tatum_from_floats_and_priorities(bpsd_Op027No1, distance_threshold=1/6) # proportion_threshold=0.999
     Fraction(1, 12)
 
-    Change the `proportion_threshold`
+    Change the `proportion_threshold`:
     >>> get_tatum_from_floats_and_priorities(bpsd_Op027No1, distance_threshold=1/24, proportion_threshold=0.80)
     Fraction(1, 24)
 
     """
-
-    # Checks
     if not 0.0 < distance_threshold < 1.0:
         raise ValueError(
             "The `distance_threshold` tolerance must be between 0 and 1."
@@ -349,19 +361,19 @@ def get_tatum_from_floats_and_priorities(
     else:
         if not isinstance(pulse_priority_list, list):
             raise ValueError("The `pulse_priority_list` must be a list.")
-
         for i in pulse_priority_list:
             if not isinstance(i, Fraction):
                 raise ValueError(
                     "The `pulse_priority_list` must consist entirely of Fraction objects "
-                    "(which can include integers expressed as Fractions such as `Fraction(2, 1)`."
+                    "(which can include integers expressed as Fractions such as `Fraction(2, 1)`)."
                 )
             if i <= 0:
                 raise ValueError(
-                    "The `pulse_priority_list` items must be non-negative."
+                    "The `pulse_priority_list` items must be positive."
                 )
 
-    if proportion_threshold is not None:
+    use_proportion = proportion_threshold is not None
+    if use_proportion:
         if not 0.0 < proportion_threshold < 1.0:
             raise ValueError(
                 "When used (not `None`), the `proportion_threshold` must be between 0 and 1."
@@ -380,10 +392,9 @@ def get_tatum_from_floats_and_priorities(
     pulses_needed = []
 
     for x in starts:
-        if isinstance(
-            x, Fraction
-        ):  # Keep exact fraction as they are, whatever the user settings
-            pulses_needed.append(x)
+        if isinstance(x, (Fraction, int)):
+            if x > 0:
+                pulses_needed.append(x)
         elif (
             approximate_pulse_match_with_priority_list(
                 x,
@@ -391,7 +402,7 @@ def get_tatum_from_floats_and_priorities(
                 distance_threshold=distance_threshold,
             )
             is None
-        ):  # No fit among those we have, try the rest of the user-permitted alternatives.
+        ):  # No fit among those we have, try other user-permitted alternatives.
             new_pulse = approximate_pulse_match_with_priority_list(
                 x,
                 pulse_priority_list=pulse_priority_list,
@@ -405,18 +416,12 @@ def get_tatum_from_floats_and_priorities(
                     "Try relaxing the `distance_threshold` or expanding the `pulse_priority_list`."
                 )
 
-        if proportion_threshold:
-            # typing thinks cumulative_count, total could be undefined,
-            # but they are defined if we reach here:
-            cumulative_count += starts[x] / total  # type: ignore
+        if use_proportion:
+            cumulative_count += starts[x] / total
             if cumulative_count > proportion_threshold:
                 break
 
-    current_gcd = pulses_needed[0]
-    for i in range(1, len(pulses_needed)):
-        current_gcd = fraction_gcd_pair(current_gcd, pulses_needed[i])
-
-    return current_gcd
+    return fraction_gcd(pulses_needed)
 
 
 # -----------------------------------------------------------------------------
