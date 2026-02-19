@@ -57,7 +57,7 @@ __author__ = "Mark Gotham"
 from collections import Counter, deque
 from fractions import Fraction
 from numbers import Number
-from typing import Iterable, Optional, Union
+from typing import Iterable, Optional
 
 from amads.algorithms.gcd import fraction_gcd
 
@@ -257,8 +257,8 @@ def generate_n_smooth_numbers(
         return smooth_numbers
 
 
-def get_tatum_from_floats_and_priorities(
-    starts: Union[Iterable, Counter],
+def get_tatum_from_priorities(
+    starts: Iterable,
     pulse_priority_list: Optional[list] = None,
     distance_threshold: float = 1 / 24,
     proportion_threshold: Optional[float] = 0.999,
@@ -326,29 +326,48 @@ def get_tatum_from_floats_and_priorities(
     A simple case, expressed in different ways.
 
     >>> tatum_1_6 = [0, 1/3, Fraction(1, 2), 1]
-    >>> get_tatum_from_floats_and_priorities(tatum_1_6)
+    >>> get_tatum_from_priorities(tatum_1_6)
     Fraction(1, 6)
 
     >>> tatum_1_6 = [0, 0.333, 0.5, 1]
-    >>> get_tatum_from_floats_and_priorities(tatum_1_6)
+    >>> get_tatum_from_priorities(tatum_1_6)
     Fraction(1, 6)
 
     An example of values from the BPSD dataset (Zeitler et al.).
 
     >>> from amads.time.meter import profiles
     >>> bpsd_Op027No1 = profiles.BPSD().op027No1_01 # /16 divisions of the measure and /12 too (from m.48). Tatum 1/48
-    >>> get_tatum_from_floats_and_priorities(bpsd_Op027No1, distance_threshold=1/24) # proportion_threshold=0.999
+    >>> get_tatum_from_priorities(bpsd_Op027No1, distance_threshold=1/24) # proportion_threshold=0.999
     Fraction(1, 48)
 
     Change the `distance_threshold`
-    >>> get_tatum_from_floats_and_priorities(bpsd_Op027No1, distance_threshold=1/6) # proportion_threshold=0.999
+    >>> get_tatum_from_priorities(bpsd_Op027No1, distance_threshold=1/6) # proportion_threshold=0.999
     Fraction(1, 12)
 
     Change the `proportion_threshold`:
-    >>> get_tatum_from_floats_and_priorities(bpsd_Op027No1, distance_threshold=1/24, proportion_threshold=0.80)
+    >>> get_tatum_from_priorities(bpsd_Op027No1, distance_threshold=1/24, proportion_threshold=0.5)
     Fraction(1, 24)
 
+    >>> get_tatum_from_priorities(bpsd_Op027No1, distance_threshold=1/24, proportion_threshold=0.9)
+    Fraction(1, 48)
+
+    This also works without any floats (and therefore, no priorities needed)
+
+    >>> get_tatum_from_priorities([1, 3])
+    Fraction(1, 1)
+
+    >>> get_tatum_from_priorities([0, 3])
+    Fraction(3, 1)
+
+    >>> get_tatum_from_priorities([0, Fraction(1, 3), Fraction(4, 6)])
+    Fraction(1, 3)
+
     """
+    floats = [num for num in starts if isinstance(num, float) and (num > 0)]
+    ints_fractions = [num for num in starts if not isinstance(num, float)]
+    if not floats:
+        return fraction_gcd(ints_fractions)  # No further action
+
     if not 0.0 < distance_threshold < 1.0:
         raise ValueError(
             "The `distance_threshold` tolerance must be between 0 and 1."
@@ -378,24 +397,15 @@ def get_tatum_from_floats_and_priorities(
             raise ValueError(
                 "When used (not `None`), the `proportion_threshold` must be between 0 and 1."
             )
-        if isinstance(starts, Counter):
-            for k in starts:
-                if k > 1:
-                    raise ValueError(
-                        "The `starts` Counter must be measure-relative, and so have keys of less than 1."
-                    )
-        else:  # Convert to Counter (also includes type checks)
-            starts = starts_to_int_relative_counter(starts)
-        total = sum(starts.values())
-        cumulative_count = 0
+        total = len(starts)
+        cumulative_count = len(ints_fractions) / total
+        starts = starts_to_int_relative_counter(floats)
 
-    pulses_needed = []
+    pulses_needed = [x for x in ints_fractions if x > 0]
+    # print(pulses_needed, cumulative_count)
 
-    for x in starts:
-        if isinstance(x, (Fraction, int)):
-            if x > 0:
-                pulses_needed.append(x)
-        elif (
+    for x in floats:
+        if (x > 0) and (
             approximate_pulse_match_with_priority_list(
                 x,
                 pulse_priority_list=pulses_needed,  # Try those we're committed to first
