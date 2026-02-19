@@ -18,6 +18,11 @@ Ongoing considerations for the encoding:
 <small>**Author**: Mark Gotham, 2019</small>
 """
 
+__author__ = "Mark Gotham"
+
+
+# ------------------------------------------------------------------------------
+
 # Opening
 
 romanesca = {
@@ -238,3 +243,29 @@ quiescenza = {
     "bass": [1, 1, 1, 1],
     "figures": ["b7", "6,4", "7,4,2", 5],
 }
+
+
+all = [
+    aprile,
+    cadenza_doppia,
+    cadenza_semplice,
+    comma,
+    converging,
+    deceptive,
+    do_re_mi,
+    evaded,
+    fonte,
+    fenaroli,
+    indugio,
+    jupiter,
+    meyer,
+    modulating_prinner,
+    monte,
+    passo_indietro,
+    pastorella,
+    ponte,
+    prinner,
+    quiescenza,
+    romanesca,
+    sol_fa_mi,
+]
