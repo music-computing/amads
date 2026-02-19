@@ -28,7 +28,7 @@
 
 -------------------
 
-::: amads.time.meter.grid.get_tatum_from_floats_and_priorities
+::: amads.time.meter.grid.get_tatum_from_priorities
 
 -------------------
 
