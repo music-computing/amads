@@ -1,0 +1,4656 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../basics_more/">
+      
+      
+        <link rel="next" href="../distribution/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.2">
+    
+    
+      
+        <title>Pitch - AMADS</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#pitch" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="AMADS" class="md-header__button md-logo" aria-label="AMADS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            AMADS
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Pitch
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../paper/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Project Overview
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../core/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../user_guide/installation/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Install
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../developer_notes/documentation/" class="md-tabs__link">
+          
+  
+  
+  Developer
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="AMADS" class="md-nav__button md-logo" aria-label="AMADS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    AMADS
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../paper/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Project Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Core
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../basics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basic Score Elements
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../basics_more/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    More Classes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pitch
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pitch
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#amads.core.pitch.Pitch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;Pitch
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#amads.core.pitch.PitchCollection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;PitchCollection
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../distribution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distribution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../utils/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Utility Functions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vector/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vector Functions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../io/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Input and Output
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pitch
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Pitch
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="ismonophonic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ismonophonic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="hz2midi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hz2midi
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="intervals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Interval Distributions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="pitches/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pitch Distributions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="key/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Key Profiles
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="serial/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Serial
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Time
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Time
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time/durations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Duration Distributions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time/meter/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Meter
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time/notedensity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Note Density
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time/rhythm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rhythm
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time/swing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Swing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time/tempo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tempo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time/variability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Variability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_5" id="__nav_3_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Melody
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Melody
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../melody/boundary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Boundary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../melody/contour/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contour
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../melody/segment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Segment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../melody/segment_gestalt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Segment gestalt
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../melody/similarity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Similarity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Harmony
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Harmony
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../harmony/consonance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Consonance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../harmony/root_finding/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Root finding
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_7" id="__nav_3_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Polyphony
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Polyphony
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../polyphony/skyline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Skyline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_8" id="__nav_3_8_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Algorithms
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Algorithms
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../algorithms/complexity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Complexity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../algorithms/entropy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Entropy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../algorithms/gcd/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GCD
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../algorithms/mtype_tokenizer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mtype tokenizer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../algorithms/ngrams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ngrams
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../algorithms/nnotes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Nnotes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../algorithms/norm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Norm
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../algorithms/scale/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scale
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../algorithms/slice/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Slice
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Schemata
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user_guide/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Install
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Developer
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Developer
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer_notes/documentation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Documentation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer_notes/making_a_release/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Making a Release
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer_notes/modules/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer_notes/testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer_notes/contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer_notes/style/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer_notes/github/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Github
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer_notes/design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer_notes/music21/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Music21
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#amads.core.pitch.Pitch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;Pitch
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#amads.core.pitch.PitchCollection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;PitchCollection
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="pitch">Pitch<a class="headerlink" href="#pitch" title="Permanent link">&para;</a></h1>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="amads.core.pitch.Pitch" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">Pitch</span>
+
+
+<a href="#amads.core.pitch.Pitch" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">Pitch</span><span class="p">(</span>
+    <span class="n"><a class="autorefs autorefs-internal" title="pitch (amads.core.pitch.Pitch(pitch))" href="#amads.core.pitch.Pitch(pitch)">pitch</a></span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="            Pitch (amads.core.pitch.Pitch)" href="#amads.core.pitch.Pitch">Pitch</a></span> <span class="o">|</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span> <span class="o">|</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span> <span class="o">|</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="mi">60</span><span class="p">,</span>
+    <span class="n"><a class="autorefs autorefs-internal" title="alt (amads.core.pitch.Pitch(alt))" href="#amads.core.pitch.Pitch(alt)">alt</a></span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span> <span class="o">|</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n"><a class="autorefs autorefs-internal" title="octave (amads.core.pitch.Pitch(octave))" href="#amads.core.pitch.Pitch(octave)">octave</a></span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n"><a class="autorefs autorefs-internal" title="accidental_chars (amads.core.pitch.Pitch(accidental_chars))" href="#amads.core.pitch.Pitch(accidental_chars)">accidental_chars</a></span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents first">
+
+
+
+        <p>Represents a symbolic musical pitch.</p>
+<p>A pitch is represented by a <code>key_num</code> and an <code>alt</code>. The <code>key_num</code>
+is a number that corresponds to the MIDI convention where C4 is 60, C# is
+61, etc., but generalized to floats (60.5 would be C4-quarter-tone-sharp).
+The <code>alt</code> is an alteration, where +1 represents a sharp and -1
+represents a flat. Alterations can also be, for example, 2 (double-sharp)
+or -0.5 (quarter-tone flat). The symbolic note name is derived by
+<em>subtracting</em> <code>alt</code> from <code>key_num</code>.</p>
+<p>E.g., C#4 has <code>key_num=61</code>, <code>alt=1</code>, so 61-1 gives us 60, corresponding
+to note name C. A Db has the same <code>key_num=61</code>, but alt=-1, and 61-(-1)
+gives us 62, corresponding to note name D. There is no representation
+for the “natural sign” (other than <code>alt=0</code>, which could imply no
+accidental) or “courtesy accidentals.”  Because accidentals normally
+“stick” within a measure or are implied by key signatures, accidentals
+are often omitted in the score presentation. Nonetheless, these
+implied accidentals are encoded in the <code>alt</code> attribute and <code>key_num</code>
+is the intended pitch with the accidental applied.</p>
+<p><small><strong>Author</strong>: Roger B. Dannenberg</small></p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+<h3 id="amads.core.pitch.Pitch(pitch)" class="doc doc-heading doc-heading-parameter">              <b><code>pitch</code></b>
+<a href="#amads.core.pitch.Pitch(pitch)" class="headerlink" title="Permanent link">&para;</a></h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a> | <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a> | <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a> | None</code>, default:
+                  <code>60</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>Optional MIDI key_num or string Pitch name. Syntax is A-G followed
+by accidentals (see <code>accidental_chars</code> below) followed by octave
+number. (Defaults to 60)</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<h3 id="amads.core.pitch.Pitch(alt)" class="doc doc-heading doc-heading-parameter">              <b><code>alt</code></b>
+<a href="#amads.core.pitch.Pitch(alt)" class="headerlink" title="Permanent link">&para;</a></h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a> | <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a> | None</code>, default:
+                  <code>None</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>If pitch is a number, alt is an optional alteration (Defaults to 0).
+If <code>pitch - alt</code> does not result in a diatonic pitch number,
+alt is adjusted, normally choosing spellings C#, Eb, F#, Ab, and Bb.
+If pitch is a string, alt must be None.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<h3 id="amads.core.pitch.Pitch(octave)" class="doc doc-heading doc-heading-parameter">              <b><code>octave</code></b>
+<a href="#amads.core.pitch.Pitch(octave)" class="headerlink" title="Permanent link">&para;</a></h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a> | None</code>, default:
+                  <code>None</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>If pitch is a string without an octave specification and <code>octave</code>
+is an int, then <code>octave</code> is used to specify the octave, where
+4 denotes the <code>key_num</code> range 60 through 71. <code>octave</code> defaults
+defaults to -1, which yields pitch class <code>key_num</code>s 0-11).</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<h3 id="amads.core.pitch.Pitch(accidental_chars)" class="doc doc-heading doc-heading-parameter">              <b><code>accidental_chars</code></b>
+<a href="#amads.core.pitch.Pitch(accidental_chars)" class="headerlink" title="Permanent link">&para;</a></h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a> | None</code>, default:
+                  <code>None</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>Allows parsing of pitch names with customized accidental characters.
+The value is a tuple or list consisting of a string of flat characters
+and a string of sharp characters, e.g. `["fb", "s#"].
+(Defaults to None, which admits '♭', 'b' or '-' for flat, and
+'♯', '#', and '+' for sharp, but does not accept 'f' and 's'.)</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+          <b><code><span title="amads.core.pitch.Pitch.key_num">key_num</span></code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></code>)
+          –
+          <div class="doc-md-description">
+            <p>MIDI key number, e.g., C4 = 60, generalized to float.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><span title="amads.core.pitch.Pitch.alt">alt</span></code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></code>)
+          –
+          <div class="doc-md-description">
+            <p>Alteration, e.g., flat = -1.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Examples:</span></p>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="n">Pitch</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span>
+<span class="go">Pitch(name=&#39;E4&#39;, key_num=64)</span>
+</code></pre></div>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="o">.</span><span class="n">octave</span>
+<span class="go">4</span>
+</code></pre></div>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="n">Pitch</span><span class="p">(</span><span class="s2">&quot;E4&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="o">.</span><span class="n">octave</span>
+<span class="go">4</span>
+</code></pre></div>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="n">Pitch</span><span class="p">(</span><span class="s2">&quot;F#################2&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="o">.</span><span class="n">alt</span>
+<span class="go">17</span>
+</code></pre></div>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="o">.</span><span class="n">octave</span>
+<span class="go">2</span>
+</code></pre></div>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="n">Pitch</span><span class="p">(</span><span class="s2">&quot;E--------------------4&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="o">.</span><span class="n">alt</span>
+<span class="go">-20</span>
+</code></pre></div>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="o">.</span><span class="n">octave</span>
+<span class="go">4</span>
+</code></pre></div>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="o">.</span><span class="n">register</span>
+<span class="go">2</span>
+</code></pre></div>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">Pitch</span><span class="p">(</span><span class="mf">61.5</span><span class="p">,</span> <span class="n">alt</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
+<span class="go">Pitch(name=&#39;C?4&#39;, key_num=61.5)</span>
+</code></pre></div>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="c1"># key_num - alt must be a diatonic pitch number. If not, key_num</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># gets priority and alt is adjusted to the smallest valid value.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Here, alt is adjusted to 0, which preserves key_num 60:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Pitch</span><span class="p">(</span><span class="mi">60</span><span class="p">,</span> <span class="n">alt</span><span class="o">=</span><span class="mf">1.4</span><span class="p">)</span>
+<span class="go">Pitch(name=&#39;C4&#39;, key_num=60)</span>
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+<p><span class="doc-section-title">Methods:</span></p>
+    <ul>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="            as_tuple (amads.core.pitch.Pitch.as_tuple)" href="#amads.core.pitch.Pitch.as_tuple">as_tuple</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Return a tuple representation of the <code>Pitch</code> instance.</p>
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="            __eq__ (amads.core.pitch.Pitch.__eq__)" href="#amads.core.pitch.Pitch.__eq__">__eq__</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Check equality of other to a Pitch instance.</p>
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="            __hash__ (amads.core.pitch.Pitch.__hash__)" href="#amads.core.pitch.Pitch.__hash__">__hash__</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Return a hash value for the Pitch instance.</p>
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="            __lt__ (amads.core.pitch.Pitch.__lt__)" href="#amads.core.pitch.Pitch.__lt__">__lt__</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Check if this Pitch instance is less than another Pitch instance.</p>
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="            from_name
+
+
+  
+      classmethod
+   (amads.core.pitch.Pitch.from_name)" href="#amads.core.pitch.Pitch.from_name">from_name</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Converts a string like "Bb" to a (pitch, alt) tuple.</p>
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="            get_name (amads.core.pitch.Pitch.get_name)" href="#amads.core.pitch.Pitch.get_name">get_name</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Return string name including accidentals (# or b) but no octave.</p>
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="            get_name_with_octave (amads.core.pitch.Pitch.get_name_with_octave)" href="#amads.core.pitch.Pitch.get_name_with_octave">get_name_with_octave</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Return string name with octave, e.g., C4, B#3, etc.</p>
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="            enharmonic (amads.core.pitch.Pitch.enharmonic)" href="#amads.core.pitch.Pitch.enharmonic">enharmonic</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Construct an enharmonic equivalent.</p>
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="            simplest_enharmonic (amads.core.pitch.Pitch.simplest_enharmonic)" href="#amads.core.pitch.Pitch.simplest_enharmonic">simplest_enharmonic</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Create Pitch object with the simplest enharmonic representation.</p>
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="            upper_enharmonic (amads.core.pitch.Pitch.upper_enharmonic)" href="#amads.core.pitch.Pitch.upper_enharmonic">upper_enharmonic</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Return the enharmonic based on the note name above.</p>
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="            lower_enharmonic (amads.core.pitch.Pitch.lower_enharmonic)" href="#amads.core.pitch.Pitch.lower_enharmonic">lower_enharmonic</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Return the enharmonic based on the note name below.</p>
+            </div>
+          </li>
+    </ul>
+
+
+
+                  <details class="mkdocstrings-source">
+                    <summary>Source code in <code>amads/core/pitch.py</code></summary>
+                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+             <span class="n">pitch</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;Pitch&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="mi">60</span><span class="p">,</span>
+             <span class="n">alt</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+             <span class="n">octave</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+             <span class="n">accidental_chars</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">alt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;If pitch is a string, alt must be None&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">key_num</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alt</span> <span class="o">=</span> <span class="n">Pitch</span><span class="o">.</span><span class="n">from_name</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span> <span class="n">octave</span><span class="p">,</span> 
+                                                 <span class="n">accidental_chars</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span> <span class="n">Pitch</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">key_num</span> <span class="o">=</span> <span class="n">pitch</span><span class="o">.</span><span class="n">key_num</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alt</span> <span class="o">=</span> <span class="n">pitch</span><span class="o">.</span><span class="n">alt</span>
+    <span class="k">elif</span> <span class="n">pitch</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">key_num</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: ignore (None is allowed, but if we put</span>
+        <span class="c1"># that in the type annotation, we have to annotate every use of</span>
+        <span class="c1"># arithmetic on key_num.)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alt</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span> <span class="k">if</span> <span class="n">alt</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">alt</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># pitch is a number (int or float)</span>
+        <span class="c1"># this will raise a ValueError if pitch is not some kind of number:</span>
+        <span class="n">pitch</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">pitch</span><span class="p">)</span>  <span class="c1"># converts numpy.int64, nympy.floating, etc.</span>
+        <span class="k">if</span> <span class="n">pitch</span><span class="o">.</span><span class="n">is_integer</span><span class="p">():</span>  <span class="c1"># for nicer printing</span>
+            <span class="n">pitch</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pitch</span><span class="p">)</span>  <span class="c1"># pitch numbers as integers.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">key_num</span> <span class="o">=</span> <span class="n">pitch</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alt</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span> <span class="k">if</span> <span class="n">alt</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">alt</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fix_alteration</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div>
+                  </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+<h3 id="amads.core.pitch.Pitch-attributes">Attributes<a href="#amads.core.pitch.Pitch-attributes" class="headerlink" title="Permanent link">&para;</a></h3>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="amads.core.pitch.Pitch.step" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">step</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#amads.core.pitch.Pitch.step" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">step</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>The diatonic name of the pitch: A, B, C, D, E, F, or G.</p>
+<p>The diatonic name corresponds to letter name without accidentals.</p>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>
+          –
+          <div class="doc-md-description">
+            <p>The name of the pitch, a letter in "A" through "G".</p>
+          </div>
+        </li>
+    </ul>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="amads.core.pitch.Pitch.name" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">name</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#amads.core.pitch.Pitch.name" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">name</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>The string name including accidentals (# or b).</p>
+<p>The octave number is omitted. If alt is not an integer,
+return the step name concatenated with "?". See also
+<a class="autorefs autorefs-internal" title="            get_name" href="#amads.core.pitch.Pitch.get_name">get_name</a>, which
+accepts a parameter to specify accidental characters.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="amads.core.pitch.Pitch.name_with_octave" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">name_with_octave</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#amads.core.pitch.Pitch.name_with_octave" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">name_with_octave</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>The string name with octave, e.g., "C4", "B#3", etc.</p>
+<p>The octave number is calculated by</p>
+<pre><code>(key_num - alteration) // 12 + 1  # (integer division)
+</code></pre>
+<p>and refers to the pitch before alteration, e.g., C4 is
+enharmonic to B#3 and represents the same (more or less)
+pitch even though the written octave numbers differ.</p>
+<p>See also <a class="autorefs autorefs-internal" title="            get_name_with_octave" href="#amads.core.pitch.Pitch.get_name_with_octave">get_name_with_octave</a>,
+which accepts a parameter to specify custom characters
+to represent accidentals.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="amads.core.pitch.Pitch.octave" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">octave</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#amads.core.pitch.Pitch.octave" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">octave</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>The octave number of the note name.</p>
+<p>The note name is based on <code>key_num - alt</code>, e.g.,
+C4 has octave 4 while B#3 has octave 3.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="amads.core.pitch.Pitch.pitch_class" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">pitch_class</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#amads.core.pitch.Pitch.pitch_class" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">pitch_class</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>The pitch class of the note, e.g., 0, 1, 2, ..., 11.</p>
+<p>The pitch class is the <code>key_num modulo 12</code>, which gives the
+class of this pitch in the range 0-11. If the <code>key_num</code> is
+non-integer, it is rounded.</p>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
+          –
+          <div class="doc-md-description">
+            <p>The pitch class of the note.</p>
+          </div>
+        </li>
+    </ul>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="amads.core.pitch.Pitch.register" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">register</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#amads.core.pitch.Pitch.register" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">register</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Returns the absolute octave number based on <code>floor(key_num)</code>.</p>
+<p>Both C4 and B#3 have register 4.</p>
+
+    </div>
+
+</div>
+
+
+<h3 id="amads.core.pitch.Pitch-functions">Functions<a href="#amads.core.pitch.Pitch-functions" class="headerlink" title="Permanent link">&para;</a></h3>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="amads.core.pitch.Pitch.as_tuple" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">as_tuple</span>
+
+
+<a href="#amads.core.pitch.Pitch.as_tuple" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">as_tuple</span><span class="p">()</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Return a tuple representation of the <code>Pitch</code> instance.</p>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#tuple">tuple</a></code>
+          –
+          <div class="doc-md-description">
+            <p>A tuple containing the <code>key_num</code> and <code>alt</code> values.</p>
+          </div>
+        </li>
+    </ul>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>amads/core/pitch.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">as_tuple</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a tuple representation of the `Pitch` instance.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple</span>
+<span class="sd">        A tuple containing the `key_num` and `alt` values.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">key_num</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alt</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="amads.core.pitch.Pitch.__eq__" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">__eq__</span>
+
+
+<a href="#amads.core.pitch.Pitch.__eq__" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">__eq__</span><span class="p">(</span><span class="n"><a class="autorefs autorefs-internal" title="other (amads.core.pitch.Pitch.__eq__(other))" href="#amads.core.pitch.Pitch.__eq__(other)">other</a></span><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Check equality of other to a Pitch instance.</p>
+<p>Pitches are equal if they are both Pitches, and
+both <code>key_num</code> and <code>alt</code> are equal. Enharmonics are therefore
+not equal, but enharmonic equivalence can be written simply as
+<code>p1.key_num == p2.key_num</code></p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+<h5 id="amads.core.pitch.Pitch.__eq__(other)" class="doc doc-heading doc-heading-parameter">              <b><code>other</code></b>
+<a href="#amads.core.pitch.Pitch.__eq__(other)" class="headerlink" title="Permanent link">&para;</a></h5>              (<code><a class="autorefs autorefs-internal" title="            Pitch (amads.core.pitch.Pitch)" href="#amads.core.pitch.Pitch">Pitch</a></code>)
+          –
+          <div class="doc-md-description">
+            <p>The other Pitch instance to compare with.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>
+          –
+          <div class="doc-md-description">
+            <p>True if the <code>key_num</code> and <code>alt</code> values are equal, False otherwise.</p>
+          </div>
+        </li>
+    </ul>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>amads/core/pitch.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check equality of other to a Pitch instance.</span>
+
+<span class="sd">    Pitches are equal if they are both Pitches, and</span>
+<span class="sd">    both `key_num` and `alt` are equal. Enharmonics are therefore</span>
+<span class="sd">    not equal, but enharmonic equivalence can be written simply as</span>
+<span class="sd">    `p1.key_num == p2.key_num`</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    other : Pitch</span>
+<span class="sd">        The other Pitch instance to compare with.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        True if the `key_num` and `alt` values are equal, False otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Pitch</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">()</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="amads.core.pitch.Pitch.__hash__" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">__hash__</span>
+
+
+<a href="#amads.core.pitch.Pitch.__hash__" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">__hash__</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Return a hash value for the Pitch instance.</p>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
+          –
+          <div class="doc-md-description">
+            <p>A hash value representing the Pitch instance.</p>
+          </div>
+        </li>
+    </ul>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>amads/core/pitch.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a hash value for the Pitch instance.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    int</span>
+<span class="sd">        A hash value representing the Pitch instance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">())</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="amads.core.pitch.Pitch.__lt__" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">__lt__</span>
+
+
+<a href="#amads.core.pitch.Pitch.__lt__" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">__lt__</span><span class="p">(</span><span class="n"><a class="autorefs autorefs-internal" title="other (amads.core.pitch.Pitch.__lt__(other))" href="#amads.core.pitch.Pitch.__lt__(other)">other</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Check if this Pitch instance is less than another Pitch instance.
+Pitches are compared first by <code>key_num</code> and then by <code>alt</code>. Pitches
+with sharps (i.e. positive alt) are considered lower because
+their letter names are lower in the musical alphabet.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+<h5 id="amads.core.pitch.Pitch.__lt__(other)" class="doc doc-heading doc-heading-parameter">              <b><code>other</code></b>
+<a href="#amads.core.pitch.Pitch.__lt__(other)" class="headerlink" title="Permanent link">&para;</a></h5>              (<code><a class="autorefs autorefs-internal" title="            Pitch (amads.core.pitch.Pitch)" href="#amads.core.pitch.Pitch">Pitch</a></code>)
+          –
+          <div class="doc-md-description">
+            <p>The other Pitch instance to compare with.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>
+          –
+          <div class="doc-md-description">
+            <p>True if this Pitch instance is less than the other, False otherwise.</p>
+          </div>
+        </li>
+    </ul>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>amads/core/pitch.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if this Pitch instance is less than another Pitch instance.</span>
+<span class="sd">    Pitches are compared first by `key_num` and then by `alt`. Pitches</span>
+<span class="sd">    with sharps (i.e. positive alt) are considered lower because</span>
+<span class="sd">    their letter names are lower in the musical alphabet.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    other : Pitch</span>
+<span class="sd">        The other Pitch instance to compare with.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        True if this Pitch instance is less than the other, False otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">key_num</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">alt</span><span class="p">)</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">key_num</span><span class="p">,</span> <span class="o">-</span><span class="n">other</span><span class="o">.</span><span class="n">alt</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="amads.core.pitch.Pitch.from_name" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">from_name</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
+  </span>
+
+<a href="#amads.core.pitch.Pitch.from_name" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">from_name</span><span class="p">(</span>
+    <span class="n"><a class="autorefs autorefs-internal" title="name (amads.core.pitch.Pitch.from_name(name))" href="#amads.core.pitch.Pitch.from_name(name)">name</a></span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">,</span>
+    <span class="n"><a class="autorefs autorefs-internal" title="octave (amads.core.pitch.Pitch.from_name(octave))" href="#amads.core.pitch.Pitch.from_name(octave)">octave</a></span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n"><a class="autorefs autorefs-internal" title="accidental_chars (amads.core.pitch.Pitch.from_name(accidental_chars))" href="#amads.core.pitch.Pitch.from_name(accidental_chars)">accidental_chars</a></span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#tuple">tuple</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span><span class="p">]</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Converts a string like "Bb" to a (pitch, alt) tuple.</p>
+<p>For example, converts "Bb" to (10, -1).
+If the string has an octave number or octave is given, the
+octave will be applied, e.g., "C4" yields (60, 0). <code>octave</code> takes
+effect if it is a number and name does not include an octave.
+If both <code>name</code> has no octave and <code>octave</code> is None, the octave is
+-1, yielding pitch class numbers 0-11.</p>
+<p>The first character must be one of the unmodified base pitch names:
+C, D, E, F, G, A, B (not case-sensitive).</p>
+<p>Subsequent characters must indicate a single accidental type:
+one of '♭', 'b' or '-' for flat, and '♯', '#', and '+' for sharp,
+unless accidental_chars specified exactly the acceptable flat
+and sharp chars, e.g., "fs" indicates 'f' for flat, 's' for sharp.</p>
+<p>Note that 's' is not a default accidental type as it is ambiguous:
+'Fs' probably indicates F#, but Es is more likely Eb (German).</p>
+<p>Also unsupported are:
+mixtures of sharps and flats (e.g., B#b);
+symbols for double sharps, quarter sharps, naturals, etc.;
+any other characters (except space, tab and underscore,
+which are allowed but ignored).</p>
+<p>Following accidentals (if any) is an optional single-digit octave
+number. Note that MIDI goes below C0; if the octave number is
+omitted, the octave will be -1, which corresponds to pitch class
+numbers 0-11 and octave -1 (which you can also specify as octave).</p>
+<p>Instructive error messages are given for invalid input.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+<h5 id="amads.core.pitch.Pitch.from_name(name)" class="doc doc-heading doc-heading-parameter">              <b><code>name</code></b>
+<a href="#amads.core.pitch.Pitch.from_name(name)" class="headerlink" title="Permanent link">&para;</a></h5>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>)
+          –
+          <div class="doc-md-description">
+            <p>The string representation of the pitch name.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<h5 id="amads.core.pitch.Pitch.from_name(octave)" class="doc doc-heading doc-heading-parameter">              <b><code>octave</code></b>
+<a href="#amads.core.pitch.Pitch.from_name(octave)" class="headerlink" title="Permanent link">&para;</a></h5>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a> | None</code>, default:
+                  <code>-1</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>The octave number if not specified in the name.
+(Defaults to -1)</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<h5 id="amads.core.pitch.Pitch.from_name(accidental_chars)" class="doc doc-heading doc-heading-parameter">              <b><code>accidental_chars</code></b>
+<a href="#amads.core.pitch.Pitch.from_name(accidental_chars)" class="headerlink" title="Permanent link">&para;</a></h5>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a> | None</code>, default:
+                  <code>None</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>The characters to use for flat and sharp accidentals.
+(Defaults to None, which admits '♭', 'b' or '-' for flat, and
+'♯', '#', and '+' for sharp.)</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#tuple">tuple</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a>]</code>
+          –
+          <div class="doc-md-description">
+            <p>A tuple containing the <code>key_num</code> and <code>alt</code> values.</p>
+          </div>
+        </li>
+    </ul>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>amads/core/pitch.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">from_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+              <span class="n">octave</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+              <span class="n">accidental_chars</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+              <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts a string like &quot;Bb&quot; to a (pitch, alt) tuple.</span>
+
+<span class="sd">    For example, converts &quot;Bb&quot; to (10, -1).</span>
+<span class="sd">    If the string has an octave number or octave is given, the</span>
+<span class="sd">    octave will be applied, e.g., &quot;C4&quot; yields (60, 0). `octave` takes</span>
+<span class="sd">    effect if it is a number and name does not include an octave.</span>
+<span class="sd">    If both `name` has no octave and `octave` is None, the octave is</span>
+<span class="sd">    -1, yielding pitch class numbers 0-11.</span>
+
+<span class="sd">    The first character must be one of the unmodified base pitch names:</span>
+<span class="sd">    C, D, E, F, G, A, B (not case-sensitive).</span>
+
+<span class="sd">    Subsequent characters must indicate a single accidental type:</span>
+<span class="sd">    one of &#39;♭&#39;, &#39;b&#39; or &#39;-&#39; for flat, and &#39;♯&#39;, &#39;#&#39;, and &#39;+&#39; for sharp,</span>
+<span class="sd">    unless accidental_chars specified exactly the acceptable flat</span>
+<span class="sd">    and sharp chars, e.g., &quot;fs&quot; indicates &#39;f&#39; for flat, &#39;s&#39; for sharp.</span>
+
+<span class="sd">    Note that &#39;s&#39; is not a default accidental type as it is ambiguous:</span>
+<span class="sd">    &#39;Fs&#39; probably indicates F#, but Es is more likely Eb (German).</span>
+
+<span class="sd">    Also unsupported are:</span>
+<span class="sd">    mixtures of sharps and flats (e.g., B#b);</span>
+<span class="sd">    symbols for double sharps, quarter sharps, naturals, etc.;</span>
+<span class="sd">    any other characters (except space, tab and underscore,</span>
+<span class="sd">    which are allowed but ignored).</span>
+
+<span class="sd">    Following accidentals (if any) is an optional single-digit octave</span>
+<span class="sd">    number. Note that MIDI goes below C0; if the octave number is</span>
+<span class="sd">    omitted, the octave will be -1, which corresponds to pitch class</span>
+<span class="sd">    numbers 0-11 and octave -1 (which you can also specify as octave).</span>
+
+<span class="sd">    Instructive error messages are given for invalid input.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        The string representation of the pitch name.</span>
+<span class="sd">    octave : Optional[float], optional</span>
+<span class="sd">        The octave number if not specified in the name.</span>
+<span class="sd">        (Defaults to -1)</span>
+<span class="sd">    accidental_chars : Optional[str], optional</span>
+<span class="sd">        The characters to use for flat and sharp accidentals.</span>
+<span class="sd">        (Defaults to None, which admits &#39;♭&#39;, &#39;b&#39; or &#39;-&#39; for flat, and</span>
+<span class="sd">        &#39;♯&#39;, &#39;#&#39;, and &#39;+&#39; for sharp.)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Tuple[float, float]</span>
+<span class="sd">        A tuple containing the `key_num` and `alt` values.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">0</span>
+    <span class="n">pitch_base</span> <span class="o">=</span> <span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>  <span class="c1"># error if non-string</span>
+    <span class="k">if</span> <span class="n">pitch_base</span> <span class="ow">not</span> <span class="ow">in</span> <span class="s2">&quot;ABCDEFG&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid first character: must be one of ABCDEFG&quot;</span><span class="p">)</span>
+    <span class="n">pitch_class</span> <span class="o">=</span> <span class="n">LETTER_TO_NUMBER</span><span class="p">[</span><span class="n">pitch_base</span><span class="p">]</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>  <span class="c1"># trim the note letter</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">name</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>  <span class="c1"># final character indicates octave</span>
+            <span class="n">octave</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>  <span class="c1"># overrides octave parameter</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># remove octave from working</span>
+    <span class="k">if</span> <span class="n">octave</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># no octave given in name or 2nd parameter</span>
+        <span class="n">octave</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+    <span class="c1"># parse the accidentals, if any</span>
+    <span class="k">if</span> <span class="n">accidental_chars</span><span class="p">:</span>
+        <span class="n">flat_chars</span> <span class="o">=</span> <span class="p">[</span><span class="n">accidental_chars</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="n">sharp_chars</span> <span class="o">=</span> <span class="p">[</span><span class="n">accidental_chars</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">flat_chars</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;♭&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">]</span>
+        <span class="n">sharp_chars</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;♯&quot;</span><span class="p">,</span> <span class="s2">&quot;#&quot;</span><span class="p">,</span> <span class="s2">&quot;+&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">x</span> <span class="ow">in</span> <span class="n">flat_chars</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">name</span><span class="p">):</span>  <span class="c1"># flats</span>
+        <span class="n">alteration</span> <span class="o">=</span> <span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">all</span><span class="p">(</span><span class="n">x</span> <span class="ow">in</span> <span class="n">sharp_chars</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">name</span><span class="p">):</span>  <span class="c1"># sharps</span>
+        <span class="n">alteration</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid accidentals: must be only &quot;</span> <span class="o">+</span>
+                         <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">flat_chars</span><span class="si">}</span><span class="s2"> or </span><span class="si">{</span><span class="n">sharp_chars</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># note that octave applies to pitch_class before alteration, so B#3=C4</span>
+    <span class="k">return</span> <span class="n">pitch_class</span> <span class="o">+</span> <span class="mi">12</span> <span class="o">*</span> <span class="p">(</span><span class="n">octave</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">alteration</span><span class="p">,</span> <span class="n">alteration</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="amads.core.pitch.Pitch.get_name" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">get_name</span>
+
+
+<a href="#amads.core.pitch.Pitch.get_name" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">get_name</span><span class="p">(</span><span class="n"><a class="autorefs autorefs-internal" title="accidental_chars (amads.core.pitch.Pitch.get_name(accidental_chars))" href="#amads.core.pitch.Pitch.get_name(accidental_chars)">accidental_chars</a></span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span> <span class="o">=</span> <span class="s1">&#39;b#&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Return string name including accidentals (# or b) but no octave.</p>
+<p>See the <code>name</code> property for details.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+<h5 id="amads.core.pitch.Pitch.get_name(accidental_chars)" class="doc doc-heading doc-heading-parameter">              <b><code>accidental_chars</code></b>
+<a href="#amads.core.pitch.Pitch.get_name(accidental_chars)" class="headerlink" title="Permanent link">&para;</a></h5>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>, default:
+                  <code>&#39;b#&#39;</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>The characters to use for flat and sharp accidentals.
+(Defaults to "b#")</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>
+          –
+          <div class="doc-md-description">
+            <p>The string representation of the pitch name, including accidentals.</p>
+          </div>
+        </li>
+    </ul>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>amads/core/pitch.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span>
+<span class="normal">359</span>
+<span class="normal">360</span>
+<span class="normal">361</span>
+<span class="normal">362</span>
+<span class="normal">363</span>
+<span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span>
+<span class="normal">367</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span>
+<span class="normal">375</span>
+<span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">accidental_chars</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;b#&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return string name including accidentals (# or b) but no octave.</span>
+
+<span class="sd">    See the `name` property for details.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    accidental_chars : str, optional</span>
+<span class="sd">        The characters to use for flat and sharp accidentals.</span>
+<span class="sd">        (Defaults to &quot;b#&quot;)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        The string representation of the pitch name, including accidentals.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">accidentals</span> <span class="o">=</span> <span class="s2">&quot;?&quot;</span>
+    <span class="n">sharp_char</span> <span class="o">=</span> <span class="p">(</span><span class="n">accidental_chars</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">accidental_chars</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;#&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alt</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">alt</span><span class="p">:</span>  <span class="c1"># an integer value</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">alt</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">accidentals</span> <span class="o">=</span> <span class="n">sharp_char</span> <span class="o">*</span> <span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alt</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">alt</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">accidentals</span> <span class="o">=</span> <span class="n">accidental_chars</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="nb">round</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">alt</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">accidentals</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>  <span class="c1"># natural</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span> <span class="o">+</span> <span class="n">accidentals</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="amads.core.pitch.Pitch.get_name_with_octave" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">get_name_with_octave</span>
+
+
+<a href="#amads.core.pitch.Pitch.get_name_with_octave" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">get_name_with_octave</span><span class="p">(</span><span class="n"><a class="autorefs autorefs-internal" title="accidental_chars (amads.core.pitch.Pitch.get_name_with_octave(accidental_chars))" href="#amads.core.pitch.Pitch.get_name_with_octave(accidental_chars)">accidental_chars</a></span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span> <span class="o">=</span> <span class="s1">&#39;b#&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Return string name with octave, e.g., C4, B#3, etc.</p>
+<p>See the <a class="autorefs autorefs-internal" title="            name_with_octave
+
+
+  
+      property
+  " href="#amads.core.pitch.Pitch.name_with_octave">name_with_octave</a>
+property for details.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+<h5 id="amads.core.pitch.Pitch.get_name_with_octave(accidental_chars)" class="doc doc-heading doc-heading-parameter">              <b><code>accidental_chars</code></b>
+<a href="#amads.core.pitch.Pitch.get_name_with_octave(accidental_chars)" class="headerlink" title="Permanent link">&para;</a></h5>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>, default:
+                  <code>&#39;b#&#39;</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>The characters to use for flat and sharp accidentals.
+(Defaults to "b#")</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>
+          –
+          <div class="doc-md-description">
+            <p>The string representation of the pitch name with octave.</p>
+          </div>
+        </li>
+    </ul>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>amads/core/pitch.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">381</span>
+<span class="normal">382</span>
+<span class="normal">383</span>
+<span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span>
+<span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span>
+<span class="normal">396</span>
+<span class="normal">397</span>
+<span class="normal">398</span>
+<span class="normal">399</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_name_with_octave</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">accidental_chars</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;b#&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return string name with octave, e.g., C4, B#3, etc.</span>
+
+<span class="sd">    See the [name_with_octave][amads.core.pitch.Pitch.name_with_octave]</span>
+<span class="sd">    property for details.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    accidental_chars : str, optional</span>
+<span class="sd">        The characters to use for flat and sharp accidentals.</span>
+<span class="sd">        (Defaults to &quot;b#&quot;)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        The string representation of the pitch name with octave.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;unpitched&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">key_num</span> <span class="ow">is</span> <span class="kc">None</span>
+                        <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">octave</span><span class="p">))</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="amads.core.pitch.Pitch.enharmonic" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">enharmonic</span>
+
+
+<a href="#amads.core.pitch.Pitch.enharmonic" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">enharmonic</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="            Pitch (amads.core.pitch.Pitch)" href="#amads.core.pitch.Pitch">Pitch</a></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Construct an enharmonic equivalent.</p>
+<p>If <code>alt</code> is non-zero, return a Pitch where <code>alt</code> is zero
+or has the opposite sign and where <code>alt</code> is minimized. E.g.
+enharmonic(Cbb) is A# (not Bb). If alt is zero, return a
+Pitch with alt of +1 or -1 if possible. Otherwise, return
+a Pitch with alt of -2 (Ebb, Abb or Bbb).
+Note the difference between this and <code>simplest_enharmonic</code>.</p>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><a class="autorefs autorefs-internal" title="            Pitch (amads.core.pitch.Pitch)" href="#amads.core.pitch.Pitch">Pitch</a></code>
+          –
+          <div class="doc-md-description">
+            <p>A new Pitch object representing the enharmonic equivalent.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Examples:</span></p>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">Pitch</span><span class="p">(</span><span class="s2">&quot;C4&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">enharmonic</span><span class="p">()</span>
+<span class="go">Pitch(name=&#39;B#3&#39;, key_num=60)</span>
+</code></pre></div>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">Pitch</span><span class="p">(</span><span class="s2">&quot;B3&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">enharmonic</span><span class="p">()</span>
+<span class="go">Pitch(name=&#39;Cb4&#39;, key_num=59)</span>
+</code></pre></div>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">Pitch</span><span class="p">(</span><span class="s2">&quot;B#3&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">enharmonic</span><span class="p">()</span>
+<span class="go">Pitch(name=&#39;C4&#39;, key_num=60)</span>
+</code></pre></div>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">bds</span> <span class="o">=</span> <span class="n">Pitch</span><span class="p">(</span><span class="s2">&quot;B##3&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bds</span><span class="o">.</span><span class="n">enharmonic</span><span class="p">()</span> <span class="c1"># change of direction</span>
+<span class="go">Pitch(name=&#39;Db4&#39;, key_num=61)</span>
+</code></pre></div>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">bds</span><span class="o">.</span><span class="n">upper_enharmonic</span><span class="p">()</span>  <span class="c1"># note the difference</span>
+<span class="go">Pitch(name=&#39;C#4&#39;, key_num=61)</span>
+</code></pre></div>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">Pitch</span><span class="p">(</span><span class="s2">&quot;Dbb4&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">enharmonic</span><span class="p">()</span>
+<span class="go">Pitch(name=&#39;C4&#39;, key_num=60)</span>
+</code></pre></div>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>amads/core/pitch.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">538</span>
+<span class="normal">539</span>
+<span class="normal">540</span>
+<span class="normal">541</span>
+<span class="normal">542</span>
+<span class="normal">543</span>
+<span class="normal">544</span>
+<span class="normal">545</span>
+<span class="normal">546</span>
+<span class="normal">547</span>
+<span class="normal">548</span>
+<span class="normal">549</span>
+<span class="normal">550</span>
+<span class="normal">551</span>
+<span class="normal">552</span>
+<span class="normal">553</span>
+<span class="normal">554</span>
+<span class="normal">555</span>
+<span class="normal">556</span>
+<span class="normal">557</span>
+<span class="normal">558</span>
+<span class="normal">559</span>
+<span class="normal">560</span>
+<span class="normal">561</span>
+<span class="normal">562</span>
+<span class="normal">563</span>
+<span class="normal">564</span>
+<span class="normal">565</span>
+<span class="normal">566</span>
+<span class="normal">567</span>
+<span class="normal">568</span>
+<span class="normal">569</span>
+<span class="normal">570</span>
+<span class="normal">571</span>
+<span class="normal">572</span>
+<span class="normal">573</span>
+<span class="normal">574</span>
+<span class="normal">575</span>
+<span class="normal">576</span>
+<span class="normal">577</span>
+<span class="normal">578</span>
+<span class="normal">579</span>
+<span class="normal">580</span>
+<span class="normal">581</span>
+<span class="normal">582</span>
+<span class="normal">583</span>
+<span class="normal">584</span>
+<span class="normal">585</span>
+<span class="normal">586</span>
+<span class="normal">587</span>
+<span class="normal">588</span>
+<span class="normal">589</span>
+<span class="normal">590</span>
+<span class="normal">591</span>
+<span class="normal">592</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">enharmonic</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Pitch&quot;</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Construct an enharmonic equivalent.</span>
+
+<span class="sd">    If `alt` is non-zero, return a Pitch where `alt` is zero</span>
+<span class="sd">    or has the opposite sign and where `alt` is minimized. E.g.</span>
+<span class="sd">    enharmonic(Cbb) is A# (not Bb). If alt is zero, return a</span>
+<span class="sd">    Pitch with alt of +1 or -1 if possible. Otherwise, return</span>
+<span class="sd">    a Pitch with alt of -2 (Ebb, Abb or Bbb).</span>
+<span class="sd">    Note the difference between this and `simplest_enharmonic`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Pitch</span>
+<span class="sd">        A new Pitch object representing the enharmonic equivalent.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; Pitch(&quot;C4&quot;).enharmonic()</span>
+<span class="sd">    Pitch(name=&#39;B#3&#39;, key_num=60)</span>
+
+<span class="sd">    &gt;&gt;&gt; Pitch(&quot;B3&quot;).enharmonic()</span>
+<span class="sd">    Pitch(name=&#39;Cb4&#39;, key_num=59)</span>
+
+<span class="sd">    &gt;&gt;&gt; Pitch(&quot;B#3&quot;).enharmonic()</span>
+<span class="sd">    Pitch(name=&#39;C4&#39;, key_num=60)</span>
+
+<span class="sd">    &gt;&gt;&gt; bds = Pitch(&quot;B##3&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; bds.enharmonic() # change of direction</span>
+<span class="sd">    Pitch(name=&#39;Db4&#39;, key_num=61)</span>
+
+<span class="sd">    &gt;&gt;&gt; bds.upper_enharmonic()  # note the difference</span>
+<span class="sd">    Pitch(name=&#39;C#4&#39;, key_num=61)</span>
+
+<span class="sd">    &gt;&gt;&gt; Pitch(&quot;Dbb4&quot;).enharmonic()</span>
+<span class="sd">    Pitch(name=&#39;C4&#39;, key_num=60)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">alt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alt</span>
+    <span class="n">unaltered</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">key_num</span> <span class="o">-</span> <span class="n">alt</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">alt</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">while</span> <span class="n">alt</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="p">(</span><span class="n">unaltered</span> <span class="o">%</span> <span class="mi">12</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">11</span><span class="p">]:</span>
+            <span class="n">unaltered</span> <span class="o">-=</span> <span class="mi">1</span>
+            <span class="n">alt</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">elif</span> <span class="n">alt</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">while</span> <span class="n">alt</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="p">(</span><span class="n">unaltered</span> <span class="o">%</span> <span class="mi">12</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">11</span><span class="p">]:</span>
+            <span class="n">unaltered</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">alt</span> <span class="o">-=</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># alt == 0</span>
+        <span class="n">unaltered</span> <span class="o">=</span> <span class="n">unaltered</span> <span class="o">%</span> <span class="mi">12</span>
+        <span class="k">if</span> <span class="n">unaltered</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">]:</span>  <span class="c1"># C-&gt;B#, F-&gt;E#</span>
+            <span class="n">alt</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">unaltered</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">11</span><span class="p">,</span> <span class="mi">4</span><span class="p">]:</span>  <span class="c1"># B-&gt;Cb, E-&gt;Fb</span>
+            <span class="n">alt</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># A-&gt;Bbb, D-&gt;Ebb, G-&gt;Abb</span>
+            <span class="n">alt</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span>
+    <span class="k">return</span> <span class="n">Pitch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">key_num</span><span class="p">,</span> <span class="n">alt</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="amads.core.pitch.Pitch.simplest_enharmonic" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">simplest_enharmonic</span>
+
+
+<a href="#amads.core.pitch.Pitch.simplest_enharmonic" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">simplest_enharmonic</span><span class="p">(</span><span class="n"><a class="autorefs autorefs-internal" title="sharp_or_flat (amads.core.pitch.Pitch.simplest_enharmonic(sharp_or_flat))" href="#amads.core.pitch.Pitch.simplest_enharmonic(sharp_or_flat)">sharp_or_flat</a></span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s1">&#39;default&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="            Pitch (amads.core.pitch.Pitch)" href="#amads.core.pitch.Pitch">Pitch</a></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Create Pitch object with the simplest enharmonic representation.</p>
+<p>I.e., if there exists an enharmonic-equivalent pitch with no
+alterations, then use that. If the Pitch is already in simplest
+form (e.g., C4), it is simply returned. If an alteration is
+needed, then use sharps or flats depending on <code>sharp_or_flat</code>.
+If <code>sharp_or_flat</code> is omitted, the same enharmonic choice
+as the Pitch constructor is used (C#, Eb, F#, Ab, and Bb).</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+<h5 id="amads.core.pitch.Pitch.simplest_enharmonic(sharp_or_flat)" class="doc doc-heading doc-heading-parameter">              <b><code>sharp_or_flat</code></b>
+<a href="#amads.core.pitch.Pitch.simplest_enharmonic(sharp_or_flat)" class="headerlink" title="Permanent link">&para;</a></h5>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a> | None</code>, default:
+                  <code>&#39;default&#39;</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>This is only relevant if the pitch needs an alteration, otherwise
+it is unused. The value can be "sharp" (use sharps), "flat" (use
+flats), and otherwise use the same enharmonic choice as the Pitch
+constructor.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Examples:</span></p>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">bds</span> <span class="o">=</span> <span class="n">Pitch</span><span class="p">(</span><span class="s2">&quot;B##3&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bds</span><span class="o">.</span><span class="n">simplest_enharmonic</span><span class="p">()</span>
+<span class="go">Pitch(name=&#39;C#4&#39;, key_num=61)</span>
+</code></pre></div>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">bds</span><span class="o">.</span><span class="n">simplest_enharmonic</span><span class="p">(</span><span class="n">sharp_or_flat</span><span class="o">=</span><span class="s2">&quot;flat&quot;</span><span class="p">)</span>
+<span class="go">Pitch(name=&#39;Db4&#39;, key_num=61)</span>
+</code></pre></div>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">Pitch</span><span class="p">(</span><span class="s2">&quot;C4&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">simplest_enharmonic</span><span class="p">()</span>
+<span class="go">Pitch(name=&#39;C4&#39;, key_num=60)</span>
+</code></pre></div>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><a class="autorefs autorefs-internal" title="            Pitch (amads.core.pitch.Pitch)" href="#amads.core.pitch.Pitch">Pitch</a></code>
+          –
+          <div class="doc-md-description">
+            <p>A Pitch object representing the enharmonic equivalent.</p>
+          </div>
+        </li>
+    </ul>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>amads/core/pitch.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">595</span>
+<span class="normal">596</span>
+<span class="normal">597</span>
+<span class="normal">598</span>
+<span class="normal">599</span>
+<span class="normal">600</span>
+<span class="normal">601</span>
+<span class="normal">602</span>
+<span class="normal">603</span>
+<span class="normal">604</span>
+<span class="normal">605</span>
+<span class="normal">606</span>
+<span class="normal">607</span>
+<span class="normal">608</span>
+<span class="normal">609</span>
+<span class="normal">610</span>
+<span class="normal">611</span>
+<span class="normal">612</span>
+<span class="normal">613</span>
+<span class="normal">614</span>
+<span class="normal">615</span>
+<span class="normal">616</span>
+<span class="normal">617</span>
+<span class="normal">618</span>
+<span class="normal">619</span>
+<span class="normal">620</span>
+<span class="normal">621</span>
+<span class="normal">622</span>
+<span class="normal">623</span>
+<span class="normal">624</span>
+<span class="normal">625</span>
+<span class="normal">626</span>
+<span class="normal">627</span>
+<span class="normal">628</span>
+<span class="normal">629</span>
+<span class="normal">630</span>
+<span class="normal">631</span>
+<span class="normal">632</span>
+<span class="normal">633</span>
+<span class="normal">634</span>
+<span class="normal">635</span>
+<span class="normal">636</span>
+<span class="normal">637</span>
+<span class="normal">638</span>
+<span class="normal">639</span>
+<span class="normal">640</span>
+<span class="normal">641</span>
+<span class="normal">642</span>
+<span class="normal">643</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">simplest_enharmonic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+        <span class="n">sharp_or_flat</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;default&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Pitch&quot;</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create Pitch object with the simplest enharmonic representation.</span>
+
+<span class="sd">    I.e., if there exists an enharmonic-equivalent pitch with no</span>
+<span class="sd">    alterations, then use that. If the Pitch is already in simplest</span>
+<span class="sd">    form (e.g., C4), it is simply returned. If an alteration is</span>
+<span class="sd">    needed, then use sharps or flats depending on `sharp_or_flat`.</span>
+<span class="sd">    If `sharp_or_flat` is omitted, the same enharmonic choice</span>
+<span class="sd">    as the Pitch constructor is used (C#, Eb, F#, Ab, and Bb).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sharp_or_flat: str</span>
+<span class="sd">        This is only relevant if the pitch needs an alteration, otherwise</span>
+<span class="sd">        it is unused. The value can be &quot;sharp&quot; (use sharps), &quot;flat&quot; (use</span>
+<span class="sd">        flats), and otherwise use the same enharmonic choice as the Pitch</span>
+<span class="sd">        constructor.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    &gt;&gt;&gt; bds = Pitch(&quot;B##3&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; bds.simplest_enharmonic()</span>
+<span class="sd">    Pitch(name=&#39;C#4&#39;, key_num=61)</span>
+
+<span class="sd">    &gt;&gt;&gt; bds.simplest_enharmonic(sharp_or_flat=&quot;flat&quot;)</span>
+<span class="sd">    Pitch(name=&#39;Db4&#39;, key_num=61)</span>
+
+<span class="sd">    &gt;&gt;&gt; Pitch(&quot;C4&quot;).simplest_enharmonic()</span>
+<span class="sd">    Pitch(name=&#39;C4&#39;, key_num=60)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Pitch</span>
+<span class="sd">        A Pitch object representing the enharmonic equivalent.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">alt</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pitch_class</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">11</span><span class="p">]:</span>  <span class="c1"># C, D, E, F, G, A, B</span>
+        <span class="k">return</span> <span class="n">Pitch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">key_num</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">sharp_or_flat</span> <span class="o">==</span> <span class="s2">&quot;sharp&quot;</span><span class="p">:</span>  <span class="c1"># unaltered in 1, 3, 6, 8, 10</span>
+        <span class="k">return</span> <span class="n">Pitch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">key_num</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">sharp_or_flat</span> <span class="o">==</span> <span class="s2">&quot;flat&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Pitch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">key_num</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># let Pitch figure out which enharmonic spelling (alt) to use:</span>
+        <span class="k">return</span> <span class="n">Pitch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">key_num</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="amads.core.pitch.Pitch.upper_enharmonic" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">upper_enharmonic</span>
+
+
+<a href="#amads.core.pitch.Pitch.upper_enharmonic" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">upper_enharmonic</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="            Pitch (amads.core.pitch.Pitch)" href="#amads.core.pitch.Pitch">Pitch</a></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Return the enharmonic based on the note name above.</p>
+<p>The result will have the next higher diatonic name
+with <code>alt</code> accordingly decreased by 1 or 2, e.g.,
+C#-&gt;Db, C##-&gt;D, Cb-&gt;Dbbb.</p>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><a class="autorefs autorefs-internal" title="            Pitch (amads.core.pitch.Pitch)" href="#amads.core.pitch.Pitch">Pitch</a></code>
+          –
+          <div class="doc-md-description">
+            <p>A Pitch object representing the upper enharmonic equivalent.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Examples:</span></p>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">bds</span> <span class="o">=</span> <span class="n">Pitch</span><span class="p">(</span><span class="s2">&quot;B##3&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bds</span>
+<span class="go">Pitch(name=&#39;B##3&#39;, key_num=61)</span>
+</code></pre></div>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">cis</span> <span class="o">=</span> <span class="n">bds</span><span class="o">.</span><span class="n">upper_enharmonic</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cis</span>
+<span class="go">Pitch(name=&#39;C#4&#39;, key_num=61)</span>
+</code></pre></div>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">des</span> <span class="o">=</span> <span class="n">cis</span><span class="o">.</span><span class="n">upper_enharmonic</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">des</span>
+<span class="go">Pitch(name=&#39;Db4&#39;, key_num=61)</span>
+</code></pre></div>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">des</span><span class="o">.</span><span class="n">upper_enharmonic</span><span class="p">()</span>
+<span class="go">Pitch(name=&#39;Ebbb4&#39;, key_num=61)</span>
+</code></pre></div>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">Pitch</span><span class="p">(</span><span class="s2">&quot;D4&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">upper_enharmonic</span><span class="p">()</span>
+<span class="go">Pitch(name=&#39;Ebb4&#39;, key_num=62)</span>
+</code></pre></div>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>amads/core/pitch.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">646</span>
+<span class="normal">647</span>
+<span class="normal">648</span>
+<span class="normal">649</span>
+<span class="normal">650</span>
+<span class="normal">651</span>
+<span class="normal">652</span>
+<span class="normal">653</span>
+<span class="normal">654</span>
+<span class="normal">655</span>
+<span class="normal">656</span>
+<span class="normal">657</span>
+<span class="normal">658</span>
+<span class="normal">659</span>
+<span class="normal">660</span>
+<span class="normal">661</span>
+<span class="normal">662</span>
+<span class="normal">663</span>
+<span class="normal">664</span>
+<span class="normal">665</span>
+<span class="normal">666</span>
+<span class="normal">667</span>
+<span class="normal">668</span>
+<span class="normal">669</span>
+<span class="normal">670</span>
+<span class="normal">671</span>
+<span class="normal">672</span>
+<span class="normal">673</span>
+<span class="normal">674</span>
+<span class="normal">675</span>
+<span class="normal">676</span>
+<span class="normal">677</span>
+<span class="normal">678</span>
+<span class="normal">679</span>
+<span class="normal">680</span>
+<span class="normal">681</span>
+<span class="normal">682</span>
+<span class="normal">683</span>
+<span class="normal">684</span>
+<span class="normal">685</span>
+<span class="normal">686</span>
+<span class="normal">687</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">upper_enharmonic</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Pitch&quot;</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the enharmonic based on the note name above.</span>
+
+<span class="sd">    The result will have the next higher diatonic name</span>
+<span class="sd">    with `alt` accordingly decreased by 1 or 2, e.g.,</span>
+<span class="sd">    C#-&gt;Db, C##-&gt;D, Cb-&gt;Dbbb.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Pitch</span>
+<span class="sd">        A Pitch object representing the upper enharmonic equivalent.</span>
+
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; bds = Pitch(&quot;B##3&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; bds</span>
+<span class="sd">    Pitch(name=&#39;B##3&#39;, key_num=61)</span>
+
+<span class="sd">    &gt;&gt;&gt; cis = bds.upper_enharmonic()</span>
+<span class="sd">    &gt;&gt;&gt; cis</span>
+<span class="sd">    Pitch(name=&#39;C#4&#39;, key_num=61)</span>
+
+<span class="sd">    &gt;&gt;&gt; des = cis.upper_enharmonic()</span>
+<span class="sd">    &gt;&gt;&gt; des</span>
+<span class="sd">    Pitch(name=&#39;Db4&#39;, key_num=61)</span>
+
+<span class="sd">    &gt;&gt;&gt; des.upper_enharmonic()</span>
+<span class="sd">    Pitch(name=&#39;Ebbb4&#39;, key_num=61)</span>
+
+<span class="sd">    &gt;&gt;&gt; Pitch(&quot;D4&quot;).upper_enharmonic()</span>
+<span class="sd">    Pitch(name=&#39;Ebb4&#39;, key_num=62)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">alt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alt</span>
+    <span class="n">unaltered</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">key_num</span> <span class="o">-</span> <span class="n">alt</span><span class="p">)</span> <span class="o">%</span> <span class="mi">12</span>
+    <span class="k">if</span> <span class="n">unaltered</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">9</span><span class="p">]:</span>  <span class="c1"># C-&gt;D, D-&gt;E, F-&gt;G, G-&gt;A, A-&gt;B</span>
+        <span class="n">alt</span> <span class="o">-=</span> <span class="mi">2</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># E-&gt;F, B-&gt;C</span>
+        <span class="n">alt</span> <span class="o">-=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">Pitch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">key_num</span><span class="p">,</span> <span class="n">alt</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="amads.core.pitch.Pitch.lower_enharmonic" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">lower_enharmonic</span>
+
+
+<a href="#amads.core.pitch.Pitch.lower_enharmonic" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">lower_enharmonic</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="            Pitch (amads.core.pitch.Pitch)" href="#amads.core.pitch.Pitch">Pitch</a></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Return the enharmonic based on the note name below.</p>
+<p>The result will have the next lower diatonic name
+with <code>alt</code> accordingly increased by 1 or 2, e.g.,
+Db-&gt;C#, D-&gt;C##, D#-&gt;C###.</p>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><a class="autorefs autorefs-internal" title="            Pitch (amads.core.pitch.Pitch)" href="#amads.core.pitch.Pitch">Pitch</a></code>
+          –
+          <div class="doc-md-description">
+            <p>A Pitch object representing the lower enharmonic equivalent.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Examples:</span></p>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">Pitch</span><span class="p">(</span><span class="s2">&quot;Db4&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower_enharmonic</span><span class="p">()</span>
+<span class="go">Pitch(name=&#39;C#4&#39;, key_num=61)</span>
+</code></pre></div>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">Pitch</span><span class="p">(</span><span class="s2">&quot;D4&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower_enharmonic</span><span class="p">()</span>
+<span class="go">Pitch(name=&#39;C##4&#39;, key_num=62)</span>
+</code></pre></div>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">Pitch</span><span class="p">(</span><span class="s2">&quot;C#4&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower_enharmonic</span><span class="p">()</span>
+<span class="go">Pitch(name=&#39;B##3&#39;, key_num=61)</span>
+</code></pre></div>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>amads/core/pitch.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">690</span>
+<span class="normal">691</span>
+<span class="normal">692</span>
+<span class="normal">693</span>
+<span class="normal">694</span>
+<span class="normal">695</span>
+<span class="normal">696</span>
+<span class="normal">697</span>
+<span class="normal">698</span>
+<span class="normal">699</span>
+<span class="normal">700</span>
+<span class="normal">701</span>
+<span class="normal">702</span>
+<span class="normal">703</span>
+<span class="normal">704</span>
+<span class="normal">705</span>
+<span class="normal">706</span>
+<span class="normal">707</span>
+<span class="normal">708</span>
+<span class="normal">709</span>
+<span class="normal">710</span>
+<span class="normal">711</span>
+<span class="normal">712</span>
+<span class="normal">713</span>
+<span class="normal">714</span>
+<span class="normal">715</span>
+<span class="normal">716</span>
+<span class="normal">717</span>
+<span class="normal">718</span>
+<span class="normal">719</span>
+<span class="normal">720</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">lower_enharmonic</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Pitch&quot;</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the enharmonic based on the note name below.</span>
+
+<span class="sd">    The result will have the next lower diatonic name</span>
+<span class="sd">    with `alt` accordingly increased by 1 or 2, e.g.,</span>
+<span class="sd">    Db-&gt;C#, D-&gt;C##, D#-&gt;C###.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Pitch</span>
+<span class="sd">        A Pitch object representing the lower enharmonic equivalent.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; Pitch(&quot;Db4&quot;).lower_enharmonic()</span>
+<span class="sd">    Pitch(name=&#39;C#4&#39;, key_num=61)</span>
+
+<span class="sd">    &gt;&gt;&gt; Pitch(&quot;D4&quot;).lower_enharmonic()</span>
+<span class="sd">    Pitch(name=&#39;C##4&#39;, key_num=62)</span>
+
+<span class="sd">    &gt;&gt;&gt; Pitch(&quot;C#4&quot;).lower_enharmonic()</span>
+<span class="sd">    Pitch(name=&#39;B##3&#39;, key_num=61)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">alt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alt</span>
+    <span class="n">unaltered</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">key_num</span> <span class="o">-</span> <span class="n">alt</span><span class="p">)</span> <span class="o">%</span> <span class="mi">12</span>
+    <span class="k">if</span> <span class="n">unaltered</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">11</span><span class="p">]:</span>  <span class="c1"># D-&gt;C, E-&gt;D, G-&gt;F, A-&gt;G, B-&gt;A</span>
+        <span class="n">alt</span> <span class="o">+=</span> <span class="mi">2</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># F-&gt;E, C-&gt;B</span>
+        <span class="n">alt</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">Pitch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">key_num</span><span class="p">,</span> <span class="n">alt</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div><hr />
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="amads.core.pitch.PitchCollection" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">PitchCollection</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#amads.core.pitch.PitchCollection" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">PitchCollection</span><span class="p">(</span><span class="n"><a class="autorefs autorefs-internal" title="pitches (amads.core.pitch.PitchCollection(pitches))" href="#amads.core.pitch.PitchCollection(pitches)">pitches</a></span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="            Pitch (amads.core.pitch.Pitch)" href="#amads.core.pitch.Pitch">Pitch</a></span><span class="p">])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents first">
+
+
+
+        <p>Combined representations of more than one pitch. Differs from Chord
+which has onset, duration, and contains Notes, not Pitches.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+<h3 id="amads.core.pitch.PitchCollection(pitches)" class="doc doc-heading doc-heading-parameter">              <b><code>pitches</code></b>
+<a href="#amads.core.pitch.PitchCollection(pitches)" class="headerlink" title="Permanent link">&para;</a></h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-internal" title="            Pitch (amads.core.pitch.Pitch)" href="#amads.core.pitch.Pitch">Pitch</a>]</code>)
+          –
+          <div class="doc-md-description">
+            <p>A list of Pitch instances.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+          <b><code><span title="amads.core.pitch.PitchCollection.pitches">pitches</span></code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-internal" title="            Pitch (amads.core.pitch.Pitch)" href="#amads.core.pitch.Pitch">Pitch</a>]</code>)
+          –
+          <div class="doc-md-description">
+            <p>A list of Pitch instances.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Examples:</span></p>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">test_case</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;G#4&#39;</span><span class="p">,</span> <span class="s1">&#39;G#4&#39;</span><span class="p">,</span> <span class="s1">&#39;B4&#39;</span><span class="p">,</span> <span class="s1">&#39;D4&#39;</span><span class="p">,</span> <span class="s1">&#39;F4&#39;</span><span class="p">,</span> <span class="s1">&#39;Ab4&#39;</span><span class="p">]</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pitches</span> <span class="o">=</span> <span class="p">[</span><span class="n">Pitch</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">test_case</span><span class="p">]</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pitches_gathered</span> <span class="o">=</span> <span class="n">PitchCollection</span><span class="p">(</span><span class="n">pitches</span><span class="p">)</span>
+</code></pre></div>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">pitches_gathered</span><span class="o">.</span><span class="n">pitch_name_multiset</span>  
+<span class="go">[&#39;G#4&#39;, &#39;G#4&#39;, &#39;B4&#39;, &#39;D4&#39;, &#39;F4&#39;, &#39;Ab4&#39;]</span>
+</code></pre></div>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">pitches_gathered</span><span class="o">.</span><span class="n">pitch_num_multiset</span>  
+<span class="go">[68, 68, 71, 62, 65, 68]</span>
+</code></pre></div>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">pitches_gathered</span><span class="o">.</span><span class="n">pitch_class_multiset</span>  
+<span class="go">[2, 5, 8, 8, 8, 11]</span>
+</code></pre></div>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">pitches_gathered</span><span class="o">.</span><span class="n">pitch_class_set</span>  
+<span class="go">[2, 5, 8, 11]</span>
+</code></pre></div>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">pitches_gathered</span><span class="o">.</span><span class="n">pitch_class_vector</span>  
+<span class="go">(0, 0, 1, 0, 0, 1, 0, 0, 3, 0, 0, 1)</span>
+</code></pre></div>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">pitches_gathered</span><span class="o">.</span><span class="n">pitch_class_indicator_vector</span>
+<span class="go">(0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1)</span>
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+<h3 id="amads.core.pitch.PitchCollection-attributes">Attributes<a href="#amads.core.pitch.PitchCollection-attributes" class="headerlink" title="Permanent link">&para;</a></h3>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="amads.core.pitch.PitchCollection.pitch_num_multiset" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">pitch_num_multiset</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#amads.core.pitch.PitchCollection.pitch_num_multiset" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">pitch_num_multiset</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Return a list of pitch numbers from the pitches in the collection.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="amads.core.pitch.PitchCollection.pitch_name_multiset" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">pitch_name_multiset</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#amads.core.pitch.PitchCollection.pitch_name_multiset" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">pitch_name_multiset</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Return a list of pitch names with octaves from the pitches in the collection.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="amads.core.pitch.PitchCollection.pitch_class_multiset" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">pitch_class_multiset</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#amads.core.pitch.PitchCollection.pitch_class_multiset" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">pitch_class_multiset</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Return a sorted list of pitch classes from the pitches in the collection, including duplicates.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="amads.core.pitch.PitchCollection.pitch_class_set" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">pitch_class_set</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#amads.core.pitch.PitchCollection.pitch_class_set" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">pitch_class_set</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Return a sorted list of pitch classes from the pitches in the collection without duplicates.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="amads.core.pitch.PitchCollection.pitch_class_vector" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">pitch_class_vector</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#amads.core.pitch.PitchCollection.pitch_class_vector" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">pitch_class_vector</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Return a pitch class vector (12-dimensional) representing the count of each pitch class in the collection.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="amads.core.pitch.PitchCollection.pitch_class_indicator_vector" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">pitch_class_indicator_vector</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#amads.core.pitch.PitchCollection.pitch_class_indicator_vector" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">pitch_class_indicator_vector</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Return a pitch class indicator vector (12-dimensional) representing the presence (1) or absence (0) of each pitch class in the collection.</p>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.tabs"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="../../javascripts/fix-properties.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
