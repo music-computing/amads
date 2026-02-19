@@ -1,1 +1,1 @@
-# amads.schemata package initializer
+# amads.schema package initializer

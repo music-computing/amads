@@ -1,8 +1,8 @@
-::: amads.schemata
+::: amads.schema
 
 ---------------------
 
-::: amads.schemata.partimenti
+::: amads.schema.partimenti
     options:
       members: true
       show_root_heading: true

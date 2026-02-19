@@ -119,7 +119,7 @@ nav:
       - reference/algorithms/norm.md
       - reference/algorithms/scale.md
       - reference/algorithms/slice.md
-    - Schemata: reference/schemata.md
+    - Schemata: reference/schema.md
   - Install: user_guide/installation.md
   - Developer:
     - Documentation: developer_notes/documentation.md

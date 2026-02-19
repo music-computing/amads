@@ -90,8 +90,8 @@ from .pitch.transformations import *
 # polyphony
 from .polyphony.skyline import *
 
-# schemata
-from .schemata.partimenti import *
+# schema
+from .schema.partimenti import *
 
 # time
 from .time.durdist1 import *
