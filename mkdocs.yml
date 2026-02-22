@@ -82,7 +82,8 @@ nav:
       - Distribution: reference/distribution.md
       - Utility Functions: reference/utils.md
       - Vector Functions: reference/vector.md
-    - Input and Output: reference/io.md
+    - Input and Output:
+      - Input and Output: reference/io.md
     - Pitch:
       - reference/pitch/ismonophonic.md
       - reference/pitch/hz2midi.md

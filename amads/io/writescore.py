@@ -396,8 +396,6 @@ def write_score(
     format : Optional[string]
         one of `'musicxml'`, `'midi'`, `'kern'`, `'mei'`, `'pdf'`, `'lilypond'`.
         Defaults to the format implied by `filename`.
-    display : bool
-        If True and format is 'pdf', the created PDF file is displayed.
 
     Raises
     ------

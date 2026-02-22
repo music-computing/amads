@@ -12,11 +12,11 @@
 
 ----------------
 
-::: amads.algorithms.gcd.fraction_gcd_pair 
+::: amads.algorithms.gcd.lcm_pair 
 
 ----------------
 
-::: amads.algorithms.gcd.lcm_pair 
+::: amads.algorithms.gcd.fraction_gcd_pair 
 
 ----------------
 
@@ -34,4 +34,3 @@
 
 ::: amads.algorithms.gcd.calculate_gcd
 
-----------------
