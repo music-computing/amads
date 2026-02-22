@@ -4,6 +4,7 @@ __author__ = "Roger B. Dannenberg"
 
 import warnings
 from math import isclose
+from pathlib import Path
 from typing import Optional
 
 import partitura as pt
@@ -539,23 +540,44 @@ def partitura_convert_part(
                     mq.time += time_gap
                     mq.quarter += gap
 
+    # last measure of Partitura can be "incomplete" and have a duration
+    # shorter than what is implied by the time signature. Here, we will
+    # "expand" the last measures to full time signature duration, consistent
+    # with expanding incomplete first measures and with Music21 import.
+    # We assume every part has the same structure so we can adjust them
+    # independently:
+    offset = 0.0
+    for staff in part.content:
+        if len(staff.content) > 0:  # type: ignore
+            mn = staff.content[-1]  # type: ignore  last measure
+            mn_ts_dur = mn.time_signature().quarters
+            if mn.duration < mn_ts_dur - 0.001:
+                mn.duration = mn_ts_dur
+                offset = max(offset, mn.offset)
+    for staff in part.content:
+        if offset > staff.offset:
+            staff.offset = offset
+
     part.duration = part.content[0].duration  # set to equal staff duration
     return part
 
 
-def partitura_xml_import(
-    filename,
-    flatten=False,
-    collapse=False,
-    show=False,
+def partitura_import(
+    filename: Path | str,
+    format: str,
+    flatten: bool = False,
+    collapse: bool = False,
+    show: bool = False,
     group_by_instrument: bool = True,
 ) -> Score:
     """Use Partitura to import a MusicXML file.
 
     Parameters
     ----------
-    filename : str
+    filename : Path | str
         The path (relative or absolute) to the music file.
+    format: str
+        The format of the file: 'musicxml', 'mei', 'kern'
     flatten : bool = False
         Returns a flat score (see `amads.core.basics.Part.flatten`)
     collapse : bool = False
@@ -575,14 +597,23 @@ def partitura_xml_import(
 
     <small>**Author**: Roger B. Dannenberg</small>
     """
-    if filename is None:
-        filename = pt.EXAMPLE_MUSICXML
-
     # Partitura.load_score claims to accept a file-like object, but
     # it has been problematic for us in the past, so we use a string filename.
     filename = str(filename)
 
-    ptscore = pt.load_score(filename)
+    # maybe load_score would handle all file types, but since we know the
+    # format and might want to use some format-dependent parameters, handle
+    # each case separately:
+    ptscore = None
+    if format == "musicxml":
+        ptscore = pt.load_musicxml(filename)
+    elif format == "mei":
+        ptscore = pt.load_mei(filename)
+    elif format == "kern":
+        ptscore = pt.load_kern(filename)
+    assert ptscore is not None, (
+        "Partitura failed to load score from " f"{filename}"
+    )
     if show:
         print(f"Partitura score structure from {filename}:")
         for ptpart in ptscore:

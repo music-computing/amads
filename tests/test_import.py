@@ -119,9 +119,9 @@ def test_import_midi(midi_filename):
     #     print(f"{note.start:0.2f} {note.pitch} {note.end - note.start:0.2f}")
 
     pm_notes.sort(key=lambda x: (x.start, x.pitch))
-    #    print("PrettyMIDI notes after sort:")
-    #    for note in pm_notes:
-    #        print(f"{note.start:0.2f} {note.pitch} {note.end - note.start:0.2f}")
+    print("PrettyMIDI notes after sort:")
+    for note in pm_notes:
+        print(f"{note.start:0.2f} {note.pitch} {note.end - note.start:0.2f}")
 
     basic_note_compare(pmscore_notes, pm_notes)
 
@@ -133,4 +133,6 @@ def test_import_midi(midi_filename):
         f"Imported MIDI file {midi_filename} into AMADS Score "
         f"using {last_used_reader()}."
     )
+    print("AMADS notes from music21 MIDI import:")
+    m2score.show()
     basic_note_compare(m2score.get_sorted_notes(), pm_notes)

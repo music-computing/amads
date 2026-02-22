@@ -2,14 +2,21 @@ from typing import cast
 
 import matplotlib.pyplot as plt
 
-from amads.all import Part, Score, interval_distribution_1, music21_midi_import
-from amads.music import example
+from amads.all import (
+    Part,
+    Score,
+    example,
+    interval_distribution_1,
+    read_score,
+    set_preferred_midi_reader,
+)
 
 my_midi_file = example.fullpath("midi/tones.mid")
 assert my_midi_file is not None
 
 print("------- input from partitura")
-myscore = music21_midi_import(my_midi_file, show=False)
+set_preferred_midi_reader("music21")
+myscore = read_score(my_midi_file, show=False)
 print("------- finished input from partitura")
 myscore.show()
 print("------- Removing all but the first part")

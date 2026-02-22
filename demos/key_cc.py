@@ -1,7 +1,7 @@
 import amads.pitch.key.profiles as prof
 from amads.core.distribution import Distribution
 from amads.core.pitch import CHROMATIC_NAMES
-from amads.io.readscore import import_midi
+from amads.io.readscore import read_score
 from amads.music import example
 from amads.pitch.key.key_cc import key_cc
 
@@ -38,7 +38,7 @@ def build_key_correlation_distribution(profile, score):
 def main(profiles, option: str = "bar"):
     midi_path = example.fullpath("midi/sarabande.mid")
     assert midi_path
-    score = import_midi(midi_path, show=False)
+    score = read_score(midi_path, show=False)
     for p in profiles:
         dist = build_key_correlation_distribution(p, score)
         dist.plot(option=option)

@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 from pytest import fixture
 
-from amads.io.readscore import import_midi
+from amads.io.readscore import read_score
 from amads.music import example
 
 
@@ -9,7 +9,7 @@ from amads.music import example
 def twochan_score():
     midi_file = example.fullpath("midi/twochan.mid")
     assert midi_file is not None
-    return import_midi(midi_file, show=True).quantize(4)
+    return read_score(midi_file, show=True).quantize(4)
 
 
 @fixture

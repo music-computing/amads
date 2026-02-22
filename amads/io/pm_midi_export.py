@@ -107,8 +107,12 @@ def add_eventgroup_to_instrument(
         # else event is unhandled, hopefully a Rest, or Clef
 
 
-def pretty_midi_midi_export(
-    score: Score, filename: str, show: bool = False
+def pretty_midi_export(
+    score: Score,
+    filename: str,
+    format: str,
+    show: bool = False,
+    display: bool = False,
 ) -> None:
     """
     Export a Score as a standard MIDI file using PrettyMIDI library.
@@ -119,8 +123,13 @@ def pretty_midi_midi_export(
         The Score object to export.
     filename : str
         The path to the output MIDI file.
+    format : str
+        The export format, should be "midi" for this function.
     show : bool
         Print a text representation of the data.
+    display : bool
+        Display the MIDI file (always False for MIDI export, included for
+        consistency with other export functions).
     """
     global tied_to_notes  # helps to merge tied notes
     tied_to_notes = {}

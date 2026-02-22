@@ -1,4 +1,5 @@
 from math import isclose
+from pathlib import Path
 from typing import Optional, cast
 
 from partitura import save_musicxml
@@ -170,7 +171,7 @@ def add_event_to_part(
 
 def score_to_partitura(
     score: Score,
-    filename: str,
+    filename: Path | str,
     show: bool = False,
 ) -> ptScore:
     """Convert an AMADS Score to a Partitura score."""
@@ -227,7 +228,7 @@ def score_to_partitura(
                 tied_to_pt_note.tie_prev = pt_note
 
     if show:
-        print(f"Partitura score structure for {filename}.")
+        print(f"Partitura score structure for {str(filename)}.")
         print(f"---- class is {pt_score.__class__}, here are the parts ----")
         for ptpart in pt_score.parts:
             print(ptpart.__class__)
@@ -235,10 +236,12 @@ def score_to_partitura(
     return pt_score
 
 
-def partitura_xml_export(
+def partitura_export(
     score: Score,
-    filename: str,
+    filename: Path | str,
+    format: str,
     show: bool = False,
+    display: bool = False,
 ) -> None:
     """Save a Score to a file in musicxml format using Partitura.
 
@@ -248,11 +251,18 @@ def partitura_xml_export(
     ----------
     score : Score
         The Score to export.
-    filename : str
-        The name of the file to save the MusicXML data.
+    filename : Path | str
+        The name or path of the file to save the MusicXML data.
+    format : str
+        The format of the file to save. Must be "musicxml" for this function.
     show : bool, optional
         If True, print the partitura score structure for debugging.
-
+    display : bool, optional
+        If True, open the generated PDF in the default viewer.
+        Only relevant for PDF export (see `music21_xml_lilypond_export`).
     """
     ptscore = score_to_partitura(score, filename, show)
+    assert (
+        format == "musicxml"
+    ), f"Unsupported format for partitura export: {format}"
     save_musicxml(ptscore, filename)

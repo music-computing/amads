@@ -2,7 +2,7 @@
 Tests for amads/pitch/pcdist1.py
 """
 
-from amads.io.readscore import import_midi
+from amads.io.readscore import read_score
 from amads.music import example
 from amads.pitch.pcdist1 import pitch_class_distribution_1
 
@@ -15,7 +15,7 @@ def test_pcdist1():
 
     print("------- input midi file")
     assert my_midi_file is not None
-    myscore = import_midi(my_midi_file, show=False)
+    myscore = read_score(my_midi_file, show=False)
     myscore.show()
     print("------- finished input midi file")
 

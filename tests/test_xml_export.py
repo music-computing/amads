@@ -10,7 +10,7 @@ from amads.io.writescore import set_preferred_xml_writer, write_score
 from amads.music import example
 from amads.pitch.pitch_mean import pitch_mean
 
-VERBOSE = True  # set to True for more debug output
+VERBOSE = False  # set to True for more debug output
 
 
 def verbose_blank():

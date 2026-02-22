@@ -13,14 +13,14 @@ the result.
 import matplotlib.pyplot as plt
 
 from amads.algorithms.slice.window import sliding_window
-from amads.io.readscore import import_midi
+from amads.io.readscore import read_score
 from amads.music import example
 
 # %%
 # Load an example MIDI file and import it using partitura.
 
 midi_file = example.fullpath("midi/twochan.mid")
-my_score = import_midi(midi_file, show=False)
+my_score = read_score(midi_file, show=False)
 
 # %%
 # Set up parameters for the sliding window analysis. We'll use a window size of

@@ -1,5 +1,6 @@
 import warnings
 from math import isclose
+from pathlib import Path
 from typing import Optional, cast
 
 from music21 import (
@@ -225,7 +226,7 @@ def _add_measure_content_from_list(m21parent, measure, content, dur, ties):
 
 
 def score_to_music21(
-    score: Score, show: bool = False, filename: Optional[str] = None
+    score: Score, show: bool = False, filename: Optional[Path | str] = None
 ) -> stream.Score:
     """
     Convert a Score to music21
@@ -236,7 +237,7 @@ def score_to_music21(
         The Score to convert
     show : bool, optional
         If True, print the music21 score structure for debugging.
-    filename : Optional[str]
+    filename : Optional[Path |  str]
         If `show` and not None, `filename` is shown
 
     Returns
@@ -391,10 +392,12 @@ def score_to_music21(
     return m21score
 
 
-def music21_xml_export(
+def music21_export(
     score: Score,
-    filename: str,
+    filename: Path | str,
+    format: str,
     show: bool = False,
+    display: bool = False,
 ) -> None:
     """Save a Score to a file in musicxml format using music21.
 
@@ -404,20 +407,30 @@ def music21_xml_export(
     ----------
     score : Score
         The Score to export.
-    filename : str
-        The name of the file to save the MusicXML data.
+    filename : Path | str
+        The name or path of the file to save the MusicXML data.
+    format : str
+        The format to export. Must be "musicxml", "midi", or "kern".
     show : bool, optional
         If True, print the music21 score structure for debugging.
+    display: bool, optional
+        If True, open the generated PDF in the default viewer.
+        Only relevant for PDF export (see `music21_xml_lilypond_export`).
 
     """
     m21score = score_to_music21(score, show, filename)
 
-    # Export as text and fix part id's
-    exporter = musicxml.m21ToXml.GeneralObjectExporter(m21score)
-    musicxml_bytes = exporter.parse()
-    musicxml_str = musicxml_bytes.decode("utf-8")
-    fixed_xml = fix_part_ids(musicxml_str)
+    if format == "musicxml":
+        # Export as text and fix part id's
+        exporter = musicxml.m21ToXml.GeneralObjectExporter(m21score)
+        musicxml_bytes = exporter.parse()
+        musicxml_str = musicxml_bytes.decode("utf-8")
+        fixed_xml = fix_part_ids(musicxml_str)
 
-    # Finally, write the file
-    with open(filename, "w") as f:
-        f.write(fixed_xml)
+        # Finally, write the file
+        with open(filename, "w") as f:
+            f.write(fixed_xml)
+    elif format == "midi":
+        m21score.write("midi", filename)
+    elif format == "kern":
+        m21score.write("kern", filename)

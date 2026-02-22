@@ -1,6 +1,6 @@
 # pcdist2_test.py - simple test of pitch_class_distribution_2()
 
-from amads.all import import_midi, pitch_class_distribution_2
+from amads.all import pitch_class_distribution_2, read_score
 from amads.music import example
 
 # "midi/tones.mid"
@@ -9,7 +9,7 @@ my_midi_file = example.fullpath("midi/sarabande.mid")
 assert my_midi_file is not None
 
 print("------- input from partitura")
-myscore = import_midi(my_midi_file, show=False)
+myscore = read_score(my_midi_file, show=False)
 print("------- finished input from partitura")
 
 # myscore = myscore.flatten()

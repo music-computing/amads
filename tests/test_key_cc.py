@@ -3,7 +3,7 @@ import pytest
 
 import amads.pitch.key.profiles as prof
 from amads.core.basics import Score
-from amads.io.readscore import import_midi
+from amads.io.readscore import read_score
 from amads.music import example
 from amads.pitch.key.key_cc import key_cc
 
@@ -131,7 +131,7 @@ def test_sarabande():
     from amads.pitch.pcdist1 import pitch_class_distribution_1
 
     my_midi_file = example.fullpath("midi/sarabande.mid")
-    myscore = import_midi(my_midi_file, show=False)
+    myscore = read_score(my_midi_file, show=False)
 
     pcd = np.array([pitch_class_distribution_1(myscore, False)])
     print("Pitch-Class Distribution:", pcd)

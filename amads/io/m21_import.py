@@ -45,20 +45,23 @@ tied_notes = {}  # temporary data to track tied notes, this is a mapping
 # list. (First-in-first-out).
 
 
-def music21_xml_import(
+def music21_import(
     filename: str,
+    format: str,
     flatten: bool = False,
     collapse: bool = False,
     show: bool = False,
     group_by_instrument: bool = True,
 ) -> Score:
     """
-    Use music21 to import a MusicXML file and convert it to a Score.
+    Use music21 to import a file and convert it to a Score.
 
     Parameters
     ----------
     filename : str
-        The path to the MusicXML file.
+        The path to the music file.
+    format: str
+        The file format: 'musicxml', 'kern', 'mei'
     flatten : bool, optional
         If True, flatten the score structure.
     collapse : bool, optional
@@ -74,16 +77,24 @@ def music21_xml_import(
     Score
         The converted AMADS Score object.
     """
-    # Load the MusicXML file using music21
-    m21score = converter.parse(filename, format="xml")
+    # Load the file using music21
+    if format == "kern":
+        format = "humdrum"  # music21 uses "humdrum" for kern files
+    # other formats are the same for both AMADS and music21
+    qp = format != "midi"  # quantize non-MIDI files until we discover this is
+    # a bad idea. MIDI files may have expressive timing, so we never quantize.
+    m21score = converter.parse(
+        filename, format=format, forceSource=True, quantizePost=qp
+    )
 
     # m21score can be an Opus, but this is checked in music21_to_score, so we
     # can ignore the type error here:
     score = music21_to_score(
-        m21score,
+        m21score,  # type: ignore
         flatten,
         collapse,
         show,  # type: ignore
+        filename,
         group_by_instrument=group_by_instrument,
     )
     return score
@@ -132,11 +143,19 @@ def music21_to_score(
     if isinstance(m21score, stream.Part):
         music21_convert_part(m21score, score, duration)
     elif isinstance(m21score, stream.Score):
+        shared_shift = None  # used to check all parts have same time shift
         for i, m21part in enumerate(m21score.parts):
             if isinstance(m21part, stream.Part):
                 # Convert the music21 part into an AMADS Part and
                 # append it to the Score:
-                part = music21_convert_part(m21part, score, duration)
+                part, shift = music21_convert_part(m21part, score, duration)
+                # check that all parts have the same time shift; this should
+                # be true if all first measures have the same number of beats
+                # either as notes or rest or some combination.
+                if shared_shift is not None:
+                    assert isclose(shared_shift, shift, abs_tol=0.001)
+                else:
+                    shared_shift = shift
                 parts.append(part)
                 m21parts.append(m21part)
                 # if m21part is a PartStaff (subclass of Part), keep
@@ -556,6 +575,9 @@ def music21_convert_part(m21part, score, duration):
             f" {tied_notes.values()}"
         )
     tied_notes.clear()
+    staff.offset = staff.content[-1].offset
+
+    shift = 0  # how much did we shift to make a full measure 1?
 
     # expand first measure to a full measure if necessary
     # what is the maximum offset of the first measure?
@@ -566,15 +588,27 @@ def music21_convert_part(m21part, score, duration):
         for elem in m1.content:
             max_offset = max(max_offset, elem.offset)
         if max_offset < m1.offset - 0.001:  # need to insert rest
-            gap = m1.offset - max_offset
+            shift = m1.offset - max_offset
             for elem in m1.content:
                 if (
                     isinstance(elem, Note)
                     or isinstance(elem, Rest)
                     or isinstance(elem, Chord)
                 ):
-                    elem.time_shift(gap)
+                    elem.time_shift(shift)
             # insert Rest, Since m1 is first, m1.onset == 0
-            _ = Rest(m1, m1.onset, duration=gap)
+            _ = Rest(m1, m1.onset, duration=shift)
 
-    return part
+            # now, first measure ending may have shifted, so adjust
+            # remainder of the part
+            if len(staff.content) > 1:
+                m2 = staff.content[1]
+                m2 = cast(Measure, m2)
+                shift = m1.offset - m2.onset
+                if shift > 0.001:  # need to shift everything
+                    for m in staff.content[1:]:
+                        m.time_shift(shift)
+            staff.offset = staff.content[-1].offset
+            part.offset = max(part.offset, staff.offset)
+            score.offset = max(score.duration, staff.offset)
+    return part, shift

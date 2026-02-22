@@ -9,27 +9,36 @@ import warnings
 from typing import Callable, Optional
 
 from amads.core.basics import Score
+from amads.io.writescore import _suffix_to_format
 
 # This module, readscore, is regarded as a singleton class with
 # the following attributes:
 
 preferred_midi_reader: str = "pretty_midi"  # subsystem for MIDI file input
 preferred_xml_reader: str = "music21"  # subsystem for MusicXML input
+preferred_kern_reader: str = "music21"  # subsystem for Kern input
+preferred_mei_reader: str = "music21"  # subsystem for mei input
 reader_warning_level: str = "default"  # controls verbocity of warnings
 #     from input processing
 _last_used_reader: Optional[Callable] = None  # See last_used_reader()
 
-valid_score_extensions = [  # valid file extensions for score files
-    ".xml",
-    ".musicxml",
-    ".mxl",
-    ".mid",
-    ".midi",
-    ".smf",
-    ".kern",
-    ".krn",
-    ".mei",
-]
+valid_score_extensions = list(_suffix_to_format.keys())
+valid_score_extensions.remove(".pdf")
+valid_score_extensions.remove(".ly")  # write-only extensions
+
+allowed_subsystems = {
+    "midi": ["music21", "pretty_midi"],
+    "musicxml": ["music21", "partitura"],
+    "kern": ["music21", "partitura"],
+    "mei": ["music21", "partitura"],
+}
+
+# mapping from preference strings to subsystem callables
+_subsystem_map = {
+    "music21": ("amads.io.m21_import", "music21_import"),
+    "pretty_midi": ("amads.io.pm_midi_import", "pretty_midi_import"),
+    "partitura": ("amads.io.pt_import", "partitura_import"),
+}
 
 
 def set_preferred_midi_reader(reader: str) -> str:
@@ -42,7 +51,7 @@ def set_preferred_midi_reader(reader: str) -> str:
     Parameters
     ----------
     reader : str
-        The name of the preferred MIDI reader. Can be "music21" or "pretty_midi".
+        The name of the preferred MIDI reader; "music21" or "pretty_midi".
 
     Returns
     -------
@@ -56,7 +65,7 @@ def set_preferred_midi_reader(reader: str) -> str:
     """
     global preferred_midi_reader
     allowed = ["music21", "pretty_midi"]
-    if reader not in allowed:
+    if reader not in allowed_subsystems["midi"]:
         raise ValueError(f"Invalid MIDI reader. Must be one of {allowed}")
 
     previous = preferred_midi_reader
@@ -87,12 +96,76 @@ def set_preferred_xml_reader(reader: str) -> str:
         If an invalid reader is provided.
     """
     global preferred_xml_reader
-    allowed = ["music21", "partitura"]
+    allowed = allowed_subsystems["musicxml"]
     if reader not in allowed:
         raise ValueError(f"Invalid XML reader. Must be one of {allowed}")
 
     previous = preferred_xml_reader
     preferred_xml_reader = reader
+    return previous
+
+
+def set_preferred_kern_reader(reader: str) -> str:
+    """
+    Set a (new) preferred Kern reader.
+
+    Returns the previous reader preference. The current preference is stored
+    in `amads.io.reader.preferred_kern_reader`.
+
+    Parameters
+    ----------
+    reader : str
+        The name of the preferred Kern reader. Can be "music21" or "partitura".
+
+    Returns
+    -------
+    str
+        The previous name of the preferred Kern reader.
+
+    Raises
+    ------
+    ValueError
+        If an invalid reader is provided.
+    """
+    global preferred_kern_reader
+    allowed = allowed_subsystems["kern"]
+    if reader not in allowed:
+        raise ValueError(f"Invalid Kern reader. Must be one of {allowed}")
+
+    previous = preferred_kern_reader
+    preferred_kern_reader = reader
+    return previous
+
+
+def set_preferred_mei_reader(reader: str) -> str:
+    """
+    Set a (new) preferred MEI reader.
+
+    Returns the previous reader preference. The current preference is stored
+    in `amads.io.reader.preferred_mei_reader`.
+
+    Parameters
+    ----------
+    reader : str
+        The name of the preferred MEI reader. Can be "music21" or "partitura".
+
+    Returns
+    -------
+    str
+        The previous name of the preferred MEI reader.
+
+    Raises
+    ------
+    ValueError
+        If an invalid reader is provided.
+    """
+    global preferred_mei_reader
+    allowed = allowed_subsystems["mei"]
+    if reader not in allowed:
+        raise ValueError(f"Invalid MEI reader. Must be one of {allowed}")
+
+    previous = preferred_mei_reader
+    preferred_mei_reader = reader
     return previous
 
 
@@ -144,8 +217,10 @@ def set_reader_warning_level(level: str) -> str:
 
 
 def _check_for_subsystem(
-    file_type: str,
-) -> Optional[Callable[[str, bool, bool, bool, bool], Score]]:
+    format: str,
+) -> tuple[
+    Optional[Callable[[str, str, bool, bool, bool, bool], Score]], Optional[str]
+]:
     """
     Check if the preferred reader is available.
 
@@ -161,100 +236,148 @@ def _check_for_subsystem(
 
     Parameters
     ----------
-    file_type : str
-        The type of file to read, either 'midi' or 'xml'.
+    format : str
+        The type of file to read: 'midi', 'musicxml', 'kern', or 'mei'.
 
     Returns
     -------
-    Optional[Callable]
-        The import function if available.
+    tuple[Optional[Callable], Optional[str]]
+        The import function if available, None otherwise.
     """
-    reader = (
-        preferred_midi_reader if file_type == "midi" else preferred_xml_reader
-    )
+    preferred_reader = {
+        "midi": preferred_midi_reader,
+        "musicxml": preferred_xml_reader,
+        "kern": preferred_kern_reader,
+        "mei": preferred_mei_reader,
+    }.get(format)
+
+    if not preferred_reader:
+        return None, preferred_reader
 
     try:
-        if reader == "music21":
-            if file_type == "midi":
-                from amads.io.m21_midi_import import music21_midi_import
+        if (
+            preferred_reader not in _subsystem_map
+            or preferred_reader not in allowed_subsystems[format]
+        ):
+            raise ValueError(
+                f"Preferred reader '{preferred_reader}' not supported for "
+                f"{format} import."
+            )
 
-                return music21_midi_import
-            else:
-                from amads.io.m21_xml_import import music21_xml_import
-
-                return music21_xml_import
-        elif reader == "partitura":
-            if file_type == "xml":
-                from amads.io.pt_xml_import import partitura_xml_import
-
-                return partitura_xml_import
-            else:
-                raise ImportError(
-                    "Partitura MIDI import not currently supported"
-                )
-        elif reader == "pretty_midi":
-            if file_type == "midi":
-                from amads.io.pm_midi_import import pretty_midi_midi_import
-
-                return pretty_midi_midi_import
-            else:
-                raise ImportError("PrettyMIDI does not support XML import")
-    except ImportError as e:
-        print(f"Error importing {reader} for {file_type} files: {e}")
-    return None
+        module_name, func_name = _subsystem_map[preferred_reader]
+        module = __import__(module_name, fromlist=[func_name])
+        return getattr(module, func_name), preferred_reader
+    except Exception as e:
+        print(f"Error importing {preferred_reader} for {format} files: {e}")
+    return None, preferred_reader
 
 
-def import_xml(
+def _import_score(
     filename: str,
+    format: str,
     flatten: bool = False,
     collapse: bool = False,
     show: bool = False,
     group_by_instrument: bool = True,
 ) -> Score:
-    """Use Partitura or music21 to import a MusicXML file.
+    """Import a score file
 
+    <small>**Author**: Roger B. Dannenberg</small>
+    """
+    global _last_used_reader
+    import_fn, preferred_reader = _check_for_subsystem(format)
+    if import_fn is not None:
+        _last_used_reader = import_fn
+        if reader_warning_level != "none":
+            print(
+                f"Reading {filename} using {format} reader "
+                f"file={import_fn.__name__}."
+            )
+        return import_fn(
+            filename, format, flatten, collapse, show, group_by_instrument
+        )
+    else:
+        raise Exception(
+            "Could not find a MusicXML import function. "
+            f"Preferred subsystem is {preferred_reader}"
+        )
+
+
+def read_score(
+    filename: str,
+    flatten: bool = False,
+    collapse: bool = False,
+    show: bool = False,
+    format: Optional[str] = None,
+    group_by_instrument: bool = True,
+) -> Score:
+    """Read a file with the given format, 'musicxml', 'midi', 'kern', 'mei'.
+
+    If format is None (default), the format is based on the filename
+    extension, which can be 'musicxml', 'mid', 'midi', 'smf', 'kern',
+    or 'mei'. (Valid extensions are in
+    `amads.io.readscore.valid_score_extensions`.)
+
+    <small>**Author**: Roger B. Dannenberg</small>
+
+    Parameters
+    ----------
+    filename : str
+        The path (relative or absolute) to the music file.
+        Can also be an URL.
+    flatten : bool
+        The returned score will be flat (Score, Parts, Notes).
+    collapse: bool
+        If collapse and flatten, the parts will be merged into one.
+    show : bool
+        Print a text representation of the data.
+    format: string
+        One from among limited standard options (e.g.,
+        `'musicxml'`, `'midi'`, `'kern'`, `'mei'`)
+    group_by_instrument : bool
+        If True (default), when the underlying reader (e.g. for "pretty_midi",
+        "music21" or "partitura") reads Parts with the same instrument, their
+        content will be grouped into a single part. This means that if
+        `flatten`, then parts with the same instrument will be merged into a
+        single part. If `flatten` is False, then the staffs of parts with the
+        same instrument will be grouped within a single part.
+        If `group_by_instrument` is False, the parts read in by the underlying
+        reader will be preserved as separate parts. `group_by_instrument` is
+        True by default so that when reading Piano scores with separate treble
+        and bass staffs, the resulting AMADS Score will generally have a single
+        Piano part with two staffs. A score for Piano and Violin will generally
+        have two parts, one for Piano and one for Violin, as opposed to three
+        parts (Piano-Treble, Piano-Bass, Violin). On the other hand, a score for
+        two Violins might be represented a one part with two staffs by default,
+        but setting `group_by_instrument` to False will more likely keep the
+        two Violin parts separate. Unfortunately, exact behavior depends on the
+        underlying reader, MIDI track names, and/or MusicXML structure and
+        naming.
+
+    Returns
+    -------
+    Score
+        The imported score
+
+    Raises
+    ------
+    ValueError
+        If the format is unknown or not implemented.
+
+    Note on Incomplete First Measure
+    --------------------------------
     In Music21, the first measure may be a partial measure containing
     an anacrusis (“pickup”). This is somewhat ambiguous and does not
     translate well to MIDI which is less expressive than MusicXML.
 
     Therefore, if the first measure read with Music21 is not a full
     measure, a rest is inserted and the remainder is shifted to
-    form a full measure according to its time signature.
+    form a full measure according to its time signature. Remaining
+    measures are shifted in time accordingly and Score, Part and
+    Staff durations are adjusted accordingly.
 
-    <small>**Author**: Roger B. Dannenberg</small>
-    """
-    global _last_used_reader
-    import_xml_fn = _check_for_subsystem("xml")
-    if import_xml_fn is not None:
-        _last_used_reader = import_xml_fn
-        if reader_warning_level != "none":
-            print(
-                f"Reading {filename} using MusicXML reader "
-                f"file={import_xml_fn.__name__}."
-            )
-        return import_xml_fn(
-            filename, flatten, collapse, show, group_by_instrument
-        )
-    else:
-        raise Exception(
-            "Could not find a MusicXML import function. "
-            f"Preferred subsystem is {preferred_xml_reader}"
-        )
-
-
-def import_midi(
-    filename: str,
-    flatten: bool = False,
-    collapse: bool = False,
-    show: bool = False,
-    group_by_instrument: bool = True,
-) -> Score:
-    """Use music21 or pretty_midi to import a Standard MIDI file.
-
-    <small>**Author**: Roger B. Dannenberg</small>
-
-    Notes
-    -----
+    General MIDI Import Notes
+    -------------------------
     Each Standard MIDI File track corresponds to a Staff when
     creating a full AMADS Score. Everything is combined into one
     part when `flatten` and `collapse` are specified.
@@ -309,86 +432,6 @@ def import_midi(
     does not even have a meta-event for clefs, and even if the
     MIDI file has no key signature meta-event.
     """
-    global _last_used_reader
-    import_midi_fn = _check_for_subsystem("midi")
-    if import_midi_fn is not None:
-        _last_used_reader = import_midi_fn
-        if reader_warning_level != "none":
-            print(
-                f"Reading {filename} using MIDI reader "
-                f"{import_midi_fn.__name__}."
-            )
-        return import_midi_fn(
-            filename, flatten, collapse, show, group_by_instrument
-        )
-    else:
-        raise Exception(
-            "Could not find a MIDI file import function. "
-            f"Preferred subsystem is {preferred_midi_reader}"
-        )
-
-
-def read_score(
-    filename: str,
-    flatten: bool = False,
-    collapse: bool = False,
-    show: bool = False,
-    format: Optional[str] = None,
-    group_by_instrument: bool = True,
-) -> Score:
-    """Read a file with the given format, `'xml'`, `'midi'`, `'kern'`, `'mei'`.
-
-    If format is None (default), the format is based on the filename
-    extension, which can be `'xml'`, `'mid'`, `'midi'`, `'smf'`, `'kern'`,
-    or `'mei'`. (Valid extensions are in
-    `amads.io.readscore.valid_score_extensions`.)
-
-    <small>**Author**: Roger B. Dannenberg</small>
-
-    Parameters
-    ----------
-    filename : str
-        The path (relative or absolute) to the music file.
-        Can also be an URL.
-    flatten : bool
-        The returned score will be flat (Score, Parts, Notes).
-    collapse: bool
-        If collapse and flatten, the parts will be merged into one.
-    show : bool
-        Print a text representation of the data.
-    format: string
-        One from among limited standard options (e.g.,
-        `'xml'`, `'midi'`, `'kern'`, `'mei'`)
-    group_by_instrument : bool
-        If True (default), when the underlying reader (e.g. for "pretty_midi",
-        "music21" or "partitura") reads Parts with the same instrument, their
-        content will be grouped into a single part. This means that if
-        `flatten`, then parts with the same instrument will be merged into a
-        single part. If `flatten` is False, then the staffs of parts with the
-        same instrument will be grouped within a single part.
-        If `group_by_instrument` is False, the parts read in by the underlying
-        reader will be preserved as separate parts. `group_by_instrument` is
-        True by default so that when reading Piano scores with separate treble
-        and bass staffs, the resulting AMADS Score will generally have a single
-        Piano part with two staffs. A score for Piano and Violin will generally
-        have two parts, one for Piano and one for Violin, as opposed to three
-        parts (Piano-Treble, Piano-Bass, Violin). On the other hand, a score for
-        two Violins might be represented a one part with two staffs by default,
-        but setting `group_by_instrument` to False will more likely keep the
-        two Violin parts separate. Unfortunately, exact behavior depends on the
-        underlying reader, MIDI track names, and/or MusicXML structure and
-        naming.
-
-    Returns
-    -------
-    Score
-        The imported score
-
-    Raises
-    ------
-    ValueError
-        If the format is unknown or not implemented.
-    """
     if filename.startswith("http") or "://" in filename:
         with tempfile.NamedTemporaryFile(
             suffix=pathlib.Path(filename).suffix or ".tmp", delete=False
@@ -398,15 +441,9 @@ def read_score(
 
     if format is None:
         ext = pathlib.Path(filename).suffix.lower()
-        if ext in [".xml", ".musicxml", ".mxl"]:
-            format = "xml"
-        elif ext in [".mid", ".midi", ".smf"]:
-            format = "midi"
-        elif ext == ".kern":
-            format = "kern"
-        elif ext == ".mei":
-            format = "mei"
-        else:
+        if ext not in [".pdf", ".ly"]:  # these are write-only extensions
+            format = _suffix_to_format.get(ext)
+        if not format:
             raise ValueError(
                 f"Unsupported file extension: {ext}. "
                 f"Valid extensions: {valid_score_extensions}"
@@ -414,39 +451,13 @@ def read_score(
 
     # File format handling
     with warnings.catch_warnings(record=True) as w:
-        if reader_warning_level == "none":
-            warnings.simplefilter("ignore")
-        else:
-            warnings.simplefilter("always")
+        warnings.simplefilter(
+            "ignore" if reader_warning_level == "none" else "always"
+        )
 
-        if format == "xml":
-            score = import_xml(
-                filename,
-                flatten,
-                collapse,
-                show,
-                group_by_instrument=group_by_instrument,
-            )
-        elif format == "midi":
-            score = import_midi(
-                filename,
-                flatten,
-                collapse,
-                show,
-                group_by_instrument=group_by_instrument,
-            )
-        elif format == "kern":
-            raise ValueError(
-                "Kern format input not implemented yet. "
-                "Consider using the `kernr` package."
-            )
-        elif format == "mei":
-            raise ValueError(
-                "MEI format input not implemented yet. "
-                "Consider using the `mei` package."
-            )
-        else:
-            raise ValueError(f"{format} format specification is unknown")
+        score = _import_score(
+            filename, format, flatten, collapse, show, group_by_instrument
+        )
 
         # Warning handling
         if reader_warning_level == "low":

@@ -204,8 +204,9 @@ def has_staff(part):
     return False
 
 
-def pretty_midi_midi_import(
+def pretty_midi_import(
     filename: str,
+    format: str,
     flatten: bool = False,
     collapse: bool = False,
     show: bool = False,
@@ -220,6 +221,8 @@ def pretty_midi_midi_import(
     ----------
     filename : Union(str, PosixPath)
         The path to the MIDI file to import.
+    format : str
+        The format of the MIDI file. Must be "midi".
     flatten : bool, optional
         If True, create a flat score where notes are direct children of
         parts. Defaults to collapse, which defaults to False.
@@ -240,10 +243,10 @@ def pretty_midi_midi_import(
 
     Examples
     --------
-    >>> from amads.io.pm_midi_import import pretty_midi_midi_import
+    >>> from amads.io.pm_midi_import import pretty_midi_import
     >>> from amads.music import example
-    >>> score = pretty_midi_midi_import( \
-                    example.fullpath("midi/sarabande.mid"), \
+    >>> score = pretty_midi_import( \
+                    example.fullpath("midi/sarabande.mid"), "midi",\
                     flatten=True)  # show=True to see PrettyMIDI data
     """
     flatten = flatten or collapse  # collapse implies flatten
