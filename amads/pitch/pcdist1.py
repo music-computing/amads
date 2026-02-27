@@ -15,7 +15,7 @@ from amads.core.histogram import Histogram1D
 from amads.core.pitch import CHROMATIC_NAMES
 
 
-def duraccent(note: Note) -> float:
+def duraccent(note: Note, tau: float = 0.5, accent_index: int = 2) -> float:
     """
     Calculate Parncutt's durational accent (1994) for a note.
 
@@ -31,13 +31,17 @@ def duraccent(note: Note) -> float:
     ----------
     note : Note
         The note for which to calculate the durational accent.
+    tau : float
+        Saturation duration (optional, default duration of 0.5)
+    accent_index: int
+        Minimum discriminable duration (default of 2)
 
     Returns
     -------
     float
         The durational accent value.
     """
-    accent = 1 - math.exp(-note.duration / 0.5) ** 2
+    accent = 1 - math.exp(-note.duration / tau) ** accent_index
     return accent
 
 

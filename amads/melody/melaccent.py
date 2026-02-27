@@ -1,19 +1,18 @@
 
+# TODO: blurb and citations!
 # once this is done, we at least have a starting point to adjust the function
 # signatures as desired
 from amads.core.basics import Score, Note
 from typing import List, Tuple
 
-def mel_accent(score: Score) -> Tuple[Score, List[Tuple[float]]]:
+def melaccent(score: Score) -> Score:
     """
     Returns: Score, List[Tuple[float]]
     Flattened score with accent annotations on each note under the attribute name
     "mel_accent_val".
-
-    A list of melodic accent salience parameter tuples, each corresponding (in
-    relative order) to pairs of subsequent pitches in the flattened score (in
-    the same order).
     """
+    if not score.has_instanceof(Note):
+        raise ValueError("nonempty scores only")
     if not score.ismonophonic():
         raise ValueError("melody accents only applicable to monophonic scores")
 
@@ -53,4 +52,18 @@ def mel_accent(score: Score) -> Tuple[Score, List[Tuple[float]]]:
         else:
             raise RuntimeError("something is very wrong with program state")
 
-    return flattened_score, accent_list
+    # setting another iterator on notes
+    output_note_iter = flattened_score.find_all(Note)
+    # first note
+    note = next(output_note_iter)
+    note.mel_accent_val = 1
+    # second note
+    note = next(output_note_iter)
+    note.mel_accent_val = accent_list[0][0]
+    for tuple1, tuple2 in zip(accent_list, accent_list[1:]):
+        previous_accent_val = 1 if tuple1[1] == 0 else tuple1[1]
+        next_accent_val = 1 if tuple1[1] == 0 else tuple2[0]
+        note = next(output_note_iter)
+        note.mel_accent_val = previous_accent_val * next_accent_val
+
+    return flattened_score
