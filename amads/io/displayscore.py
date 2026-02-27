@@ -2,6 +2,7 @@
 
 __author__ = "Roger B. Dannenberg"
 
+import os
 import shutil
 import subprocess
 import sys
@@ -15,6 +16,12 @@ from amads.io.writescore import _write_or_display_score, write_score
 # the following attributes:
 
 preferred_display_method: str = "pdf"  # method to display music
+
+
+def suppress_external_open() -> bool:
+    return os.environ.get("AMADS_NO_OPEN") == "1" or (
+        "PYTEST_CURRENT_TEST" in os.environ
+    )
 
 
 def set_preferred_display_method(method: str) -> str:
@@ -79,6 +86,12 @@ def display_score(score: Score, show: bool = False) -> None:
             xml_path = tmp_file.name
 
         write_score(score, xml_path, show, "musicxml")
+
+        if suppress_external_open():
+            print(
+                f"MuseScore display suppressed during tests; wrote {xml_path}"
+            )
+            return
 
         musescore_exe = (
             shutil.which("musescore")

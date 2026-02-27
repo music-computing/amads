@@ -454,6 +454,10 @@ def _write_or_display_score(
     If display is True, the goal is to display the file, so the
     filename is optional, and a temporary file will be used if needed.
 
+    display is suppressed by setting AMADS_NO_OPEN=1 in the environment,
+    which is used in testing with pytest so the user does not have to close
+    a bunch of windows opened by demos that are run as part of testing.
+
     <small>**Author**: Roger B. Dannenberg</small>
 
     Parameters

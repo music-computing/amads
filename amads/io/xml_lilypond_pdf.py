@@ -6,6 +6,8 @@ import tempfile
 import webbrowser
 from pathlib import Path
 
+from amads.io.displayscore import suppress_external_open
+
 
 def lilypond_path_help(
     filename: Path | str, lilypond: bool, display: bool, xml: bool
@@ -116,7 +118,10 @@ def lilypond_to_pdf(
         )
 
     if display:
-        webbrowser.open(pdf_path_obj.resolve().as_uri())  # type: ignore
+        if suppress_external_open():
+            print(f"PDF display suppressed during tests, wrote {pdf_path}.")
+        else:
+            webbrowser.open(pdf_path_obj.resolve().as_uri())  # type: ignore
 
 
 def _add_measure_numbers_to_xml(

@@ -26,6 +26,17 @@ To run a specific test function:
     pytest
     tests/test_pitch_list_transformations.py::test_function_name
 
+## Code Coverage 
+
+To measure how much code is covered by tests 
+
+ - Install `coverage`, e.g., `pip3 install coverage`
+ - Install `pytest-cov`, e.g., `pip3 install pytest-cov`
+ - Current directory should be the repo root ABOVE amads, 
+   e.g., current directory should contain amads, tests, and demos 
+ - Run `coverage run -m pytest`
+ - View results with `coverage report` or `coverage html`
+
 ## Testing with VSCode
 
 Install pytest-cov:
@@ -101,17 +112,115 @@ pull requests.
 You can view the CI configuration in `.github/workflows/tests.yml` and
 check test results in the “Actions” tab of the GitHub repository.
 
-By default tests are run in the tests_main CI job. However, some tests
-that require bespoke dependencies are run in separate CI jobs (e.g.
-`tests_melsim`).
+By default tests are run in the `tests_main` CI job.
 
-## Code Coverage
+Test selection logic (what is skipped because optional dependencies are
+missing) is centralized in `conftest.py`. This means that *local `pytest`
+runs and CI runs use the same selection logic.*
 
-To measure how much code is covered by tests
 
- - Install `coverage`, e.g., `pip3 install coverage`
- - Install `pytest-cov`, e.g., `pip3 install pytest-cov`
- - Current directory should be the repo root ABOVE amads,
-   e.g., current directory should contain amads, tests, and demos
- - Run `coverage run -m pytest`
- - View results with `coverage report` or `coverage html`
+The current dependency-aware selection includes paths that require R
+(`melsim`) and paths that require `lilypond`.
+
+`tests/test_demos.py` merely tests that every demo runs without error.
+*Some* demos need to be disabled when dependencies are unavailable,
+so `tests/test_demos.py` uses `should_run(...)` from `conftest.py` to skip
+individual demos when their dependencies are unavailable.
+
+## Troubleshooting optional dependencies
+
+A drawback of the current system is *there is no warning if tests are
+skipped* due to failure to find dependencies like R and lilypond. For
+complete testing, you should check, e.g., that 
+`test_demos/test_demos_run_without_errors[display_demo.py]` runs
+(depends on lilypond) and
+`test_demos/test_demos_run_without_errors[melsim.py]` runs (depends on
+R).
+
+If some tests are skipped unexpectedly, verify optional dependencies
+(at present these are R and lilypond) in your shell environment:
+
+Check `lilypond`:
+
+    lilypond --version
+
+If this command fails, install `lilypond` and make sure it is on your
+`PATH`.
+
+Check R availability for `melsim` tests:
+
+    R --version
+
+Then verify the Python-side R dependencies used by `melsim`:
+
+    python -c "from amads.melody.similarity.melsim import check_r_packages_installed; print(check_r_packages_installed())"
+
+If this prints `False` or raises an error, install the required R
+packages.
+
+Once you have dependencies (R and lilypond), run `pytest` command
+in the AMADS root directory and see if all tests run.
+
+When tests are running in a shell, you can try them with VS Code.
+If VS Code fails to run tests that are run from `pytest` in a shell,
+then there is a VS Code configuration problem.
+On macOS (Apple Silicon), Homebrew tools are typically installed under
+`/opt/homebrew/bin`. My (RBD) `.vscode/launch.json` file looks like
+this (notice "env" includes `/opt/homebrew/bin`):
+```
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug current Python file",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "PATH": "/opt/homebrew/bin:${env:PATH}",
+                "PYTHONUNBUFFERED": "1"
+            }
+        },
+        {
+            "name": "Debug pytest",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "${file}",
+                "-s",
+                "-v",
+                "--capture=no"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "PATH": "/opt/homebrew/bin:${env:PATH}",
+                "PYTHONUNBUFFERED": "1"
+            }
+        }
+    ]
+}
+```
+
+
+## Graphical Display and Testing
+
+Demos (and maybe examples) are "tested" by running them. This can
+annoying when demos open programs or create plots that the user
+must manually close every time the tests are run.
+
+To suppress graphical output during testing, there are two mechanisms:
+
+- With matplotlib (all plots and pianroll display), it seems that
+  when the test completes, the job is terminated and the display
+  is removed, possibly before a window can even be opened. (If this
+  stops working, using `AMADS_NO_OPEN`, described next, would be a
+  good mechanism to build on.)
+- Music display via PDF or MuseScore (application) is suppressed
+  when the shell environment variable `AMADS_NO_OPEN` is "1". The
+  display code checks for this, and there are hooks so that
+  `AMADS_NO_OPEN` is set to "1" for the duration of a `pytest` run.
