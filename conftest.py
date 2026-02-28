@@ -1,5 +1,6 @@
 import os
 import subprocess
+from pathlib import Path
 
 from amads.melody.similarity.melsim import check_r_packages_installed
 
@@ -45,9 +46,31 @@ if not _lilypond_available():
     _ignore_tests.extend(_lilypond_test_paths)
 
 
+_REPO_ROOT = Path(__file__).resolve().parent
+_IGNORED_PATHS = {_normalize_path(path) for path in _ignore_tests}
+
+
 def should_run(path):
     """Determine if a test path should be run based on available dependencies."""
-    return _normalize_path(path) not in _ignore_tests
+    return _normalize_path(path) not in _IGNORED_PATHS
+
+
+def pytest_ignore_collect(collection_path, config):
+    """Skip collecting files/directories listed in _ignore_tests."""
+    try:
+        relative_path = _normalize_path(
+            Path(collection_path).resolve().relative_to(_REPO_ROOT)
+        )
+    except ValueError:
+        return False
+
+    for ignored_path in _IGNORED_PATHS:
+        if (
+            relative_path == ignored_path
+            or relative_path.startswith(f"{ignored_path}/")
+        ):
+            return True
+    return False
 
 
 def pytest_sessionstart(session):
