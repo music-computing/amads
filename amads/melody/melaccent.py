@@ -7,9 +7,10 @@ from typing import List, Tuple
 
 def melaccent(score: Score) -> Score:
     """
+    TODO: some optimization needed, also comments
     Returns: Score, List[Tuple[float]]
     Flattened score with accent annotations on each note under the attribute name
-    "mel_accent_val".
+    "melaccent_val".
     """
     if not score.has_instanceof(Note):
         raise ValueError("nonempty scores only")
@@ -31,9 +32,12 @@ def melaccent(score: Score) -> Score:
             return 0
 
     accent_list = []
-    while note3 != None:
+    while not note3:
         diff1 = note2.pitch - note1.pitch
         diff2 = note3.pitch - note2.pitch
+        note1 = note2
+        note2 = note3
+        note3 = next(note_iter)
         if diff1 == 0 and diff2 == 0:
             accent_list.append((0.00001, 0.0))
         elif diff1 != 0 and diff2 == 0:
@@ -48,7 +52,6 @@ def melaccent(score: Score) -> Score:
             accent_list.append((0.33, 0.67))
         elif diff1 < 0 and diff2 < 0:
             accent_list.append((0.5, 0.5))
-            assert 0
         else:
             raise RuntimeError("something is very wrong with program state")
 
@@ -56,14 +59,14 @@ def melaccent(score: Score) -> Score:
     output_note_iter = flattened_score.find_all(Note)
     # first note
     note = next(output_note_iter)
-    note.mel_accent_val = 1
+    note.melaccent_val = 1
     # second note
     note = next(output_note_iter)
-    note.mel_accent_val = accent_list[0][0]
+    note.melaccent_val = accent_list[0][0]
     for tuple1, tuple2 in zip(accent_list, accent_list[1:]):
         previous_accent_val = 1 if tuple1[1] == 0 else tuple1[1]
         next_accent_val = 1 if tuple1[1] == 0 else tuple2[0]
         note = next(output_note_iter)
-        note.mel_accent_val = previous_accent_val * next_accent_val
+        note.melaccent_val = previous_accent_val * next_accent_val
 
     return flattened_score
