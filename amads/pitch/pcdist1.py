@@ -13,36 +13,7 @@ from amads.core.basics import Note, Score
 from amads.core.distribution import Distribution
 from amads.core.histogram import Histogram1D
 from amads.core.pitch import CHROMATIC_NAMES
-
-
-def duraccent(note: Note, tau: float = 0.5, accent_index: int = 2) -> float:
-    """
-    Calculate Parncutt's durational accent (1994) for a note.
-
-    Based on Matlab MIDI Toolbox implementation.
-
-    References
-    ----------
-
-    - Parncutt, R. (1994). A perceptual model of pulse salience and
-      metrical accent in musical rhythms. *Music Perception*. 11(4), 409-464.
-
-    Parameters
-    ----------
-    note : Note
-        The note for which to calculate the durational accent.
-    tau : float
-        Saturation duration (optional, default duration of 0.5)
-    accent_index: int
-        Minimum discriminable duration (default of 2)
-
-    Returns
-    -------
-    float
-        The durational accent value.
-    """
-    accent = 1 - math.exp(-note.duration / tau) ** accent_index
-    return accent
+from amads.time.duraccent import duraccent_note
 
 
 def pitch_class_distribution_1(
@@ -80,7 +51,7 @@ def pitch_class_distribution_1(
     """
     score = cast(Score, score.merge_tied_notes())
     if weighted:
-        score.convert_to_seconds()  # need seconds for duraccent calculation
+        score.convert_to_seconds()  # need seconds for duraccent_note calculation
     initial_value = 1e-12 if miditoolbox_compatible else 0.0
     bin_centers = [float(i) for i in range(12)]  # 25 bins from -12 to +12
     xcategories = CHROMATIC_NAMES
@@ -89,7 +60,7 @@ def pitch_class_distribution_1(
     for note in score.find_all(Note):
         note = cast(Note, note)
         h.add_point(
-            round(note.pitch_class) % 12, duraccent(note) if weighted else 1.0
+            round(note.pitch_class) % 12, duraccent_note(note) if weighted else 1.0
         )
 
     if miditoolbox_compatible:  # miditoolbox "normalization"

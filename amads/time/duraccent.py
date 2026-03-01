@@ -32,6 +32,7 @@ def duraccent_note(note: Note, tau: float = 0.5, accent_index: int = 2) -> float
     accent = 1 - math.exp(-note.duration / tau) ** accent_index
     return accent
 
+
 def duraccent(score: Score, tau: float = 0.5, accent_index: int = 2) -> Score:
     """
     Calculate Parncutt's durational accent (1994) for a score.
@@ -67,3 +68,4 @@ def duraccent(score: Score, tau: float = 0.5, accent_index: int = 2) -> Score:
         accent = 1 - math.exp(-note.duration / tau) ** accent_index
         note.duraccent_val = accent
     return flattened_score
+

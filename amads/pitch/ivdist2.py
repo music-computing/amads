@@ -11,7 +11,7 @@ from typing import cast
 from amads.core.basics import Note, Part, Score
 from amads.core.distribution import Distribution
 from amads.core.histogram import Histogram2D
-from amads.pitch.pcdist1 import duraccent
+from amads.time.duraccent import duraccent_note
 
 
 def interval_distribution_2(
@@ -67,7 +67,7 @@ def interval_distribution_2(
 
     score = cast(Score, score.merge_tied_notes())
     if weighted:
-        score.convert_to_seconds()  # need seconds for duraccent function
+        score.convert_to_seconds()  # need seconds for duraccent_note function
 
     bin_centers = [float(i - 12) for i in range(25)]  # 25 bins from -12 to +12
     bin_boundaries = [i - 12 - 0.5 for i in range(26)]  # boundaries
@@ -85,13 +85,13 @@ def interval_distribution_2(
         for n in part.find_all(Note):
             note: Note = cast(Note, n)
             if weighted:
-                dur = duraccent(note)
+                dur = duraccent_note(note)
             if prev_pitch is not None:
                 iv = round(note.key_num - prev_pitch)
                 if miditoolbox_compatible:
                     iv = (abs(iv) % 12) * ((iv > 0) - (iv < 0))
                 if weighted:
-                    dur = duraccent(note)
+                    dur = duraccent_note(note)
                     w = prev_dur + dur
                     if not miditoolbox_compatible:
                         w += prev_prev_dur

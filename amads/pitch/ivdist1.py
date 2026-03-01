@@ -11,7 +11,7 @@ from typing import cast
 from amads.core.basics import Note, Part, Score
 from amads.core.distribution import Distribution
 from amads.core.histogram import Histogram1D
-from amads.pitch.pcdist1 import duraccent
+from amads.time.duraccent import duraccent_note
 
 
 def interval_distribution_1(
@@ -80,7 +80,7 @@ def interval_distribution_1(
                     iv = (abs(iv) % 12) * ((iv > 0) - (iv < 0))
                 # otherwise, diff may be ignored by h.add_point
                 if weighted:
-                    dur = duraccent(note)
+                    dur = duraccent_note(note)
                     # prev_dur cannot be None here since prev_pitch is not None
                     h.add_point(iv, prev_dur + dur)  # type: ignore
                     prev_dur = dur
@@ -88,7 +88,7 @@ def interval_distribution_1(
                     h.add_point(iv, 1.0)
             prev_pitch = note.key_num
             if weighted and prev_dur is None:
-                prev_dur = duraccent(note)
+                prev_dur = duraccent_note(note)
 
     if miditoolbox_compatible:  # miditoolbox "normalization"
         total = sum(h.bins) + len(h.bins) * 1e-12

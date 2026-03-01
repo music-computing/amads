@@ -12,7 +12,7 @@ from amads.core.basics import Note, Part, Score
 from amads.core.distribution import Distribution
 from amads.core.histogram import Histogram2D
 from amads.core.pitch import CHROMATIC_NAMES
-from amads.pitch.pcdist1 import duraccent
+from amads.time.duraccent import duraccent_note
 
 
 def update_pcd(pcd: list[list[float]], notes: list[Note], weighted: bool):
@@ -76,7 +76,7 @@ def pitch_class_distribution_2(
     """
     score = cast(Score, score.merge_tied_notes())
     if weighted:
-        score.convert_to_seconds()  # need seconds for duraccent calculation
+        score.convert_to_seconds()  # need seconds for duraccent_note calculation
     bin_centers = [float(i) for i in range(12)]  # 25 bins from -12 to +12
     x_categories = CHROMATIC_NAMES
     h = Histogram2D(bin_centers, None, "linear", False)
@@ -91,7 +91,7 @@ def pitch_class_distribution_2(
             note: Note = cast(Note, n)
             pc = note.pitch_class
             if weighted and prev_pc is not None:
-                dur = duraccent(note)
+                dur = duraccent_note(note)
                 w = prev_dur + dur  # type: ignore
                 prev_dur = dur
             else:

@@ -5,11 +5,6 @@ the krumhansl-kessler algorithm (kkcc with default parameters).
 Computes the tonal stability ratings for tones in the melody after
 determining its key mode (major/minor) with keymode.
 
-This function matches the behavior of the original miditoolbox function
-and only uses Krumhansl Kessler key profile. However, alternative profiles
-for major and minor keys may be used if this function's behavior is slightly
-modified.
-
 References
 ----------
 https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=92 for more details
@@ -24,9 +19,14 @@ from amads.pitch.ismonophonic import ismonophonic
 
 def tonality(score: Score) -> profiles.PitchProfile:
     """
-    Returns the pitch profile, that
-    best describes the tonality (in 'major' or 'minor') of the given music score
+    Returns the pitch profile, that best describes the tonality
+    (in 'major' or 'minor') of the given music score
     according to krumhansl-kessler pitch analysis.
+
+    This function matches the behavior of the original miditoolbox function
+    and only uses Krumhansl Kessler key profile. However, alternative profiles
+    for major and minor keys may be used if this function's behavior is slightly
+    modified.
 
     Parameters
     ----------

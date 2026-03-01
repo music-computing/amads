@@ -41,7 +41,7 @@ def test_pcdist1():
         0.0001,
     )
 
-    # use matlab compatible (duraccent) weighting
+    # use matlab compatible (duraccent_note) weighting
     pcd = pitch_class_distribution_1(
         myscore, weighted=True, miditoolbox_compatible=True
     )
