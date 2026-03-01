@@ -10,7 +10,7 @@ def melaccent(score: Score) -> Score:
     TODO: some optimization needed, also comments
     Returns: Score, List[Tuple[float]]
     Flattened score with accent annotations on each note under the attribute name
-    "melaccent_val".
+    "accent_val".
     """
     if not score.has_instanceof(Note):
         raise ValueError("nonempty scores only")
@@ -59,14 +59,14 @@ def melaccent(score: Score) -> Score:
     output_note_iter = flattened_score.find_all(Note)
     # first note
     note = next(output_note_iter)
-    note.melaccent_val = 1
+    note.accent_val = 1
     # second note
     note = next(output_note_iter)
-    note.melaccent_val = accent_list[0][0]
+    note.accent_val = accent_list[0][0]
     for tuple1, tuple2 in zip(accent_list, accent_list[1:]):
         previous_accent_val = 1 if tuple1[1] == 0 else tuple1[1]
         next_accent_val = 1 if tuple1[1] == 0 else tuple2[0]
         note = next(output_note_iter)
-        note.melaccent_val = previous_accent_val * next_accent_val
+        note.accent_val = previous_accent_val * next_accent_val
 
     return flattened_score

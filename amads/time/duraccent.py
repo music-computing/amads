@@ -1,3 +1,14 @@
+"""
+Calculate Parncutt's durational accent (1994) for either a note or a Score.
+
+Based on Matlab MIDI Toolbox implementation.
+
+References
+----------
+- https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=58
+- Parncutt, R. (1994). A perceptual model of pulse salience and
+  metrical accent in musical rhythms. *Music Perception*. 11(4), 409-464.
+"""
 
 import math
 
@@ -8,12 +19,6 @@ def duraccent_note(note: Note, tau: float = 0.5, accent_index: int = 2) -> float
     Calculate Parncutt's durational accent (1994) for a note.
 
     Based on Matlab MIDI Toolbox implementation.
-
-    References
-    ----------
-
-    - Parncutt, R. (1994). A perceptual model of pulse salience and
-      metrical accent in musical rhythms. *Music Perception*. 11(4), 409-464.
 
     Parameters
     ----------
@@ -39,12 +44,6 @@ def duraccent(score: Score, tau: float = 0.5, accent_index: int = 2) -> Score:
 
     Based on Matlab MIDI Toolbox implementation.
 
-    References
-    ----------
-
-    - Parncutt, R. (1994). A perceptual model of pulse salience and
-      metrical accent in musical rhythms. *Music Perception*. 11(4), 409-464.
-
     Parameters
     ----------
     score : Score
@@ -58,7 +57,7 @@ def duraccent(score: Score, tau: float = 0.5, accent_index: int = 2) -> Score:
     -------
     Score
         A flattened, annotated score with the duration accents under the
-        attribute name "duraccent_val".
+        attribute name "accent_val".
     """
     if not score.has_instanceof(Note):
         raise ValueError("nonempty scores only")
@@ -66,6 +65,6 @@ def duraccent(score: Score, tau: float = 0.5, accent_index: int = 2) -> Score:
     note_iter = flattened_score.find_all(Note)
     for note in note_iter:
         accent = 1 - math.exp(-note.duration / tau) ** accent_index
-        note.duraccent_val = accent
+        note.accent_val = accent
     return flattened_score
 
