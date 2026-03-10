@@ -257,6 +257,46 @@ def generate_n_smooth_numbers(
         return smooth_numbers
 
 
+def is_genuine_float(num):
+    """
+    Distinguish de facto numeric type, particularly for X.0 integers.
+
+    This utility function may move position in code base.
+
+    Parameters
+    ----------
+    num : float
+
+    Examples
+    --------
+
+    Float type and no equivalent int.
+    >>> is_genuine_float(5.5)
+    True
+
+    Float type, but equivalent int.
+    >>> is_genuine_float(5.0)
+    False
+
+    Any fraction, equivalent int or otherwise
+    >>> is_genuine_float(Fraction(9, 2))
+    False
+
+    >>> is_genuine_float(Fraction(10, 2))
+    False
+
+    Obligatory edge case checks.
+    >>> is_genuine_float(0.0)
+    False
+
+    Obligatory edge case checks.
+    >>> is_genuine_float(None)
+    False
+
+    """
+    return isinstance(num, float) and num != int(num)
+
+
 def get_tatum_from_priorities(
     starts: Iterable,
     pulse_priority_list: Optional[list] = None,
@@ -363,8 +403,25 @@ def get_tatum_from_priorities(
     Fraction(1, 3)
 
     """
-    floats = [num for num in starts if isinstance(num, float) and (num > 0)]
-    ints_fractions = [num for num in starts if not isinstance(num, float)]
+    floats, ints_fractions = [], []
+    for num in starts:
+
+        if num < 0:
+            raise ValueError(
+                f"All `start` must be greater than or equal to zero: fail on {num}."
+            )
+
+        if isinstance(num, float):
+            if is_genuine_float(num):
+                floats.append(num)
+            else:
+                assert int(num) == num
+                ints_fractions.append(int(num))
+
+        else:
+            assert isinstance(num, (int, Fraction))
+            ints_fractions.append(num)
+
     if not floats:
         return fraction_gcd(ints_fractions)  # No further action
 
