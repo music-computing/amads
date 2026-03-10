@@ -12,7 +12,6 @@ import matplotlib.colors as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 
-from amads.algorithms.gcd import integer_gcd
 from amads.core.vector_transforms_checks import (
     indicator_to_interval,
     indices_to_indicator,
@@ -104,58 +103,65 @@ def windowed_gcd(
     0-3 -> indices 0, 1, 2 -> tatum 1
     1-4 -> indices 1, 2, 4 -> tatum 1
     2-5 -> indices 2, 4 -> tatum 2
-    3-6 -> indices 2, 4, 6 -> tatum 2
+    3-6 -> indices 4, 6 -> tatum 2
     4-7 -> indices 4, 6, 7 -> tatum 1
     5-8 -> indices 6, 7 -> tatum 1
-    6-9 -> indices 6, 7, 10 -> tatum 1
+    6-9 -> indices 6, 7 -> tatum 1
     7-10 -> indices 7, 10 -> tatum 3
     """
-    is_monotonic(indices)
+    is_monotonic(indices)  # Raises error if not
 
-    indicator = indices_to_indicator(
-        indices, indicator_length=max(indices) + 1
-    )  # to include the last value
+    indicator = indices_to_indicator(indices, indicator_length=max(indices) + 1)
     max_val = len(indicator)
+
+    # Precompute once
+    full_intervals = np.array(indicator_to_interval(indicator, wrap=False))
+    ones_positions = np.where(np.array(indicator) == 1)[0]
+    interval_starts = ones_positions[:-1]
+    interval_ends = ones_positions[1:]
 
     gcds_by_window_size = {}
     max_gcd = 1
-    last_gcd_list = []  # init empty, then store previous at each step.
+    last_gcd_list = []
 
-    for window_size in range(
-        2, max_val
-    ):  # window_size 2 is the minimum size for 1 interval (two notes).
-        this_window_size_gcd_list = []
-        for i in range(0, max_val - window_size + 1):  # sic.
-            window = indicator[i : i + window_size]  # Get window from indicator
-            within_window_intervals = indicator_to_interval(
-                window, wrap=False
-            )  # Interval sequence within this window
-            if len(within_window_intervals) == 0:
-                this_window_size_gcd_list.append(
-                    0
-                )  # Always append: something for each increment.
-            else:
-                this_window_size_gcd_list.append(
-                    integer_gcd(within_window_intervals)
-                )
+    for window_size in range(2, max_val):
+
+        i_values = np.arange(
+            0, max_val - window_size + 1
+        )  # shape: (n_windows,)
+
+        # 2D boolean array of shape (n_windows, n_intervals).
+        # Entry [i, j] is True if interval j fits entirely inside window i
+        # (start is ≥ window start; end is < the window's end)
+        mask = (interval_starts[np.newaxis, :] >= i_values[:, np.newaxis]) & (
+            interval_ends[np.newaxis, :]
+            < (i_values + window_size)[:, np.newaxis]
+        )
+
+        # Pad with 0 (identity for GCD) where interval is outside the window
+        padded = np.where(
+            mask, full_intervals[np.newaxis, :], 0
+        )  # (n_windows, n_intervals)
+
+        # Fully vectorised GCD across interval axis
+        gcd_per_window = np.gcd.reduce(padded, axis=1)
+
+        # Windows with no intervals in them (all-zero rows) should be sentinel 0
+        gcd_per_window[~mask.any(axis=1)] = 0
+
+        this_window_size_gcd_list = gcd_per_window.tolist()
 
         if exclude_redundant:
 
-            if all(
-                v == 0 for v in this_window_size_gcd_list
-            ):  # All zeroes, exclude.
+            if all(v == 0 for v in this_window_size_gcd_list):
                 continue
 
-            if (
-                this_window_size_gcd_list == last_gcd_list[:-1]
-            ):  # same as the previous entry, skip
+            if this_window_size_gcd_list == last_gcd_list[:-1]:
                 last_gcd_list = this_window_size_gcd_list
                 continue
 
-            # If here, meaningful despite `exclude_redundant`, prepare data ...
             last_gcd_list = this_window_size_gcd_list
 
-        # If `exclude_redundant` is False or if `exclude_redundant` is True and passed the above.
         gcds_by_window_size[window_size] = this_window_size_gcd_list
         if max(this_window_size_gcd_list) > max_gcd:
             max_gcd = max(this_window_size_gcd_list)
@@ -202,78 +208,25 @@ def windowed_gcd_visualization(
     ax.grid(axis="x")
     ax.set_xlim(0, max_val)
 
-    cmap = plt.get_cmap(
-        "viridis", max_gcd
-    )  # discrete: exactly n=max_gcd colours
-    bounds = np.arange(
-        0.5, max_gcd + 1.5, 1
-    )  # boundaries between integers 1..max_gcd
+    vmin, vmax = 0, max_gcd
+    n_colors = vmax - vmin + 1
+
+    cmap = plt.get_cmap("viridis", n_colors)
+    bounds = np.arange(vmin - 0.5, vmax + 1.5, 1)
     norm = mpl.BoundaryNorm(bounds, cmap.N)
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
     sm._A = []
-    fig.colorbar(sm, ax=ax, ticks=range(1, max_gcd + 1))
+    fig.colorbar(sm, ax=ax, ticks=range(vmin, vmax + 1))
 
     for window_size_key, gcd_list in gcds_by_window_size.items():
-        colors = create_colormap(gcd_list, max_gcd)
-        for index, (gcd, color) in enumerate(zip(gcd_list, colors)):
-            ax.barh(window_size_key, 1, left=index, height=0.95, color=color)
+        for index, gcd in enumerate(gcd_list):
+            color = cmap(norm(gcd))  # same norm for bars and colorbar
+            ax.barh(window_size_key, 0.9, left=index, height=0.9, color=color)
 
     ax.set_xlabel("Tatum index")
     ax.set_ylabel("Window Size")
     plt.tight_layout()
     plt.show()
-
-
-def create_colormap(data, n, name="viridis"):
-    """
-    Map a list of integer values to discrete colours from a matplotlib colormap.
-
-    Creates a discretised colormap with exactly `n` colours (one per integer from 1 to n),
-    ensuring that each integer value gets a distinct, consistent colour rather than
-    a continuous interpolation.
-
-    Parameters
-    ----------
-    data : list or numpy.ndarray
-        A list of integer values to map to colours. Expected range: 1 to n.
-    n : int
-        The number of discrete colours to generate, corresponding to the maximum
-        integer value in the data.
-    name : str, optional
-        A matplotlib colormap name (e.g., 'viridis', 'plasma'). Default: 'viridis'.
-
-    Returns
-    -------
-    numpy.ndarray
-        An array of RGBA colours, one for each value in `data`.
-
-    Examples
-    --------
-        With `n=3`, three distinct colours are created.
-    The first and last values in this
-    share a colour since they share an integer value:
-
-    Here is a list of 4 items, but only 3 distinct values.
-    >>> test_case = [1, 2, 3, 1]
-    >>> colours = create_colormap(test_case, n=3)
-
-    Items at index 0 and 3 have the same value (1) and so return the same colour
-    >>> colours[0].tolist() == colours[3].tolist()
-    True
-
-    Items at index 0 and 1 have different values and colours:
-    >>> colours[0].tolist() == colours[1].tolist()
-    False
-
-    See Also
-    --------
-    windowed_gcd_visualization : Primary caller of this function.
-    """
-    normalised_data = np.array(data) / n
-    cmap = plt.get_cmap(name)
-    colours = cmap(normalised_data)
-
-    return colours
 
 
 # ------------------------------------------------------------------------
