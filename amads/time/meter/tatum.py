@@ -26,7 +26,7 @@ def score_to_offsets(path_to_score: str, to_indices: bool = True) -> list:
     and (optionally) convert those starts to indices on a tatum grid.
 
     Note: score parsing warnings are supressed.
-    If you need to test the validity of scores, do handle that separately.
+    If you need to test the validity of scores, handle that separately.
 
     Parameters
     ----------
@@ -37,12 +37,11 @@ def score_to_offsets(path_to_score: str, to_indices: bool = True) -> list:
 
     Examples
     --------
-    If you want to suppress import warnings, then run this first.
     >>> score_path = "https://github.com/MarkGotham/species/raw/refs/heads/main/1x1/005.mxl"
     >>> score_to_offsets(score_path, to_indices=False)
     [0.0, 4.0, 8.0, 12.0, 16.0, 20.0, 24.0, 28.0, 32.0, 36.0, 40.0]
     >>> score_to_offsets(score_path)
-    [0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40]
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
     """
     set_reader_warning_level("none")
@@ -95,6 +94,9 @@ def starts_to_indices(starts: list, tatum: Fraction = None) -> list:
 
     >>> starts_to_indices([3, 6, 9])
     [1, 2, 3]
+
+    >>> starts_to_indices([0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40])
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
     """
     if not starts:
