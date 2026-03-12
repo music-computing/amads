@@ -7,10 +7,11 @@ Computes an Inner Metric Analysis of music (Volk, 2008), which consists of the f
 1. enumerating all local meters in a strictly increasing sequence of integer onsets; and
 2. computing the metric and spectral weight profiles from all enumerated local meters.
 
-- A local meter is a maximal arithmetic progression of at least three onset pulses that is not contained in any other.
+- A local meter is a maximal arithmetic progression of at least l plus 1 onset pulses that is not contained in any
+other. The input parameter, l, specifies the minimum local meter length (default 2 i.e., three onset pulses).
 
 - A metric weight profile consists of a weight for each onset, l'^p, summed over all local meter pulses coinciding at
-this onset, where l' is the length (minus 1) of a given local meter and p is a weighting parameter (default 2).
+this onset, where l' is the length (minus 1) of a given local meter and p is an input weighting parameter (default 2).
 
 - A spectral weight profile consists of the same weight, l'^p, computed for each time point in an underlying metrical
 grid and summed over all local meter pulses and extensions coinciding at this time point.
@@ -59,7 +60,7 @@ from typing import NamedTuple
 
 
 class LM(NamedTuple):
-    """Small, class for storing local meters (LM)"""
+    """Small class for storing a local meter (LM)."""
 
     start_onset: int
     period: int
@@ -67,7 +68,7 @@ class LM(NamedTuple):
 
 
 class IMA(NamedTuple):
-    """Small, class for storing an Inner Metric Analysis (IMA)"""
+    """Small class for storing an Inner Metric Analysis (IMA)."""
 
     metric_weights: array
     spectral_weights: array
@@ -87,39 +88,35 @@ def check_input_is_well_formed(
     Returns:
     - onsets: strictly increasing sequence of non-negative integer onsets
     """
-    assert 3 <= len(
-        onsets
-    ), "Number of onsets is less than three, so no local meters possible"
-    assert l_param < len(
-        onsets
-    ), "Number of onsets must be greater than the minimum requested local meter length, l"
-    assert all(
-        (
+    n = len(onsets)
+    if n < 3:
+        raise ValueError(
+            "Number of onsets is less than three, so no local meters possible"
+        )
+    if not (2 <= l_param < n):
+        raise ValueError(
+            "Minimum local meter length, l, must be 2 <= l < len(onsets). Default is l = 2"
+        )
+    if p_weight_param not in (0, 1, 2):
+        raise ValueError(
+            "Weighting parameter, p, must be equal to 0, 1, or 2. Default is p = 2"
+        )
+    prev = None
+    processed_onsets = []
+    for onset in onsets:
+        if not (
             isinstance(onset, int)
             or (isinstance(onset, float) and onset.is_integer())
-        )
-        for onset in onsets
-    ), "Onsets must be whole numbers"
-    assert 0 <= min(onsets), "Onsets must be non-negative"
-    assert len(onsets) == len(set(onsets)), "Onsets must be distinct"
-    assert all(
-        onsets[i] < onsets[i + 1] for i in range(len(onsets) - 1)
-    ), "Onsets must be strictly increasing"
-    assert (
-        2 <= l_param < len(onsets)
-    ), "Minimum local meter length, l, must be 2 <= l < len(onsets). Default is l = 2"
-    assert p_weight_param in (
-        0,
-        1,
-        2,
-    ), "Weighting parameter, p, must be equal to 0, 1, or 2. Default is p = 2"
-    assert 0 == p_weight_param or 1 == p_weight_param or 2 == p_weight_param, (
-        "Weighting parameter, p, must be equal "
-        "to 0, 1, or 2. Default is p = 2"
-    )
-    return [
-        int(onset) for onset in onsets
-    ]  # ensure onsets are of type int for indexing
+        ):
+            raise TypeError("Onsets must be whole numbers")
+        onset = int(onset)
+        if onset < 0:
+            raise ValueError("Onsets must be non-negative")
+        if prev is not None and onset <= prev:
+            raise ValueError("Onsets must be strictly increasing")
+        processed_onsets.append(onset)
+        prev = onset
+    return processed_onsets
 
 
 def pairwise_arithmetic_progression_lengths(
@@ -297,6 +294,7 @@ def update_weights(
     ap_period: int,
     ap_length: int,
     max_onset: int,
+    min_onset: int,
     p_weight_param: int,
 ):
     """Updates the metric and spectral weight profiles of a musical piece for a given local meter.
@@ -310,7 +308,8 @@ def update_weights(
     - ap_period: period of a local meter
     - ap_length: length minus 1 of a local meter
     - max_onset: greatest onset in onsets
-    - p_weight_param: weighting parameter, p, for controlling the influence of each local meter (default 2.0)
+    - min_onset: smallest onset in onsets
+    - p_weight_param: weighting parameter, p, for controlling the influence of each local meter (default 2)
 
     Returns
     -------
@@ -327,7 +326,7 @@ def update_weights(
         spectral_weights[time_point] += weight
         time_point += ap_period
     time_point = ap_start_onset - ap_period
-    while time_point >= max_onset:  # left side of local meter
+    while time_point >= min_onset:  # left side of local meter
         spectral_weights[time_point] += weight
         time_point -= ap_period
     return metric_weights, spectral_weights
@@ -366,7 +365,7 @@ def compute_inner_metric_analysis(
     array('i', [17, 13, 65, 0, 0, 0, 57, 0, 25, 21, 65, 0, 0, 0, 57, 0, 33, 21, 65, 0, 0, 0, 57, 0, 25, 13, 65, 0, 0, 0, 57])
 
     >>> analysis.spectral_weights
-    array('i', [17, 13, 65, 4, 4, 4, 61, 4, 29, 25, 69, 8, 12, 8, 69, 8, 45, 29, 77, 12, 24, 12, 77, 16, 45, 25, 89, 20, 32, 16, 89])
+    array('i', [45, 25, 89, 20, 32, 16, 85, 16, 45, 33, 85, 16, 32, 16, 81, 16, 53, 33, 85, 16, 32, 16, 81, 20, 45, 25, 89, 20, 32, 16, 89])
 
     >>> len(analysis.local_meters)
     19
@@ -390,6 +389,7 @@ def compute_inner_metric_analysis(
 
     n = len(onsets)
     max_onset = onsets[-1]
+    min_onset = onsets[0]
     metric_weights = array("i", [0]) * (max_onset + 1)
     spectral_weights = array("i", [0]) * (max_onset + 1)
     local_meters: list[LM] = []
@@ -397,7 +397,6 @@ def compute_inner_metric_analysis(
         (0, -1) for _ in range(len(discovered_periods))
     ]  # (ap length, current row) for each period
     indicator_onsets = set(onsets)
-    num_of_local_meters = 0
 
     for i in range(n - 2):  # each row in ap_length_table
         ap_start_onset = onsets[i]
@@ -410,7 +409,7 @@ def compute_inner_metric_analysis(
             ap_period = onsets[j] - ap_start_onset
             if (
                 ap_period > max_period_in_row
-            ):  # remaining j for this i will be of length 2
+            ):  # remaining j ap lengths for this i will be of length 2
                 break
             current_idx = base_offset + j  # flat index for (i < j)
             ap_length = ap_length_table[current_idx] - 1  # length minus 1
@@ -451,16 +450,13 @@ def compute_inner_metric_analysis(
                             ap_period,
                             ap_length,
                             max_onset,
+                            min_onset,
                             p_weight_param,
                         )
-                        num_of_local_meters += 1
                         if return_local_meters:
                             local_meters.append(
                                 LM(ap_start_onset, ap_period, ap_length)
                             )
-                        continue
-                ap_length_table[current_idx] = 0  # not a local meter
-
     return IMA(metric_weights, spectral_weights, local_meters)
 
 
