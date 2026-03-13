@@ -73,6 +73,55 @@ def interval_vector_to_combinatoriality(vector: Tuple[int, ...]):
     raise ValueError(f"{vector} is not a valid interval vector")
 
 
+def interval_to_interval_class(interval: int) -> int:
+    """
+    Map an interval (any integer, positive or negative and any size)
+    to an interval _class_ (integer in the range 0–6).
+
+    >>> interval_to_interval_class(0)
+    0
+
+    >>> interval_to_interval_class(-1)
+    1
+
+    >>> interval_to_interval_class(-2)
+    2
+
+    >>> interval_to_interval_class(11)
+    1
+
+    >>> interval_to_interval_class(7)
+    5
+
+    >>> interval_to_interval_class(-100)
+    4
+    """
+    return (
+        (abs(interval) % 12)
+        if (abs(interval) % 12) <= 6
+        else (12 - (abs(interval) % 12))
+    )
+
+
+def interval_vector_to_interval_class_vector(
+    interval_vector: tuple[int, ...]
+) -> tuple[int, ...]:
+    """
+    Map an interval vector of range(0, 12) to an interval _class_ vector of range(1, 7).
+
+    >>> interval_vector_to_interval_class_vector((1, 0, 5, 7, 2, 2, 0, 3, 5, 0, 8, 4))
+    (4, 13, 7, 7, 5, 0)
+    """
+    interval_class_vector = [0] * 6
+    for i in range(1, 6):
+        interval_class_vector[i - 1] = (
+            interval_vector[i] + interval_vector[12 - i]
+        )
+
+    interval_class_vector[5] = interval_vector[6]  # special case
+    return tuple(interval_class_vector)
+
+
 def pitches_to_combinatoriality(pitches: Union[List[int], Tuple[int, ...]]):
     """
     Find the combinatoriality status for a given list of pitches.
