@@ -24,7 +24,7 @@ checks (e.g., `is_rotation_equivalent`) on vectors.
 """
 __author__ = "Mark Gotham"
 
-from typing import Iterable, Union
+from typing import Iterable, Sequence, Union
 
 import numpy as np
 
@@ -34,7 +34,7 @@ import numpy as np
 
 
 def multiset_to_vector(
-    multiset: Iterable,
+    multiset: Sequence,
     max_index: Union[int, None] = None,
 ) -> tuple[int, ...]:
     """
@@ -224,7 +224,7 @@ def weighted_to_indicator(
 
 
 def apply_constant(
-    set_or_vector: Iterable,
+    set_or_vector: Sequence,
     constant: float,
     modulo: Union[int, None] = None,
 ) -> Union[tuple, list, set]:
@@ -323,7 +323,7 @@ def scalar_multiply(input: tuple, scale_factor: int = 2) -> tuple:
 # Checks (`is_x`)
 
 
-def is_set(input: Iterable) -> bool:
+def is_set(possible_set: Iterable) -> bool:
     """
     Check whether an iterable object is
     a set (specified in the type) or
@@ -343,9 +343,9 @@ def is_set(input: Iterable) -> bool:
     >>> is_set(de_facto_multiset)
     False
     """
-    if isinstance(input, set):
+    if isinstance(possible_set, set):
         return True
-    elif len(set(input)) == len(input):
+    elif len(set(possible_set)) == len(possible_set):
         return True
     return False
 
@@ -381,6 +381,57 @@ def is_indicator_vector(vector: tuple) -> bool:
     if all(x in (0, 1) for x in vector):
         return True
     return False
+
+
+def pairwise_differences(
+    a: Sequence[int],
+    b: Sequence[int] | None = None,
+    modulo: int | None = 12,
+) -> tuple[int, ...]:
+    """
+    Return pairwise differences between sets of integers, optionally reduced by a modulo value.
+
+    Where `b` is None
+    (there is only one sequence of values)
+    this function computes differences within `a`.
+    This is equivalent to an interval vector in the pitch domain.
+
+    Where a `b` sequence is provided, this function computes all
+    cross-differences from `a` to `b`.
+    This is equivalent to an interval function in the pitch domain.
+
+    Parameters
+    ----------
+        a: First sequence of integers.
+        b: Second sequence. If None, compares `a` against itself.
+        modulo: Wrap differences using this modulus. `None` means no wrapping.
+
+    Examples
+    --------
+    >>> test_items = [1, 2, 3, 9]
+    >>> internal = pairwise_differences(test_items, modulo=12)
+    >>> internal
+    (1, 2, 8, 1, 7, 6)
+
+    Note that this internal-only version avoids duplicates.
+    If you call it on the same set twice, you get everything twice (all intervals in both directions):
+
+    >>> as_interval_function = pairwise_differences(test_items, test_items, modulo=12)
+    >>> as_interval_function
+    (0, 1, 2, 8, 11, 0, 1, 7, 10, 11, 0, 6, 4, 5, 6, 0)
+    """
+
+    def diff(x: int, y: int) -> int:
+        return (y - x) % modulo if modulo is not None else (y - x)
+
+    if b is not None:
+        return tuple(diff(x, y) for x in a for y in b)
+    else:
+        return tuple(
+            diff(a[i], a[j])
+            for i in range(len(a))
+            for j in range(i + 1, len(a))
+        )
 
 
 # ------------------------------------------------------------------------
