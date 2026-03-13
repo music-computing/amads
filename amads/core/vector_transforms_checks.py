@@ -9,7 +9,7 @@ checks (e.g., `is_rotation_equivalent`) on vectors.
 __author__ = "Mark Gotham"
 
 from itertools import combinations
-from typing import List, Optional, Union
+from typing import List, Optional, Sequence, Union
 
 from amads.core.vectors_sets import is_indicator_vector, vector_to_set
 
@@ -599,6 +599,99 @@ def interval_sequence_to_indices(
         count += i
         indices.append(count)
     return tuple(indices)
+
+
+def is_monotonic(numbers: Sequence) -> bool:
+    """
+    Check if a list of numbers is monotonically increasing.
+    Return True if so, raises an error if not in order to report on the first fail point.
+
+    Please note that edge case behaviour (e.g., 0, None, raises) may change.
+
+    Parameters
+    ----------
+        numbers: A sequence (list, tuple, ...) of numeric values (integers, floats, ...).
+
+    Examples
+    --------
+    >>> is_monotonic([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    True
+    >>> is_monotonic([1, 2, 3, 4, 5, 7, 6, 8, 9, 10])
+    Traceback (most recent call last):
+    ValueError: Data must be monotonically increasing: value 7 at index 5 is not less than 6.
+
+    """
+    for i in range(len(numbers) - 1):
+        if numbers[i] >= numbers[i + 1]:
+            raise ValueError(
+                "Data must be monotonically increasing: value "
+                f"{numbers[i]} at index {i} is not less than {numbers[i + 1]}."
+            )
+    return True
+
+
+def indices_to_interval_sequence(
+    indices: Union[list[int], tuple[int, ...]],
+    wrap: bool = True,
+    mod: int = 12,
+) -> tuple[int, ...]:
+    """
+    Convert a sequence of indices (any increasing integers, n >= 2)
+    into a sequence of the differences, mod 12 (including the difference between the last and the first items)
+
+    Parameters
+    ----------
+    indices: Union[list[int], tuple[int, ...]]
+        A vector containing the positions (indices) that are used.
+    wrap: bool
+        If True, include the index after the end of the sequence
+    mod: int
+        The modulo value for use when wrapping around
+
+    Returns
+    -------
+    tuple[int, ...]
+        A vector of distances (intervals) between adjacent positions
+
+    Examples
+    --------
+
+    >>> indices_to_interval_sequence([1, 2, 3])
+    (1, 1, 10)
+
+    >>> indices_to_interval_sequence([1, 2, 3], wrap=False)
+    (1, 1)
+
+    >>> indices_to_interval_sequence([1, 2, 6])
+    (1, 4, 7)
+
+    >>> start = (3, 3, 2)
+    >>> indices = interval_sequence_to_indices((3, 3, 2), wrap=False)  # Default
+    >>> indices
+    (0, 3, 6)
+
+    >>> end = indices_to_interval_sequence(indices, mod=8)
+    >>> end
+    (3, 3, 2)
+
+    >>> start == end
+    True
+
+    """
+    is_monotonic(indices)
+    if len(indices) < 2:
+        raise ValueError(
+            f"Starting indices have 2 or more items, currently {indices} is of length {len(indices)}."
+        )
+
+    diffs = []
+    for i in range(len(indices) - 1):
+        diffs.append(indices[i + 1] - indices[i])
+
+    if wrap:
+        diffs += [(indices[0] - indices[-1]) % mod]
+
+    return tuple(diffs)
 
 
 def interval_sequence_to_indicator(
