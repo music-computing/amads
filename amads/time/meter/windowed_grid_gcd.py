@@ -6,7 +6,7 @@ process (and optionally visualise) GCD across all possible window sizes and star
 __author__ = "Mark Gotham"
 
 
-from typing import Sequence, Union
+from typing import Union
 
 import matplotlib.colors as mpl
 import matplotlib.pyplot as plt
@@ -15,37 +15,8 @@ import numpy as np
 from amads.core.vector_transforms_checks import (
     indicator_to_interval,
     indices_to_indicator,
+    is_monotonic,
 )
-
-
-def is_monotonic(numbers: Sequence) -> bool:
-    """
-    Check if a list of numbers is monotonically increasing.
-    Return True if so, raises an error if not in order to report on the first fail point.
-
-    Please note that this may function may move if needed elsewhere and
-    in that case, edge case behaviour (e.g., 0, None, raises) may also change.
-
-    Parameters
-    ----------
-        numbers: A sequence (list, tuple, ...) of numeric values (integers, floats, ...).
-
-    Examples
-    --------
-    >>> is_monotonic([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-    True
-    >>> is_monotonic([1, 2, 3, 4, 5, 7, 6, 8, 9, 10])
-    Traceback (most recent call last):
-    ValueError: Data must be monotonically increasing: value 7 at index 5 is not less than 6.
-
-    """
-    for i in range(len(numbers) - 1):
-        if numbers[i] >= numbers[i + 1]:
-            raise ValueError(
-                "Data must be monotonically increasing: value "
-                f"{numbers[i]} at index {i} is not less than {numbers[i + 1]}."
-            )
-    return True
 
 
 def windowed_gcd(
