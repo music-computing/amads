@@ -55,7 +55,7 @@ def rotate(
     (2, 3, 0, 1)
 
     """
-    if not steps:
+    if steps is None:
         steps = int(len(vector) / 2)
 
     return vector[steps:] + vector[:steps]
@@ -360,8 +360,9 @@ def rotation_distinct_patterns(
     for index in range(1, len(vector_patterns)):
         for prototype in return_values:
             if is_rotation_equivalent(prototype, vector_patterns[index]):
-                return_values.append(vector_patterns[index])
                 break
+        else:
+            return_values.append(vector_patterns[index])
 
     return tuple(return_values)
 
@@ -811,15 +812,15 @@ def saturated_subsequence_repetition(
                 subsequences.append(subsequence)
 
         if all_rotations:
-            for i in range(
+            for j in range(
                 1, period
             ):  # sic, from 1 (0 is done) and only up to the length of the subsequence
-                this_sequence = rotate(sequence, i)
+                this_sequence = rotate(sequence, j)
                 subsequence = this_sequence[:period]
                 if subsequence not in subsequences:
                     if all(
-                        this_sequence[i : i + period] == subsequence
-                        for i in range(0, len(this_sequence), period)
+                        this_sequence[k : k + period] == subsequence
+                        for k in range(0, len(this_sequence), period)
                     ):
                         subsequences.append(subsequence)
 
