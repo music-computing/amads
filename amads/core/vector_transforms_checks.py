@@ -4,6 +4,8 @@ Shared functionality for basic operations on vectors
 Includes
 transformations (e.g., `rotate`) and
 checks (e.g., `is_rotation_equivalent`) on vectors.
+
+<small>**Author**: Mark Gotham</small>
 """
 
 __author__ = "Mark Gotham"
