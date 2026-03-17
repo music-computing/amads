@@ -824,6 +824,62 @@ def saturated_subsequence_repetition(
     return subsequences
 
 
+def convolve(
+    vector_1: Sequence, vector_2: Sequence, return_indicator: bool = False
+) -> tuple:
+    """
+    Convolution combines two vectors,
+    with a scalar product of corresponding entries
+    where they are rotated relative to one another by k steps.
+
+    Parameters
+    ----------
+    vector_1: Sequence
+        A vector of numeric values.
+    vector_2: Sequence
+        Another vector of numeric values, must be the same length as `vector_1` (otherwise, raises).
+    return_indicator: bool
+        If True, return an indicator vector (only 1s and 0s).
+
+    Returns
+    -------
+    tuple
+        The convolution of the two input vectors.
+        If `return_indicator` is True, values are reduced to 1s and 0s.
+
+    Examples
+    --------
+    This function is agnostic wrt musical parameter;
+    the following example as applied to pitch is illustrative.
+
+    >>> c_major_triad = (1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0)
+    >>> min_7_dyad = (1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0)
+    >>> convolve(c_major_triad, min_7_dyad)
+    (1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0)
+
+    """
+    number_elements = len(vector_1)
+    if len(vector_2) != number_elements:
+        raise ValueError(
+            "The lengths of two vectors must match. "
+            f"Currently {vector_1} ({number_elements}) "
+            f"and {vector_2} ({len(vector_2)})."
+        )
+
+    combined_list = []
+    for k in range(number_elements):
+        combined_list.append(
+            sum(
+                vector_1[i] * vector_2[(k - i) % number_elements]
+                for i in range(number_elements)
+            )
+        )
+
+    if return_indicator:
+        combined_list = [1 if x > 0 else 0 for x in combined_list]
+    return tuple(combined_list)
+
+
 # ------------------------------------------------------------------------
 
 if __name__ == "__main__":
