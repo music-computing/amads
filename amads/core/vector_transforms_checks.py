@@ -11,7 +11,7 @@ __author__ = "Mark Gotham"
 from itertools import combinations
 from typing import List, Optional, Sequence, Union
 
-from amads.core.vectors_sets import is_indicator_vector, vector_to_set
+from amads.core.vectors_sets import is_indicator_vector
 
 # ----------------------------------------------------------------------------
 
@@ -81,8 +81,8 @@ def mirror(
 
     Returns
     -------
-    Union[list, tuple]
-        The input (list or tuple), mirrored. Same length.
+    Union[tuple[int, ...], list[int]]
+        The input (tuple or list), mirrored. Same length.
 
     Examples
     --------
@@ -103,12 +103,16 @@ def mirror(
         )
     else:
         rotated = vector[::-1]
-    return tuple(rotated)
+    return rotated
 
 
 def complement(indicator_vector: tuple[int, ...]) -> tuple[int, ...]:
     """
     Provide the complement of an indicator vector.
+
+    Returns
+    -------
+    tuple[int]
 
     Examples
     --------
@@ -407,11 +411,9 @@ def indicator_to_indices(
 
     """
     if wrap:
-        vector += (vector[0],)
+        vector = vector + vector[:1]
 
-    set_as_list = list(vector_to_set(vector))
-    set_as_list.sort()
-    return tuple(set_as_list)
+    return tuple(i for i, v in enumerate(vector) if v)
 
 
 # TODO in vectors_sets?
@@ -457,16 +459,10 @@ def indices_to_indicator(
     (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0)
 
     """
-    out = []
     if indicator_length is None:
         indicator_length = max(indices_vector) + 1
-    for i in range(indicator_length):
-        if i in indices_vector:
-            out.append(1)
-        else:
-            out.append(0)
-
-    return tuple(out)
+    index_set = set(indices_vector)
+    return tuple(1 if i in index_set else 0 for i in range(indicator_length))
 
 
 def indicator_to_interval(
@@ -535,7 +531,7 @@ def indicator_to_interval(
 
     """
     if adjacent_not_all and wrap:
-        vector += (vector[0],)  # TODO DRY
+        vector = vector + vector[:1]
 
     indices = indicator_to_indices(vector)
 
@@ -604,8 +600,8 @@ def interval_sequence_to_indices(
 
 def is_monotonic(numbers: Sequence) -> bool:
     """
-    Check if a list of numbers is monotonically increasing.
-    Return True if so, raises an error if not in order to report on the first fail point.
+    Assert that a list of numbers is monotonically increasing.
+    Returns True if so, raises ValueError at the first failure point.
 
     Please note that edge case behaviour (e.g., 0, None, raises) may change.
 
@@ -667,11 +663,11 @@ def indices_to_interval_sequence(
     (1, 4, 7)
 
     >>> start = (3, 3, 2)
-    >>> indices = interval_sequence_to_indices((3, 3, 2), wrap=False)  # Default
-    >>> indices
+    >>> corresponding_indices = interval_sequence_to_indices(start, wrap=False)  # Default
+    >>> corresponding_indices
     (0, 3, 6)
 
-    >>> end = indices_to_interval_sequence(indices, mod=8)
+    >>> end = indices_to_interval_sequence(corresponding_indices, mod=8)
     >>> end
     (3, 3, 2)
 
@@ -792,15 +788,16 @@ def saturated_subsequence_repetition(
     [[1, 2, 1, 2]]
 
     """
-    subsequence_periods = []
-    subsequences = []
-
-    if subsequence_period is None:
-        for length in range(1, len(sequence) // 2 + 1):
-            if len(sequence) % length == 0:  # Valid divisor
-                subsequence_periods.append(length)
-    else:
+    if subsequence_period is not None:
         subsequence_periods = [subsequence_period]
+    else:
+        subsequence_periods = [
+            length
+            for length in range(1, len(sequence) // 2 + 1)
+            if len(sequence) % length == 0
+        ]
+
+    subsequences = []
 
     for period in subsequence_periods:
         subsequence = sequence[:period]
