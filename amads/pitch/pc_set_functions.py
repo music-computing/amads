@@ -15,8 +15,9 @@ but the functions are general
 and not really named algorithms in sense used elsewhere on this code base.
 """
 
-from typing import List, Tuple, Union
+from typing import Sequence, Tuple, Union
 
+from amads.core.vectors_sets import multiset_to_vector, pairwise_differences
 from amads.pitch import pc_sets
 from amads.pitch import transformations as pitch_list_transformations
 
@@ -122,7 +123,7 @@ def interval_vector_to_interval_class_vector(
     return tuple(interval_class_vector)
 
 
-def pitches_to_combinatoriality(pitches: Union[List[int], Tuple[int, ...]]):
+def pitches_to_combinatoriality(pitches: Union[list[int], Tuple[int, ...]]):
     """
     Find the combinatoriality status for a given list of pitches.
 
@@ -131,11 +132,11 @@ def pitches_to_combinatoriality(pitches: Union[List[int], Tuple[int, ...]]):
 
     Out: the combinatoriality status as a string.
     """
-    icv = pitches_to_interval_vector(pitches)
+    icv = set_to_interval_vector(pitches)
     return interval_vector_to_combinatoriality(icv)
 
 
-def distinct_PCs(pitches: Union[List, Tuple]) -> list:
+def distinct_PCs(pitches: Union[list, Tuple]) -> list:
     """
     Find the distinct pitch classes for a given list of pitches.
 
@@ -147,30 +148,45 @@ def distinct_PCs(pitches: Union[List, Tuple]) -> list:
     return [p % 12 for p in pitches]
 
 
-def pitches_to_interval_vector(pitches: Union[List[int], Tuple[int, ...]]):
+def set_to_interval_vector(
+    user_set: Sequence[int],
+) -> tuple:
     """
-    Find the interval vector for a given list of pitches.
+    Generates the interval vector for a set of pitches:
+    the counts of each interval class present between all pairs of elements.
 
-    In: a list or tuple of pitches.
+    Note: replaces previous `pitches_to_interval_vector` which was from scratch.
+    Relevant logic now delegated to shared vectors.
 
-    Out: the interval vector.
+    Parameters
+    ----------
+    user_set: Sequence[int]
+        A sequence of integers representing pitch classes.
+        Order does not affect the result.
+
+    Returns
+    -------
+    tuple
+        A tuple of length 6 where index ``i`` contains the count of
+        interval class ``i+1`` among all pairs in ``user_set``.
+
+    Examples
+    --------
+    >>> set_to_interval_vector([1, 3, 4, 6])
+    (1, 2, 2, 0, 1, 0)
+
+    >>> set_to_interval_vector([0, 4, 7])  # C major triad
+    (0, 0, 1, 1, 1, 0)
+
     """
-    pitches = distinct_PCs(pitches)
-
-    vector = [0, 0, 0, 0, 0, 0]
-    from itertools import combinations
-
-    for p in combinations(pitches, 2):
-        ic = p[1] - p[0]
-        if ic < 0:
-            ic *= -1
-        if ic > 6:
-            ic = 12 - ic
-        vector[ic - 1] += 1
-    return tuple(vector)
+    differences = [
+        interval_to_interval_class(x) for x in pairwise_differences(user_set)
+    ]
+    differences = multiset_to_vector(differences, max_index=6)
+    return tuple(differences[1:])
 
 
-def pitches_to_forte_class(pitches: Union[List[int], Tuple[int]]):
+def pitches_to_forte_class(pitches: Union[list[int], Tuple[int]]):
     """
     Find the Forte class for a given list of pitches.
 
@@ -188,7 +204,7 @@ def pitches_to_forte_class(pitches: Union[List[int], Tuple[int]]):
     raise ValueError(f"{pitches} is not a valid entry.")
 
 
-def pitches_to_prime(pitches: Union[List[int], Tuple[int]]):
+def pitches_to_prime(pitches: Union[list[int], Tuple[int]]):
     """
     Find the prime form for a given list of pitches.
 
@@ -207,7 +223,7 @@ def pitches_to_prime(pitches: Union[List[int], Tuple[int]]):
 
     pitches = distinct_PCs(pitches)
 
-    vector = pitches_to_interval_vector(pitches)
+    vector = set_to_interval_vector(pitches)
     primes = []
     data = set_classes_from_cardinality(len(set(pitches)))
 
