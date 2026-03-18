@@ -98,6 +98,11 @@ def mirror(
     >>> mirror(test_case, index_of_symmetry=1)
     (1, 0, 5, 4, 3, 2)
 
+    We will often use this for a 12-element indicator vector.
+    >>> c_vector = (1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0)
+    >>> mirror(c_vector, index_of_symmetry=0)
+    (1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0)
+
     """
     if index_of_symmetry is not None:
         rotated = (
