@@ -13,7 +13,11 @@ __author__ = "Mark Gotham"
 from itertools import combinations
 from typing import List, Optional, Sequence, Union
 
-from amads.core.vectors_sets import is_indicator_vector
+from amads.core.vectors_sets import (
+    is_indicator_vector,
+    multiset_to_vector,
+    pairwise_differences,
+)
 
 # ----------------------------------------------------------------------------
 
@@ -885,6 +889,60 @@ def convolve(
     if return_indicator:
         combined_list = [1 if x > 0 else 0 for x in combined_list]
     return tuple(combined_list)
+
+
+def interval_function(
+    vector_1: Sequence[int],
+    vector_2: Sequence[int],
+    return_vector: bool = True,
+) -> tuple[int, ...]:
+    """
+    All directed intervals between two vectors.
+    The interval _function_ was introduced to music theory by Lewin, 2001 [1]
+
+    [1] David Lewin, Special Cases of the Interval Function between Pitch-Class Sets X and Y,
+    Journal of Music Theory (2001) 45 (1): 1–29. https://doi.org/10.2307/3090647
+
+    Parameters
+    ----------
+    vector_1: Sequence[int]
+        A sequence representing a starting condition.
+    vector_2: Sequence[int]
+        A sequence representing a following condition.
+    return_vector: bool
+        If True (default), return a count vector indexed by interval size
+        (length ``max_interval + 1``).
+        If False, return the raw multiset of directed intervals mod 12.
+
+    Returns
+    -------
+    tuple[int, ...]
+        If ``return_vector`` is True, a 13-element tuple where index ``i``
+        is the count of directed interval ``i`` (mod 12) from ``vector_1``
+        to ``vector_2``.
+        If ``return_vector`` is False, the raw multiset of directed intervals.
+
+    Examples
+    --------
+    >>> start_set = [1, 2, 6]
+    >>> end_set = [1, 5, 7]
+
+    With `return_vector=False` we get the pairwise differences as a set multiset of intervals in the range 0–12.
+    >>> interval_function(start_set, end_set, return_vector=False)
+    (0, 4, 6, 11, 3, 5, 7, 11, 1)
+
+    With `return_vector=True` we get an interval vector with usage per position (/interval).
+    For example, note that we have two instance of interval 11 in the above.
+    >>> interval_function(start_set, end_set, return_vector=True)
+    (1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 2)
+
+    """
+    differences = pairwise_differences(vector_1, vector_2, modulo=12)
+
+    if return_vector:
+        differences = multiset_to_vector(differences, max_index=11)
+
+    return tuple(differences)
 
 
 # ------------------------------------------------------------------------
