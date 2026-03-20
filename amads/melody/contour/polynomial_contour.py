@@ -107,6 +107,9 @@ class PolynomialContour:
                 raise ValueError(
                     "Provide either a Score or both onsets and pitches."
                 )
+            if not isinstance(score, Score):
+                raise TypeError("Score should be a Score object.")
+
             self.onsets, self.pitches = self.get_onsets_and_pitches(score)
 
         self.coefficients = self.calculate_coefficients(
@@ -409,7 +412,7 @@ class PolynomialContour:
             fit_curve,
             color="tomato",
             linewidth=2,
-            label=f"Contour  [c₁={c1:.3f}, c₂={c2:.3f}, c₃={c3:.3f}]",
+            label=f"Contour [$c_{1}$={c1:.3f}, $c_{2}$={c2:.3f}, $c_{3}$={c3:.3f}]",
             zorder=2,
         )
 
