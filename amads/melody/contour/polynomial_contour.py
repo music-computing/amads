@@ -341,3 +341,109 @@ class PolynomialContour:
         n_params = np.sum(np.abs(coeffs) > 1e-10)
 
         return n * np.log(rss / n) + n_params * np.log(n)
+
+    def plot(self, ax=None):
+        """Plot the melody contour and the fitted polynomial curve.
+
+        Displays pitch values at their centered onset times (scatter) with the
+        selected polynomial fit overlaid (line). The y-axis is labelled with
+        note names derived from the MIDI pitch numbers.
+
+        Parameters
+        ----------
+        ax : matplotlib.axes.Axes, optional
+            Axes to draw on. If None, a new figure and axes are created
+            with ``figsize=(8, 4)``.
+
+        Returns
+        -------
+        matplotlib.axes.Axes
+            The axes containing the plot, suitable for further customisation
+            or embedding in a larger figure.
+
+        Raises
+        ------
+        ImportError
+            If matplotlib is not installed.
+
+        """
+        try:
+            import matplotlib.pyplot as plt
+            import matplotlib.ticker as ticker
+        except ImportError as e:
+            raise ImportError(
+                "matplotlib is required for plotting. "
+                "Install it with: pip install matplotlib"
+            ) from e
+
+        onsets = self.onsets
+        pitches = self.pitches
+        centered_onsets = self.center_onset_times(onsets)
+
+        t = np.array(centered_onsets)
+        c1, c2, c3 = self.coefficients
+
+        # Recover the constant term c0 (not stored per FANTASTIC spec) as the
+        # mean of the residuals after subtracting the known polynomial terms.
+        poly_terms = c1 * t + c2 * t**2 + c3 * t**3
+        c0 = float(np.mean(np.array(pitches, dtype=float) - poly_terms))
+
+        t_smooth = np.linspace(t[0], t[-1], 300) if len(t) > 1 else t.copy()
+        fit_curve = c0 + c1 * t_smooth + c2 * t_smooth**2 + c3 * t_smooth**3
+
+        if ax is None:
+            _, ax = plt.subplots(figsize=(8, 4))
+
+        ax.scatter(
+            centered_onsets,
+            pitches,
+            zorder=3,
+            label="Notes",
+            color="steelblue",
+            s=60,
+            linewidths=0.8,
+            edgecolors="white",
+        )
+        ax.plot(
+            t_smooth,
+            fit_curve,
+            color="tomato",
+            linewidth=2,
+            label=f"Contour  [c₁={c1:.3f}, c₂={c2:.3f}, c₃={c3:.3f}]",
+            zorder=2,
+        )
+
+        def _midi_to_name(midi: int) -> str:
+            names = [
+                "C",
+                "C#",
+                "D",
+                "D#",
+                "E",
+                "F",
+                "F#",
+                "G",
+                "G#",
+                "A",
+                "A#",
+                "B",
+            ]
+            return f"{names[midi % 12]}{midi // 12 - 1}"
+
+        unique_pitches = sorted(set(pitches))
+        ax.set_yticks(unique_pitches)
+        ax.set_yticklabels(
+            [_midi_to_name(p) for p in unique_pitches], fontsize=9
+        )
+
+        ax.xaxis.set_major_formatter(
+            ticker.FuncFormatter(lambda x, _: f"{x:+.1f}")
+        )
+        ax.set_xlabel("Centered onset time (beats)", fontsize=10)
+        ax.set_ylabel("Pitch", fontsize=10)
+        ax.set_title("Polynomial contour", fontsize=11)
+        ax.legend(fontsize=9)
+        ax.grid(True, linestyle="--", alpha=0.4)
+        ax.spines[["top", "right"]].set_visible(False)
+
+        return ax
