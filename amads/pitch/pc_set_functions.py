@@ -229,8 +229,8 @@ def distinct_pcs(pitches: Sequence[int]) -> list[int]:
 
     Examples
     --------
-    >>> distinct_pcs((0, 0, 1, 1))
-    [0, 1]
+    >>> distinct_pcs((0, 0, 1, 1, 14))
+    [0, 1, 2]
     """
     return list({p % 12 for p in pitches})
 
