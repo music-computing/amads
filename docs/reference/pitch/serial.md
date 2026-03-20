@@ -20,7 +20,7 @@
 
 ----------------
 
-::: amads.pitch.pc_set_functions.distinct_PCs
+::: amads.pitch.pc_set_functions.distinct_pcs
 
 ----------------
 
