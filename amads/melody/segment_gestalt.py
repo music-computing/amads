@@ -52,9 +52,6 @@ the musician is chief among them, and maintaining that ambiguity in our internal
 representation is also paramount)
 
 Also legit think we need well-defined rules to split and merge scores...
-
-On a completely separate and unrelated note, there are 2 pitchmeans with,
-the *exact* same implementation and 2 filenames...
 """
 
 from operator import lt

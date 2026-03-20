@@ -15,8 +15,6 @@ from amads.core.basics import Score
 from amads.pitch.key import profiles as prof
 from amads.pitch.key.key_cc import key_cc
 
-# TODO: include exceptions comments
-
 
 def kkkey(
     score: Score,
