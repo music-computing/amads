@@ -442,7 +442,7 @@ class PolynomialContour:
         ax.xaxis.set_major_formatter(
             ticker.FuncFormatter(lambda x, _: f"{x:+.1f}")
         )
-        ax.set_xlabel("Centered onset time (beats)", fontsize=10)
+        ax.set_xlabel("Centered onset time", fontsize=10)
         ax.set_ylabel("Pitch", fontsize=10)
         ax.set_title("Polynomial contour", fontsize=11)
         ax.legend(fontsize=9)
