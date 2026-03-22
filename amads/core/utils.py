@@ -161,6 +161,14 @@ def key_num_to_name(n, detail="nameoctave"):
     -------
     Union(str, list(str))
         The corresponding key names.
+
+    Examples
+    --------
+    >>> key_num_to_name(61)
+    'C#4'
+
+    >>> key_num_to_name(61, detail="nameonly")
+    'C#'
     """
 
     def key_num_to_name_single(k):
