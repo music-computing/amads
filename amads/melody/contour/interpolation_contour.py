@@ -517,3 +517,111 @@ class InterpolationContour:
                 classes += "e"  # strong up
 
         return classes
+
+    def plot(self, ax=None):
+        """
+        Plot the melody notes and the interpolation contour gradients.
+
+        Displays two subplots (if ``ax`` is None):
+
+        * **Top**: pitch values at their onset times as a scatter/step plot,
+          with all original melody notes connected by lines.
+        * **Bottom**: the interpolation contour — the piecewise-constant
+          gradient values produced by `calculate_interpolation_contour`,
+          plotted as a step function over normalised time (0–1).
+
+        Parameters
+        ----------
+        ax : array-like of matplotlib.axes.Axes, optional
+            A pair of Axes ``[ax_melody, ax_contour]`` to draw on.  If
+            ``None``, a new figure with two vertically stacked subplots is
+            created with ``figsize=(8, 5)``.
+
+        Returns
+        -------
+        tuple[matplotlib.axes.Axes, matplotlib.axes.Axes]
+            ``(ax_melody, ax_contour)`` — the two axes, suitable for further
+            customisation or embedding in a larger figure.
+
+        Raises
+        ------
+        ImportError
+            If matplotlib is not installed.
+
+        Examples
+        --------
+        >>> ic = InterpolationContour(
+        ...     pitches=[60, 62, 64, 62, 60],
+        ...     onsets=[0, 1, 2, 3, 4],
+        ... )
+        >>> ax_melody, ax_contour = ic.plot()
+        """
+        try:
+            import matplotlib.pyplot as plt
+        except ImportError as e:
+            raise ImportError(
+                "matplotlib is required for plotting. "
+                "Install it with: pip install matplotlib"
+            ) from e
+
+        if ax is None:
+            _, (ax_melody, ax_contour) = plt.subplots(
+                2, 1, figsize=(8, 5), constrained_layout=True
+            )
+        else:
+            ax_melody, ax_contour = ax
+
+        # Top panel: all melody notes with connecting lines
+        ax_melody.plot(
+            self.onsets,
+            self.pitches,
+            color="steelblue",
+            linewidth=1.2,
+            zorder=2,
+        )
+        ax_melody.scatter(
+            self.onsets,
+            self.pitches,
+            color="steelblue",
+            s=50,
+            linewidths=0.8,
+            edgecolors="white",
+            zorder=3,
+            label="Notes",
+        )
+        ax_melody.set_xlabel("Onset time", fontsize=10)
+        ax_melody.set_ylabel("MIDI pitch", fontsize=10)
+        ax_melody.set_title("Melody", fontsize=11)
+        ax_melody.grid(True, linestyle="--", alpha=0.4)
+        ax_melody.spines[["top", "right"]].set_visible(False)
+
+        # Bottom panel: interpolation contour
+        contour = self.contour
+        # The contour is sampled at a rate of 10 samples per unit time.
+        # Build a normalised time axis over [0, 1] for display.
+        n = len(contour)
+        norm_time = np.linspace(0, 1, n, endpoint=False)
+
+        ax_contour.step(
+            norm_time,
+            contour,
+            where="post",
+            color="tomato",
+            linewidth=1.8,
+            label=f"Interpolation contour ({self.method})",
+        )
+        ax_contour.axhline(0, color="black", linewidth=0.8, linestyle="--")
+        ax_contour.set_xlabel("Normalised time", fontsize=10)
+        ax_contour.set_ylabel("Gradient (semitones / s)", fontsize=10)
+        ax_contour.set_title(
+            f"Interpolation contour  "
+            f"[direction={self.global_direction:+d}, "
+            f"mean={self.mean_gradient:.2f}, "
+            f"class={self.class_label}]",
+            fontsize=11,
+        )
+        ax_contour.legend(fontsize=9)
+        ax_contour.grid(True, linestyle="--", alpha=0.4)
+        ax_contour.spines[["top", "right"]].set_visible(False)
+
+        return ax_melody, ax_contour
