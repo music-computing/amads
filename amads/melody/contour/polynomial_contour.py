@@ -6,6 +6,8 @@ from amads.core.basics import Score
 
 __author__ = "David Whyatt"
 
+from amads.core.utils import key_num_to_name
+
 
 class PolynomialContour:
     """A class for computing polynomial contour.
@@ -416,27 +418,10 @@ class PolynomialContour:
             zorder=2,
         )
 
-        def _midi_to_name(midi: int) -> str:
-            names = [
-                "C",
-                "C#",
-                "D",
-                "D#",
-                "E",
-                "F",
-                "F#",
-                "G",
-                "G#",
-                "A",
-                "A#",
-                "B",
-            ]
-            return f"{names[midi % 12]}{midi // 12 - 1}"
-
         unique_pitches = sorted(set(pitches))
         ax.set_yticks(unique_pitches)
         ax.set_yticklabels(
-            [_midi_to_name(p) for p in unique_pitches], fontsize=9
+            [key_num_to_name(p) for p in unique_pitches], fontsize=9
         )
 
         ax.xaxis.set_major_formatter(
