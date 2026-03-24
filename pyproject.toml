@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "amads"
-version = "1.0.1"
+version = "1.0.2"
 description = "A toolkit for symbolic music analysis"
 readme = "README.md"
 maintainers = [
@@ -21,13 +21,12 @@ dependencies = [
     "numpy",
     "pandas",
     "matplotlib",
-    "scipy<1.12.0",
+    "scipy>=1.9",
     "partitura",
     "music21",
     "pretty_midi",
     "setuptools",  # required for partitura
     "typing_extensions",  # required for partitura
-    "pytest",
     "tenacity",
     "tqdm",
 ]
@@ -45,9 +44,6 @@ test = [
     "pretty_midi",
     "pytest>=7.0.0",
     "pytest-cov",
-]
-melsim = [
-    "pandas",
 ]
 
 [project.urls]
