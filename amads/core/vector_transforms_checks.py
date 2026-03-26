@@ -68,8 +68,8 @@ def rotate(
 
 
 def mirror(
-    vector: Union[list, tuple], index_of_symmetry: Union[int, None] = None
-) -> Union[list, tuple]:
+    vector: Sequence[int], index_of_symmetry: Union[int, None] = None
+) -> Sequence[int]:
     """
     Reverse a vector (or any ordered iterable).
 
@@ -177,11 +177,11 @@ def change_cycle_length(
 # Checks
 
 
-def is_rotation_equivalent(vector_a: tuple, vector_b: tuple) -> bool:
+def is_rotation_equivalent(a: tuple, b: tuple) -> bool:
     """
-    Given two vectors, test for rotation equivalence.
+    Test for rotation equivalence.
     This is applicable to indicator vectors, interval sequences, and more
-    as long as the user compares like with like.
+    (any tuple, list, or even string).
 
     Examples
     --------
@@ -207,20 +207,10 @@ def is_rotation_equivalent(vector_a: tuple, vector_b: tuple) -> bool:
     True
 
     """
-    if vector_a == vector_b:
-        return True
+    if len(a) != len(b):
+        raise ValueError("The vectors must be of the same length.")
 
-    vector_length = len(vector_a)
-    if len(vector_b) != vector_length:
-        raise ValueError(
-            f"The vectors must be of the same length (currently {vector_length} and {len(vector_b)}."
-        )
-
-    for steps in range(1, vector_length):
-        if vector_a == rotate(vector_b, steps):
-            return True
-
-    return False
+    return len(a) == 0 or a in (b + b)
 
 
 def is_maximally_even(indicator_vector: tuple) -> bool:
@@ -313,7 +303,7 @@ def is_maximally_even(indicator_vector: tuple) -> bool:
 
 # ----------------------------------------------------------------------------
 
-# Other
+# Generators
 
 
 def max_even_k_in_n(k: int, n: int) -> set[int]:
@@ -382,6 +372,11 @@ def rotation_distinct_patterns(
     return tuple(return_values)
 
 
+# ----------------------------------------------------------------------------
+
+# Candidates for vectors_sets?
+
+
 def indicator_to_indices(
     vector: Union[list[int], tuple[int, ...]], wrap: bool = False
 ) -> tuple:
@@ -427,7 +422,6 @@ def indicator_to_indices(
     return tuple(i for i, v in enumerate(vector) if v)
 
 
-# TODO in vectors_sets?
 def indices_to_indicator(
     indices_vector: Union[list[int], tuple[int, ...]],
     indicator_length: Optional[int] = None,
