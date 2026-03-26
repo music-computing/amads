@@ -603,7 +603,10 @@ def interval_sequence_to_indices(
     return tuple(indices)
 
 
-def is_monotonic(numbers: Sequence) -> bool:
+def is_monotonic(
+    numbers: Sequence,
+    diagnose: bool = True,
+) -> bool:
     """
     Assert that a list of numbers is monotonically increasing.
     Returns True if so, raises ValueError at the first failure point.
@@ -612,7 +615,11 @@ def is_monotonic(numbers: Sequence) -> bool:
 
     Parameters
     ----------
-        numbers: A sequence (list, tuple, ...) of numeric values (integers, floats, ...).
+    numbers: A sequence (list, tuple, ...) of numeric values (integers, floats, ...).
+    diagnose: bool.
+        If True, raises a ValueError at the point of failure rather than returning False,
+        enabling diagnosis of where the sequence breaks.
+        If diagnose is False, simply return a bool in all cases.
 
     Examples
     --------
@@ -620,16 +627,21 @@ def is_monotonic(numbers: Sequence) -> bool:
     True
     >>> is_monotonic([1, 2, 3, 4, 5, 7, 6, 8, 9, 10])
     Traceback (most recent call last):
-    ValueError: Data must be monotonically increasing: value 7 at index 5 is not less than 6.
+    ValueError: Data must be monotonically increasing: value 6 at index 6 is not greater than the previous entry 7.
 
+    >>> is_monotonic([1, 2, 3, 4, 5, 7, 6, 8, 9, 10], diagnose=False)
+    False
     """
-    for i in range(len(numbers) - 1):
-        if numbers[i] >= numbers[i + 1]:
-            raise ValueError(
-                "Data must be monotonically increasing: value "
-                f"{numbers[i]} at index {i} is not less than {numbers[i + 1]}."
-            )
-    return True
+    if diagnose:
+        for i in range(len(numbers) - 1):
+            if numbers[i] >= numbers[i + 1]:
+                raise ValueError(
+                    "Data must be monotonically increasing: value "
+                    f"{numbers[i + 1]} at index {i + 1} is not greater than the previous entry {numbers[i]}."
+                )
+        return True
+    else:
+        return all(a < b for a, b in zip(numbers, numbers[1:]))
 
 
 def indices_to_interval_sequence(
