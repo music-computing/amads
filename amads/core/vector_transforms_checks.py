@@ -322,7 +322,10 @@ def is_rotation_equivalent(a: tuple, b: tuple) -> bool:
     if len(a) != len(b):
         raise ValueError("The vectors must be of the same length.")
 
-    return len(a) == 0 or a in (b + b)
+    doubled = b + b
+    return len(a) == 0 or any(
+        doubled[i : i + len(a)] == a for i in range(len(b))
+    )
 
 
 def is_maximally_even(indicator_vector: tuple) -> bool:
@@ -856,12 +859,12 @@ def saturated_subsequence_repetition(
     sequence: Union[list[int], tuple[int, ...]],
     all_rotations: bool = True,
     subsequence_period: Optional[int] = None,
-) -> list[list[int]]:
+) -> list[Union[list[int], tuple[int, ...]]]:
     """
     Check if a sequence contains a repeated subsequence such that
     the subsequence saturates the whole (no sequence items "left over").
     This is broadly equivalent to a "periodic sequence", with the additional
-    constraint of saturatation.
+    constraint of saturation.
 
     Parameters
     ----------
@@ -875,7 +878,7 @@ def saturated_subsequence_repetition(
 
     Returns
     -------
-    Union[List[List[int]], None]
+    Union[List[List[int]]]
         A list of all subsequences that, if repeated, can form the input
         `sequence`. If `all_rotations`, then also include subsequences
         that can repeat to form any rotations of `sequence`. If
@@ -912,6 +915,15 @@ def saturated_subsequence_repetition(
     No rotations, subsequence length fixed at 4:
     >>> saturated_subsequence_repetition(test_sequence, subsequence_period=4, all_rotations=False)
     [[1, 2, 1, 2]]
+
+    Tuple input return same values, as list of tuples.
+
+    >>> test_tuple = (1, 2, 1, 2, 1, 2, 1, 2)
+
+    All rotations, all subsequence lengths:
+
+    >>> saturated_subsequence_repetition(test_tuple, all_rotations=True)
+    [(1, 2), (2, 1), (1, 2, 1, 2), (2, 1, 2, 1)]
 
     """
     if subsequence_period is not None:
