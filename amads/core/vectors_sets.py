@@ -30,6 +30,18 @@ import numpy as np
 
 # ----------------------------------------------------------------------------
 
+# Internal helpers
+
+
+def _to_tuple(x) -> tuple:
+    """Normalise input to a plain Python tuple, accepting numpy arrays, lists, or tuples."""
+    if isinstance(x, np.ndarray):
+        return tuple(x.tolist())
+    return tuple(x)
+
+
+# ----------------------------------------------------------------------------
+
 # Conversions (vectors <> sets)
 
 
@@ -46,7 +58,7 @@ def multiset_to_vector(
     Parameters
     ----------
     multiset : Iterable
-        The input integers as an iterable object (list, tuple, set).
+        The input integers as an iterable object (list, tuple, set, or numpy array).
         Multisets are accepted but not required (i.e., sets as trivial cases of multisets).
     max_index: Union[int, None]
         Sets the maximum index of the output vector.
@@ -92,6 +104,7 @@ def multiset_to_vector(
     ()
 
     """
+    multiset = _to_tuple(multiset)
     if not multiset:
         return ()
     if max_index is None:
@@ -174,21 +187,16 @@ def multiset_to_set(multiset: Iterable):
     return set(multiset)
 
 
-def _to_native_tuple(arr: np.ndarray) -> tuple:
-    """Convert a numpy array to a tuple of native Python ints."""
-    return tuple(x.item() for x in arr)
-
-
 def weighted_to_indicator(
-    weighted_vector: tuple[float, ...], threshold: float = 0.0
+    weighted_vector: Sequence[float], threshold: float = 0.0
 ) -> tuple[int, ...]:
     """
     Converts a weighted vector to an indicator vector.
 
     Parameters
     ----------
-    weighted_vector: tuple[float, ...]
-        Represents the weighted vector.
+    weighted_vector: Sequence[float]
+        Represents the weighted vector. Accepts lists, tuples, or numpy arrays.
     threshold: float
         Values below this threshold will be set to 0.
         This handles cases where weights might be very small but not exactly zero.
@@ -211,9 +219,8 @@ def weighted_to_indicator(
     >>> weighted_to_indicator(weighted_vector2, threshold=0.1)
     (1, 0, 1, 0, 0)
     """
-    return _to_native_tuple(
-        np.where(np.array(weighted_vector) > threshold, 1, 0)
-    )
+    weighted_vector = _to_tuple(weighted_vector)
+    return tuple(int(x > threshold) for x in weighted_vector)
 
 
 # ----------------------------------------------------------------------------
@@ -273,8 +280,9 @@ def apply_constant(
 
     >>> as_set = {0, 1, 2, 3, 11}
     >>> more_set = apply_constant(as_set, 1)
-    >>> more_set
-    {1, 2, 3, 4, 12}
+    >>> more_set == {1, 2, 3, 4, 12}
+    True
+
     """
     result = [x + constant for x in set_or_vector]
     if modulo is not None:
@@ -310,7 +318,7 @@ def scalar_multiply(vector: tuple, scale_factor: int = 2) -> tuple:
     (0, 2, 4)
 
     """
-    return _to_native_tuple(np.array(vector) * scale_factor)
+    return tuple(x * scale_factor for x in vector)
 
 
 # ----------------------------------------------------------------------------
@@ -378,6 +386,11 @@ def is_indicator_vector(vector: tuple) -> bool:
     return False
 
 
+# ------------------------------------------------------------------------
+
+# Operations
+
+
 def pairwise_differences(
     a: Sequence[int],
     b: Sequence[int] | None = None,
@@ -394,11 +407,13 @@ def pairwise_differences(
     Where a `b` sequence is provided, this function computes all
     cross-differences from `a` to `b`.
     This is equivalent to an interval function in the pitch domain.
+    Note that this produces n² results including self-differences (zeros),
+    whereas the internal-only case produces n*(n-1)/2 results and omits duplicates.
 
     Parameters
     ----------
-        a: First sequence of integers.
-        b: Second sequence. If None, compares `a` against itself.
+        a: First sequence of integers. Accepts lists, tuples, or numpy arrays.
+        b: Second sequence. If None, compares `a` against itself. Accepts lists, tuples, or numpy arrays.
         modulo: Wrap differences using this modulus. `None` means no wrapping.
 
     Examples
@@ -415,6 +430,10 @@ def pairwise_differences(
     >>> as_interval_function
     (0, 1, 2, 8, 11, 0, 1, 7, 10, 11, 0, 6, 4, 5, 6, 0)
     """
+    a = _to_tuple(a)
+    if b is not None:
+        b = _to_tuple(b)
+
     diff = (
         (lambda x, y: (y - x) % modulo)
         if modulo is not None
