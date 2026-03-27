@@ -98,7 +98,7 @@ Later, [music21](https://github.com/cuthbertLab/music21) was introduced.
 First published in 2010/11, this too continues to be maintained and used.
 That said, the creator-maintainer recently made the
 [explicit decision (announced/reported here)](https://groups.google.com/g/music21list/c/HF3tgkMvNWI/m/7vaIHr88BAAJ)
-that it is _not_ / _no longer_ there to provide the holistic directory function stated here.
+that it is _not_ or _no longer_ there to provide the holistic directory function stated here.
 Instead, it specifically invites niche projects to go solo, with or without music21 as a dependency.
 
 [Partitura](https://partitura.readthedocs.io/en/latest/)
@@ -106,7 +106,7 @@ is arguably one such project,
 though it explicitly suggests using music21 instead if
 “you are working in computational musicology.”
 
-Students and researchers wishing to explore a topic,
+Students and researchers wishing to explore a topic
 therefore have to do a lot of “spade-work” to compare any new algorithm with existing work,
 or even to make use of those existing algorithms.
 In short, 
@@ -128,25 +128,29 @@ This alone would have provided the field some manner of synthesis and sign-posti
 We decided on the more ambitious and extensive undertaking seen here as many
 useful functions have no public implementation, or else an implementation in an all-but obsolete language.
 Pointing users to those sources would be of limited use.
-Much better is instead to provide an implementation in those cases.
+Much better instead to provide an implementation in those cases.
 
 Where existing code packages are
-publicly available and clearly maintained by a named and currently active person or team,
+publicly available and clearly maintained by a person or team that is/are both 
+explicitly named and currently active,
 we aim to avoid re-implementation,
 and focus instead on providing an ecosystem that incorporates those packages as dependencies via an API.
 As such, AMADS serves as a kind of meta-package,
-with a unified Python API for acessing 
+with a unified Python API for accessing 
 both new code and other relevant packages in one place.
 
 There are trade-offs here.
 This meta-package scope necessarily makes the overall design less consistent than it might be if we reimplemented everything from scratch.
-Overall, we consider this an acceptable balance; we consider the current approach the best way to invest time in serving the field and building on what has been accomplished already.
+Overall, we consider this an acceptable balance;
+we consider the current approach the best way to invest time in serving the field and building on what has been accomplished already,
+particularly where those external packages are likely to expand and develop further.
 
 In keeping with the above, we will gladly consider pull request (PR) contributions
 that build on any of those packages (IDyoM, music21, Partitura, ...).
 We reserve the right to later refactor the inner workings,
 and will in such cases aim to keep details of the user-experience API
-consistent in terms of input/output and result.
+consistent in terms of input/output and result,
+as well as follow semantic versioning for any breaking changes.
 
 Another tradeoff has to do with underlying representations. For each
 algorithm, there is likely to be a “natural” representation of the
@@ -172,8 +176,8 @@ The design of this code library is informed by conversations with all relevant p
 Many thanks to those developers, and to the new ones.
 Finally, we thank Dagstuhl for supporting
 [seminar number 24302](https://www.dagstuhl.de/en/seminars/seminar-calendar/seminar-details/24302)
-which helped advance these plans.
+which helped advance these plans, not least by putting Gotham and Dannenberg together.
 
 
-[//]: # (## References)
+[//]: # (## References TODO)
 
