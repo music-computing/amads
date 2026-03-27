@@ -223,12 +223,12 @@ def fantastic_interpolation_contour_features(score: Score) -> Dict:
     """
     notes = score.get_sorted_notes()
 
-    # Extract pitches and times for contour calculation
-    pitches = [note.pitch.key_num for note in notes]
-    times = [note.onset for note in notes]
-
     # Calculate contour
-    ic = InterpolationContour(pitches, times, method="fantastic")
+    ic = InterpolationContour(
+        pitches=[note.pitch.key_num for note in notes],
+        onsets=[note.onset for note in notes],
+        method="fantastic",
+    )
 
     return {
         # Interpolation contour features
