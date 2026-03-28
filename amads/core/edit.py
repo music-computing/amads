@@ -51,7 +51,7 @@ def neighbour_swap_distance(a: Iterable, b: Iterable) -> int | None:
     a = list(a)
     b = list(b)
 
-    if len(a) != len(b) or sorted(a) != sorted(b):
+    if len(a) != len(b) or Counter(a) != Counter(b):
         return None
 
     # Build position index for b
