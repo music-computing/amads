@@ -33,9 +33,6 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "mkdocs",
-    "mkdocstrings",
-    "griffe",
     "black",
     "myst-parser",
     "pre-commit",
