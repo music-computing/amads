@@ -199,6 +199,9 @@ class Chord:
     >>> c
     Chord(C major)
 
+    >>> c == Chord("C", "maj")
+    True
+
     Here are some derived properties:
 
     >>> c.pitch_class_set
@@ -234,7 +237,7 @@ class Chord:
     See also the `from_scale_degree` method (also demo'd here).
 
     >>> Chord.from_roman("ii", "d").label
-    'Edim'
+    'Eo'
 
     >>> Chord.from_roman("ii7", "d").label
     'Eø7'
@@ -243,11 +246,11 @@ class Chord:
     'Eø7'
 
     >>> Chord.from_scale_degree(2, "d").label
-    'Edim'
+    'Eo'
 
     Explicit suffix takes priority over scale-stacking
     >>> Chord.from_roman("iio7", "d").label
-    'Edim7'
+    'Eo7'
 
     3. From pitches directly, either as pitch name or pitch class:
 
@@ -386,20 +389,20 @@ class Chord:
         Examples
         --------
         >>> Chord.from_scale_degree(2, "C").label
-        'Dmin'
+        'Dm'
 
         >>> ii7 = Chord.from_scale_degree(2, "C", seventh=True)
         >>> ii7.label
-        'Dmin7'
+        'Dm7'
 
         >>> ii7.intervals
         (0, 3, 7, 10)
 
         >>> Chord.from_scale_degree(7, "C").label
-        'Bdim'
+        'Bo'
 
         >>> Chord.from_scale_degree(2, "d").label
-        'Edim'
+        'Eo'
 
         >>> Chord.from_scale_degree(2, "d", seventh=True).label
         'Eø7'
@@ -565,13 +568,13 @@ class Chord:
         # Concise suffixes for common qualities
         _LABEL_SUFFIX: dict[str, str] = {
             "major":       "",
-            "minor":       "min",
-            "diminished":  "dim",
-            "augmented":   "aug",
+            "minor":       "m",
+            "diminished":  "o",
+            "augmented":   "+",
             "dominant7":   "7",
-            "major7":      "maj7",
-            "minor7":      "min7",
-            "diminished7": "dim7",
+            "major7":      "M7",
+            "minor7":      "m7",
+            "diminished7": "o7",
             "half-dim7":   "ø7",
             "sus2":        "sus2",
             "sus4":        "sus4",
