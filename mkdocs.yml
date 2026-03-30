@@ -79,6 +79,7 @@ nav:
       - Basic Score Elements: reference/basics.md
       - More Classes: reference/basics_more.md
       - Pitch: reference/pitch.md
+      - Chord: reference/chord.md
       - Distribution: reference/distribution.md
       - Utility Functions: reference/utils.md
       - Vector Functions: reference/vector.md
