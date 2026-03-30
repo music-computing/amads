@@ -1,8 +1,24 @@
 # Installation
 
+# General use
+
+Most users will simply want to install the most recent, stable release for general use.
+
+That's nice and easy:
+
+```bash
+pip install amads
+```
+
+
+# Development
+
+To install the project for development (with full git commit history etc.)
+things are, of course, slightly more involved. 
+
 ## Prerequisites
 
-- Python 3.8 or higher
+- Python 3.10 or higher
 - Git
 
 ## Installation Steps
