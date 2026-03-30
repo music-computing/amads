@@ -9,10 +9,10 @@ contribute:
 Our goal is compatibility among input, output, and analysis functions.
 Most of AMADS shares a common representation for music information, so
 you should be familiar with the core data structures and methods
-described in the [API Reference Core Overview](../../core.md).
+described in the [API Reference Core Overview](../core.md).
 
 In addition, check out the general Algorithms topic indexed on the
-“[API Reference Page](../../core.md)” topics,
+“[API Reference Page](../core.md)” topics,
 which include various functions to compute common analysis and
 statistical properties such as entropy, and there are also operations
 related to collections (sets, vectors, etc.). Even if it is a little
@@ -20,7 +20,7 @@ work to put data in the right form to use these shared algorithms, we
 prefer this to avoid a proliferation of implementations of the same
 algorithm (which might have subtle bugs or surprising differences.
 
-Finally, the [Design Considerations](../design.md) page
+Finally, the [Design Considerations](design.md) page
 gives some rationale for the AMADS design and some
 general guidelines for issues like score representation,
 new attributes, and mutability (or not).

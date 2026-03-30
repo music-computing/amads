@@ -2,7 +2,7 @@
 
 This page describes configuration details for Github.
 
-See also [GitHub contribution workflow](../contributing/#github-contribution-workflow).
+See also [GitHub contribution workflow](contributing.md#github-contribution-workflow).
 
 ## Testing and Continuous Integration
 

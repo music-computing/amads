@@ -24,7 +24,7 @@
 
 ----------------
 
-::: amads.pitch.pc_set_functions.pitches_to_interval_vector
+::: amads.pitch.pc_set_functions.set_to_interval_vector
 
 ----------------
 
