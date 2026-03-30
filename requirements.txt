@@ -1,0 +1,16 @@
+# MkDocs core - pinned below 2.0
+mkdocs>=1.5,<2.0
+
+# Material theme
+mkdocs-material>=9.7.5,<10.0
+
+# Plugins
+mkdocstrings>=0.24,<0.26
+mkdocstrings-python>=1.9,<2.0
+mkdocs-autorefs>=0.5,<1.0
+griffe>=0.47,<0.49 # Note: pinned to match local as local works and git fails wrt `ExprSubscript`(? bug in later v's?)
+
+# Dependency pins
+jinja2>=3.1,<4.0
+markupsafe>=2.1,<3.0
+pymdown-extensions>=10.0,<11.0
