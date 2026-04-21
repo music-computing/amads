@@ -27,7 +27,8 @@ import numpy as np
 
 def is_non_negative_integer_power_of_two(n: float) -> bool:
     """
-    Checks if a number is a power of 2.
+    Checks if a number is a non-negative integer power of 2.
+    I.e. 1, 2, 4, ...
 
     Examples
     --------
@@ -37,6 +38,7 @@ def is_non_negative_integer_power_of_two(n: float) -> bool:
     >>> is_non_negative_integer_power_of_two(0.5)
     False
 
+    As "non-negative integer" suggests, 2^0 = 1 is included.
     >>> is_non_negative_integer_power_of_two(1)
     True
 
@@ -48,8 +50,15 @@ def is_non_negative_integer_power_of_two(n: float) -> bool:
 
     >>> is_non_negative_integer_power_of_two(4)
     True
+
+    Invlid types return False.
+    >>> is_non_negative_integer_power_of_two("TEST")
+    False
+
     """
-    if n <= 0:  # also catches type error if non-numeric
+    if not isinstance(n, (int, float)):
+        return False
+    if n <= 0:
         return False
     if not isinstance(n, int):
         if int(n) == n:
