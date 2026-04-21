@@ -30,7 +30,7 @@ class MetricalSplitter:
     and returns a list of start-duration pairs for the constituent parts of the broken-up note.
 
     The metrical context should be expressed in the form of a `start_hierarchy`
-    (effectively a list of lists for the hierarchy).
+    (a list of lists representing the hierarchy from the coarsest level to the finest).
     This can be provided directly or made via various classes in the meter module (see notes there).
 
     The basic premise here is that a single note can only traverse metrical boundaries
@@ -47,8 +47,12 @@ class MetricalSplitter:
     The flexibility comes from the definition of a metrical structure
     (for which see the `MetricalHierarchy` class).
 
-    Each split of the note duration serves to move up one metrical level.
-    For instance, for the 4/4 example above, a note of duration 2.0 starting at start
+    Each split of the note duration moves up one metrical level.
+    The exact definition of metrical structure
+    (including the presence and absence of each level) is central.
+    Given a "4/4" that's defined by pulse levels 4, 2, 1, 0.5, 0.25
+    (`PulseLengths([4, 2, 1, 0.5, 0.25], cycle_length=4)`),
+    a note of duration 2.0 starting at
     0.25 connects to 0.5 in level 3 (duration = 0.25), then
     0.5 connects to 1.0 in level 2 (duration = 0.5), then
     1.0 connects to 2.0 in level 1 (duration = 1.0), and
@@ -58,8 +62,14 @@ class MetricalSplitter:
     [(0.25, 0.25),
     (0.5, 0.5),
     (1.0, 1.0),
-    (1.0, 0.25)]
-    as demonstrated below.
+    (2.0, 0.25)]
+
+    Alternatively, the metrical encoding of 4/4 might decline to specify
+    the levels for pulse length 2 and any shorter than 1.
+    This is true of default construction with `TimeSignature(as_string="4/4")`.
+    Clearly this yields different splits.
+
+    Both of these variants are demonstrated among the examples below.
 
     If the note runs past the end of the metrical span,
     the remaining value is stored with the
@@ -67,35 +77,45 @@ class MetricalSplitter:
     and `remaining_length` attribute for the rest.
 
     If the `note_start` is not in the hierarchy,
-    then the first step is to map to the next nearest value in the lowest level.
+    then the first step is to map to the next higher value in the lowest level.
 
     Parameters
-    -------
+    ----------
     note_start: float
         The starting position of the note (or rest).
-
-    note_length: float,
+    note_length: float
         The length (duration) of the note (or rest).
-
+    start_hierarchy: list[list]
+        Metrical hierarchy from the coarsest level to finest.
+        Each level must be a superset of the one above it.
+        Level 0 must be `[0.0, cycle_length]` .
     split_same_level: bool
-        When creating hierarchies, decide whether to split elements at the same level, e.g., 1/8 and 2/8 in 6/8.
-        In cases of metrical structures with a 3-grouping
-        (two "weak" events between a "strong" in compound signatures like 6/8),
-        some conventions choose to split notes within-level as well as between them.
-        For instance, with a quarter note starting on the second eighth note (start 0.5) of 6/8,
-        some will want to split that into two 1/8th notes, divided on the third eighth note position,
-        while others will want to leave this intact.
-        The `split_same_level` option accommodates this:
-        it affects the within-level split when set to True and not otherwise (default).
+        If True, split at boundary positions _within_ the level the note starts on,
+        in addition to boundaries _between_ levels.
+        Relevant for meters with 3-groupings such as 6/8:
+        a quarter note starting on the second eighth note (position 0.5)
+        can either be left intact or split on the third eighth (position 1.0)
+        depending on this editorial convention.
+        Defaults to `True`.
+
+    See Also
+    --------
+    nested_to_start_hierarchy : Convert a variably-nested list of positions
+        into a `start_hierarchy` suitable for this class.
 
     Examples
-    -------
+    --------
 
     >>> from amads.time.meter.representations import TimeSignature, PulseLengths
     >>> m = TimeSignature(as_string="4/4")
     >>> start_hierarchy = m.to_start_hierarchy()
     >>> start_hierarchy
     [[0.0, 4.0], [0.0, 1.0, 2.0, 3.0, 4.0]]
+
+    This shows that the `TimeSignature(as_string="4/4")`
+    specifies the /1 and /4 levels only (skipping the /2 level and any shorter than the /4).
+
+    Here, in the absence of the /2 level, the `split_same_level` option makes a difference.
 
     >>> split = MetricalSplitter(0.25, 2.0, start_hierarchy=start_hierarchy, split_same_level=False)
     >>> split.start_duration_pairs
@@ -110,10 +130,28 @@ class MetricalSplitter:
     >>> start_hierarchy
     [[0.0, 4.0], [0.0, 2.0, 4.0], [0.0, 1.0, 2.0, 3.0, 4.0]]
 
+    Now we have the /2 level, the `split_same_level` option makes no difference.
+
+    >>> split = MetricalSplitter(0.25, 2.0, start_hierarchy=start_hierarchy, split_same_level=True)
+    >>> split.start_duration_pairs
+    [(0.25, 0.75), (1.0, 1.0), (2.0, 0.25)]
+
+    >>> split = MetricalSplitter(0.25, 2.0, start_hierarchy=start_hierarchy, split_same_level=False)
+    >>> split.start_duration_pairs
+    [(0.25, 0.75), (1.0, 1.0), (2.0, 0.25)]
+
+    Creating directly from PulseLengths is clearer in this case:
+
     >>> meter_from_pulses = PulseLengths([4, 2, 1, 0.5, 0.25], cycle_length=4)
     >>> start_hierarchy = meter_from_pulses.to_start_hierarchy()
     >>> start_hierarchy[-1]
     [0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0, 3.25, 3.5, 3.75, 4.0]
+
+    >>> split = MetricalSplitter(0.25, 2.0, start_hierarchy=start_hierarchy)
+    >>> split.start_duration_pairs
+    [(0.25, 0.25), (0.5, 0.5), (1.0, 1.0), (2.0, 0.25)]
+
+    Now with a note that extends beyond the end of the cycle:
 
     >>> split = MetricalSplitter(0.25, 4.0, start_hierarchy=start_hierarchy)
     >>> split.start_duration_pairs
@@ -121,6 +159,8 @@ class MetricalSplitter:
 
     >>> split.remaining_length
     0.25
+
+    Now with a note that starts at a position not in the hierarchy:
 
     >>> split = MetricalSplitter(0.05, 2.0, start_hierarchy=start_hierarchy)
     >>> split.start_duration_pairs
@@ -161,8 +201,11 @@ class MetricalSplitter:
         “Typically” because `split_same_level` is supported where relevant.
 
         Each iteration creates a new start-duration pair
-        stored in the start_duration_pairs list
+        stored in the `start_duration_pairs` list
         that records the constituent parts of the split note.
+
+        The method includes a check for when the `remaining_length` goes negative,
+        as a signal to terminate.
         """
 
         for level_index in range(len(self.start_hierarchy)):
@@ -203,6 +246,19 @@ class MetricalSplitter:
         For a start position, and a metrical level expressed as a list of starts,
         find the next higher value from those levels.
         Used for determining iterative divisions.
+
+        While it is not necessarily clear at first glance,
+        there is in fact a termination guarantee for this method:
+        `remaining_length` strictly decreases on every call to this method.
+        The decrease is by the value of the `duration_to_next_position` in the split case,
+        and to zero (or below) otherwise.
+        This guarantees that the mutual recursion
+        between `advance_step` and `level_pass` always terminates.
+
+        Parameters
+        ----------
+        positions_list : list
+            An ordered list of metrical positions at a single hierarchy level.
         """
         for p in positions_list:
             if p > self.updated_start:
