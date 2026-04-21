@@ -995,12 +995,6 @@ class VariableNesting:
         but not at depth 1, the output still contains contiguous levels with no
         phantom intermediate entries.
 
-        A sub-list that appears first or last in its parent with no scalar
-        neighbour on one side will not automatically have that boundary.
-        In practice this means the sub-list should be bounded by scalars on both
-        sides; a leading or trailing sub-list is not currently supported and will
-        produce an incomplete level.
-
         See Also
         --------
         `MetricalSplitter`: recipient of the `start_hierarchy` representation produced by this function.
