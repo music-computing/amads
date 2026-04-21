@@ -292,7 +292,7 @@ class StartTimeHierarchy:
                 f"The `minimum_beat_type` ({minimum_beat_type}) is not a power of 2. Use case unsupported."
             )
 
-        fastest_beat_type = switch_pulse_length_beat_type(fastest)  # TODO
+        fastest_beat_type = switch_pulse_length_beat_type(fastest)
         fastest_beat_type_exponent = int(math.log2(fastest_beat_type))
         minimum_beat_type_exponent = int(math.log2(minimum_beat_type))
 
@@ -671,8 +671,9 @@ class PulseLengths:
 
         """
 
-        self.pulse_lengths = pulse_lengths
-        self.pulse_lengths.sort(reverse=True)  # largest number first
+        self.pulse_lengths = sorted(
+            pulse_lengths, reverse=True
+        )  # create new list, largest number first
 
         self.cycle_length = cycle_length
         if self.cycle_length is not None:
