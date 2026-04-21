@@ -117,6 +117,15 @@ class StartTimeHierarchy:
         Currently, this supports one textual value per temporal position (key),
         e.g., {0.0: "ta", 1.0: "ka", 2.0: "di", 3.0: "mi"}.
 
+    Attributes
+    ----------
+    start_hierarchy : list[list]
+        This is the main structured data for the class.
+    cycle_length : float
+        Derived from [0][-1] of the given `start_hierarchy`
+    pulse_lengths : list or None
+        None until if/when `to_pulse_lengths()` is called explicitly.
+
     """
 
     def __init__(
