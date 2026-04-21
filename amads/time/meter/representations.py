@@ -1044,7 +1044,7 @@ class VariableNesting:
 def _collect_by_depth(
     items: list,
     current_depth: int,
-    accumulator: dict[int, list[float]] | None = None,
+    accumulator: Optional[dict[int, list[float]]] = None,
 ) -> dict[int, list[float]]:
     """
     Walk over all `items`, moving each value to its depth key.
@@ -1080,7 +1080,7 @@ def _collect_by_depth(
     return accumulator
 
 
-def _left_neighbour(items: list, index: int) -> float | None:
+def _left_neighbour(items: list, index: int) -> Optional[float]:
     """Return the nearest item to the left of *index*, or None."""
     for j in range(index - 1, -1, -1):
         if not isinstance(items[j], list):
@@ -1088,7 +1088,7 @@ def _left_neighbour(items: list, index: int) -> float | None:
     return None
 
 
-def _right_neighbour(items: list, index: int) -> float | None:
+def _right_neighbour(items: list, index: int) -> Optional[float]:
     """Return the nearest item to the right of *index*, or None."""
     for j in range(index + 1, len(items)):
         if not isinstance(items[j], list):
