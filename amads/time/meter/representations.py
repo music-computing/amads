@@ -686,12 +686,12 @@ class PulseLengths:
 
         self.cycle_length = cycle_length
         if self.cycle_length is not None:
-            if pulse_lengths[0] > self.cycle_length:
+            if self.pulse_lengths[0] > self.cycle_length:
                 raise ValueError(
-                    f"The `pulse_length` {pulse_lengths[0]} is longer than the `cycle_length` ({self.cycle_length})."
+                    f"The `pulse_length` {self.pulse_lengths[0]} is longer than the `cycle_length` ({self.cycle_length})."
                 )
         else:
-            self.cycle_length = float(pulse_lengths[0])
+            self.cycle_length = float(self.pulse_lengths[0])
 
         self.start_hierarchy = None
         self.include_cycle_length = include_cycle_length
