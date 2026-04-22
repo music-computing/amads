@@ -34,8 +34,8 @@ class MetricalSplitter:
     This can be provided directly or made via various classes in the meter module (see notes there).
 
     The basic premise here is that a single note can only traverse metrical boundaries
-    for levels lower than the one it starts on.
-    If it traverses the metrical boundary of a higher level, then
+    for levels finer than the one it starts on.
+    If it traverses the metrical boundary of a coarser level, then
     it is split at that position into two note-heads.
     This split registers as a case of syncopation for those algorithms
     and as a case for two note-heads to be connected by a tie in notation.
@@ -77,7 +77,7 @@ class MetricalSplitter:
     and `remaining_length` attribute for the rest.
 
     If the `note_start` is not in the hierarchy,
-    then the first step is to map to the next higher value in the lowest level.
+    then the first step is to map to the "next" (larger) value in the finest level specified.
 
     Parameters
     ----------
@@ -181,107 +181,85 @@ class MetricalSplitter:
         self.start_hierarchy = start_hierarchy
         self.split_same_level = split_same_level
 
+        # Pre-compute rounded sets for float-safe membership tests
+        self._level_sets = [
+            {round(p, 4) for p in level} for level in start_hierarchy
+        ]
+
         # Initialise
         self.start_duration_pairs = []
-        self.updated_start = note_start
         self.remaining_length = note_length
-        self.level_pass()
+        self._run()
 
-    # ------------------------------------------------------------------------------
+    def _run(self):
+        current = self.note_start
+        remaining = self.note_length
 
-    def level_pass(self):
-        """
-        Given a `start_hierarchy`,
-        this method iterates across the levels of that hierarchy to find the
-        current start position, and (through `advance_step`) the start
-        position to map to.
-
-        This method runs once for each such mapping, typically advancing
-        up one (or more) layer of the metrical hierarchy with each call.
-        “Typically” because `split_same_level` is supported where relevant.
-
-        Each iteration creates a new start-duration pair
-        stored in the `start_duration_pairs` list
-        that records the constituent parts of the split note.
-
-        The method includes a check for when the `remaining_length` goes negative,
-        as a signal to terminate.
-        """
-
-        for level_index in range(len(self.start_hierarchy)):
-
-            if (
-                self.remaining_length <= 0
-            ):  # sic, here due to the various routes through
+        while remaining > 0:
+            if current >= self.start_hierarchy[0][-1]:
+                self.remaining_length = remaining
                 return
 
-            if (
-                self.updated_start == self.start_hierarchy[0][-1]
-            ):  # finished metrical span
-                return
-
-            this_level = self.start_hierarchy[level_index]
-
-            if self.updated_start in this_level:
-                if level_index == 0:  # i.e., updated_start == 0
-                    self.start_duration_pairs.append(
-                        (self.updated_start, round(self.remaining_length, 4))
+            # Find which level current belongs to
+            target_level = None
+            for level_index, level_set in enumerate(self._level_sets):
+                if round(current, 4) in level_set:
+                    if level_index == 0:
+                        # On the coarsest level: emit the rest of the note in one piece
+                        self.start_duration_pairs.append(
+                            (current, round(remaining, 4))
+                        )
+                        self.remaining_length = 0
+                        return
+                    # split_same_level=True  → advance to the next boundary in the
+                    # current level (i.e. split within the same metrical level).
+                    # split_same_level=False → advance only to the next boundary in
+                    # the coarser level above (i.e. never split within a level).
+                    target_level = (
+                        self.start_hierarchy[level_index]
+                        if self.split_same_level
+                        else self.start_hierarchy[level_index - 1]
                     )
-                    return
-                else:  # level up. NB: duplicates in nested hierarchy help here
-                    if self.split_same_level:  # relevant option for e.g., 6/8
-                        self.advance_step(this_level)
-                    else:  # usually
-                        self.advance_step(self.start_hierarchy[level_index - 1])
+                    break
 
-        if self.remaining_length > 0:  # start not in the hierarchy at all
-            self.advance_step(
-                self.start_hierarchy[-1]
-            )  # get to the lowest level
-            # Now start the process with the metrical structure:
-            self.level_pass()
+            if target_level is None:
+                # current is not on any level: advance to the next position in the
+                # finest level so the note snaps onto the grid.
+                target_level = self.start_hierarchy[-1]
 
-    def advance_step(self, positions_list: list):
+            current, remaining = self._advance_step(
+                current, remaining, target_level
+            )
+
+        self.remaining_length = remaining
+
+    def _advance_step(
+        self, current: float, remaining: float, positions_list: list
+    ) -> tuple:
         """
-        For a start position, and a metrical level expressed as a list of starts,
-        find the next higher value from those levels.
-        Used for determining iterative divisions.
-
-        While it is not necessarily clear at first glance,
-        there is in fact a termination guarantee for this method:
-        `remaining_length` strictly decreases on every call to this method.
-        The decrease is by the value of the `duration_to_next_position` in the split case,
-        and to zero (or below) otherwise.
-        This guarantees that the mutual recursion
-        between `advance_step` and `level_pass` always terminates.
-
-        Parameters
-        ----------
-        positions_list : list
-            An ordered list of metrical positions at a single hierarchy level.
+        Find the next position after `current` in `positions_list`,
+        emit a start-duration pair, and return the updated (current, remaining).
         """
         for p in positions_list:
-            if p > self.updated_start:
-                duration_to_next_position = p - self.updated_start
-                if self.remaining_length <= duration_to_next_position:
+            if p > current:
+                duration_to_next = p - current
+                if remaining <= duration_to_next:
                     self.start_duration_pairs.append(
-                        (self.updated_start, round(self.remaining_length, 4))
+                        (current, round(remaining, 4))
                     )
-                    # done but still reduce `remaining_length` to end the whole process in level_pass
-                    self.remaining_length -= duration_to_next_position
-                    return
-                else:  # self.remaining_length > duration_to_next_position:
+                    return (
+                        current,
+                        remaining - duration_to_next,
+                    )  # drives remaining <= 0
+                else:
                     self.start_duration_pairs.append(
-                        (
-                            self.updated_start,
-                            round(duration_to_next_position, 4),
-                        )
+                        (current, round(duration_to_next, 4))
                     )
-                    # Updated start and position; run again
-                    self.updated_start = p
-                    self.remaining_length -= duration_to_next_position
-                    self.level_pass()  # NB: to re-start from top as may have jumped a level
-                    return
+                    return p, remaining - duration_to_next
+        raise ValueError(
+            f"No next position found from {current!r} "
+            f"in {positions_list!r} — possible float drift past boundary."
+        )
 
 
 # -----------------------------------------------------------------------------
