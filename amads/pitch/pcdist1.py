@@ -80,7 +80,6 @@ def pitch_class_distribution_1(
     score = cast(Score, score.merge_tied_notes())
     if weighted:
         score.convert_to_seconds()  # need seconds for duraccent calculation
-    score.show()
     
     initial_value = 0.0
     bin_centers = [float(i) for i in range(12)]  # 25 bins from -12 to +12
@@ -97,7 +96,6 @@ def pitch_class_distribution_1(
 
     if miditoolbox_compatible:  # miditoolbox "normalization"
         total = sum(h.bins) + len(h.bins) * 1e-12
-        print(f"total: {total}")
         h.bins = [b / total for b in h.bins]
     else:  # normalize normally
         h.normalize()
