@@ -20,11 +20,11 @@
 
 ----------------
 
-::: amads.pitch.pc_set_functions.distinct_PCs
+::: amads.pitch.pc_set_functions.distinct_pcs
 
 ----------------
 
-::: amads.pitch.pc_set_functions.pitches_to_interval_vector
+::: amads.pitch.pc_set_functions.set_to_interval_vector
 
 ----------------
 

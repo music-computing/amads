@@ -14,6 +14,7 @@ number (a single pair vs many pairwise calculations).
 __author__ = "Mark Gotham"
 
 
+from collections.abc import Sequence
 from fractions import Fraction
 
 # -----------------------------------------------------------------------------
@@ -159,7 +160,7 @@ def fraction_gcd_pair(x: Fraction, y: Fraction) -> Fraction:
 # Combined operations on iterable (list, tuple, ... ) of values.
 
 
-def calculate_gcd(numbers: list):
+def calculate_gcd(numbers: Sequence):
     """
     Compute GCD.
     Wrapper function when you don't know the type of the numeric data.
@@ -220,7 +221,7 @@ def calculate_gcd(numbers: list):
     return gcd
 
 
-def integer_gcd(integers: list[int]) -> int:
+def integer_gcd(integers: Sequence[int]) -> int:
     """
     Compute GCD where the elements are known/asserted to be integers.
     See `integer_gcd_pair`.
@@ -229,6 +230,7 @@ def integer_gcd(integers: list[int]) -> int:
     ------
     ValueError
         If `integers` is empty.
+        Note that this diverges from `math.gcd`.
 
     Returns
     -------
@@ -246,6 +248,15 @@ def integer_gcd(integers: list[int]) -> int:
     >>> integer_gcd([0, 8, 16])
     8
 
+    Zero returns 0 ...
+    >>> integer_gcd([0])
+    0
+
+    ... but nothing raises an error.
+    >>> integer_gcd([])
+    Traceback (most recent call last):
+    ValueError: integers must not be empty
+
     """
     if not integers:
         raise ValueError("integers must not be empty")
@@ -255,7 +266,7 @@ def integer_gcd(integers: list[int]) -> int:
     return gcd
 
 
-def fraction_gcd(fractions: list[Fraction]) -> Fraction:
+def fraction_gcd(fractions: Sequence[Fraction]) -> Fraction:
     """
     Compute GCD where all elements are known/asserted to be Fractions.
     See `fraction_gcd_pair`.
@@ -284,7 +295,7 @@ def fraction_gcd(fractions: list[Fraction]) -> Fraction:
     return gcd
 
 
-def float_gcd(floats: list[float], rtol=1e-05, atol=1e-08) -> float:
+def float_gcd(floats: Sequence[float], rtol=1e-05, atol=1e-08) -> float:
     """
     Calculate GCD for a list of floats given the specified
     relative and absolute tolerance (`rtol` and `atol`).

@@ -1,17 +1,28 @@
 """
-Shared functionality for basic operations on vectors
+Shared functionality for basic transformation operations on vectors
 (applicable to more than one musical parameter).
 Includes
-transformations (e.g., `rotate`) and
-checks (e.g., `is_rotation_equivalent`) on vectors.
+transformations (e.g., `rotate`)
+checks (e.g., `is_rotation_equivalent`), and
+generator (e.g., `rotation_distinct_patterns`)
+on vectors.
+
+While there's a case for moving some of these to vectors_sets,
+the contents here (and there) helps avoids circular dependencies.
+
+<small>**Author**: Mark Gotham</small>
 """
 
 __author__ = "Mark Gotham"
 
 from itertools import combinations
-from typing import List, Optional, Union
+from typing import Optional, Sequence, Union
 
-from amads.core.vectors_sets import is_indicator_vector, vector_to_set
+from amads.core.vectors_sets import (
+    is_indicator_vector,
+    multiset_to_vector,
+    pairwise_differences,
+)
 
 # ----------------------------------------------------------------------------
 
@@ -55,22 +66,22 @@ def rotate(
     (2, 3, 0, 1)
 
     """
-    if not steps:
+    if steps is None:
         steps = int(len(vector) / 2)
 
     return vector[steps:] + vector[:steps]
 
 
 def mirror(
-    vector: Union[list, tuple], index_of_symmetry: Union[int, None] = None
-) -> Union[list, tuple]:
+    vector: Sequence, index_of_symmetry: Union[int, None] = None
+) -> Sequence:
     """
     Reverse a vector (or any ordered iterable).
 
     Parameters
     ----------
-    vector: tuple
-        The tuple accepts any ordered succession of any elements.
+    vector: Sequence
+        Any ordered succession of any elements.
         We expect integers representing a vector, but do not enforce it.
     index_of_symmetry: Union[int, None]
         Defaults to None, in which case, standard reflection of the
@@ -81,8 +92,8 @@ def mirror(
 
     Returns
     -------
-    Union[list, tuple]
-        The input (list or tuple), mirrored. Same length.
+    Sequence
+        The input (tuple, list, etc.), mirrored. Same length, but return is always a tuple.
 
     Examples
     --------
@@ -96,19 +107,25 @@ def mirror(
     >>> mirror(test_case, index_of_symmetry=1)
     (1, 0, 5, 4, 3, 2)
 
+    We will often use this for a 12-element indicator vector.
+    >>> c_vector = (1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0)
+    >>> mirror(c_vector, index_of_symmetry=0)
+    (1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0)
+
     """
     if index_of_symmetry is not None:
-        rotated = (
-            vector[index_of_symmetry::-1] + vector[-1:index_of_symmetry:-1]
-        )
+        return vector[index_of_symmetry::-1] + vector[-1:index_of_symmetry:-1]
     else:
-        rotated = vector[::-1]
-    return tuple(rotated)
+        return vector[::-1]
 
 
 def complement(indicator_vector: tuple[int, ...]) -> tuple[int, ...]:
     """
     Provide the complement of an indicator vector.
+
+    Returns
+    -------
+    tuple[int]
 
     Examples
     --------
@@ -157,16 +174,126 @@ def change_cycle_length(
         )
 
 
+def convolve(
+    vector_1: Sequence, vector_2: Sequence, return_indicator: bool = False
+) -> tuple:
+    """
+    Convolution combines two vectors,
+    with a scalar product of corresponding entries
+    where they are rotated relative to one another by k steps.
+
+    Parameters
+    ----------
+    vector_1: Sequence
+        A vector of numeric values.
+    vector_2: Sequence
+        Another vector of numeric values, must be the same length as `vector_1` (otherwise, raises).
+    return_indicator: bool
+        If True, return an indicator vector (only 1s and 0s).
+
+    Returns
+    -------
+    tuple
+        The convolution of the two input vectors.
+        If `return_indicator` is True, values are reduced to 1s and 0s.
+
+    Examples
+    --------
+    This function is agnostic wrt musical parameter;
+    the following example as applied to pitch is illustrative.
+
+    >>> c_major_triad = (1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0)
+    >>> min_7_dyad = (1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0)
+    >>> convolve(c_major_triad, min_7_dyad)
+    (1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0)
+
+    """
+    number_elements = len(vector_1)
+    if len(vector_2) != number_elements:
+        raise ValueError(
+            "The lengths of two vectors must match. "
+            f"Currently {vector_1} ({number_elements}) "
+            f"and {vector_2} ({len(vector_2)})."
+        )
+
+    combined_list = []
+    for k in range(number_elements):
+        combined_list.append(
+            sum(
+                vector_1[i] * vector_2[(k - i) % number_elements]
+                for i in range(number_elements)
+            )
+        )
+
+    if return_indicator:
+        combined_list = [1 if x > 0 else 0 for x in combined_list]
+    return tuple(combined_list)
+
+
+def interval_function(
+    vector_1: Sequence[int],
+    vector_2: Sequence[int],
+    return_vector: bool = True,
+) -> tuple[int, ...]:
+    """
+    All directed intervals between two vectors.
+    The interval _function_ was introduced to music theory by Lewin, 2001 [1]
+
+    [1] David Lewin, Special Cases of the Interval Function between Pitch-Class Sets X and Y,
+    Journal of Music Theory (2001) 45 (1): 1–29. https://doi.org/10.2307/3090647
+
+    Parameters
+    ----------
+    vector_1: Sequence[int]
+        A sequence representing a starting condition.
+    vector_2: Sequence[int]
+        A sequence representing a following condition.
+    return_vector: bool
+        If True (default), return a count vector indexed by interval size
+        (length ``max_interval + 1``).
+        If False, return the raw multiset of directed intervals mod 12.
+
+    Returns
+    -------
+    tuple[int, ...]
+        If ``return_vector`` is True, a 13-element tuple where index ``i``
+        is the count of directed interval ``i`` (mod 12) from ``vector_1``
+        to ``vector_2``.
+        If ``return_vector`` is False, the raw multiset of directed intervals.
+
+    Examples
+    --------
+    >>> start_set = [1, 2, 6]
+    >>> end_set = [1, 5, 7]
+
+    With `return_vector=False` we get the pairwise differences as a set multiset of intervals in the range 0–12.
+    >>> interval_function(start_set, end_set, return_vector=False)
+    (0, 4, 6, 11, 3, 5, 7, 11, 1)
+
+    With `return_vector=True` we get an interval vector with usage per position (/interval).
+    For example, note that we have two instance of interval 11 in the above.
+    >>> interval_function(start_set, end_set, return_vector=True)
+    (1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 2)
+
+    """
+    differences = pairwise_differences(vector_1, vector_2, modulo=12)
+
+    if return_vector:
+        differences = multiset_to_vector(differences, max_index=11)
+
+    return tuple(differences)
+
+
 # ----------------------------------------------------------------------------
 
 # Checks
 
 
-def is_rotation_equivalent(vector_a: tuple, vector_b: tuple) -> bool:
+def is_rotation_equivalent(a: tuple, b: tuple) -> bool:
     """
-    Given two vectors, test for rotation equivalence.
+    Test for rotation equivalence.
     This is applicable to indicator vectors, interval sequences, and more
-    as long as the user compares like with like.
+    (any tuple, list, or even string).
 
     Examples
     --------
@@ -192,20 +319,13 @@ def is_rotation_equivalent(vector_a: tuple, vector_b: tuple) -> bool:
     True
 
     """
-    if vector_a == vector_b:
-        return True
+    if len(a) != len(b):
+        raise ValueError("The vectors must be of the same length.")
 
-    vector_length = len(vector_a)
-    if len(vector_b) != vector_length:
-        raise ValueError(
-            f"The vectors must be of the same length (currently {vector_length} and {len(vector_b)}."
-        )
-
-    for steps in range(1, vector_length):
-        if vector_a == rotate(vector_b, steps):
-            return True
-
-    return False
+    doubled = b + b
+    return len(a) == 0 or any(
+        doubled[i : i + len(a)] == a for i in range(len(b))
+    )
 
 
 def is_maximally_even(indicator_vector: tuple) -> bool:
@@ -296,9 +416,50 @@ def is_maximally_even(indicator_vector: tuple) -> bool:
     return is_rotation_equivalent(prototype_k_in_n, indicator_vector)
 
 
-# ----------------------------------------------------------------------------
+def is_monotonic(
+    numbers: Sequence,
+    diagnose: bool = True,
+) -> bool:
+    """
+    Assert that a list of numbers is monotonically increasing.
+    Returns True if so, raises ValueError at the first failure point.
 
-# Other
+    Please note that edge case behaviour (e.g., 0, None, raises) may change.
+
+    Parameters
+    ----------
+    numbers: A sequence (list, tuple, ...) of numeric values (integers, floats, ...).
+    diagnose: bool.
+        If True, raises a ValueError at the point of failure rather than returning False,
+        enabling diagnosis of where the sequence breaks.
+        If diagnose is False, simply return a bool in all cases.
+
+    Examples
+    --------
+    >>> is_monotonic([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    True
+    >>> is_monotonic([1, 2, 3, 4, 5, 7, 6, 8, 9, 10])
+    Traceback (most recent call last):
+    ValueError: Data must be monotonically increasing: value 6 at index 6 is not greater than the previous entry 7.
+
+    >>> is_monotonic([1, 2, 3, 4, 5, 7, 6, 8, 9, 10], diagnose=False)
+    False
+    """
+    if diagnose:
+        for i in range(len(numbers) - 1):
+            if numbers[i] >= numbers[i + 1]:
+                raise ValueError(
+                    "Data must be monotonically increasing: value "
+                    f"{numbers[i + 1]} at index {i + 1} is not greater than the previous entry {numbers[i]}."
+                )
+        return True
+    else:
+        return all(a < b for a, b in zip(numbers, numbers[1:]))
+
+
+# ------------------------------------------------------------------------
+
+# Generators
 
 
 def max_even_k_in_n(k: int, n: int) -> set[int]:
@@ -360,10 +521,16 @@ def rotation_distinct_patterns(
     for index in range(1, len(vector_patterns)):
         for prototype in return_values:
             if is_rotation_equivalent(prototype, vector_patterns[index]):
-                return_values.append(vector_patterns[index])
                 break
+        else:
+            return_values.append(vector_patterns[index])
 
     return tuple(return_values)
+
+
+# ----------------------------------------------------------------------------
+
+# Candidates for vectors_sets?
 
 
 def indicator_to_indices(
@@ -381,7 +548,7 @@ def indicator_to_indices(
     wrap: bool
         if true, the first element of `vector` is appended to `vector`
         before computing indices, so if the element is non-zero, the
-        length of `vector` will be appear in the result.
+        length of `vector` will appear in the result.
 
     Returns
     -------
@@ -406,14 +573,11 @@ def indicator_to_indices(
 
     """
     if wrap:
-        vector += (vector[0],)
+        vector = vector + vector[:1]
 
-    set_as_list = list(vector_to_set(vector))
-    set_as_list.sort()
-    return tuple(set_as_list)
+    return tuple(i for i, v in enumerate(vector) if v)
 
 
-# TODO in vectors_sets?
 def indices_to_indicator(
     indices_vector: Union[list[int], tuple[int, ...]],
     indicator_length: Optional[int] = None,
@@ -456,16 +620,10 @@ def indices_to_indicator(
     (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0)
 
     """
-    out = []
     if indicator_length is None:
         indicator_length = max(indices_vector) + 1
-    for i in range(indicator_length):
-        if i in indices_vector:
-            out.append(1)
-        else:
-            out.append(0)
-
-    return tuple(out)
+    index_set = set(indices_vector)
+    return tuple(1 if i in index_set else 0 for i in range(indicator_length))
 
 
 def indicator_to_interval(
@@ -534,7 +692,7 @@ def indicator_to_interval(
 
     """
     if adjacent_not_all and wrap:
-        vector += (vector[0],)  # TODO DRY
+        vector = vector + vector[:1]
 
     indices = indicator_to_indices(vector)
 
@@ -601,6 +759,71 @@ def interval_sequence_to_indices(
     return tuple(indices)
 
 
+def indices_to_interval_sequence(
+    indices: Union[list[int], tuple[int, ...]],
+    wrap: bool = True,
+    mod: int = 12,
+) -> tuple[int, ...]:
+    """
+    Convert a sequence of indices (any increasing integers, n >= 2)
+    into a sequence of the differences, mod 12 (including the difference between the last and the first items)
+
+    Parameters
+    ----------
+    indices: Union[list[int], tuple[int, ...]]
+        A vector containing the positions (indices) that are used.
+    wrap: bool
+        If True, include the index after the end of the sequence
+    mod: int
+        The modulo value for use when wrapping around
+
+    Returns
+    -------
+    tuple[int, ...]
+        A vector of distances (intervals) between adjacent positions
+
+    Examples
+    --------
+
+    >>> indices_to_interval_sequence([1, 2, 3])
+    (1, 1, 10)
+
+    >>> indices_to_interval_sequence([1, 2, 3], wrap=False)
+    (1, 1)
+
+    >>> indices_to_interval_sequence([1, 2, 6])
+    (1, 4, 7)
+
+    >>> start = (3, 3, 2)
+    >>> corresponding_indices = interval_sequence_to_indices(start, wrap=False)  # Default
+    >>> corresponding_indices
+    (0, 3, 6)
+
+    >>> end = indices_to_interval_sequence(corresponding_indices, mod=8)
+    >>> end
+    (3, 3, 2)
+
+    >>> start == end
+    True
+
+    """
+    if len(indices) < 2:
+        raise ValueError(
+            f"Starting indices have 2 or more items, currently {indices} is of length {len(indices)}."
+        )
+
+    is_monotonic(indices)
+
+    diffs = []
+    for i in range(len(indices) - 1):
+        diffs.append(indices[i + 1] - indices[i])
+
+    if wrap:
+        diffs += [(indices[0] - indices[-1]) % mod]
+
+    return tuple(diffs)
+
+
 def interval_sequence_to_indicator(
     interval_sequence_vector: Union[list[int], tuple[int, ...]]
 ) -> tuple[int, ...]:
@@ -633,19 +856,15 @@ def interval_sequence_to_indicator(
 
 
 def saturated_subsequence_repetition(
-    sequence: Union[List[int], tuple[int, ...]],
+    sequence: Union[list[int], tuple[int, ...]],
     all_rotations: bool = True,
     subsequence_period: Optional[int] = None,
-) -> List[List[int]]:
+) -> list[Union[list[int], tuple[int, ...]]]:
     """
     Check if a sequence contains a repeated subsequence such that
     the subsequence saturates the whole (no sequence items "left over").
     This is broadly equivalent to a "periodic sequence", with the additional
-    constraint of saturatation.
-
-    This function is a wrapper for an abstraction provided at
-    [saturated_subsequence_repetition]
-    [amads.core.vector_transforms_checks.saturated_subsequence_repetition].
+    constraint of saturation.
 
     Parameters
     ----------
@@ -659,7 +878,7 @@ def saturated_subsequence_repetition(
 
     Returns
     -------
-    Union[List[List[int]], None]
+    Union[List[List[int]]]
         A list of all subsequences that, if repeated, can form the input
         `sequence`. If `all_rotations`, then also include subsequences
         that can repeat to form any rotations of `sequence`. If
@@ -697,16 +916,26 @@ def saturated_subsequence_repetition(
     >>> saturated_subsequence_repetition(test_sequence, subsequence_period=4, all_rotations=False)
     [[1, 2, 1, 2]]
 
-    """
-    subsequence_periods = []
-    subsequences = []
+    Tuple input return same values, as list of tuples.
 
-    if subsequence_period is None:
-        for length in range(1, len(sequence) // 2 + 1):
-            if len(sequence) % length == 0:  # Valid divisor
-                subsequence_periods.append(length)
-    else:
+    >>> test_tuple = (1, 2, 1, 2, 1, 2, 1, 2)
+
+    All rotations, all subsequence lengths:
+
+    >>> saturated_subsequence_repetition(test_tuple, all_rotations=True)
+    [(1, 2), (2, 1), (1, 2, 1, 2), (2, 1, 2, 1)]
+
+    """
+    if subsequence_period is not None:
         subsequence_periods = [subsequence_period]
+    else:
+        subsequence_periods = [
+            length
+            for length in range(1, len(sequence) // 2 + 1)
+            if len(sequence) % length == 0
+        ]
+
+    subsequences = []
 
     for period in subsequence_periods:
         subsequence = sequence[:period]
@@ -718,15 +947,15 @@ def saturated_subsequence_repetition(
                 subsequences.append(subsequence)
 
         if all_rotations:
-            for i in range(
+            for j in range(
                 1, period
             ):  # sic, from 1 (0 is done) and only up to the length of the subsequence
-                this_sequence = rotate(sequence, i)
+                this_sequence = rotate(sequence, j)
                 subsequence = this_sequence[:period]
                 if subsequence not in subsequences:
                     if all(
-                        this_sequence[i : i + period] == subsequence
-                        for i in range(0, len(this_sequence), period)
+                        this_sequence[k : k + period] == subsequence
+                        for k in range(0, len(this_sequence), period)
                     ):
                         subsequences.append(subsequence)
 

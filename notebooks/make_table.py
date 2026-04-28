@@ -17,7 +17,10 @@ items = [  # NB: use caps and underscore. (Title, difficulty, notes) tuples.
     ("Install", 1, "Simple demonstration of installation options, both via pip package (recommended) and locally."),
     ("Explore_Sound", 1, "Simple demonstration of audio data and sounds as distinct from symbolic data."),
     ("Explore_Symbolic", 1, "Simple demonstration of symbolic data and basics of how to access it with AMADS."),
-    ("nPVI_fugue", 4, "Implement nPVI from scratch and apply to score/s.")
+    ("nPVI_fugue", 4, "Implement nPVI from scratch and apply to score/s."),
+    ("contour", 3, "Implement and explore various measures of melodic contour."),
+    ("gcd", 5, "Explore GCD, and related approximations."),
+    ("count_chords", 4, "Calculate the number of distinct chords in 12-TET space.")
 ]
 
 

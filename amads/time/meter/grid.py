@@ -164,13 +164,12 @@ def approximate_pulse_match_with_priority_list(
             invert=True
         )  # 1, 1/2, 1/3, ...
 
-    if 0 in pulse_priority_list:
-        raise ValueError("`pulse_priority_list` must not contain 0.")
-    if None in pulse_priority_list:
-        raise ValueError("`pulse_priority_list` must not contain None.")
-
     for p in pulse_priority_list:
-        if not isinstance(p, (Fraction, int)):
+        if p == 0:  # Ignore 0s
+            continue
+        elif p is None:
+            raise ValueError("`pulse_priority_list` must not contain None.")
+        elif not isinstance(p, (Fraction, int)):
             raise ValueError(
                 f"All entries in `pulse_priority_list` must be Fraction or int. Found: {type(p)}"
             )
@@ -255,6 +254,46 @@ def generate_n_smooth_numbers(
         return [Fraction(1, x) for x in smooth_numbers]
     else:
         return smooth_numbers
+
+
+def is_genuine_float(num):
+    """
+    Distinguish de facto numeric type, particularly for X.0 integers.
+
+    This utility function may move position in code base.
+
+    Parameters
+    ----------
+    num : float
+
+    Examples
+    --------
+
+    Float type and no equivalent int.
+    >>> is_genuine_float(5.5)
+    True
+
+    Float type, but equivalent int.
+    >>> is_genuine_float(5.0)
+    False
+
+    Any fraction, equivalent int or otherwise
+    >>> is_genuine_float(Fraction(9, 2))
+    False
+
+    >>> is_genuine_float(Fraction(10, 2))
+    False
+
+    Obligatory edge case checks.
+    >>> is_genuine_float(0.0)
+    False
+
+    Obligatory edge case checks.
+    >>> is_genuine_float(None)
+    False
+
+    """
+    return isinstance(num, float) and num != int(num)
 
 
 def get_tatum_from_priorities(
@@ -362,11 +401,33 @@ def get_tatum_from_priorities(
     >>> get_tatum_from_priorities([0, Fraction(1, 3), Fraction(4, 6)])
     Fraction(1, 3)
 
+    >>> get_tatum_from_priorities([28.0, 29.0, 29.5, 30.0, 32.0, 33.0, 34.0, 36.0, 38.0, 40.0])
+    Fraction(1, 2)
     """
-    floats = [num for num in starts if isinstance(num, float) and (num > 0)]
-    ints_fractions = [num for num in starts if not isinstance(num, float)]
-    if not floats:
-        return fraction_gcd(ints_fractions)  # No further action
+    floats, ints_fractions = [], []
+    for num in starts:
+
+        if num < 0:
+            raise ValueError(
+                f"All `start` must be greater than or equal to zero: fail on {num}."
+            )
+
+        if isinstance(num, float):
+            if is_genuine_float(num):
+                floats.append(num)
+            else:
+                assert int(num) == num
+                ints_fractions.append(int(num))
+
+        else:
+            assert isinstance(num, (int, Fraction))
+            ints_fractions.append(num)
+
+    working_gcd = fraction_gcd(ints_fractions)
+    if len(floats) == 0:
+        return working_gcd  # No further action
+    else:
+        pulses_needed = [working_gcd]
 
     if not 0.0 < distance_threshold < 1.0:
         raise ValueError(
@@ -400,9 +461,6 @@ def get_tatum_from_priorities(
         total = len(starts)
         cumulative_count = len(ints_fractions) / total
         starts = starts_to_int_relative_counter(floats)
-
-    pulses_needed = [x for x in ints_fractions if x > 0]
-    # print(pulses_needed, cumulative_count)
 
     for x in floats:
         if (x > 0) and (

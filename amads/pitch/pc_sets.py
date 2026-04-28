@@ -29,6 +29,8 @@ https://github.com/MarkGotham/Serial_Analyser
 <small>**Author**: Mark Gotham, 2021</small>
 """
 
+__author__ = "Mark Gotham"
+
 # ------------------------------------------------------------------------------
 
 # PC set properties

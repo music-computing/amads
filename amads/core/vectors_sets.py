@@ -24,9 +24,21 @@ checks (e.g., `is_rotation_equivalent`) on vectors.
 """
 __author__ = "Mark Gotham"
 
-from typing import Iterable, Union
+from typing import Iterable, Sequence, TypeVar, Union
 
 import numpy as np
+
+# ----------------------------------------------------------------------------
+
+# Internal helpers
+
+
+def _to_tuple(x) -> tuple:
+    """Normalise input to a plain Python tuple, accepting numpy arrays, lists, or tuples."""
+    if isinstance(x, np.ndarray):
+        return tuple(x.tolist())
+    return tuple(x)
+
 
 # ----------------------------------------------------------------------------
 
@@ -34,7 +46,7 @@ import numpy as np
 
 
 def multiset_to_vector(
-    multiset: Iterable,
+    multiset: Sequence,
     max_index: Union[int, None] = None,
 ) -> tuple[int, ...]:
     """
@@ -46,7 +58,7 @@ def multiset_to_vector(
     Parameters
     ----------
     multiset : Iterable
-        The input integers as an iterable object (list, tuple, set).
+        The input integers as an iterable object (list, tuple, set, or numpy array).
         Multisets are accepted but not required (i.e., sets as trivial cases of multisets).
     max_index: Union[int, None]
         Sets the maximum index of the output vector.
@@ -87,7 +99,14 @@ def multiset_to_vector(
     >>> set_roundtrip == test_set
     True
 
+    Empty input returns empty tuple
+    >>> multiset_to_vector(())
+    ()
+
     """
+    multiset = _to_tuple(multiset)
+    if not multiset:
+        return ()
     if max_index is None:
         max_index = max(multiset)
     counts = [0] * (max_index + 1)
@@ -156,14 +175,7 @@ def vector_to_set(vector: tuple[int, ...]) -> set:
     >>> resulting_set
     {1, 2, 3}
     """
-    return set(vector_to_multiset(vector))
-    # TODO consider more direct route e.g.,
-    # proto_set = []
-    # for item in vector:
-    #     if item != 0:
-    #         proto_set.append(item)
-    # return set(proto_set)
-    #
+    return {i for i, count in enumerate(vector) if count != 0}
 
 
 def multiset_to_set(multiset: Iterable):
@@ -176,15 +188,15 @@ def multiset_to_set(multiset: Iterable):
 
 
 def weighted_to_indicator(
-    weighted_vector: tuple[float, ...], threshold: float = 0.0
+    weighted_vector: Sequence[float], threshold: float = 0.0
 ) -> tuple[int, ...]:
     """
     Converts a weighted vector to an indicator vector.
 
     Parameters
     ----------
-    weighted_vector: tuple[float, ...]
-        Represents the weighted vector.
+    weighted_vector: Sequence[float]
+        Represents the weighted vector. Accepts lists, tuples, or numpy arrays.
     threshold: float
         Values below this threshold will be set to 0.
         This handles cases where weights might be very small but not exactly zero.
@@ -207,27 +219,22 @@ def weighted_to_indicator(
     >>> weighted_to_indicator(weighted_vector2, threshold=0.1)
     (1, 0, 1, 0, 0)
     """
-    # The simpler/faster version commented below works but returns a
-    # tuple of np.int which in Python 3.10 prints as "np.int(1)"
-    # rather than "1" (but in Python 3.12, it prints "1" either way).
-
-    # return tuple(np.where(np.array(weighted_vector) > threshold, 1, 0))
-
-    return tuple(
-        x.item() for x in np.where(np.array(weighted_vector) > threshold, 1, 0)
-    )
+    weighted_vector = _to_tuple(weighted_vector)
+    return tuple(int(x > threshold) for x in weighted_vector)
 
 
 # ----------------------------------------------------------------------------
 
 # Arithmetic operations: Addition/subtraction, multiplication, division
 
+_T = TypeVar("_T", tuple, list, set)
+
 
 def apply_constant(
-    set_or_vector: Iterable,
-    constant: float,
+    set_or_vector: _T,
+    constant: Union[int, float],
     modulo: Union[int, None] = None,
-) -> Union[tuple, list, set]:
+) -> _T:
     """
     Apply a constant value to a set or vector.
 
@@ -237,6 +244,7 @@ def apply_constant(
         An iterable representing a set or vector.
     constant:
         The constant may be an int or a float and positive or negative.
+        Note: passing a float constant will produce float elements in the output.
     modulo:
         An optional integer.
         If provided, the result will be taken modulo this value.
@@ -272,8 +280,9 @@ def apply_constant(
 
     >>> as_set = {0, 1, 2, 3, 11}
     >>> more_set = apply_constant(as_set, 1)
-    >>> more_set
-    {1, 2, 3, 4, 12}
+    >>> more_set == {1, 2, 3, 4, 12}
+    True
+
     """
     result = [x + constant for x in set_or_vector]
     if modulo is not None:
@@ -289,18 +298,18 @@ def apply_constant(
         return result
 
 
-def scalar_multiply(input: tuple, scale_factor: int = 2) -> tuple:
+def scalar_multiply(vector: tuple, scale_factor: int = 2) -> tuple:
     """
     Multiply all values of a tuple.
 
     Parameters
     ----------
-    input: tuple
+    vector: tuple
         a vector
 
     scale_factor: int
         The scale factor aka "multiplicative operand".
-        Multiply all elements of `input` by this amount.
+        Multiply all elements of `vector` by this amount.
         Defaults to 2.
 
     Examples
@@ -309,13 +318,7 @@ def scalar_multiply(input: tuple, scale_factor: int = 2) -> tuple:
     (0, 2, 4)
 
     """
-    # The simpler/faster version commented below works but returns a
-    # tuple of np.int which in Python 3.10 prints as "np.int(1)"
-    # rather than "1" (but in Python 3.12, it prints "1" either way).
-
-    # return tuple(np.array(input) * scale_factor)
-
-    return tuple(x.item() for x in np.array(input) * scale_factor)
+    return tuple(x * scale_factor for x in vector)
 
 
 # ----------------------------------------------------------------------------
@@ -323,7 +326,7 @@ def scalar_multiply(input: tuple, scale_factor: int = 2) -> tuple:
 # Checks (`is_x`)
 
 
-def is_set(input: Iterable) -> bool:
+def is_set(possible_set: Iterable) -> bool:
     """
     Check whether an iterable object is
     a set (specified in the type) or
@@ -343,9 +346,9 @@ def is_set(input: Iterable) -> bool:
     >>> is_set(de_facto_multiset)
     False
     """
-    if isinstance(input, set):
+    if isinstance(possible_set, set):
         return True
-    elif len(set(input)) == len(input):
+    elif len(set(possible_set)) == len(possible_set):
         return True
     return False
 
@@ -381,6 +384,70 @@ def is_indicator_vector(vector: tuple) -> bool:
     if all(x in (0, 1) for x in vector):
         return True
     return False
+
+
+# ------------------------------------------------------------------------
+
+# Operations
+
+
+def pairwise_differences(
+    a: Sequence[int],
+    b: Sequence[int] | None = None,
+    modulo: int | None = 12,
+) -> tuple[int, ...]:
+    """
+    Return pairwise differences between sets of integers, optionally reduced by a modulo value.
+
+    Where `b` is None
+    (there is only one sequence of values)
+    this function computes differences within `a`.
+    This is equivalent to an interval vector in the pitch domain.
+
+    Where a `b` sequence is provided, this function computes all
+    cross-differences from `a` to `b`.
+    This is equivalent to an interval function in the pitch domain.
+    Note that this produces n² results including self-differences (zeros),
+    whereas the internal-only case produces n*(n-1)/2 results and omits duplicates.
+
+    Parameters
+    ----------
+        a: First sequence of integers. Accepts lists, tuples, or numpy arrays.
+        b: Second sequence. If None, compares `a` against itself. Accepts lists, tuples, or numpy arrays.
+        modulo: Wrap differences using this modulus. `None` means no wrapping.
+
+    Examples
+    --------
+    >>> test_items = [1, 2, 3, 9]
+    >>> internal = pairwise_differences(test_items, modulo=12)
+    >>> internal
+    (1, 2, 8, 1, 7, 6)
+
+    Note that this internal-only version avoids duplicates.
+    If you call it on the same set twice, you get everything twice (all intervals in both directions):
+
+    >>> as_interval_function = pairwise_differences(test_items, test_items, modulo=12)
+    >>> as_interval_function
+    (0, 1, 2, 8, 11, 0, 1, 7, 10, 11, 0, 6, 4, 5, 6, 0)
+    """
+    a = _to_tuple(a)
+    if b is not None:
+        b = _to_tuple(b)
+
+    diff = (
+        (lambda x, y: (y - x) % modulo)
+        if modulo is not None
+        else (lambda x, y: y - x)
+    )
+
+    if b is not None:
+        return tuple(diff(x, y) for x in a for y in b)
+    else:
+        return tuple(
+            diff(a[i], a[j])
+            for i in range(len(a))
+            for j in range(i + 1, len(a))
+        )
 
 
 # ------------------------------------------------------------------------

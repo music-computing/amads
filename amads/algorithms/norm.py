@@ -3,16 +3,21 @@ Local implementation of standard normalization routines centrally
 for use in various functions.  The local implementation serves to
 obviate the need for external libraries (e.g., scipy) in basic cases.
 
-Comparisons on this module support any pair of profiles.  Example use
-cases include pitch class profile matching for 'best key' measurement,
-and the metrical equivalent.  """
+SciPy supports these and many other metrics.
+[Click here for a full list.](https://docs.scipy.org/doc/scipy/reference/spatial.distance.html)
+
+Comparisons on this module support any pair of profiles.
+Example use cases for music include pitch class profile matching for 'best key' measurement,
+and the metrical equivalent.
+
+<small>**Author**: Mark Gotham</small>
+"""
+
+__author__ = "Mark Gotham"
 
 from typing import Iterable
 
 import numpy as np
-
-__author__ = "Mark Gotham"
-
 
 # ------------------------------------------------------------------------------
 
@@ -181,21 +186,24 @@ def euclidean_distance(
 
 
 def pnorm_distance(
-    profile_1: np.array | Iterable, profile_2: np.array | Iterable, p: int = 2
+    profile_1: np.array | Iterable,
+    profile_2: np.array | Iterable,
+    p: int | float = 2,
 ):
     """
     Calculate the p-norm distance between two vectors.
 
     Parameters
     ----------
-    profile_1: list
-        A 1-D numpy array of numeric data.
-    profile_2: list
-        Another 1-D numpy array of numeric data.
-    p: int
+    profile_1: np.array | Iterable
+        A 1-D numpy array or Iterable of numeric data.
+    profile_2: np.array | Iterable
+        Another 1-D numpy array or Iterable of numeric data.
+    p: int | float
         The order of the normalisation.
         The default is 2 (for Euclidean distance), alternatives include 1
-        for Manhattan.
+        for Manhattan or any vaue >= 1.
+        The `np.inf` case for max is handled exactly, not via approximation.
 
     Returns
     -------
@@ -211,10 +219,17 @@ def pnorm_distance(
     >>> pnorm_distance(profile_1, profile_2, p=1)
     5.0
 
+    >>> pnorm_distance(profile_1, profile_2, p=np.inf)
+    1.0
+
     """
     vector1 = np.array(profile_1)
     vector2 = np.array(profile_2)
     diffs = np.abs(vector1 - vector2)
+    if p < 1:
+        raise ValueError(f"p must be >= 1, got {p}")
+    if p == np.inf:
+        return float(np.max(diffs))
     return float(np.sum(diffs**p) ** (1 / p))
 
 

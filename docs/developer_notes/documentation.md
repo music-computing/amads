@@ -18,7 +18,7 @@ in project root: mkdocs new .
 ### macOS or Linux
 
 ```
-PYTHONPATH=. mkdocs serve 
+PYTHONPATH=. mkdocs serve
 ```
 
 (You can write `build` instead of `serve` to just build once.)

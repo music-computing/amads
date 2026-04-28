@@ -27,7 +27,8 @@ import numpy as np
 
 def is_non_negative_integer_power_of_two(n: float) -> bool:
     """
-    Checks if a number is a power of 2.
+    Checks if a number is a non-negative integer power of 2.
+    I.e. 1, 2, 4, ...
 
     Examples
     --------
@@ -37,6 +38,7 @@ def is_non_negative_integer_power_of_two(n: float) -> bool:
     >>> is_non_negative_integer_power_of_two(0.5)
     False
 
+    As "non-negative integer" suggests, 2^0 = 1 is included.
     >>> is_non_negative_integer_power_of_two(1)
     True
 
@@ -48,8 +50,15 @@ def is_non_negative_integer_power_of_two(n: float) -> bool:
 
     >>> is_non_negative_integer_power_of_two(4)
     True
+
+    Invlid types return False.
+    >>> is_non_negative_integer_power_of_two("TEST")
+    False
+
     """
-    if n <= 0:  # also catches type error if non-numeric
+    if not isinstance(n, (int, float)):
+        return False
+    if n <= 0:
         return False
     if not isinstance(n, int):
         if int(n) == n:
@@ -107,6 +116,15 @@ class StartTimeHierarchy:
         Optionally create a dict mapping temporal positions to names.
         Currently, this supports one textual value per temporal position (key),
         e.g., {0.0: "ta", 1.0: "ka", 2.0: "di", 3.0: "mi"}.
+
+    Attributes
+    ----------
+    start_hierarchy : list[list]
+        This is the main structured data for the class.
+    cycle_length : float
+        Derived from [0][-1] of the given `start_hierarchy`
+    pulse_lengths : list or None
+        None until if/when `to_pulse_lengths()` is called explicitly.
 
     """
 
@@ -283,7 +301,7 @@ class StartTimeHierarchy:
                 f"The `minimum_beat_type` ({minimum_beat_type}) is not a power of 2. Use case unsupported."
             )
 
-        fastest_beat_type = switch_pulse_length_beat_type(fastest)  # TODO
+        fastest_beat_type = switch_pulse_length_beat_type(fastest)
         fastest_beat_type_exponent = int(math.log2(fastest_beat_type))
         minimum_beat_type_exponent = int(math.log2(minimum_beat_type))
 
@@ -662,17 +680,18 @@ class PulseLengths:
 
         """
 
-        self.pulse_lengths = pulse_lengths
-        self.pulse_lengths.sort(reverse=True)  # largest number first
+        self.pulse_lengths = sorted(
+            pulse_lengths, reverse=True
+        )  # create new list, largest number first
 
         self.cycle_length = cycle_length
         if self.cycle_length is not None:
-            if pulse_lengths[0] > self.cycle_length:
+            if self.pulse_lengths[0] > self.cycle_length:
                 raise ValueError(
-                    f"The `pulse_length` {pulse_lengths[0]} is longer than the `cycle_length` ({self.cycle_length})."
+                    f"The `pulse_length` {self.pulse_lengths[0]} is longer than the `cycle_length` ({self.cycle_length})."
                 )
         else:
-            self.cycle_length = float(pulse_lengths[0])
+            self.cycle_length = float(self.pulse_lengths[0])
 
         self.start_hierarchy = None
         self.include_cycle_length = include_cycle_length
@@ -920,6 +939,202 @@ class BeatPattern:
             return starts
         else:
             return starts[:-1]
+
+
+class VariableNesting:
+    """
+    Support the encoding of variably-nested list of numeric positions.
+    Main operations are
+    1. to store this data as is
+    2. to convert to `to_start_hierarchy` for inclusion in shared processes.
+
+    Parameters
+    ----------
+    nested : list
+        A list whose elements are either numeric values or
+        (recursively) further nested lists.
+    """
+
+    def __init__(self, nested: list):
+        self.nested = nested
+        self.start_time_hierarchy = self.to_start_hierarchy()
+
+    def to_start_hierarchy(self) -> list[list[float]]:
+        """
+        Convert a variably-nested list of numeric positions
+        into a `start_hierarchy` compatible with `MetricalSplitter`.
+
+        Nesting depth encodes metrical level similarly to elsewhere on this module:
+        the top-level is the coarsest level,
+        and each additional layer of nesting introduces one finer level.
+
+        Most importantly, subdivision is _local_:
+        a sub-list applies only to that region,
+        and the resulting hierarchy levels are padded with the surrounding coarse
+        positions so that every level spans the full cycle.
+
+        All values must be strictly monotonically increasing when the structure
+        is fully flattened.
+
+        Returns
+        -------
+        list[list[float]]
+            A `start_hierarchy` ordered from coarsest (index 0) to finest
+            (index -1), suitable for passing directly to `MetricalSplitter`.
+
+        Raises
+        ------
+        ValueError
+            If the flattened values are not strictly monotonically increasing.
+        ValueError
+            If no positions are found in the nested structure.
+
+        Notes
+        -----
+        Depth gaps are collapsed silently: if nesting exists at depths 0 and 2
+        but not at depth 1, the output still contains contiguous levels with no
+        phantom intermediate entries.
+
+        See Also
+        --------
+        `MetricalSplitter`: recipient of the `start_hierarchy` representation produced by this function.
+        `PulseLengths.to_start_hierarchy`: Alternative constructor for periodic meters.
+        `TimeSignature.to_start_hierarchy`: Alternative constructor from a time signature string.
+
+        Examples
+        --------
+        Relatively trivial case first.
+        Where the input is flat, we still return a two-level hierarchy, adding the
+        level[0] from position 0.0 to the cycle span length.
+        >>> VariableNesting([0, 12, 24, 36, 48]).to_start_hierarchy()
+        [[0.0, 48.0], [0.0, 12.0, 24.0, 36.0, 48.0]]
+
+        Now for one level of local nesting — coarse positions plus local refinement:
+
+        >>> VariableNesting([[0, 4, 8], 12, 24]).to_start_hierarchy()
+        [[0.0, 24.0], [0.0, 12.0, 24.0], [0.0, 4.0, 8.0, 12.0, 24.0]]
+
+        Here is a similar example, but with the nesting away from the initial position.
+        >>> VariableNesting([0, [4, 8], 12, 24]).to_start_hierarchy()
+        [[0.0, 24.0], [0.0, 4.0, 12.0, 24.0], [0.0, 4.0, 8.0, 12.0, 24.0]]
+
+        Mixed depth — subdivision appears only where specified:
+        >>> VariableNesting([0, 12, [24, [26, 28], 30], 36]).to_start_hierarchy()
+        [[0.0, 36.0], [0.0, 12.0, 24.0, 36.0], [0.0, 12.0, 24.0, 26.0, 30.0, 36.0], [0.0, 12.0, 24.0, 26.0, 28.0, 30.0, 36.0]]
+
+        And finally, the real case of Jeongganbo from the "Keeping Score" book (example 3.1).
+        >>> jg = [[0, 4, 8], 12, 24, 36, [48, 52, 56], 60, 72, [84, [88, 90], 92], 96, [108, 112, 116], 120]
+        >>> jg_start_h = VariableNesting(jg).to_start_hierarchy()
+        >>> jg_start_h[0] # start and end only
+        [0.0, 120.0]
+        >>> jg_start_h[2] # all apart from the one case of double division at position 90
+        [0.0, 4.0, 8.0, 12.0, 24.0, 36.0, 48.0, 52.0, 56.0, 60.0, 72.0, 84.0, 88.0, 92.0, 96.0, 108.0, 112.0, 116.0, 120.0]
+        >>> jg_start_h[3] == jg_start_h[-1] # all elements, last level
+        True
+
+        """
+        positions_by_depth = _collect_by_depth(self.nested, current_depth=0)
+        return _build_hierarchy(positions_by_depth)
+
+
+# ---------------------------------------------------------------------------
+# Helpers for VariableNesting
+
+
+def _collect_by_depth(
+    items: list,
+    current_depth: int,
+    accumulator: Optional[dict[int, list[float]]] = None,
+) -> dict[int, list[float]]:
+    """
+    Walk over all `items`, moving each value to its depth key.
+
+    Nested sub-lists increment the depth.
+    The boundary values of a sub-list
+    (the scalars immediately preceding and following it in the parent)
+    are also recorded at the sub-list's depth, so that each level spans the full cycle.
+    """
+    if accumulator is None:
+        accumulator = {}
+
+    for i, item in enumerate(items):
+        if isinstance(item, list):
+            child_depth = current_depth + 1
+
+            # Carry boundary context into the child level so that the
+            # resulting level spans the whole cycle, not just the local window.
+            left_boundary = _left_neighbour(items, i)
+            right_boundary = _right_neighbour(items, i)
+            for boundary in (left_boundary, right_boundary):
+                if boundary is not None:
+                    accumulator.setdefault(child_depth, []).append(
+                        float(boundary)
+                    )
+
+            accumulator.setdefault(current_depth, []).append(float(item[0]))
+
+            _collect_by_depth(item[1:], child_depth, accumulator)
+        else:
+            accumulator.setdefault(current_depth, []).append(float(item))
+
+    return accumulator
+
+
+def _left_neighbour(items: list, index: int) -> Optional[float]:
+    """Return the nearest item to the left of *index*, or None."""
+    for j in range(index - 1, -1, -1):
+        if not isinstance(items[j], list):
+            return items[j]
+    return None
+
+
+def _right_neighbour(items: list, index: int) -> Optional[float]:
+    """Return the nearest item to the right of *index*, or None."""
+    for j in range(index + 1, len(items)):
+        if not isinstance(items[j], list):
+            return items[j]
+    return None
+
+
+def _build_hierarchy(
+    positions_by_depth: dict[int, list[float]],
+) -> list[list[float]]:
+    """
+    Given depth-keyed position sets, assemble a valid `start_hierarchy`.
+
+    Each level is the union of its own positions and all coarser levels,
+    sorted and de-duplicated.  Level 0 collapses to just [first, last] (the
+    cycle-span level).
+    """
+    depths = sorted(positions_by_depth.keys())
+    all_positions: list[float] = sorted(
+        set(v for vs in positions_by_depth.values() for v in vs)
+    )
+
+    # Validate monotonicity of the full flat sequence
+    for i in range(len(all_positions) - 1):
+        if all_positions[i] >= all_positions[i + 1]:
+            raise ValueError(
+                f"Positions are not strictly monotonically increasing: "
+                f"{all_positions[i]} followed by {all_positions[i + 1]}."
+            )
+
+    cycle_start = all_positions[0]
+    cycle_end = all_positions[-1]
+
+    # Level 0: just the cycle span
+    hierarchy: list[list[float]] = [[cycle_start, cycle_end]]
+
+    # Accumulate positions level by level, each a strict superset of the one above
+    accumulated: set[float] = {cycle_start, cycle_end}
+
+    for depth in depths:
+        accumulated.update(positions_by_depth[depth])
+        level = sorted(accumulated)
+        if level != hierarchy[-1]:  # skip if no new positions were added
+            hierarchy.append(level)
+
+    return hierarchy
 
 
 # -----------------------------------------------------------------------------

@@ -8,7 +8,7 @@ There are two score representations: a *full* score retains most of the
 structure of Western classical notation, while a *flat* score is
 a more abstracted representation emphasizing notes.
 
-See also [Design Considerations](../developer_notes/design) for more
+See also [Design Considerations](developer_notes/design.md) for more
 in-depth coverage and rationale.
 
 ## Full Scores
