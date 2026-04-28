@@ -296,10 +296,15 @@ def _import_score(
         return import_fn(
             filename, format, flatten, collapse, show, group_by_instrument
         )
+    elif preferred_reader:
+        raise Exception(
+            f"Could not find an import function for file {filename}, format "
+            f"{format}. Preferred subsystem is {preferred_reader}"
+        )
     else:
         raise Exception(
-            "Could not find a MusicXML import function. "
-            f"Preferred subsystem is {preferred_reader}"
+            "Could not identify a preferred subsystem or file format to "
+            f"read file {filename}, format {format}."
         )
 
 
