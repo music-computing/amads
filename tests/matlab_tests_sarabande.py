@@ -28,29 +28,26 @@ narmour (unimplemented)
 
 import json
 import math
+from dataclasses import dataclass
+from typing import Dict
 
 import numpy as np
 
-from amads.core.basics import Score, Note
-
-from amads.io.pm_midi_import import pretty_midi_import
-from amads.music import example
-from amads.core.distribution import Distribution
-from amads.pitch.pcdist1 import pitch_class_distribution_1
-from amads.pitch.ivdist1 import interval_distribution_1
-from amads.time.durdist1 import duration_distribution_1
 from amads.algorithms.nnotes import nnotes
+from amads.core.basics import Note, Score
+from amads.core.distribution import Distribution
+from amads.io.pm_midi_import import pretty_midi_import
+from amads.melody.boundary import boundary
+from amads.melody.segment_gestalt import segment_gestalt
+from amads.music import example
+from amads.pitch.ivdist1 import interval_distribution_1
 from amads.pitch.key.keymode import keymode
 from amads.pitch.key.kkkey import kkkey
-from amads.melody.segment_gestalt import segment_gestalt
-from amads.melody.boundary import boundary
+from amads.pitch.key.profiles import KeyProfile, PitchProfile
+from amads.pitch.pcdist1 import pitch_class_distribution_1
+from amads.time.durdist1 import duration_distribution_1
 from amads.time.notedensity import note_density
 from amads.time.variability import normalized_pairwise_variability_index
-
-from typing import Dict
-
-from dataclasses import dataclass
-from amads.pitch.key.profiles import KeyProfile, PitchProfile
 
 
 @dataclass
@@ -292,7 +289,9 @@ def test_against_matlab_results():
         durations=durations,
         onsets=onsets,
     )
-    assert hasattr(test_score, "time_map") and hasattr(test_score, "time_signatures")
+    assert hasattr(test_score, "time_map") and hasattr(
+        test_score, "time_signatures"
+    )
     test_score.time_map = time_map
     test_score.time_signatures = time_signatures
 

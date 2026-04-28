@@ -88,7 +88,10 @@ def _construct_score_list(notes, intervals):
 
 
 def _calculate_segdist(
-    clang_boundary_notes, next_clang_boundary_start, current_pitch_mean, next_pitch_mean
+    clang_boundary_notes,
+    next_clang_boundary_start,
+    current_pitch_mean,
+    next_pitch_mean,
 ):
     """
     calculates the segment distances from a list of notes that belong
@@ -175,7 +178,9 @@ def segment_gestalt(score: Score) -> Score:
     score.convert_to_quarters()
     # No matter what I do I will need to collapse the notes.
     # If I don't collapse the nodes, I will need node onsets...
-    notes: List[Note] = cast(List[Note], score.flatten(collapse=True).list_all(Note))
+    notes: List[Note] = cast(
+        List[Note], score.flatten(collapse=True).list_all(Note)
+    )
 
     if len(notes) <= 0:
         return _annotate_score(score, iter([]), iter([]))
@@ -199,7 +204,7 @@ def segment_gestalt(score: Score) -> Score:
     # this is added for convenience
     cl_indices.append(len(notes))
 
-    clang_onsets = (notes[i+1].onset for i in clang_soft_peaks)
+    clang_onsets = (notes[i + 1].onset for i in clang_soft_peaks)
 
     if len(clang_soft_peaks) <= 2:
         return _annotate_score(score, clang_onsets, iter([]))

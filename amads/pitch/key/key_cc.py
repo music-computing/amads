@@ -90,11 +90,7 @@ def key_cc(
 
     # Get pitch-class distribution
     pcd = np.array(
-        [
-            pitch_class_distribution_1(
-                score, miditoolbox_compatible=True
-            ).data
-        ]
+        [pitch_class_distribution_1(score, miditoolbox_compatible=True).data]
     )
 
     # Apply salience weighting if requested
@@ -123,7 +119,9 @@ def key_cc(
     for attr_name in true_attribute_names:
         # ! we should probably treat the special attributes as proper attribute names
         if attr_name in ["name", "literature", "about"]:
-            print(f"Warning! Attempting to access metadata in profile '{profile.name}")
+            print(
+                f"Warning! Attempting to access metadata in profile '{profile.name}"
+            )
             results.append((attr_name, None))
             continue
         # Get the attribute from the profile
@@ -151,7 +149,9 @@ def key_cc(
     return results
 
 
-def _compute_correlations(pcd: np.ndarray, profile_matrix: np.ndarray) -> np.ndarray:
+def _compute_correlations(
+    pcd: np.ndarray, profile_matrix: np.ndarray
+) -> np.ndarray:
     """
     Compute correlations between pitch-class distribution and profile matrix.
 
@@ -168,7 +168,9 @@ def _compute_correlations(pcd: np.ndarray, profile_matrix: np.ndarray) -> np.nda
         Correlation coefficients
     """
     # Combine pcd and profile matrix for correlation computation
-    combined_matrix = np.concatenate((pcd, profile_matrix), axis=0)  # shape (25, 12)
+    combined_matrix = np.concatenate(
+        (pcd, profile_matrix), axis=0
+    )  # shape (25, 12)
     correlation_matrix = np.corrcoef(combined_matrix)
 
     # Extract correlations between pcd (first row) and all profiles

@@ -25,7 +25,8 @@ References
 
 import math
 from typing import Iterable
-from amads.core.basics import Score, Note
+
+from amads.core.basics import Note, Score
 
 __author__ = "Huw Cheston"
 
@@ -277,7 +278,9 @@ def pairwise_anisochronous_contrast_index(
             all_npcs.append(npc)
     # Raise errors as required
     if len(all_npcs) == 0:
-        raise ValueError("No non-isochronous pairs were found, cannot calculate pACI.")
+        raise ValueError(
+            "No non-isochronous pairs were found, cannot calculate pACI."
+        )
     # Return the average
     return sum(all_npcs) / len(all_npcs)
 
