@@ -26,8 +26,6 @@ References
 import math
 from typing import Iterable
 
-from amads.core.basics import Note, Score
-
 __author__ = "Huw Cheston"
 
 
@@ -59,7 +57,7 @@ def _normalized_pairwise_calculation(a_ioi: float, c_ioi: float) -> float:
 
 # flake8: noqa: W605
 def normalized_pairwise_variability_index(
-    score: Score,
+    durations: Iterable[float],
 ) -> float:
     r"""
     Calculates the normalised pairwise variability index (nPVI).
@@ -79,8 +77,8 @@ def normalized_pairwise_variability_index(
 
     Parameters
     ----------
-    score : Score
-        the score to analyse
+    durations : Iterable[float]
+        the durations to analyse
 
     Returns
     -------
@@ -122,14 +120,6 @@ def normalized_pairwise_variability_index(
     >>> normalized_pairwise_variability_index([2, 1, 0.5, 1, 0.5, 0.25])
     66.66
     """
-    durations = None
-    if score.units_are_seconds:
-        durations = [note.duration for note in score.find_all(Note)]
-    else:
-        durations = [
-            score.time_map.quarter_to_time(note.duration)
-            for note in score.find_all(Note)
-        ]
 
     _validate_inputs(durations)
     numerator = (
@@ -141,7 +131,6 @@ def normalized_pairwise_variability_index(
         )
         * 100
     )
-    # there might need to be a consideration when durations is 0
     denominator = len(durations) - 1
     return numerator / denominator
 

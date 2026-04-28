@@ -256,9 +256,23 @@ def notedensity_test_internal(score: Score, json_results: Dict):
 def npvi_test_internal(score: Score, json_results: Dict):
     """
     Both matlab and amads implementations output a float
+
+    Note that the amads version of npvi is only tangential to the current
+    library, and it doesn't seem to integrate much from the core (especially
+    score).
     """
     matlab_result = json_results["nPVI"]
-    py_result = normalized_pairwise_variability_index(score)
+
+    durations = None
+    if score.units_are_seconds:
+        durations = [note.duration for note in score.find_all(Note)]
+    else:
+        durations = [
+            score.time_map.quarter_to_time(note.duration)
+            for note in score.find_all(Note)
+        ]
+
+    py_result = normalized_pairwise_variability_index(durations)
     assert math.isclose(py_result, matlab_result, abs_tol=1e-9)
 
 
