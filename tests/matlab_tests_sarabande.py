@@ -149,7 +149,15 @@ def keymode_test_internal(score: Score, json_results: Dict):
 
 
 def kkkey_test_internal(score: Score, json_results: Dict):
-    """ """
+    """
+    Note that the python implementation takes ["major", "minor"] as default
+    attribute values.
+    The matlab interpretation of kkkey returns the key index (idx) that best
+    coincides with the piece (according to kkcc). If idx is no greater than 12,
+    the coinciding attribute to the python interpretation is ("major", idx - 1).
+    If idx is greater than 12 (no greater than 24), the coinciding output to 
+    the python interpretation is ("minor", (idx - 1) % 12).
+    """
     matlab_result = json_results["kkkey"]
     matlab_result_py = None
     matlab_py_key_index = (matlab_result - 1) % 12
@@ -165,8 +173,8 @@ def kkkey_test_internal(score: Score, json_results: Dict):
 
 def _extract_gestalt_marks(score):
     """
-    Simple internal function that extracts the onsets (in quarters) from
-    a score annotated by segment_gestalt.
+    Simple internal function that extracts the onsets (in indices ordered by
+    onset) from a score annotated by segment_gestalt.
     """
     clang_indices = []
     seg_indices = []
@@ -220,8 +228,8 @@ def _extract_boundary_marks(score):
 
 def boundary_test_internal(score: Score, json_results: Dict):
     """
-    The matlab implementation returns a list of strengths that coincide (by row
-    indices) to the notes in the note matrix.
+    The matlab implementation returns a list of strengths that coincide to the
+    notes in the miditoolbox's note matrix representation of score.
     The python implementation annotates the supplied monophonic score argument
     instead.
     To compare the two results, we extract the annotated information from
@@ -255,7 +263,8 @@ def notedensity_test_internal(score: Score, json_results: Dict):
 
 def npvi_test_internal(score: Score, json_results: Dict):
     """
-    Both matlab and amads implementations output a float
+    Both matlab and amads implementations output a singular float denoting the
+    npvi value.
 
     Note that the amads version of npvi is only tangential to the current
     library, and it doesn't seem to integrate much from the core (especially

@@ -41,11 +41,6 @@ def duraccent(note: Note) -> float:
     return accent
 
 
-def duraccent_hack(duration: float) -> float:
-    accent = (1 - math.exp(-duration / 0.5)) ** 2
-    return accent
-
-
 def pitch_class_distribution_1(
     score: Score,
     name: str = "Pitch Class Distribution",
