@@ -212,15 +212,15 @@ Common issues and solutions:
 1.  **Missing modules**: If you see warnings about missing modules,
     ensure all development dependencies are installed:
 
-    ``` bash
+``` bash
     pip install -e .[docs]
-    ```
+```
 
 2.  **Build errors**: Clear the build directory and rebuild.
 
-    ``` bash
+``` bash
     rm -rf docs/_build/*  # Unix/macOS
     # or
     rmdir /s /q docs\_build  # Windows
     make html
-    ```
+```

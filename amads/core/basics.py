@@ -61,6 +61,8 @@ from typing import (
     cast,
 )
 
+from scipy.fftpack import shift
+
 from amads.core.pitch import Pitch
 from amads.core.timemap import TimeMap
 
@@ -735,6 +737,23 @@ class Note(Event):
         return duration  # type: ignore (Note duration is always float)
 
 
+    @property
+    def tied_offset(self) -> float:
+        """Retrieve the offset (stop) time of a note or tied group of notes.
+
+        If the note is the first note of a sequence of tied notes,
+        return the offset of the entire sequence. However, if there are
+        preceding notes tied to this note, they will not be considered
+        part of the tied sequence.
+
+        Returns
+        -------
+        float
+            The global offset (stop) time of the note and those it is tied to.
+        """
+        return self.onset + self.tied_duration  # type: ignore (Note onset is always float)
+    
+
     def __str__(self) -> str:
         """Short string representation.
 
@@ -1360,6 +1379,135 @@ class EventGroup(Event):
         self._onset = onset
 
 
+    def _find_copied_version(self, original_note: Note,
+                             event_group: "EventGroup") -> Optional[Note]:
+        """Find the copied version of a note in event_group."""
+        for note in event_group.find_all(Note):
+            if (note.onset == original_note.onset and
+                note.pitch == original_note.pitch):
+                return note
+        return None
+
+
+    def _add_measure_children(self, result: "EventGroup", start: float,
+                              end: float) -> float:
+        """Helper method for to populate the content of result with
+        selected measures. Assumes that self is a component of a full score and
+        that result is a Sequence with no content.
+        
+        Returns
+        -------
+        float
+            The minimum onset of the measure content added to result.
+        """
+        # Assume that whatever EventGroup(s) contain measures, they will *only*
+        # contain measures, so we can check content[0] to find the measure
+        # level. Recursively copy the structure from this level down to the
+        # measure level whether or not any measures are encountered.
+        #     Also assume any level with measures is well formed with all
+        # measures contiguous, in order, starting at zero, and with durations
+        # in compliance with time signatures.
+        min_onset = float("inf")
+        if len(self.content) == 0:
+            return min_onset
+        if isinstance(self.content[0], Measure):
+            # find and copy the measures that are in the range
+            start = round(start)
+            end = round(end)
+            for i, elem in enumerate(self.content):
+                if i >= start and i < end:
+                    min_onset = min(min_onset, elem.onset)
+                    _ = elem.insert_copy_into(result)  # copy elem into result
+            # if copied content has tied notes, the links will still refer
+            # to the original notes, so we need to update the ties to
+            # refer to the copied notes in result. If a tied-to note is outside
+            # the copied content, we set the copied note's tie to None to
+            # truncate the note.
+            for note in result.find_all(Note):
+                if note.tie is not None: # replace with copied version:
+                    note.tie = self._find_copied_version(note.tie, result)
+            return min_onset
+        # we are not at the measure level, copy all content and recurse:
+        for elem in self.content:
+            if isinstance(elem, EventGroup):
+                elem_copy = elem.insert_emptycopy_into(result)
+                min_onset = min(min_onset,
+                                elem._add_measure_children(elem_copy, start,
+                                                           end))
+        return min_onset
+    
+
+    def _add_slice_children(self, result: "EventGroup", start: float,
+            end: float, mode: str, truncate: str, min_duration: float) -> float:
+        """Helper method for slice to populate the content of result.
+        Assumes that self is a component of a flat score and that result
+        is a Sequence with no content.
+        
+        Returns
+        -------
+        float
+            The minimum onset of the content added to result.
+        """
+        # Begin by finding all content to be included. Since score is flat,
+        # self can only be a Score, a Part, or a Staff. So if a component is
+        # not a Note, we copy all children (Parts or Staffs) into content
+        # and recurse to add a slice of *their* content.
+        min_onset = float("inf")
+        content = self.content
+        if len(content) == 0:
+            return min_onset
+        if not isinstance(content[0], Note):
+            for elem in content:
+                if isinstance(elem, EventGroup):
+                    elem_copy = elem.insert_emptycopy_into(result)
+                    min_onset = min(min_onset,
+                                    elem._add_slice_children(elem_copy, start,
+                                            end, mode, truncate, min_duration))
+            return min_onset
+        
+        assert(isinstance(self, Sequence))  # content is a list of Notes
+
+        if mode == "onsets":
+            for elem in content:
+                if elem.onset >= start and elem.onset < end:
+                    _ = elem.insert_copy_into(result)  # copy elem into result
+        elif mode == "overlaps":
+            for elem in content:
+                if elem.onset < end and elem.offset > start:
+                    _ = elem.insert_copy_into(result)  # copy elem into result
+        elif mode == "offsets":
+            for elem in content:
+                if elem.offset > start and elem.offset <= end:
+                    _ = elem.insert_copy_into(result)  # copy elem into result
+        elif mode == "strict":
+            for elem in content:
+                if elem.onset >= start and elem.offset <= end:
+                    _ = elem.insert_copy_into(result)  # copy elem into result
+        else:
+            raise ValueError(f"invalid mode {mode} for slice")
+
+        if truncate == "keep":
+            return content[0].onset  # min_onset is the onset of first element
+        if truncate in ["truncate", "beginning"]:
+            # if we are truncating notes that start before start, we can save
+            # some time by only looking at elements where onset < start
+            j = len(content)
+            for i, elem in enumerate(content):
+                if elem.onset > start:
+                    j = i
+                    break  # now j indexes the first element with onset > start
+            self._truncate_note_beginnings(content[0 : j], start)
+        if truncate in ["truncate", "dur", "duration", "end", "ending"]:
+            # any note can end after end, so we have to look at all of them:
+            self._truncate_note_endings(content, end)
+
+        # now remove any notes that are too short after truncation:
+        if min_duration > 0:
+            self.content = [elem for elem in content
+                            if elem.duration >= min_duration]
+        return content[0].onset if len(content) > 0 else float("inf")
+
+
     def ismonophonic(self) -> bool:
         """
         Determine if content is monophonic (non-overlapping notes).
@@ -1441,6 +1589,34 @@ class EventGroup(Event):
         self.duration = offset_quarters - onset_quarters
         for elem in self.content:
             elem._convert_to_quarters(time_map)
+
+    
+    def _copy_parents(self) -> "EventGroup":
+        """Helper method for slice to populate the ancestors of self in result.
+
+        This method is called by `slice` to populate the ancestors of self in
+        the result Score. The ancestors are populated with empty copies of the
+        original ancestors.
+
+        Returns
+        -------
+        EventGroup
+            A copy of self with ancestors copied up to the Score.
+
+        Raises
+        ------
+        ValueError
+            If self is not part of a Score.
+        """
+        # Algorithm: recursively populate ancestors from self up to score.
+        if self is None:
+            raise ValueError("slice can only be called on Sequences that are "
+                             "part of a Score")
+        elif isinstance(self, Score):  # base case: self is a Score
+            return self # return copy of self
+        else:  # copy parent & up; return copy of self inserted into parent copy
+            parent = cast(EventGroup, self.parent)._copy_parents()
+            return self.insert_emptycopy_into(parent)  # insert copy of self into parent copy
 
 
     def insert_emptycopy_into(self, 
@@ -1718,6 +1894,17 @@ class EventGroup(Event):
             The last event in the content list or None if the list is empty.
         """
         return self.content[-1] if len(self.content) > 0 else None
+
+
+    def _leaf_elements(self) -> list[Event]:
+        """Return a list of all leaf elements in this EventGroup."""
+        result = []
+        for elem in self.content:
+            if isinstance(elem, EventGroup):
+                result.extend(elem._leaf_elements())
+            else:
+                result.append(elem)
+        return result
 
 
     def list_all(self, elem_type: Type[Event]) -> list[Event]:
@@ -2116,6 +2303,146 @@ class Sequence(EventGroup):
             duration of self
         """
         return super().pack(onset, sequential)
+    
+
+    def _truncate_note_beginnings(self, notes: list[Note],
+                                  start: float) -> None:
+        """Helper method for slice to truncate an element according to the
+        specified mode. Makes a copy of the element (with no parent) and
+        applies the truncate method to the copy.  This algorithm clips the
+        beginning and ending in separate operations, which might result in
+        extra copies. If very short tied notes are created, they are removed.
+        """
+        for elem in notes:
+            if elem.onset < start:
+                elem.duration -= start - elem.onset
+                elem.onset = start
+ 
+ 
+    def _truncate_note_endings(self, notes: list[Note], end: float) -> None:
+        for elem in notes:
+            if elem.offset > end:
+                elem.duration -= elem.offset - end
+
+
+
+    def slice(self, start: float, end: float, units: str = "quarters",
+              mode: str = "onsets", truncate: str = "keep", shift: bool = false,
+              min_duration: float = 0.05) -> "Score":
+        """
+        Create a new Score containing the content between start and end.
+
+        Typically, this method is called on a Score to create a new Score,
+        but it works on any Sequence as long as the sequence is part of a Score.
+
+        If self has Measures, units must be "measures" or "bars", the start and
+        end parameters are interpreted as 0-based measure numbers, and the
+        result will therefore contain whole measures. It is assumed that notes
+        are tied across measure boundaries. The result will contain only the
+        parts of tied notes that are within the specified measures.
+
+        For any units besides "measures" or "bars", the score must be flat.
+        Notes that extend beyond the start or end time are included in the
+        result unless the `truncate` parameter specifies otherwise.
+         
+        In principle, there is no reason to require a flat score for slicing by
+        time, but there are many difficult edge cases to consider such as ties
+        from within one chord to a note in another measure.
+
+        The entire result can be shifted to start at time 0 by setting the
+        `shift` parameter to True.  Unless `truncate` is "truncate" or
+        "beginning", the result can include events that start before the start
+        time, in which case shifting will only shift the earliest onset to 0,
+        which means the shift amount depends upon the content.
+
+        Parameters
+        ----------
+        start : float
+            The start time of the slice, inclusive. If units is "measures" or
+            "bars", start is a 0-based measure number of the first measure.
+        end : float
+            The end time of the slice, exclusive. For measures, end is the
+            0-based measure number of the last measure plus one, so the last
+            measure is end - 1.
+        units : str
+            The time units for start and end. Valid values are "quarters", "s",
+            "sec", "seconds", "measures", or "bars".
+        shift: bool
+            If true, shift the content in the result so that the result starts
+            time 0.0. If false (default), the content in the result retains
+            the same time values as in the original Score.
+        mode : Optional[str]
+            The slicing mode, ignored if units is "measures" or "bars".
+            Valid values are:
+                - "onsets" - include events that start within bounds (default)
+                - "overlaps" - include events that overlap (either onset or
+                               offset) is within the bounds. An event ending
+                               is considered to overlap if its offset is
+                               greater than start.
+                - "offsets" - include events that end within the bounds
+                - "strict" - include only events that start at or after start
+                             and end at or before end. (End times that are
+                             exactly equal to end are considered to be within
+                             bounds, so this is inclusive of end time.)
+        truncate: Optional[str]
+            How to handle events that partially overlap the bounds,
+            ignored if units is "measures" or "bars". Valid values are:
+                - "truncate" - truncate events that partially overlap the bounds
+                - "keep" - no modification/truncation (default)
+                - "end" or "ending" or "dur" or "duration" - truncate events
+                                that extend beyond end
+                - "beginning" - events that start before start are shortened
+                                by changing the onset to start and changing
+                                the duration to maintain the original offset.
+        min_duration: Optional[float]
+            Events with duration less than min_duration (after any truncation
+            is applied) are removed.  Ignored if units is "measures" or "bars".
+            If None or 0.0, no events are removed. The default is 0.05,
+            independent of time units.
+
+        Returns
+        -------
+        Score
+            A new Score instance containing the content between start and end.
+
+        Raises
+        ------
+        ValueError
+            If the Sequence is not part of a Score, or if invalid values are
+            provided for the parameters.
+        """
+        score = self.score
+        if score is None:
+            raise ValueError("slice can only be called on a Sequence that is "
+                             "part of a Score")
+        if score.is_flat():
+            if units in ("measures", "bars"):
+                raise ValueError(f"units cannot be {units} for slicing a "
+                                 "flat score")
+        else:
+            if units not in ("measures", "bars"):
+                raise ValueError(f"units must be measures or bars for slicing "
+                    "a score with Measures (or flatten the score before "
+                    "slicing)")
+
+        # construct the parts of the tree above self and make an empty copy
+        # of self to add the slice content.
+        result = self._copy_parents()
+        score = result.score()
+        if score.units_are_seconds() and units in ("quarters", "measures",
+                                                   "bars"):
+            score.convert_to_quarters()
+        elif score.units_are_quarters() and units in ("s", "sec", "seconds"):
+            score.convert_to_seconds()
+        if units in ("measures", "bars"):
+            min_time = _add_measure_children(self, result, start, end)
+        else:
+            min_time = _add_slice_children(self, result, start, end, mode=mode,
+                                  truncate=truncate, min_duration=min_duration)
+        if shift and min_time != float("inf") and min_time > 0:
+            result.shift(-min_time)
+        return result
+
 
 
 class Concurrence(EventGroup):
@@ -3143,8 +3470,7 @@ class Score(Concurrence):
             elem.show(indent + 4, file=file)  # type: ignore
             # type ignore because (all Events have show())
         return self
-
-
+    
 
 class Part(EventGroup):
     """A Part models a staff or staff group such as a grand staff.

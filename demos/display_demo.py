@@ -24,8 +24,14 @@ def main() -> None:
         preferred_display_method == "pdf"
     ), "Preferred display method must be 'pdf' for this demo."
 
+    default_display_method = preferred_display_method
+
+    # display with Open Sheet Music Display (OSMD)
+    set_preferred_display_method("OSMD")
+    display_score(score)
+
     # convert to lilypond using music21, then use LilyPond to create a PDF
-    default_display_method = set_preferred_display_method("pdf")
+    set_preferred_display_method("pdf")
     # When the display method is "pdf", there are multiple PDF writers/methods
     #   available, set by calling set_preferred_pdf_writer.  We will try each
     #   of the three available PDF writers in turn, and then restore the
@@ -47,6 +53,10 @@ def main() -> None:
 
     # display with MuseScore
     set_preferred_display_method("musescore")
+    display_score(score)
+
+    # display with MuseScore
+    set_preferred_display_method("pianoroll")
     display_score(score)
 
     # restore defaults

@@ -24,11 +24,13 @@ Similar to output functions, you should use
 below to display an AMADS Score. You can use Music21 to write directly
 to a LilyPond file and use LilyPond to render the file as a PDF, you
 can use Music21 or Partitura to write a musicxml file, convert that
-with musicxml2ly and render with LilyPond, or you can writea musicxml
-file and open it with MuseScore.
+with musicxml2ly and render with LilyPond, you can write a musicxml
+file and open it with MuseScore, or you can write a musicxml file and
+embed it in an HTML file along with Open Sheet Music Display (OSDM)
+and open it in a browser.
 
-You will need to install either LilyPond or MuseScore, and either
-Music21 or Partitura to display a score.
+You will need to install LilyPond and/or MuseScore to use them for
+music display. OSDM is installed automatically as part of AMADS.
 
 ::: amads.io.displayscore
 

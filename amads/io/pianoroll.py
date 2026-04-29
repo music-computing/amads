@@ -1,6 +1,6 @@
-"""Ports `pianoroll` Function
+"""Plot a score using a piano roll visualization.
 
-Original Doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=82
+Based on `pianoroll` in Matlab MIDI Toolbox. [Original documentaion is here.](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=82)
 """
 
 from typing import cast
