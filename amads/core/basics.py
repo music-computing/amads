@@ -2327,7 +2327,7 @@ class Sequence(EventGroup):
 
 
     def slice(self, start: float, end: float, units: str = "quarters",
-              mode: str = "onsets", truncate: str = "keep",
+              mode: str = "onsets", truncate: str = "keep", shift: bool = false,
               min_duration: float = 0.05) -> "Score":
         """
         Create a new Score containing the content between start and end.

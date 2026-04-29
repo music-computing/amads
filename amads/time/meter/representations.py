@@ -122,7 +122,7 @@ class StartTimeHierarchy:
     start_hierarchy : list[list]
         This is the main structured data for the class.
     cycle_length : float
-        Derived from [0][-1] of the given `start_hierarchy`
+        Derived from `[0][-1]` of the given `start_hierarchy`
     pulse_lengths : list or None
         None until if/when `to_pulse_lengths()` is called explicitly.
 

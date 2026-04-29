@@ -878,12 +878,11 @@ def saturated_subsequence_repetition(
 
     Returns
     -------
-    Union[List[List[int]]]
+    list[Union[List[int], tuple[int, ...]]]
         A list of all subsequences that, if repeated, can form the input
         `sequence`. If `all_rotations`, then also include subsequences
         that can repeat to form any rotations of `sequence`. If
         `sequence` is not periodic, return None.
-
     Examples
     --------
     >>> test_sequence = [1, 2, 1, 2, 1, 2, 1, 2]
