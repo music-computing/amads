@@ -7,8 +7,9 @@ env:
 on:
   push:
     branches:
-      - main
+      - "**"
   pull_request:
+    types: [opened, reopened, ready_for_review]
 
 jobs:
   tests_main:
