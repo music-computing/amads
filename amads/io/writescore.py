@@ -5,6 +5,7 @@ __author__ = "Roger B. Dannenberg"
 import tempfile
 import warnings
 from pathlib import Path
+from tempfile import mkdtemp
 from typing import Callable, Optional, cast
 
 from amads.core.basics import Score
@@ -45,6 +46,15 @@ _suffix_to_format = {
     ".mei": "mei",
     ".pdf": "pdf",
     ".ly": "lilypond",
+}
+
+_format_to_suffix = {
+    "musicxml": ".xml",
+    "midi": ".mid",
+    "kern": ".krn",
+    "mei": ".mei",
+    "pdf": ".pdf",
+    "lilypond": ".ly",
 }
 
 # A list of supported file extensions for score writing.
@@ -308,7 +318,9 @@ def set_writer_warning_level(level: str) -> str:
 def _check_for_subsystem(
     format: str,
 ) -> tuple[
-    Optional[Callable[[Score, Optional[str], Optional[str], bool, bool], None]],
+    Optional[
+        Callable[[Score, Optional[str | Path], Optional[str], bool, bool], None]
+    ],
     Optional[str],
 ]:
     """Check if the preferred subsystem is available.
@@ -490,11 +502,11 @@ def _update_format_with_filename(format: Optional[str], filename: Path) -> str:
 
 def write_score(
     score: Score,
-    filename: str | Path,
+    filename: str | Path | None,
     show: bool = False,
     format: Optional[str] = None,
     is_temp: bool = False,
-) -> None:
+) -> Path:
     """Write a file with the given format.
 
     If format is None (default), the format is based on the filename
@@ -508,8 +520,10 @@ def write_score(
     ----------
     score : Score
         the score to write
-    filename : str | Path
-        the path (relative or absolute) to the music file.
+    filename : str | Path | None
+        the path (relative or absolute) to the music file. If None, a temp
+        directory is created, a file is created in the directory, and the
+        path of the written file is returned.
     show : bool
         print a text representation of the data
     format : Optional[string]
@@ -521,6 +535,12 @@ def write_score(
         because filename is in a unique temp directory created by _path_help.
         (This is merely an optimization to group temp files and avoid creating
         another temp directory when it is unnecessary.)
+
+    Returns
+    -------
+    Path
+        The path to which the data was written.
+
     Raises
     ------
     ValueError
@@ -559,15 +579,19 @@ def write_score(
 
     """
     if not isinstance(filename, Path):
-        filename = Path(filename)
-    format = _update_format_with_filename(format, filename)
+        if filename:
+            filename = Path(filename)
+        elif format:
+            tmp_dir = mkdtemp("_amads")
+            filename = Path(tmp_dir) / ("score" + _format_to_suffix[format])
+    format = _update_format_with_filename(format, cast(Path, filename))
 
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter(
             "ignore" if writer_warning_level == "none" else "always"
         )
-        # format is guaranteed to be a string here
-        _export_score(score, filename, cast(str, format), show)
+        # format is guaranteed to be a Path here
+        _export_score(score, filename, cast(str, format), show)  # type: ignore
 
         # Warning handling
         if writer_warning_level == "low":
@@ -587,6 +611,7 @@ def write_score(
                     warning.lineno,
                 )
                 print(formatted, end="")
+    return cast(Path, filename)
 
 
 def last_used_writer() -> Optional[str]:
