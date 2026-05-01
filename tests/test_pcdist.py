@@ -2,11 +2,21 @@
 Tests for amads/pitch/pcdist1.py
 """
 
+import importlib.util
+from pathlib import Path
+
 from amads.io.readscore import read_score
 from amads.music import example
 from amads.pitch.pcdist1 import pitch_class_distribution_1
 
-from .test_durdist import assert_equal_dist1d
+_tests_dir = Path(__file__).resolve().parent
+_spec = importlib.util.spec_from_file_location(
+    "test_durdist", _tests_dir / "test_durdist.py"
+)
+_test_durdist = importlib.util.module_from_spec(_spec)
+assert _spec.loader is not None
+_spec.loader.exec_module(_test_durdist)
+assert_equal_dist1d = _test_durdist.assert_equal_dist1d
 
 
 def test_pcdist1():
