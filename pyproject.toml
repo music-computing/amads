@@ -36,8 +36,6 @@ dev = [
     "black",
     "myst-parser",
     "pre-commit",
-    "pytest>=7.0.0",
-    "pytest-cov",
 ]
 test = [
     "pretty_midi",
