@@ -2,20 +2,32 @@
 
 __author__ = "Roger B. Dannenberg"
 
-import pathlib
+import tempfile
 import warnings
-from typing import Callable, Optional
+from pathlib import Path
+from typing import Callable, Optional, cast
 
 from amads.core.basics import Score
 
 # This module, writescore, is regarded as a singleton class with
 # the following attributes:
 
-preferred_midi_writer: str = "pretty_midi"  # subsystem for MIDI file output
+_default_midi_writer = "pretty_midi"
+_default_xml_writer = "music21"
+_default_kern_writer = "music21"
+_default_mei_writer = "music21"
+_default_pdf_writer = "music21-xml-lilypond"
+
+preferred_midi_writer: str = (
+    _default_midi_writer  # subsystem for MIDI file output
+)
 preferred_xml_writer: str = "music21"  # subsystem for MusicXML file output
-preferred_kern_writer: str = "pretty_midi"  # subsystem for Kern file output
-preferred_mei_writer: str = "pretty_midi"  # subsystem for Kern file output
-preferred_pdf_writer: str = "music21-lilypond"  # subsystems for PDF file output
+preferred_kern_writer: str = "music21"  # subsystem for Kern file output
+preferred_mei_writer: str = "music21"  # subsystem for Kern file output
+# preferred_pdf_writer is also used for writing lilypond files
+preferred_pdf_writer: str = (
+    "music21-xml-lilypond"  # subsystems for PDF file output
+)
 writer_warning_level: str = "default"  # controls verbocity of warnings
 #     from output processing
 _last_used_writer: Optional[Callable] = None  # See last_used_writer()
@@ -72,7 +84,7 @@ _subsystem_map = {
 }
 
 
-def set_preferred_midi_writer(writer: str) -> str:
+def set_preferred_midi_writer(writer: str = _default_midi_writer) -> str:
     """Set a (new) preferred MIDI writer.
 
     Returns the previous writer preference. The current preference is stored
@@ -80,8 +92,9 @@ def set_preferred_midi_writer(writer: str) -> str:
 
     Parameters
     ----------
-    writer : str
+    writer : str, optional
         The name of the preferred MIDI writer. Can be "music21" or "pretty_midi".
+        Defaults to "pretty_midi".
 
     Returns
     -------
@@ -106,7 +119,7 @@ def set_preferred_midi_writer(writer: str) -> str:
     return previous_writer
 
 
-def set_preferred_xml_writer(writer: str) -> str:
+def set_preferred_xml_writer(writer: str = _default_xml_writer) -> str:
     """
     Set a (new) preferred XML writer.
 
@@ -115,8 +128,9 @@ def set_preferred_xml_writer(writer: str) -> str:
 
     Parameters
     ----------
-    writer : str
+    writer : str, optional
         The name of the preferred XML writer. Can be "music21" or "partitura".
+        Defaults to "music21".
 
     Returns
     -------
@@ -137,7 +151,7 @@ def set_preferred_xml_writer(writer: str) -> str:
     return previous_writer
 
 
-def set_preferred_kern_writer(writer: str) -> str:
+def set_preferred_kern_writer(writer: str = _default_kern_writer) -> str:
     """
     Set a (new) preferred Kern writer.
 
@@ -146,8 +160,9 @@ def set_preferred_kern_writer(writer: str) -> str:
 
     Parameters
     ----------
-    writer : str
+    writer : str, optional
         The name of the preferred Kern writer. Can be "music21".
+        Defaults to "music21".
 
     Returns
     -------
@@ -168,7 +183,7 @@ def set_preferred_kern_writer(writer: str) -> str:
     return previous_writer
 
 
-def set_preferred_mei_writer(writer: str) -> str:
+def set_preferred_mei_writer(writer: str = _default_mei_writer) -> str:
     """
     Set a (new) preferred MEI writer.
 
@@ -177,8 +192,9 @@ def set_preferred_mei_writer(writer: str) -> str:
 
     Parameters
     ----------
-    writer : str
+    writer : str, optional
         The name of the preferred MEI writer. Can be "music21".
+        Defaults to "music21".
 
     Returns
     -------
@@ -199,7 +215,7 @@ def set_preferred_mei_writer(writer: str) -> str:
     return previous_writer
 
 
-def set_preferred_pdf_writer(writer: str) -> str:
+def set_preferred_pdf_writer(writer: str = _default_pdf_writer) -> str:
     """
     Set a (new) preferred PDF writer.
 
@@ -217,9 +233,10 @@ def set_preferred_pdf_writer(writer: str) -> str:
 
     Parameters
     ----------
-    writer : str
+    writer : str, optional
         The name of the preferred PDF writer. Can be "music21-lilypond",
         "music21-xml-lilypond", or "partitura-xml-lilypond".
+        Defaults to "music21-xml-lilypond".
 
     Returns
     -------
@@ -299,7 +316,8 @@ def _check_for_subsystem(
     Parameters
     ----------
     format : str
-        The format of the file to write, either 'midi', 'musicxml', or 'pdf'.
+        The format of the file to write, either 'midi', 'musicxml', 'pdf',
+        or 'lilypond'.
 
     Returns
     -------
@@ -313,6 +331,7 @@ def _check_for_subsystem(
         "kern": preferred_midi_writer,
         "mei": preferred_midi_writer,
         "pdf": preferred_pdf_writer,
+        "lilypond": preferred_pdf_writer,
     }.get(format)
 
     if not preferred_writer:
@@ -339,12 +358,90 @@ def _check_for_subsystem(
     return None, preferred_writer
 
 
+def _path_help(
+    path: Optional[Path | str],
+    ext: str | list[str],
+    extra_ext: Optional[str] = None,
+    is_temp: bool = False,
+) -> Path | tuple[Path, Path]:
+    """
+    Construct a path for writescore functions.
+
+    If path is NULL, construct a name for a new temp file ending in ext.
+    If path is given, it must end in ext or one of the listed extensions.
+
+    Parameters
+    ----------
+    path: Optional[Path | str]
+        The proposed name if any. If None, a temp file name is created.
+    ext: str | list[str]
+        The extension required for path or list of extensions allowed for path.
+    extra_ext: Optional[str]
+        Sometimes, we need an extra temp file path, e.g. an intermediate
+        MusicXML path when the goal is writing a Lilypond file. If `extra_ext`
+        is provided, a temp file with that extension is created and returned
+        as the second element of a tuple. If path is None, both returned paths
+        will share a temp directory. If you need more temp files, you can use
+        `.with_suffix(".ext2") to create unique paths from the 2nd return
+        value, as long as ".ext2" is not `ext` or `extra_ext`.
+    is_temp: bool
+        If True, we can make temp file names by changing path suffix.
+
+    Returns
+    -------
+    Path | Tuple[Path, Path]
+        Returns a single Path unless extra_ext is provided, in which case
+        two Paths are returned.
+
+    Raises
+    ------
+    ValueError
+        If a given `filename` does not end in `ext` or if is_temp and
+        there is a conflict in extensions.
+    """
+    temp_dir = None
+    result = Path(path) if isinstance(path, str) else path
+
+    if not result:
+        # to avoid a race condition, create a (unique) directory for
+        # the file
+        if isinstance(ext, list):
+            ext = ext[0]  # use the first in list as extension
+        temp_dir = tempfile.mkdtemp(prefix="amads_")
+        result = Path(temp_dir) / ("temp" + ext)
+    elif isinstance(result, Path):
+        if not isinstance(ext, list):
+            ext = [ext]  # make it a list so we can check for membership
+        if result.suffix not in ext:
+            raise ValueError(
+                f"filename {str(result)} was expected to" f" end with {ext}"
+            )
+    else:
+        raise ValueError(f"path is not a Path or str or None: {repr(path)}.")
+
+    if extra_ext:  # need an extra temp file with extension extra_ext:
+        if not temp_dir:
+            if is_temp:
+                if result.suffix.lower() == extra_ext.lower():
+                    raise ValueError(
+                        f"filename {str(result)} is already using"
+                        f" {extra_ext}, but is_temp implies that we can"
+                        " make a new path by changing the extension."
+                    )
+                temp_dir = result.parent
+            else:
+                temp_dir = tempfile.mkdtemp(prefix="amads_")
+        result = (result, Path(temp_dir) / ("temp" + extra_ext))
+
+    return result
+
+
 def _export_score(
     score: Score,
-    filename: Optional[str],
+    filename: str | Path,
     format: str,
     show: bool = False,
-    display: bool = False,
+    is_temp: bool = False,
 ) -> None:
     """Use Partitura or music21 to export a MusicXML file.
 
@@ -360,7 +457,7 @@ def _export_score(
                 f"Exporting {filename} using {format} writer"
                 f" {export_fn.__name__} from subsystem {subsystem}."
             )
-        export_fn(score, filename, format, show, display)
+        export_fn(score, filename, format, show, is_temp)
     else:
         raise Exception(
             f"Could not find an export function for format {format}. "
@@ -368,11 +465,35 @@ def _export_score(
         )
 
 
+def _update_format_with_filename(format: Optional[str], filename: Path) -> str:
+    """Determine format from filename and check consistency"""
+
+    if filename:
+        ext = filename.suffix
+        implied_format = _suffix_to_format.get(ext)
+        if not implied_format:
+            raise ValueError(
+                f"Unsupported file extension: {ext}. "
+                f"Valid extensions: {valid_score_extensions}"
+            )
+        if format and format != implied_format:
+            raise ValueError(
+                f"Filename extension {ext} conflicts with format {format}."
+            )
+        format = implied_format
+
+    if format not in _suffix_to_format.values():
+        raise ValueError(f"Unknown or unspecified format: {format}")
+
+    return format  # type: ignore  (format is guaranteed to be a string here)
+
+
 def write_score(
     score: Score,
-    filename: str,
+    filename: str | Path,
     show: bool = False,
     format: Optional[str] = None,
+    is_temp: bool = False,
 ) -> None:
     """Write a file with the given format.
 
@@ -387,16 +508,19 @@ def write_score(
     ----------
     score : Score
         the score to write
-    filename : Optional[str]
-        the path (relative or absolute) to the music file. Optional only
-        when display is True, but for display, you should call `display_score`
-        instead.
+    filename : str | Path
+        the path (relative or absolute) to the music file.
     show : bool
         print a text representation of the data
     format : Optional[string]
         one of `'musicxml'`, `'midi'`, `'kern'`, `'mei'`, `'pdf'`, `'lilypond'`.
         Defaults to the format implied by `filename`.
-
+    is_temp: bool
+        If true, then intermediate files needed to construct filename can
+        be placed in the same directory and named by changing the extension
+        because filename is in a unique temp directory created by _path_help.
+        (This is merely an optimization to group temp files and avoid creating
+        another temp directory when it is unnecessary.)
     Raises
     ------
     ValueError
@@ -434,79 +558,16 @@ def write_score(
     Pretty MIDI reader will convert `"Unknown"` back to `None`.
 
     """
-    _write_or_display_score(score, filename, show, format, False)
-
-
-def _write_or_display_score(
-    score: Score,
-    filename: Optional[str],
-    show: bool = False,
-    format: Optional[str] = None,
-    display: bool = False,
-) -> None:
-    """Write or display a Score.
-
-    If format is None (default), the format is based on the filename
-    extension, which can be one of `writescore.valid_score_extensions`
-    ('xml', 'musicxml', 'mxl', 'mid', 'midi', 'smf', 'krn', 'kern',
-    'mei', 'pdf', or 'ly').
-
-    If display is True, the goal is to display the file, so the
-    filename is optional, and a temporary file will be used if needed.
-
-    display is suppressed by setting AMADS_NO_OPEN=1 in the environment,
-    which is used in testing with pytest so the user does not have to close
-    a bunch of windows opened by demos that are run as part of testing.
-
-    <small>**Author**: Roger B. Dannenberg</small>
-
-    Parameters
-    ----------
-    score : Score
-        the score to write
-    filename : Optional[str]
-        the path (relative or absolute) to the music file. Optional only
-        when display is True, but for display, you should call `display_score`
-        instead.
-    show : bool
-        print a text representation of the data
-    format : Optional[string]
-        one of 'musicxml', 'midi', 'kern', 'mei', 'pdf', 'lilypond'.
-        Defaults to the format implied by `filename`.
-    display : bool
-        If True and format is 'pdf', the created PDF file is displayed.
-
-    Raises
-    ------
-    ValueError
-        if format is unknown
-    """
-
-    if not display and not filename:
-        raise ValueError("filename must be provided if display is False")
-    if format is None and not filename:
-        raise ValueError("format must be provided if filename is not provided")
-
-    # Type checking complains about filename being possibly None, but we
-    # check for that above, so we can ignore it here.
-    if format is None and filename:
-        ext = pathlib.Path(filename).suffix  # type: ignore
-        format = _suffix_to_format.get(ext)
-        if not format:
-            raise ValueError(
-                f"Unsupported file extension: {ext}. "
-                f"Valid extensions: {valid_score_extensions}"
-            )
-    elif format not in _suffix_to_format.values():
-        raise ValueError(f"Unknown or unspecified format: {format}")
+    if not isinstance(filename, Path):
+        filename = Path(filename)
+    format = _update_format_with_filename(format, filename)
 
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter(
             "ignore" if writer_warning_level == "none" else "always"
         )
-
-        # here, we know format is valid, so ignore type checking:
-        _export_score(score, filename, format, show, display)  # type: ignore
+        # format is guaranteed to be a string here
+        _export_score(score, filename, cast(str, format), show)
 
         # Warning handling
         if writer_warning_level == "low":
@@ -526,3 +587,20 @@ def _write_or_display_score(
                     warning.lineno,
                 )
                 print(formatted, end="")
+
+
+def last_used_writer() -> Optional[str]:
+    """Return the name of the last used writer function.
+
+    The writer function is an internal function called by `write_score`
+    and based on the format, file name, and preferences in effect.
+
+    Returns
+    -------
+    Optional[str]
+        The name of the actual function used in the last call to `write_score`,
+        or None if no writer has been used yet.
+    """
+    if _last_used_writer is not None:
+        return _last_used_writer.__name__
+    return None

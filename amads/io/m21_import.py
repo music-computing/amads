@@ -1,5 +1,6 @@
 import warnings
 from math import isclose
+from pathlib import Path
 from typing import Dict, Optional, Tuple, Union, cast
 
 from music21 import (
@@ -46,7 +47,7 @@ tied_notes = {}  # temporary data to track tied notes, this is a mapping
 
 
 def music21_import(
-    filename: str,
+    filename: str | Path,
     format: str,
     flatten: bool = False,
     collapse: bool = False,
@@ -94,7 +95,7 @@ def music21_import(
         flatten,
         collapse,
         show,  # type: ignore
-        filename,
+        str(filename),
         group_by_instrument=group_by_instrument,
     )
     return score

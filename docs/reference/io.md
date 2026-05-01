@@ -39,7 +39,13 @@ music display. OSDM is installed automatically as part of AMADS.
 ::: amads.io.pianoroll 
 
 
+<!--  This documentation is removed - I don't think users should
+      call these functions, even though they are not prefixed with _
 ## Low-Level Input Functions 
+
+These functions are called by `read_score()` and selected by the 
+`set_preferred_*_reader()` functions. You should not normally 
+call these directly. 
 
 ::: amads.io.pm_midi_import.pretty_midi_import 
 
@@ -49,6 +55,10 @@ music display. OSDM is installed automatically as part of AMADS.
 
 
 ## Low-Level Output Functions 
+
+These functions are called by `write_score()` and selected by the 
+`set_preferred_*_writer()` functions. You should not normally 
+call these directly. 
 
 ::: amads.io.pm_midi_export.pretty_midi_export 
 
@@ -61,7 +71,7 @@ music display. OSDM is installed automatically as part of AMADS.
 ::: amads.io.m21_pdf_export.music21_xml_pdf_export 
 
 ::: amads.io.pt_pdf_export.partitura_xml_pdf_export
-
+-->
 
 ## Built-In Scores
 

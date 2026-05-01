@@ -61,8 +61,6 @@ from typing import (
     cast,
 )
 
-from scipy.fftpack import shift
-
 from amads.core.pitch import Pitch
 from amads.core.timemap import TimeMap
 

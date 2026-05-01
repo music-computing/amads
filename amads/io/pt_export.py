@@ -169,10 +169,8 @@ def add_event_to_part(
     return id
 
 
-def score_to_partitura(
-    score: Score,
-    filename: Path | str,
-    show: bool = False,
+def _score_to_partitura(
+    score: Score, show: bool, filename: Optional[Path | str]
 ) -> ptScore:
     """Convert an AMADS Score to a Partitura score."""
     parts = []
@@ -237,11 +235,7 @@ def score_to_partitura(
 
 
 def partitura_export(
-    score: Score,
-    filename: Path | str,
-    format: str,
-    show: bool = False,
-    display: bool = False,
+    score: Score, filename: Path | str, format: str, show: bool, is_temp: bool
 ) -> None:
     """Save a Score to a file in musicxml format using Partitura.
 
@@ -255,13 +249,12 @@ def partitura_export(
         The name or path of the file to save the MusicXML data.
     format : str
         The format of the file to save. Must be "musicxml" for this function.
-    show : bool, optional
+    show : bool
         If True, print the partitura score structure for debugging.
-    display : bool, optional
-        If True, open the generated PDF in the default viewer.
-        Only relevant for PDF export (see `music21_xml_lilypond_export`).
+    is_temp: bool
+        This is ignored since we do not create temp files here.
     """
-    ptscore = score_to_partitura(score, filename, show)
+    ptscore = _score_to_partitura(score, show, filename)
     assert (
         format == "musicxml"
     ), f"Unsupported format for partitura export: {format}"

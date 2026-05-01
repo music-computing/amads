@@ -1,11 +1,6 @@
 """
 Export a Score as a standard MIDI file using PrettyMIDI library.
 
-Functions
----------
-- pretty_midi_midi_export(score: Score, filename: str) -> None:
-    Exports a `Score` object as a MIDI file using PrettyMIDI.
-
 Usage
 -----
 Do not use this module directly; see writescore.py.
@@ -17,6 +12,7 @@ See `export_midi` notes for translation-to-MIDI-file details.
 """
 
 from math import isclose
+from pathlib import Path
 from typing import cast
 
 import pretty_midi as pm
@@ -108,11 +104,7 @@ def add_eventgroup_to_instrument(
 
 
 def pretty_midi_export(
-    score: Score,
-    filename: str,
-    format: str,
-    show: bool = False,
-    display: bool = False,
+    score: Score, filename: str | Path, format: str, show: bool, is_temp: bool
 ) -> None:
     """
     Export a Score as a standard MIDI file using PrettyMIDI library.
@@ -121,15 +113,14 @@ def pretty_midi_export(
     ----------
     score : Score
         The Score object to export.
-    filename : str
+    filename : str | Path
         The path to the output MIDI file.
     format : str
         The export format, should be "midi" for this function.
     show : bool
         Print a text representation of the data.
-    display : bool
-        Display the MIDI file (always False for MIDI export, included for
-        consistency with other export functions).
+    is_temp : bool
+        This is ignored since we do not create temp files here.
     """
     global tied_to_notes  # helps to merge tied notes
     tied_to_notes = {}
@@ -216,5 +207,5 @@ def pretty_midi_export(
         pretty_midi_show(pmscore, filename)
 
     # Write to MIDI file
-    pmscore.write(filename)
+    pmscore.write(str(filename))
     tied_to_notes = None  # clear global variable after use

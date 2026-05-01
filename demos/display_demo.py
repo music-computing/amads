@@ -18,8 +18,8 @@ def main() -> None:
     score = read_score(xml_file)
 
     assert (
-        preferred_pdf_writer == "music21-lilypond"
-    ), "Preferred PDF writer must be 'music21-lilypond' for this demo."
+        preferred_pdf_writer == "music21-xml-lilypond"
+    ), "Preferred PDF writer must be 'music21-xml-lilypond' for this demo."
     assert (
         preferred_display_method == "pdf"
     ), "Preferred display method must be 'pdf' for this demo."

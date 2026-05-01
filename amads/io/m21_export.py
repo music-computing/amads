@@ -225,7 +225,7 @@ def _add_measure_content_from_list(m21parent, measure, content, dur, ties):
         m21parent.insert(m21rest.offset, m21rest)
 
 
-def score_to_music21(
+def _score_to_music21(
     score: Score, show: bool = False, filename: Optional[Path | str] = None
 ) -> stream.Score:
     """
@@ -366,7 +366,7 @@ def score_to_music21(
         if m21note is None:  # note was tied to but we never put the tied-to
             # note into the m21score!
             warnings.warn(
-                "In score_to_music21: tied-to note not found:"
+                "In _score_to_music21: tied-to note not found:"
                 f" {amads_note.tie}"
             )
         elif amads_note.tie and not is_tied_to:
@@ -393,13 +393,9 @@ def score_to_music21(
 
 
 def music21_export(
-    score: Score,
-    filename: Path | str,
-    format: str,
-    show: bool = False,
-    display: bool = False,
+    score: Score, filename: Path | str, format: str, show: bool, is_temp: bool
 ) -> None:
-    """Save a Score to a file in musicxml format using music21.
+    """Save a Score to a file using music21.
 
     <small>**Author**: Roger B. Dannenberg</small>
 
@@ -408,17 +404,16 @@ def music21_export(
     score : Score
         The Score to export.
     filename : Path | str
-        The name or path of the file to save the MusicXML data.
+        The name or path of the file to save to.
     format : str
-        The format to export. Must be "musicxml", "midi", or "kern".
+        The format to export. Must be "musicxml", "midi", "mei",
+        "lilypond", or "kern".
     show : bool, optional
         If True, print the music21 score structure for debugging.
-    display: bool, optional
-        If True, open the generated PDF in the default viewer.
-        Only relevant for PDF export (see `music21_xml_lilypond_export`).
-
+    is_temp: bool
+        This is ignored since we do not create temp files here.
     """
-    m21score = score_to_music21(score, show, filename)
+    m21score = _score_to_music21(score, show, filename)
 
     if format == "musicxml":
         # Export as text and fix part id's
@@ -434,3 +429,5 @@ def music21_export(
         m21score.write("midi", filename)
     elif format == "kern":
         m21score.write("kern", filename)
+    elif format == "mei":
+        m21score.write("mei", filename)

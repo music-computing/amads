@@ -31,6 +31,7 @@ from .core.vectors_sets import *
 # harmony
 from .harmony.consonance.consonance import *
 from .harmony.root_finding.parncutt import *
+from .io.displayscore import *
 from .io.pianoroll import *
 from .io.readscore import *
 
