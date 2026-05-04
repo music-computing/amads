@@ -26,6 +26,8 @@ References
 import math
 from typing import Sequence
 
+from amads.core.basics import Part, Score
+
 __authors__ = ["Huw Cheston", "Mark Gotham"]
 
 
@@ -83,8 +85,8 @@ def normalized_pairwise_variability_index(
 
     Note: this formula is equivalent to the mean of the nPC values
     (see :func:`normalized_pairwise_calculation`), since both
-    ``abs((k - k1) / ((k + k1) / 2)) * 100`` and
-    ``200 * abs((k - k1) / (k + k1))`` simplify to the same expression.
+    `abs((k - k1) / ((k + k1) / 2)) * 100` and
+    `200 * abs((k - k1) / (k + k1))` simplify to the same expression.
 
     Parameters
     ----------
@@ -298,7 +300,7 @@ def phrase_normalized_pairwise_variability_index(
     To do so, we also need a list of times for where those phrase boundaries fall.
 
     Phrase boundaries are compared against the onset of each pair's first IOI and the
-    onset of the note following the pair (i.e., ``counter`` to ``counter + a1 + a2``).
+    onset of the note following the pair (i.e., `counter` to `counter + a1 + a2`).
 
     Parameters
     ----------
@@ -337,3 +339,95 @@ def phrase_normalized_pairwise_variability_index(
         )
     # Return the average of all nPC values
     return sum(all_npcs) / len(all_npcs)
+
+
+def _iois_from_notes(notes: list) -> list[float]:
+    """
+    Return inter-onset intervals (IOIs) from a sorted list of Notes, dropping zeros.
+    NOte that use of this function may change with possible changes to on-score storage of IOI values.
+    """
+    diffs = [notes[i].onset - notes[i - 1].onset for i in range(1, len(notes))]
+    return [d for d in diffs if d > 0]
+
+
+def score_npvi(score: Score) -> float:
+    """
+    Calculate the nPVI for a score using the resultant rhythm
+    produced by the combination of all parts (i.e., a `flattened' score).
+
+    Notes from all parts are merged into a single onset-sorted sequence.
+    and duplicate onsets (e.g., simultaneous notes in a chord) are removed before
+    computing inter-onset intervals.
+
+    Parameters
+    ----------
+    score : Score
+        The AMADS score to analyse.
+
+    Returns
+    -------
+    float
+        The nPVI of the resultant IOI sequence.
+
+    See Also
+    --------
+    score_npvi_by_part : Per-part nPVI for polyphonic scores.
+    normalized_pairwise_variability_index : The underlying nPVI calculation.
+    """
+    notes = score.get_sorted_notes()
+    iois = _iois_from_notes(notes)
+    return normalized_pairwise_variability_index(iois)
+
+
+def score_npvi_by_part(score: Score) -> dict[str, float]:
+    """
+    Calculate the nPVI separately for each part in a score.
+
+    Requires every part to be monophonic (no overlapping notes / chords).
+    Raises `ValueError` if `score.parts_are_monophonic()` is `False`
+    because the correct way to handle those cases is unclear here
+    (as opposed to in `score_npvi` which is perfectly clear).
+
+    Each part's IOI sequence is computed independently.
+    The returned dict is keyed by each
+    `Part` object's `name` attribute (or `"Part <count>"` if unnamed),
+    and the values are the per-part nPVI floats.
+
+    .. note::
+        If you want a single combined value, consider :func:`score_npvi`
+        (resultant rhythm) or take a weighted mean of the returned values,
+        weighting by the `"n_ioi_pairs"` entry for each part.
+
+    Parameters
+    ----------
+    score : Score
+        The AMADS score to analyse.
+
+    Returns
+    -------
+    dict[str, float]
+        Mapping of part name → nPVI value.
+
+    Raises
+    ------
+    ValueError
+        If any part of the score contains chords (overlapping notes).
+
+    See Also
+    --------
+    score_npvi : Resultant-rhythm nPVI for any score.
+    normalized_pairwise_variability_index : The underlying nPVI calculation.
+    """
+    if not score.parts_are_monophonic():
+        raise ValueError(
+            "score_npvi_by_part requires all parts to be monophonic, "
+            "but this score contains chords or overlapping notes. "
+            "Use score_npvi() for polyphonic scores."
+        )
+    results = {}
+    for n, part in enumerate(score.find_all(Part)):
+        name = getattr(part, "name", None) or f"Part {n + 1}"
+        notes = part.get_sorted_notes()
+        iois = _iois_from_notes(notes)
+        results[name] = normalized_pairwise_variability_index(iois)
+    return results
