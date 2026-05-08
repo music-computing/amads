@@ -1,6 +1,13 @@
 """
-Provides the `skyline` function
+This `skyline.py` module demonstrates a strict case retrieving the
+highest sounding notes at any given point (with caveats as noted below).
+
+See also `envelope` for a variant that could be said to constitute a "smoothed" form of the same.
+
+<small>**Author**: Roger Dannenberg</small>
 """
+
+__author__ = "Roger Dannenberg"
 
 from typing import List, Optional, cast
 
