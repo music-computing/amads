@@ -388,11 +388,11 @@ def get_tatum_from_priorities(
 
     >>> from amads.time.meter import profiles
     >>> bpsd_Op027No1 = profiles.BPSD().op027No1_01 # /16 divisions of the measure and /12 too (from m.48). Tatum 1/48
-    >>> get_tatum_from_priorities(bpsd_Op027No1, distance_threshold=1/24) # proportion_threshold=0.999
+    >>> get_tatum_from_priorities(bpsd_Op027No1, distance_threshold=1/24)
     Fraction(1, 48)
 
     Change the `distance_threshold`
-    >>> get_tatum_from_priorities(bpsd_Op027No1, distance_threshold=1/6) # proportion_threshold=0.999
+    >>> get_tatum_from_priorities(bpsd_Op027No1, distance_threshold=1/6)
     Fraction(1, 12)
 
     Change the `proportion_threshold`:
@@ -417,6 +417,10 @@ def get_tatum_from_priorities(
     Fraction(1, 2)
     """
     starts = list(starts)  # materialise so len() and multiple iterations work
+
+    if not starts:
+        raise ValueError("`starts` must not be empty.")
+
     floats, ints_fractions = [], []
     for num in starts:
 
@@ -429,27 +433,32 @@ def get_tatum_from_priorities(
             if is_genuine_float(num):
                 floats.append(num)
             else:
-                assert int(num) == num
+                if int(num) != num:
+                    raise ValueError(
+                        f"Unexpected error with {num}. "
+                        "Established to be of float type, and the function `is_genuine_float` return False, "
+                        "but `iint(num) != num`."
+                    )
                 ints_fractions.append(int(num))
 
         else:
-            assert isinstance(num, (int, Fraction))
+            if not isinstance(num, (int, Fraction)):
+                raise ValueError(
+                    f"All `starts` must be int, float, or Fraction. Found: {num} of type {type(num)}"
+                )
             ints_fractions.append(num)
 
     if ints_fractions:
         working_gcd = fraction_gcd(ints_fractions)
-        pulses_needed = [working_gcd]
+        pulses_needed = [working_gcd] if working_gcd != 0 else []
     else:
         working_gcd = None
         pulses_needed = []
 
-    if len(floats) == 0:
-        return (
-            working_gcd if working_gcd is not None else Fraction(0)
-        )  # No further action
-    else:
-        if working_gcd is not None:
-            pulses_needed = [working_gcd]
+    if not floats:
+        if working_gcd is None:
+            raise ValueError("`starts` must not be empty.")
+        return working_gcd
 
     if not 0.0 < distance_threshold < 1.0:
         raise ValueError(
