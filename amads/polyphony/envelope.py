@@ -56,7 +56,7 @@ Supported input forms
 
 from typing import Union
 
-from amads.core.basics import Part, Score
+from amads.core.basics import Note, Part, Score
 
 __author__ = "Mark Gotham"
 
@@ -79,6 +79,25 @@ def _to_points(source) -> PointList:
     Normalise any supported input form into
     a list of (onset, pitch) float pairs,
     sorted by onset.
+
+    >>> _to_points("312")
+    [(1.0, 3.0), (2.0, 1.0), (3.0, 2.0)]
+
+    >>> _to_points([5, 3, 7])
+    [(1.0, 5.0), (2.0, 3.0), (3.0, 7.0)]
+
+    >>> _to_points([(2.0, 4.0), (1.0, 9.0)])
+    [(1.0, 9.0), (2.0, 4.0)]
+
+    Empty example:
+    >>> _to_points([])
+    []
+
+    Invalid type:
+    >>> _to_points("abc")
+    Traceback (most recent call last):
+        ...
+    ValueError: String input must contain only digit characters, e.g. '313131'.
     """
     if isinstance(source, str):
         if not all(c.isdigit() for c in source):
@@ -103,19 +122,44 @@ def _to_points(source) -> PointList:
     return [(float(i + 1), float(v)) for i, v in enumerate(seq)]
 
 
-def _extract_from_score(score: Union[Score, Part]) -> PointList:
+def _extract_from_score(
+    score: Union[Score, Part],
+    upper_not_lower: bool = True,
+) -> PointList:
     """
     Extract (onset, midi) pairs from a score object.
 
     Where multiple notes share an onset (chord), only the highest pitch is kept.
     Returns points sorted by onset.
+
+    >>> test_pitches = [60, 62, 60, 64, 60, 65, 60, 67]
+    >>> len(test_pitches)
+    8
+
+    >>> test_durations=[1.0, 0.5, 1.0, 0.5, 1.0, 0.5, 1.0]
+    >>> len(test_durations)
+    7
+
+    >>> test_case = Score.from_melody(pitches=test_pitches, durations=test_durations)
+
+    # >>> _extract_from_score(test_case, upper_not_lower=True)
+    # [(0.0, 60.0), (1.0, 62.0), (1.5, 64.0), (2.5, 65.0), (3.0, 67.0)]
+
+    # >>> _extract_from_score(test_case, upper_not_lower=False)
+    # []
     """
     pairs: dict[float, float] = {}
 
-    for note in score.find_all("Note"):
+    for note in score.find_all(Note):
         onset = float(note.onset)
-        midi = float(note.midi)
-        pairs[onset] = max(pairs.get(onset, midi), midi)
+        midi = float(note.key_num)
+        if onset not in pairs:
+            pairs[onset] = midi
+        else:
+            if upper_not_lower:
+                pairs[onset] = max(pairs.get(onset, midi), midi)
+            else:
+                pairs[onset] = min(pairs.get(onset, midi), midi)
     return sorted(pairs.items())
 
 
@@ -125,7 +169,7 @@ def _extract_from_score(score: Union[Score, Part]) -> PointList:
 
 
 def _envelope(
-    points: PointList, side: str = "upper", tolerance: float = 0.0
+    points: PointList, upper_not_lower: bool = True, tolerance: float = 0.0
 ) -> PointList:
     """
     Compute the upper or lower piecewise-linear envelope of a point sequence.
@@ -137,24 +181,71 @@ def _envelope(
     Parameters
     ----------
     points : list of (x, y) pairs, will be sorted by x internally
-    side : 'upper' or 'lower'
+    upper_not_lower : bool, True for 'upper', False for 'lower'
     tolerance : vertical slack -- points within this distance of their neighbours
                 are also removed  (0.0 = exact envelope, the default)
 
     Returns
     -------
     Subset of the original points forming the envelope, sorted by x.
+
+    >>> _envelope([(1,5),(2,1),(3,5)], upper_not_lower=True)
+    [(1, 5), (3, 5)]
+
+    >>> _envelope([(1,1),(2,5),(3,1)], upper_not_lower=False)
+    [(1, 1), (3, 1)]
+
+    >>> _envelope([(1,3),(2,3),(3,3)], upper_not_lower=True)
+    [(1, 3), (2, 3), (3, 3)]
+
+    >>> simultaneity = [(1,5),(1,2),(2,3)]
+    >>> _envelope(simultaneity, upper_not_lower=True)
+    [(1, 5), (2, 3)]
+
+    >>> _envelope(simultaneity, upper_not_lower=False)
+    [(1, 2), (2, 3)]
+
+    One item
+    >>> _envelope([(1,3)], upper_not_lower=True)
+    [(1, 3)]
+
+    No items
+    >>> _envelope([], upper_not_lower=True)
+    []
+
+    Tolerance:
+    >>> dip = [(1,5),(2,3),(3,5)]
+    >>> tol_1  = _envelope(dip, upper_not_lower=True, tolerance=1.0)
+    >>> tol_1
+    [(1, 5), (3, 5)]
+
+    >>> tol_2  = _envelope(dip, upper_not_lower=True, tolerance=2.0)
+    >>> tol_2
+    [(1, 5), (2, 3), (3, 5)]
+
+    >>> tol_2 == dip
+    True
     """
-    if side not in ("upper", "lower"):
-        raise ValueError("side must be 'upper' or 'lower'")
 
     pts = sorted(points)  # sort by x
+
+    # Deduplicate by x: keep highest y for upper, lowest y for lower
+    deduped: PointList = []
+    for x, y in pts:
+        if deduped and deduped[-1][0] == x:
+            if (upper_not_lower and y > deduped[-1][1]) or (
+                not upper_not_lower and y < deduped[-1][1]
+            ):
+                deduped[-1] = (x, y)
+        else:
+            deduped.append((x, y))
+    pts = deduped
 
     if len(pts) <= 2:
         return pts
 
     def is_redundant(left_y: float, mid_y: float, right_y: float) -> bool:
-        if side == "upper":
+        if upper_not_lower:
             return mid_y < left_y - tolerance and mid_y < right_y - tolerance
         else:
             return mid_y > left_y + tolerance and mid_y > right_y + tolerance
@@ -199,8 +290,30 @@ def skyline_envelope(source, tolerance: float = 0.0) -> PointList:
     Returns
     -------
     list of (onset, pitch) float pairs on the upper envelope
+
+    Examples
+    --------
+
+    Test some inpute types.
+
+    >>> test_case = skyline_envelope("31513")
+    >>> test_case
+    [(1.0, 3.0), (3.0, 5.0), (5.0, 3.0)]
+
+    >>> skyline_envelope([3, 1, 5, 1, 3]) == test_case
+    True
+
+    >>> skyline_envelope([(1.0, 3.0), (2.0, 1.0), (3.0, 5.0), (4.0, 1.0), (5.0, 3.0)]) == test_case
+    True
+
+    Test de-duplication of simultaneities
+
+    >>> skyline_envelope([(1.0, 5.0), (1.0, 2.0), (2.0, 3.0)])
+    [(1.0, 5.0), (2.0, 3.0)]
     """
-    return _envelope(_to_points(source), side="upper", tolerance=tolerance)
+    return _envelope(
+        _to_points(source), upper_not_lower=True, tolerance=tolerance
+    )
 
 
 def valleyline_envelope(source, tolerance: float = 0.0) -> PointList:
@@ -217,8 +330,30 @@ def valleyline_envelope(source, tolerance: float = 0.0) -> PointList:
     Returns
     -------
     list of (onset, pitch) float pairs on the lower envelope
+
+    Examples
+    --------
+
+    Test some inpute types.
+
+    >>> test_case = valleyline_envelope("31513")
+    >>> test_case
+    [(1.0, 3.0), (2.0, 1.0), (4.0, 1.0), (5.0, 3.0)]
+
+    >>> valleyline_envelope([3, 1, 5, 1, 3]) == test_case
+    True
+
+    >>> valleyline_envelope([(1.0, 3.0), (2.0, 1.0), (3.0, 5.0), (4.0, 1.0), (5.0, 3.0)]) == test_case
+    True
+
+    Test de-duplication of simultaneities
+
+    >>> valleyline_envelope([(1.0, 5.0), (1.0, 2.0), (2.0, 3.0)])
+    [(1.0, 2.0), (2.0, 3.0)]
     """
-    return _envelope(_to_points(source), side="lower", tolerance=tolerance)
+    return _envelope(
+        _to_points(source), upper_not_lower=False, tolerance=tolerance
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -227,10 +362,21 @@ def valleyline_envelope(source, tolerance: float = 0.0) -> PointList:
 
 
 def skyline_values(source, tolerance: float = 0.0) -> list[float]:
-    """Upper envelope as a plain list of y-values (onset coordinates omitted)."""
+    """Upper envelope as a plain list of y-values (onset coordinates omitted).
+
+    >>> skyline_values("31513")
+    [3.0, 5.0, 3.0]
+
+    >>> skyline_values([1, 3, 1])
+    [1.0, 3.0, 1.0]
+    """
     return [y for _, y in skyline_envelope(source, tolerance)]
 
 
 def valleyline_values(source, tolerance: float = 0.0) -> list[float]:
-    """Lower envelope as a plain list of y-values (onset coordinates omitted)."""
+    """Lower envelope as a plain list of y-values (onset coordinates omitted).
+
+    >>> valleyline_values("31513")
+    [3.0, 1.0, 1.0, 3.0]
+    """
     return [y for _, y in valleyline_envelope(source, tolerance)]
