@@ -155,7 +155,7 @@ def kkkey_test_internal(score: Score, json_results: Dict):
     The matlab interpretation of kkkey returns the key index (idx) that best
     coincides with the piece (according to kkcc). If idx is no greater than 12,
     the coinciding attribute to the python interpretation is ("major", idx - 1).
-    If idx is greater than 12 (no greater than 24), the coinciding output to 
+    If idx is greater than 12 (no greater than 24), the coinciding output to
     the python interpretation is ("minor", (idx - 1) % 12).
     """
     matlab_result = json_results["kkkey"]
