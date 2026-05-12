@@ -1,0 +1,97 @@
+{
+    "@context": "https://w3id.org/codemeta/3.0",
+    "applicationCategory": "SoftwareSourceCode,SoftwareApplication",
+    "author": [
+        {
+            "@id": "https://github.com/music-computing",
+            "@type": "Organization"
+        },
+        {
+            "affiliation": {
+                "name": "King's College London",
+                "@type": "Organization"
+            },
+            "email": "mark.gotham@kcl.ac.uk",
+            "familyName": "Gotham",
+            "givenName": "Mark",
+            "@id": "https://orcid.org/0000-0003-0722-3074",
+            "@type": "Person"
+        },
+        {
+            "affiliation": {
+                "name": "Carnegie Mellon University",
+                "@type": "Organization"
+            },
+            "email": "rbd@cs.cmu.edu",
+            "familyName": "Dannenberg",
+            "givenName": "Roger",
+            "@type": "Person"
+        },
+        {
+            "affiliation": {
+                "name": "Cambridge University",
+                "@type": "Organization"
+            },
+            "email": "pmch2@cam.ac.uk",
+            "familyName": "Harrison",
+            "givenName": "Peter",
+            "@type": "Person"
+        }
+    ],
+    "codeRepository": "https://github.com/music-computing/amads",
+    "dateCreated": "2024-02-03",
+    "dateModified": "2026-05-04",
+    "datePublished": "2025-03-30",
+    "description": "A toolkit of algorithms and resources from published literature.",
+    "downloadUrl": "https://github.com/music-computing/amads/releases",
+    "identifier": "amads",
+    "license": "https://spdx.org/licenses/MIT",
+    "name": "amads",
+    "programmingLanguage": "Python",
+    "referencePublication": [
+        {
+            "author": [
+                {
+                    "affiliation": {
+                        "name": "King's College London",
+                        "@type": "Organization"
+                    },
+                    "email": "mark.gotham@kcl.ac.uk",
+                    "familyName": "Gotham",
+                    "givenName": "Mark",
+                    "@id": "https://orcid.org/0000-0003-0722-3074",
+                    "@type": "Person"
+                }
+            ],
+            "datePublished": "2026-03-22",
+            "identifier": "10.5281/zenodo.19182349",
+            "name": "Keeping Score: Computational Methods for the Analysis of Encoded (\"Symbolic\") Musical Scores",
+            "url": "https://zenodo.org/doi/10.5281/zenodo.14938027",
+            "@type": "ScholarlyArticle"
+        }
+    ],
+    "softwareRequirements": [
+        "numpy",
+        "pandas",
+        "matplotlib",
+        {
+            "name": "scipy",
+            "version": ">=1.9"
+        },
+        "partitura",
+        "music21",
+        "pretty_midi",
+        "setuptools",
+        "typing_extensions",
+        "tenacity",
+        "tqdm",
+        "wheel"
+    ],
+    "version": "v1.0.3",
+    "codemeta:contIntegration": {
+        "@id": "https://raw.githubusercontent.com/music-computing/amads/main/.github/workflows/documentation.yml"
+    },
+    "continuousIntegration": "https://raw.githubusercontent.com/music-computing/amads/main/.github/workflows/documentation.yml",
+    "issueTracker": "https://github.com/music-computing/amads/issues",
+    "@type": "SoftwareSourceCode"
+}
