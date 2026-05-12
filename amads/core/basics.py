@@ -61,8 +61,6 @@ from typing import (
     cast,
 )
 
-from scipy.fftpack import shift
-
 from amads.core.pitch import Pitch
 from amads.core.timemap import TimeMap
 
@@ -2327,7 +2325,7 @@ class Sequence(EventGroup):
 
 
     def slice(self, start: float, end: float, units: str = "quarters",
-              mode: str = "onsets", truncate: str = "keep", shift: bool = false,
+              mode: str = "onsets", truncate: str = "keep", shift: bool = False,
               min_duration: float = 0.05) -> "Score":
         """
         Create a new Score containing the content between start and end.

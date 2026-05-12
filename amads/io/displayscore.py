@@ -10,18 +10,22 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import webbrowser
 import zipfile
 from importlib.resources import files
+from pathlib import Path
 
 from amads.core.basics import Score
+from amads.io import writescore
 from amads.io.pianoroll import pianoroll
 from amads.io.readscore import read_score
-from amads.io.writescore import _write_or_display_score, write_score
+from amads.io.writescore import write_score
 
 # This module, writescore, is regarded as a singleton class with
 # the following attributes:
 
-preferred_display_method: str = "pdf"  # method to display music
+_default_display_method = "pdf"
+preferred_display_method: str = _default_display_method  # how to display music
 
 
 def suppress_external_open() -> bool:
@@ -30,7 +34,7 @@ def suppress_external_open() -> bool:
     )
 
 
-def set_preferred_display_method(method: str) -> str:
+def set_preferred_display_method(method: str = _default_display_method) -> str:
     """Set a (new) preferred display method.
 
     Returns the previous preference. The current preference is stored
@@ -42,7 +46,7 @@ def set_preferred_display_method(method: str) -> str:
         The name of the preferred method. Can be "pdf", "musescore", "OSMD"
         (Open Sheet Music Display) or "pianoroll". Note that if the method
         is "pdf", then `io.writescore.preferred_pdf_writer` is used to create
-        a PDF to display.
+        a PDF to display. Defaults to "pdf".
 
     Returns
     -------
@@ -124,6 +128,11 @@ def display_file(file: str) -> None:
         or file.endswith(".mxl")
     ):
         _display_musicxml_file(file)
+    elif file.endswith(".pdf"):
+        if suppress_external_open():
+            print(f"PDF display suppressed during tests: {file}.")
+        else:
+            webbrowser.open(Path(file).resolve().as_uri())  # type: ignore
     else:
         raise RuntimeError(
             f"Unsupported file extension for display_file: {file}"
@@ -157,9 +166,18 @@ def display_score(score: Score, show: bool = False) -> None:
         the score to write
     show : bool
         show text representation of converted score for debugging.
+
+    Raises
+    ------
+    RunTimeError
+        If the `preferred_display_method` is not "pianoroll", "musescore",
+        or "OSMD".
     """
     if preferred_display_method == "pdf":
-        _write_or_display_score(score, None, show, "pdf", display=True)
+        # we need a temp directory for intermediate files:
+        pdf_file = writescore._path_help(None, ".pdf")
+        write_score(score, str(pdf_file), show, "pdf", True)
+        display_file(str(pdf_file))
     elif preferred_display_method == "pianoroll":
         pianoroll(score)  # Note that 'show' for pianoroll invokes plt.show(),
         # which is different from display_score's 'show' argument, which prints
@@ -189,8 +207,16 @@ def display_score(score: Score, show: bool = False) -> None:
 
 def _display_musicxml_file(xml_path: str) -> None:
     """
-    Construct a complete static web page with embedded OSMD and
-    the generated MusicXML, then open it in the default browser
+    Use `preferred_display_method` to display a MusicXML file.
+
+    Parameters
+    ----------
+    xml_path (str): a path to the MusicXML or mxl (compressed) file.
+
+    Raises
+    ------
+    RunTimeError
+        If MuseScore is needed but the executable was not found.
     """
     if preferred_display_method == "musescore":
         musescore_exe = (

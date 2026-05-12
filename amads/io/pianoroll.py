@@ -23,6 +23,9 @@ def pianoroll(
 ) -> figure.Figure:
     """Converts a Score to a piano roll display of a musical score.
 
+    You can also create a piano roll display with
+    `set_preferred_display_method("pianoroll")` and calling `display_score()`.
+
     Parameters
     ----------
     score : Score

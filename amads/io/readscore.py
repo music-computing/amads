@@ -2,10 +2,10 @@
 
 __author__ = "Roger B. Dannenberg"
 
-import pathlib
 import tempfile
 import urllib.request
 import warnings
+from pathlib import Path
 from typing import Callable, Optional
 
 from amads.core.basics import Score
@@ -14,10 +14,17 @@ from amads.io.writescore import _suffix_to_format
 # This module, readscore, is regarded as a singleton class with
 # the following attributes:
 
-preferred_midi_reader: str = "pretty_midi"  # subsystem for MIDI file input
-preferred_xml_reader: str = "music21"  # subsystem for MusicXML input
-preferred_kern_reader: str = "music21"  # subsystem for Kern input
-preferred_mei_reader: str = "music21"  # subsystem for mei input
+_default_midi_reader = "pretty_midi"
+_default_xml_reader = "music21"
+_default_kern_reader = "music21"
+_default_mei_reader = "music21"
+
+preferred_midi_reader: str = (
+    _default_midi_reader  # subsystem for MIDI file input
+)
+preferred_xml_reader: str = _default_xml_reader  # subsystem for MusicXML input
+preferred_kern_reader: str = _default_kern_reader  # subsystem for Kern input
+preferred_mei_reader: str = _default_mei_reader  # subsystem for mei input
 reader_warning_level: str = "default"  # controls verbocity of warnings
 #     from input processing
 _last_used_reader: Optional[Callable] = None  # See last_used_reader()
@@ -41,7 +48,7 @@ _subsystem_map = {
 }
 
 
-def set_preferred_midi_reader(reader: str) -> str:
+def set_preferred_midi_reader(reader: str = _default_midi_reader) -> str:
     """
     Set a (new) preferred MIDI reader.
 
@@ -50,8 +57,9 @@ def set_preferred_midi_reader(reader: str) -> str:
 
     Parameters
     ----------
-    reader : str
+    reader : str, optional
         The name of the preferred MIDI reader; "music21" or "pretty_midi".
+        Defaults to "pretty_midi".
 
     Returns
     -------
@@ -73,7 +81,7 @@ def set_preferred_midi_reader(reader: str) -> str:
     return previous
 
 
-def set_preferred_xml_reader(reader: str) -> str:
+def set_preferred_xml_reader(reader: str = _default_xml_reader) -> str:
     """
     Set a (new) preferred XML reader.
 
@@ -82,8 +90,9 @@ def set_preferred_xml_reader(reader: str) -> str:
 
     Parameters
     ----------
-    reader : str
+    reader : str, optional
         The name of the preferred XML reader. Can be "music21" or "partitura".
+        Defaults to "music21".
 
     Returns
     -------
@@ -105,7 +114,7 @@ def set_preferred_xml_reader(reader: str) -> str:
     return previous
 
 
-def set_preferred_kern_reader(reader: str) -> str:
+def set_preferred_kern_reader(reader: str = _default_kern_reader) -> str:
     """
     Set a (new) preferred Kern reader.
 
@@ -114,8 +123,9 @@ def set_preferred_kern_reader(reader: str) -> str:
 
     Parameters
     ----------
-    reader : str
+    reader : str, optional
         The name of the preferred Kern reader. Can be "music21" or "partitura".
+        Defaults to "music21".
 
     Returns
     -------
@@ -137,7 +147,7 @@ def set_preferred_kern_reader(reader: str) -> str:
     return previous
 
 
-def set_preferred_mei_reader(reader: str) -> str:
+def set_preferred_mei_reader(reader: str = _default_mei_reader) -> str:
     """
     Set a (new) preferred MEI reader.
 
@@ -146,8 +156,9 @@ def set_preferred_mei_reader(reader: str) -> str:
 
     Parameters
     ----------
-    reader : str
+    reader : str, optional
         The name of the preferred MEI reader. Can be "music21" or "partitura".
+        Defaults to "music21".
 
     Returns
     -------
@@ -273,7 +284,7 @@ def _check_for_subsystem(
 
 
 def _import_score(
-    filename: str,
+    filename: str | Path,
     format: str,
     flatten: bool = False,
     collapse: bool = False,
@@ -290,7 +301,7 @@ def _import_score(
         _last_used_reader = import_fn
         if reader_warning_level != "none":
             print(
-                f"Reading {filename} using {format} reader "
+                f"Reading {str(filename)} using {format} reader "
                 f"file={import_fn.__name__}."
             )
         return import_fn(
@@ -298,18 +309,18 @@ def _import_score(
         )
     elif preferred_reader:
         raise Exception(
-            f"Could not find an import function for file {filename}, format "
-            f"{format}. Preferred subsystem is {preferred_reader}"
+            f"Could not find an import function for file {str(filename)}, "
+            f"format {format}. Preferred subsystem is {preferred_reader}"
         )
     else:
         raise Exception(
             "Could not identify a preferred subsystem or file format to "
-            f"read file {filename}, format {format}."
+            f"read file {str(filename)}, format {format}."
         )
 
 
 def read_score(
-    filename: str,
+    filename: str | Path,
     flatten: bool = False,
     collapse: bool = False,
     show: bool = False,
@@ -327,7 +338,7 @@ def read_score(
 
     Parameters
     ----------
-    filename : str
+    filename : str | Path
         The path (relative or absolute) to the music file.
         Can also be an URL.
     flatten : bool
@@ -437,15 +448,18 @@ def read_score(
     does not even have a meta-event for clefs, and even if the
     MIDI file has no key signature meta-event.
     """
-    if filename.startswith("http") or "://" in filename:
+    if isinstance(filename, str) and (
+        filename.startswith("http") or "://" in filename
+    ):
         with tempfile.NamedTemporaryFile(
-            suffix=pathlib.Path(filename).suffix or ".tmp", delete=False
+            suffix=Path(filename).suffix or ".tmp", delete=False
         ) as tmp_file:
             urllib.request.urlretrieve(filename, tmp_file.name)
             filename = tmp_file.name
 
     if format is None:
-        ext = pathlib.Path(filename).suffix.lower()
+        filename = Path(filename)
+        ext = filename.suffix.lower()
         if ext not in [".pdf", ".ly"]:  # these are write-only extensions
             format = _suffix_to_format.get(ext)
         if not format:
@@ -485,6 +499,9 @@ def read_score(
 
 def last_used_reader() -> Optional[str]:
     """Return the name of the last used reader function.
+
+    The reader function is an internal function called by `read_score`
+    and based on the format, file name, and preferences in effect.
 
     Returns
     -------

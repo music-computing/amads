@@ -1,52 +1,39 @@
 """Export a Score to PDF format using music21 + LilyPond."""
 
 from pathlib import Path
+from typing import Optional, cast
 
 from music21 import stream
 
 from amads.core.basics import Score
-from amads.io.m21_export import music21_export, score_to_music21
-from amads.io.xml_lilypond_pdf import (
-    lilypond_path_help,
-    lilypond_to_pdf,
-    musicxml_to_lilypond,
-)
+from amads.io import writescore
+from amads.io.m21_export import _score_to_music21, music21_export
+from amads.io.xml_lilypond_pdf import _lilipond_to_pdf, _musicxml_to_lilypond
 
 
-def _write_lilypond_file(m21score: stream.Score, ly_path: Path) -> None:
+def _music21_to_lilypond(
+    m21score: stream.Score, ly_path: Optional[Path | str]
+) -> None:
     """Convert a music21 score to LilyPond and write to a .ly file."""
-    ly_path.parent.mkdir(parents=True, exist_ok=True)
+    ly_path = writescore._path_help(ly_path, ".ly")  # type: ignore
+    ly_path.parent.mkdir(parents=True, exist_ok=True)  # type: ignore
     m21score.write("lilypond", fp=str(ly_path))
 
-    text = ly_path.read_text(encoding="utf-8")
+    text = ly_path.read_text(encoding="utf-8")  # type: ignore (ly_path is Path)
     text = text.replace("\\RemoveEmptyStaffContext\n", "")
     text = text.replace(
         "    \\override VerticalAxisGroup #'remove-first = ##t\n", ""
     )
-    ly_path.write_text(text, encoding="utf-8")
+    ly_path.write_text(text, encoding="utf-8")  # type: ignore (ly_path is Path)
 
 
 def music21_pdf_export(
-    score: Score,
-    filename: str,
-    show: bool = False,
-    lilypond: bool = False,
-    display: bool = False,
+    score: Score, filename: str | Path, format: str, show: bool, is_temp: bool
 ) -> None:
-    """Save a Score to a file in PDF format using music21 and LilyPond.
-
-    There are three main modes of operation, controlled by the `lilypond`
-    and `display` flags:
-
-    - To save a PDF file without opening it, set `lilypond=False` and provide a
-      `filename` ending in `.pdf`.
-    - To save a LilyPond file without converting to PDF, set `lilypond=True`
-      and provide a `filename` ending in `.ly`.
-    - To save and display a PDF file, set `display=True` and *optionally*
-      provide a `filename` ending in `.pdf`.
+    """Save a Score to a file in lilypond or PDF format using music21.
 
     Temporary files are created as needed for intermediate LilyPond and PDF
-    output.
+    output. Runs lilypond to create PDF if format is "pdf".
 
     <small>**Author**: Roger B. Dannenberg</small>
 
@@ -54,58 +41,43 @@ def music21_pdf_export(
     ----------
     score : Score
         The Score to export.
-    filename : str
-        The name of the file to save the LilyPond or PDF data. Must be
-        provided if `display` is False, and must end if `.ly` if `lilypond`
-        is True, or `.pdf` if `lilypond` is False. If `display` is True,
-        filename is optional and names the .pdf file to be written. In all
-        cases, a LilyPond (.ly) file is written, either to `filename` or to
-        a temporary directory when `display` is True or `lilypond` is False.
+    filename : str | Path
+        The name of the file to save the LilyPond or PDF data.
+    format : str
+        The format to export. Must be "pdf" or "lilypond".
     show : bool, optional
-        If True, print the music21 score structure for debugging.
-    lilypond : bool, optional
-        If True, also save the intermediate LilyPond file rather than PDF.
-    display : bool, optional
-        If True, open the generated PDF in the default viewer.
+        If True, print the music21 score structure for debugging
+        with the label "Music21 score structure"
+    is_temp: bool
+        If True, we can make temp file names by changing filename suffix.
 
     Raises
     ------
     ValueError
-        If `filename` is not provided when `display` is False, or if
-        `filename` extension is not the expected `.pdf` or `.ly`.
+        If `filename` does not have the expected extension.
     """
-    ly_path: Path | None = None
-    pdf_path: Path | None = None
-    ly_path, pdf_path, _ = lilypond_path_help(
-        filename, lilypond, display, False
-    )
+    m21score = _score_to_music21(score, show, filename)
 
-    m21score = score_to_music21(score, show, filename)
-    _write_lilypond_file(m21score, ly_path)
-    if lilypond:
-        return
+    if format == "lilypond":
+        ly_path = writescore._path_help(filename, ".ly", is_temp=is_temp)
+    elif format == "pdf":
+        result = writescore._path_help(
+            filename, [".pdf", ".PDF"], ".ly", is_temp=is_temp
+        )
+        assert isinstance(result, tuple)
+        (pdf_path, ly_path) = result
 
-    lilypond_to_pdf(ly_path, pdf_path, display)  # type: ignore
+    _music21_to_lilypond(m21score, ly_path)  # type: ignore (ly_path is set)
+    if format == "pdf":
+        _lilipond_to_pdf(ly_path, pdf_path)  # type: ignore (pdf_path is set)
 
 
 def music21_xml_pdf_export(
-    score: Score,
-    filename: str,
-    show: bool = False,
-    lilypond: bool = False,
-    display: bool = False,
+    score: Score, filename: str | Path, format: str, show: bool, is_temp: bool
 ) -> None:
-    """Write Score as PDF file using music21, musicxml2ly and LilyPond.
+    """Write Score to a file using music21, musicxml2ly and LilyPond.
 
-    There are three main modes of operation, controlled by the `lilypond`
-    and `display` flags:
-
-    - To save a PDF file without opening it, set `lilypond=False` and provide a
-      `filename` ending in `.pdf`.
-    - To save a LilyPond file without converting to PDF, set `lilypond=True`
-      and provide a `filename` ending in `.ly`.
-    - To save and display a PDF file, set `display=True` and *optionally*
-      provide a `filename` ending in `.pdf`.
+    Supports formats "pdf" and "lilypond".
 
     Temporary files are created as needed for intermediate XML, LilyPond,
     and PDF output.
@@ -116,37 +88,40 @@ def music21_xml_pdf_export(
     ----------
     score : Score
         The Score to export.
-    filename : str
-        The name of the file to save the LilyPond or PDF data. Must be
-        provided if `display` is False, and must end if `.ly` if `lilypond`
-        is True, or `.pdf` if `lilypond` is False. If `display` is True,
-        filename is optional and names the .pdf file to be written. In all
-        cases, a LilyPond (.ly) file is written, either to `filename` or to
-        a temporary directory when `display` is True or `lilypond` is False.
+    filename : str | Path
+        The name of the file to save the LilyPond or PDF data.
+    format : str
+        The format to export. Must be "pdf" or "lilypond".
     show : bool, optional
         If True, print the music21 score structure for debugging.
-    lilypond : bool, optional
-        If True, also save the intermediate LilyPond file rather than PDF.
-    display : bool, optional
-        If True, open the generated PDF in the default viewer.
+    is_temp: bool
+        If True, we can make temp file names by changing filename suffix.
 
     Raises
     ------
     ValueError
-        If `filename` is not provided when `display` is False, or if
-        `filename` extension is not the expected `.pdf` or `.ly`, or if
-        lilypond2ly or lilypond executables are not found or fail.
+        If `filename`  does not have the expected extension, of if `format` is
+        not "pdf" or "lilypond".
     """
-    ly_path: Path
-    pdf_path: Path | None
-    xml_path: Path | None
-    ly_path, pdf_path, xml_path = lilypond_path_help(
-        filename, lilypond, display, True
-    )
-    # xml_path is not None here
-    music21_export(score, xml_path, "musicxml", show, display)  # type: ignore
-    musicxml_to_lilypond(xml_path, ly_path)  # type: ignore (xml_path != None)
-    if lilypond:
-        return
-    # pdf_path is not None here because lilypond is False
-    lilypond_to_pdf(ly_path, pdf_path, display)  # type: ignore
+    _score_to_music21(score, show, filename)
+    xml_path = None
+
+    if format == "lilypond":
+        result = writescore._path_help(
+            filename, ".ly", ".musicxml", is_temp=is_temp
+        )
+        assert isinstance(result, tuple)
+        (ly_path, xml_path) = result
+    elif format == "pdf":
+        result = writescore._path_help(
+            filename, [".pdf", ".PDF"], ".musicxml", is_temp=is_temp
+        )
+        assert isinstance(result, tuple)
+        (pdf_path, ly_path) = result
+        xml_path = ly_path.with_suffix(".musicxml")
+
+    music21_export(score, cast(Path, xml_path), "musicxml", show, is_temp)
+    _musicxml_to_lilypond(xml_path, ly_path, True)  # type: ignore
+
+    if format == "pdf":
+        _lilipond_to_pdf(ly_path, pdf_path)  # type: ignore (ly_path is set)

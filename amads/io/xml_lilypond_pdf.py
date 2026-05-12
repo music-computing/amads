@@ -3,79 +3,10 @@
 import shutil
 import subprocess
 import tempfile
-import webbrowser
 from pathlib import Path
 
-from amads.io.displayscore import suppress_external_open
 
-
-def lilypond_path_help(
-    filename: Path | str, lilypond: bool, display: bool, xml: bool
-) -> tuple[Path, Path | None, Path | None]:
-    """There are multiple messy ways to determine file names and paths.
-    This helper function serves both music21_pdf_export and
-    music21_xml_pdf_export.
-
-    If `lilypond`, then ly_path will be filename; otherwise, ly_path
-    will be a temp file.
-
-    Parameters
-    ----------
-    filename : Path | str
-        The filename for the pdf export.
-    lilypond: bool
-        True to retain the lilypond (.ly) file
-    display: bool
-        True if the pdf file will be displayed, meaning filename is optional.
-    xml: bool
-        True if we also need an xml file path
-    """
-    ly_path: Path | None = None
-    pdf_path: Path | None = None
-    xml_path: Path | None = None
-
-    work_dir = None
-    stem = "score"
-
-    if not filename and not lilypond and not display:
-        raise ValueError(
-            "filename must be provided if lilypond and" " display are False"
-        )
-    elif filename:
-        ext = Path(filename).suffix.lower()
-        if lilypond:
-            ly_path = Path(filename)
-            if ext != ".ly":
-                raise ValueError(
-                    f"filename extension {ext} must be .ly when"
-                    " lilypond is True"
-                )
-        else:
-            pdf_path = Path(filename)
-            if ext != ".pdf":
-                raise ValueError(
-                    f"filename extension {ext} must be .pdf when"
-                    " lilypond is False"
-                )
-
-    if not ly_path:
-        work_dir = Path(tempfile.mkdtemp(prefix="amads_lilypond_"))
-        ly_path = work_dir / f"{stem}.ly"
-    if not pdf_path and not lilypond:
-        if not work_dir:
-            work_dir = Path(tempfile.mkdtemp(prefix="amads_lilypond_"))
-        pdf_path = work_dir / f"{stem}.pdf"
-    if xml:
-        if not work_dir:
-            work_dir = Path(tempfile.mkdtemp(prefix="amads_lilypond_"))
-        xml_path = work_dir / f"{stem}.musicxml"
-
-    return (ly_path, pdf_path, xml_path)
-
-
-def lilypond_to_pdf(
-    ly_path: Path | str, pdf_path: Path | str, display: bool = False
-) -> None:
+def _lilipond_to_pdf(ly_path: Path, pdf_path: Path) -> None:
     """Convert a Lilypond (.ly) file to PDF.
 
     Parameters
@@ -84,23 +15,22 @@ def lilypond_to_pdf(
         The path to the LilyPond file.
     pdf_path : Path | str
         The path to the PDF file.
-    display : bool, optional
-        If True, open the generated PDF in the default viewer.
 
     Raises
     ------
     RuntimeError
         If LilyPond fails to convert the file.
+    ValueError
+        If ly_path or pdf_path is not a Path.
     """
 
     # we have pdf_path ending in ".pdf" but lilypond will add ".pdf", so
     # remove the extension. Then run LilyPond to create the PDF.
-    if not isinstance(ly_path, (str, Path)):
-        raise ValueError(f"ly_path must be a string or Path, got {ly_path}.")
+    if not isinstance(ly_path, Path):
+        raise ValueError(f"ly_path must be a Path, got {repr(ly_path)}.")
     if not isinstance(pdf_path, (str, Path)):
-        raise ValueError(f"pdf_path must be a string or Path, got {pdf_path}.")
-    pdf_path_obj = Path(pdf_path)
-    output_base = pdf_path_obj.with_suffix("")
+        raise ValueError(f"pdf_path must be a Path, got {repr(pdf_path)}.")
+    output_base = pdf_path.with_suffix("")
     command = ["lilypond", "-o", str(output_base), str(ly_path)]
     result = subprocess.run(command, capture_output=True, text=True)
     if result.returncode != 0:
@@ -116,12 +46,6 @@ def lilypond_to_pdf(
             f"stdout:\n{result.stdout}\n"
             f"stderr:\n{result.stderr}"
         )
-
-    if display:
-        if suppress_external_open():
-            print(f"PDF display suppressed during tests, wrote {pdf_path}.")
-        else:
-            webbrowser.open(pdf_path_obj.resolve().as_uri())  # type: ignore
 
 
 def _add_measure_numbers_to_xml(
@@ -184,17 +108,21 @@ def _add_measure_numbers_to_xml(
     return new_xml_path
 
 
-def musicxml_to_lilypond(
-    xml_path: Path | str, ly_path: Path | str, xml_temp_file=False
+def _musicxml_to_lilypond(
+    xml_path: Path, ly_path: Path, is_temp: bool = False
 ) -> None:
     """Convert a MusicXML file to a LilyPond file.
 
     Parameters
     ----------
-    xml_path : Path | str
+    xml_path : Path
         The path to the MusicXML file.
-    ly_path : Path | str
+    ly_path : Path
         The path to the LilyPond file.
+    is_temp : bool, optional
+        If True, xml_path is a temporary file that can be overwritten with
+        the modified content. If False, a new temporary file will be created
+        if measure numbers need to be added.
 
     Raises
     ------
@@ -228,9 +156,7 @@ def musicxml_to_lilypond(
         )
     measure_tag = xml_content[loc : loc2 + 1]
     if "number=" not in measure_tag:
-        xml_path = _add_measure_numbers_to_xml(
-            xml_content, xml_path, xml_temp_file
-        )
+        xml_path = _add_measure_numbers_to_xml(xml_content, xml_path, is_temp)
 
     # now xml_path is either the original xml_path (if it already had
     # measure numbers) or a new file was created with measure numbers.

@@ -1,6 +1,7 @@
 name: 'Setup R dependencies'
 description: 'Sets up R and required system dependencies'
 runs:
+  using: 'node24'
   using: "composite"
   steps:
     - name: Setup r2u

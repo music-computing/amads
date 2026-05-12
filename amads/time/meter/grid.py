@@ -57,21 +57,26 @@ __author__ = "Mark Gotham"
 from collections import Counter, deque
 from fractions import Fraction
 from numbers import Number
-from typing import Iterable, Optional
+from typing import Iterable, Optional, Sequence
 
 from amads.algorithms.gcd import fraction_gcd
 
 
 def starts_to_int_relative_counter(
-    starts: Iterable[float], decimal_places: int = 5
+    starts: Iterable[float], modulo_reference: int = 1, decimal_places: int = 5
 ):
     """
     Find and count all fractional parts of an iterable.
 
-    Simple wrapper function to create a Counter (dict) that
-    maps the fractional parts of starts ($start - int(start)$, e.g.,
-    1.5 becomes 0.5) to the number of occurrences of that fraction
-    (e.g., starts 1.5 and 2.5 produce the mapping 0.5: 2 in the result).
+    Simple wrapper function to create a Counter (dict) that (by default)
+    maps the fractional parts of starts to the number of occurrences of that fraction.
+    In this default case, default the calculation is bascially $start - int(start)$,
+    so starts 1.5 and 2.5 map to 0.5.
+
+    Alternatively, the modulo reference value does not need to be 1.
+    Set a different `modulo_reference` value
+    to use this for measuring distance since the beginning of measure,
+    for example.
 
     Fractional parts are rounded to `decimal_places` decimal points (default 5),
     which gives a tolerance down to 0.00001 and accommodates common musical
@@ -82,6 +87,11 @@ def starts_to_int_relative_counter(
     >>> test_list = [0.0, 0.0, 0.5, 1.0, 1.5, 1.75, 2.0, 2.3333333333, 2.666667, 3.00000000000000001]
     >>> starts_to_int_relative_counter(test_list)
     Counter({0.0: 5, 0.5: 2, 0.75: 1, 0.33333: 1, 0.66667: 1})
+
+    And now with `modulo_reference`
+    >>> starts_to_int_relative_counter(test_list, modulo_reference=2)
+    Counter({0.0: 3, 1.0: 2, 0.5: 1, 1.5: 1, 1.75: 1, 0.33333: 1, 0.66667: 1})
+
     """
     for item in starts:
         if not isinstance(item, Number):
@@ -89,7 +99,9 @@ def starts_to_int_relative_counter(
                 f"All items in `starts` must be numeric (int or float). Found: {type(item)}"
             )
 
-    return Counter([round(x - int(x), decimal_places) for x in starts])
+    return Counter(
+        [round(x % modulo_reference, decimal_places) for x in starts]
+    )
 
 
 def approximate_pulse_match_with_priority_list(
@@ -165,10 +177,10 @@ def approximate_pulse_match_with_priority_list(
         )  # 1, 1/2, 1/3, ...
 
     for p in pulse_priority_list:
-        if p == 0:  # Ignore 0s
-            continue
-        elif p is None:
+        if p is None:
             raise ValueError("`pulse_priority_list` must not contain None.")
+        elif p == 0:
+            raise ValueError("`pulse_priority_list` must not contain 0.")
         elif not isinstance(p, (Fraction, int)):
             raise ValueError(
                 f"All entries in `pulse_priority_list` must be Fraction or int. Found: {type(p)}"
@@ -297,7 +309,7 @@ def is_genuine_float(num):
 
 
 def get_tatum_from_priorities(
-    starts: Iterable,
+    starts: Sequence,
     pulse_priority_list: Optional[list] = None,
     distance_threshold: float = 1 / 24,
     proportion_threshold: Optional[float] = 0.999,
@@ -328,7 +340,7 @@ def get_tatum_from_priorities(
     Parameters
     ----------
     starts
-        Any iterable giving the starting position of events.
+        Any sequence giving the starting position of events.
         Each constituent start must be expressed relative to a reference value such that
         X.0 is the start of a unit,
         X.5 is the mid-point, etc.
@@ -339,7 +351,7 @@ def get_tatum_from_priorities(
     pulse_priority_list
         The point of this function is to encode musically common pulse values.
         This argument defaults to numbers under 100 with prime
-        factors of only 2 and 3 (“3-smooth”), in increasing order.
+        factors of only 2 and 3 ("3-smooth"), in increasing order.
         The user can define any alternative list, optionally making use of
         `generate_n_smooth_numbers` for the purpose.
         See notes at `approximate_fraction_with_priorities`.
@@ -351,11 +363,11 @@ def get_tatum_from_priorities(
         Defaults to 1/24, but can be set to any value.
     proportion_threshold
         Optionally, set a proportional number of events notes to account for.
-        This option requires that the `starts` be expressed as a Counter,
-        ordered from most to least common.  The default of .999 means that
-        once at least 99.9% of the source's notes are handled, we ignore the rest.
-        This is achieved by iterating through the Counter object of values relative
-        to the unit (e.g., 1.5 -> 0.5).
+        The default of .999 means that once at least 99.9% of the source's notes
+        are handled, we ignore the rest.
+        This is achieved by iterating through the fractional-part Counter of float
+        values (from most to least common) and stopping early once the cumulative
+        proportion of events accounted for exceeds the threshold.
         This option should be chosen with care as, in this case,
         only the unit value and equal divisions thereof are considered.
 
@@ -376,11 +388,11 @@ def get_tatum_from_priorities(
 
     >>> from amads.time.meter import profiles
     >>> bpsd_Op027No1 = profiles.BPSD().op027No1_01 # /16 divisions of the measure and /12 too (from m.48). Tatum 1/48
-    >>> get_tatum_from_priorities(bpsd_Op027No1, distance_threshold=1/24) # proportion_threshold=0.999
+    >>> get_tatum_from_priorities(bpsd_Op027No1, distance_threshold=1/24)
     Fraction(1, 48)
 
     Change the `distance_threshold`
-    >>> get_tatum_from_priorities(bpsd_Op027No1, distance_threshold=1/6) # proportion_threshold=0.999
+    >>> get_tatum_from_priorities(bpsd_Op027No1, distance_threshold=1/6)
     Fraction(1, 12)
 
     Change the `proportion_threshold`:
@@ -404,6 +416,11 @@ def get_tatum_from_priorities(
     >>> get_tatum_from_priorities([28.0, 29.0, 29.5, 30.0, 32.0, 33.0, 34.0, 36.0, 38.0, 40.0])
     Fraction(1, 2)
     """
+    starts = list(starts)  # materialise so len() and multiple iterations work
+
+    if not starts:
+        raise ValueError("`starts` must not be empty.")
+
     floats, ints_fractions = [], []
     for num in starts:
 
@@ -416,18 +433,32 @@ def get_tatum_from_priorities(
             if is_genuine_float(num):
                 floats.append(num)
             else:
-                assert int(num) == num
+                if int(num) != num:
+                    raise ValueError(
+                        f"Unexpected error with {num}. "
+                        "Established to be of float type, and the function `is_genuine_float` return False, "
+                        "but `iint(num) != num`."
+                    )
                 ints_fractions.append(int(num))
 
         else:
-            assert isinstance(num, (int, Fraction))
+            if not isinstance(num, (int, Fraction)):
+                raise ValueError(
+                    f"All `starts` must be int, float, or Fraction. Found: {num} of type {type(num)}"
+                )
             ints_fractions.append(num)
 
-    working_gcd = fraction_gcd(ints_fractions)
-    if len(floats) == 0:
-        return working_gcd  # No further action
+    if ints_fractions:
+        working_gcd = fraction_gcd(ints_fractions)
+        pulses_needed = [working_gcd] if working_gcd != 0 else []
     else:
-        pulses_needed = [working_gcd]
+        working_gcd = None
+        pulses_needed = []
+
+    if not floats:
+        if working_gcd is None:
+            raise ValueError("`starts` must not be empty.")
+        return working_gcd
 
     if not 0.0 < distance_threshold < 1.0:
         raise ValueError(
@@ -460,9 +491,12 @@ def get_tatum_from_priorities(
             )
         total = len(starts)
         cumulative_count = len(ints_fractions) / total
-        starts = starts_to_int_relative_counter(floats)
+        float_counter = starts_to_int_relative_counter(floats)
+        iteration = float_counter.most_common()
+    else:
+        iteration = [(x, None) for x in floats]
 
-    for x in floats:
+    for x, count in iteration:
         if (x > 0) and (
             approximate_pulse_match_with_priority_list(
                 x,
@@ -485,11 +519,11 @@ def get_tatum_from_priorities(
                 )
 
         if use_proportion:
-            cumulative_count += starts[x] / total
+            cumulative_count += count / total
             if cumulative_count > proportion_threshold:
                 break
 
-    return fraction_gcd(pulses_needed)
+    return fraction_gcd(pulses_needed) if pulses_needed else Fraction(0)
 
 
 # -----------------------------------------------------------------------------

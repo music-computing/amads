@@ -24,6 +24,7 @@ __author__ = "Roger B. Dannenberg"
 
 import warnings
 from math import isclose
+from pathlib import Path
 from typing import cast
 
 from pretty_midi import PrettyMIDI, program_to_instrument_name
@@ -205,7 +206,7 @@ def has_staff(part):
 
 
 def pretty_midi_import(
-    filename: str,
+    filename: str | Path,
     format: str,
     flatten: bool = False,
     collapse: bool = False,
@@ -219,7 +220,7 @@ def pretty_midi_import(
 
     Parameters
     ----------
-    filename : Union(str, PosixPath)
+    filename : Union(str, Path)
         The path to the MIDI file to import.
     format : str
         The format of the MIDI file. Must be "midi".
@@ -251,7 +252,7 @@ def pretty_midi_import(
     """
     flatten = flatten or collapse  # collapse implies flatten
 
-    # Load the MIDI file using PrettyMidi
+    # Load the MIDI file using PrettyMIDI
     filename = str(filename)
     pmscore = PrettyMIDI(filename)
     if show:
