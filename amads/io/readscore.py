@@ -305,7 +305,7 @@ def _import_score(
                 f"file={import_fn.__name__}."
             )
         return import_fn(
-            filename, format, flatten, collapse, show, group_by_instrument
+            str(filename), format, flatten, collapse, show, group_by_instrument
         )
     elif preferred_reader:
         raise Exception(

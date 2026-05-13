@@ -31,19 +31,127 @@ from amads.core.basics import (
 )
 from amads.io.m21_show import music21_show
 
-tied_notes = {}  # temporary data to track tied notes, this is a mapping
-# from key number to Note object for notes that originate a tie. When we
-# see a note that ends or continues a tie, we look up the origin of the
-# tie in this dictionary and link it to the note that ends or continues
-# the tie. Note that we do not encode 'let-ring' or 'continue-let-ring'
-# in the AMADS data model, so we ignore those cases.
-#     It is possible for notes to overlap in time and be tied. What ties
-# to what in Music21 (as well as MIDI files) is ambiguous in this case,
-# but ignoring overlapping ties would create multiple notes when there
-# was only one in the MIDI file, so when there is overlap, we map from
-# pitch to a list of notes that originate unterminated ties for this
-# pitch. When a tie is terminated, we tie from the first note in the
-# list. (First-in-first-out).
+
+class _TiedNotes:
+    """Temporary data to track tied notes.
+
+    This is a mapping from key number to Note object for notes that
+    originate a tie. When we see a note that ends or continues a tie, we
+    look up the origin of the tie in this dictionary and link it to the note
+    that ends or continues the tie. Note that we do not encode 'let-ring' or
+    'continue-let-ring' in the AMADS data model, so we ignore those cases.
+
+    You might expect that if you encounter a tied note at a certain
+    pitch, then the next note at that pitch would be the note that the tie
+    connects to, but surprisingly, things are not so simple. As far as I
+    can tell, the order of notes is pretty arbitrary, maybe because of
+    voices, which are apparently created when notes are tied or beamed or
+    have stems in opposite directions, or even when you have notes of
+    different durations that overlap.
+
+    In any case, it seems to be ambiguous how ties connect. (Music
+    notation itself is ambiguous, e.g., does a tie from a chord to a chord
+    tie all notes in the chords or just one?) When we get a "start" tie
+    for pitch P, we set tied_notes[P] to the corresponding AMADS Note. If
+    tied_notes[P] already exists, we convert it to a list and put the Note
+    on the list. Then, when we find a note that continues or ends a tie,
+    we search tied_notes[P] for the best match, noting that tied notes
+    are not necessarily adjacent (n1.offset may not be exactly n2.onset).
+    """
+
+    tied_notes: Dict[int, Note | list[Note]]
+
+    def __init__(self):
+        self.tied_notes = {}
+
+    def insert_start_note(self, key_num: int, note: Note) -> None:
+        if key_num in self.tied_notes:
+            tied_note = self.tied_notes[key_num]
+            if isinstance(tied_note, list):
+                tied_note.append(note)
+            else:
+                self.tied_notes[key_num] = [tied_note, note]
+        else:
+            self.tied_notes[key_num] = note
+
+    def find_and_remove_predecessor(
+        self, choices: list[Note], note: Note
+    ) -> Note:
+        """find closest thing to an immediate predecessor to note in choices"""
+        # this will search for the note p in choices with an offset that is
+        # closest to the onset of note, i.e., where p and note are adjacent:
+        pred = min(choices, key=lambda p: abs(note.onset - p.offset))
+        # now remove pred from tied_notes
+        choices.remove(pred)
+        return pred
+
+    def continue_note(self, key_num: int, note: Note) -> None:
+        if key_num in self.tied_notes:
+            origin = self.tied_notes[key_num]
+            if isinstance(origin, list):
+                origin_note = self.find_and_remove_predecessor(origin, note)
+                origin.append(note)  # this note is tied to something too
+                origin = origin_note
+
+            else:  # there is only one note that can be the predecessor.
+                # since note is labeled "continue", it becomes a predecessor
+                self.tied_notes[key_num] = note
+            if abs(note.onset - origin.offset > 0.1):
+                warnings.warn(
+                    f"music21 note (key_num {key_num} at beat "
+                    f"{note.onset} continues a tie but the best "
+                    f"candidate for its predecessor (at beat "
+                    f"{origin.onset} is not adjacent. It ends at "
+                    f"beat {origin.offset}. Tying to it anyway."
+                )
+            origin.tie = note
+        else:  # missing start note
+            warnings.warn(
+                f"music21 note (key_num {key_num} at beat"
+                f" {note.onset}) continues a tie, but there is no"
+                " start note for that pitch. The tie is ignored."
+            )
+
+    def stop_note(self, key_num: int, note: Note) -> None:
+        if key_num in self.tied_notes:
+            origin = self.tied_notes[key_num]
+            if isinstance(origin, list):
+                origin_note = self.find_and_remove_predecessor(origin, note)
+                if len(origin) == 1:  # restore to non-list single note
+                    self.tied_notes[key_num] = origin[0]
+                origin = origin_note
+            else:
+                del self.tied_notes[key_num]  # remove the origin
+            if abs(note.onset - origin.offset > 0.1):
+                warnings.warn(
+                    f"music21 note (key_num {key_num} at beat "
+                    f"{note.onset} ends a tie but the best "
+                    f"candidate for its predecessor (at beat "
+                    f"{origin.onset} is not adjacent. It ends at "
+                    f"beat {origin.offset}. Tying to it anyway."
+                )
+            origin.tie = note
+        else:  # missing start note
+            warnings.warn(
+                f"music21 note (key_num {key_num} at beat"
+                f" {note.onset}) ends a tie, but there is no start"
+                " note for that pitch. The tie is ignored."
+            )
+
+    def has_open_ties(self) -> bool:
+        return len(self.tied_notes) > 0
+
+    def get_predecessors(self) -> list[Note]:
+        """Get a list of all the predecessor notes that have not been matched
+        with a note that continues or ends the tie.
+        """
+        preds = []
+        for tied_note in self.tied_notes.values():
+            if isinstance(tied_note, list):
+                preds.extend(tied_note)
+            else:
+                preds.append(tied_note)
+        return preds
 
 
 def music21_import(
@@ -272,65 +380,17 @@ def music21_convert_tie(key_num: int, note: Note, tie_type: str) -> None:
     tie_type : str
         the tie type, one of "start", "continue", "stop"
     """
+    global tied_notes
+    assert tied_notes is not None  # initialized in music21_convert_part
+    print("music21_convert_tie type", tie_type, note)
+    print("    tied_notes", repr(tied_notes))
     if tie_type == "start":
         # Start of a tie
-        if key_num in tied_notes:
-            # If the note is already tied, we should not see "start":
-            import warnings
-
-            warnings.warn(
-                f"music21 note (key_num {key_num} at beat"
-                f" {note.onset}) starts a tie, but there is already"
-                " an open tie for that pitch. Maybe MIDI file has"
-                " multiple note-on events without an intervening"
-                " note-off event."
-            )
-            # make a list of started ties
-            tied_note = tied_notes[key_num]
-            if isinstance(tied_note, list):
-                tied_note.append(note)
-            else:
-                tied_notes[key_num] = [tied_note, note]
-        else:
-            tied_notes[key_num] = note
+        tied_notes.insert_start_note(key_num, note)
     elif tie_type == "continue":  # Continuation of a tie
-        if key_num in tied_notes:
-            origin = tied_notes[key_num]
-            if isinstance(origin, list):
-                origin_note = origin.pop(0)
-                origin_note.tie = note
-                origin.append(note)  # this note is tied to something too
-                origin = origin_note
-            else:
-                tied_notes[key_num] = note  # to be continued :-)
-            origin.tie = note
-        else:  # missing start note
-            import warnings
-
-            warnings.warn(
-                f"music21 note (key_num {key_num} at beat"
-                f" {note.onset}) continues a tie, but there is no"
-                " start note for that pitch."
-            )
+        tied_notes.continue_note(key_num, note)
     elif tie_type == "stop":  # End of a tie
-        if key_num in tied_notes:
-            origin = tied_notes[key_num]
-            if isinstance(origin, list):
-                origin_note = origin.pop(0)
-                if len(origin) == 1:  # restore to non-list single note
-                    tied_notes[key_num] = origin[0]
-                origin = origin_note
-            else:
-                del tied_notes[key_num]  # remove the origin
-            origin.tie = note
-        else:  # missing start note
-            import warnings
-
-            warnings.warn(
-                f"music21 note (key_num {key_num} at beat"
-                f" {note.onset}) ends a tie, but there is no start"
-                " note for that pitch."
-            )
+        tied_notes.stop_note(key_num, note)
 
 
 def music21_convert_rest(m21rest, measure):
@@ -557,7 +617,7 @@ def music21_convert_part(m21part, score, duration):
         name = None
     part = Part(parent=score, instrument=name, duration=duration)
     staff = Staff(parent=part)  # Assuming a single staff for simplicity
-    tied_notes.clear()
+    tied_notes = _TiedNotes()  # reset tied notes tracking for this part
     # Iterate over elements in the music21 part
     for element in m21part.iter():
         if isinstance(element, stream.Measure):
@@ -569,13 +629,13 @@ def music21_convert_part(m21part, score, duration):
             warnings.warn(
                 f"music21_convert_part ignoring non-Measure element: {element}"
             )
-    if len(tied_notes.keys()) > 0:
+    if tied_notes.has_open_ties():
         warnings.warn(
             f"music21_convert_part: tied notes in {part} from these"
             f" notes were not closed at the end of the part:"
-            f" {tied_notes.values()}"
+            f" {tied_notes.get_predecessors()}"
         )
-    tied_notes.clear()
+    tied_notes = None  # type: ignore , free memory used by tied notes tracking
     staff.offset = staff.content[-1].offset
 
     shift = 0  # how much did we shift to make a full measure 1?

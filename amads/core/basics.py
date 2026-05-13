@@ -1738,7 +1738,7 @@ class EventGroup(Event):
             a list of sorted notes with merged ties
         """
         if has_ties:
-            # score will have one Part, content of which is all Notes:
+            # after flatten, score will have one Part with all Notes:
             return self.flatten(collapse=True).content[0].content  # type: ignore
         else:
             notes : List[Note] = cast(List[Note], self.list_all(Note))
