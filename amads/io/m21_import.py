@@ -382,8 +382,6 @@ def music21_convert_tie(key_num: int, note: Note, tie_type: str) -> None:
     """
     global tied_notes
     assert tied_notes is not None  # initialized in music21_convert_part
-    print("music21_convert_tie type", tie_type, note)
-    print("    tied_notes", repr(tied_notes))
     if tie_type == "start":
         # Start of a tie
         tied_notes.insert_start_note(key_num, note)
