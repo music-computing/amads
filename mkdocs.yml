@@ -119,6 +119,8 @@ nav:
       - reference/algorithms/ngrams.md
       - reference/algorithms/nnotes.md
       - reference/algorithms/norm.md
+      - reference/algorithms/remove_overlap.md
+      - reference/algorithms/scores_compare.md
       - reference/algorithms/scale.md
       - reference/algorithms/slice.md
     - Schemata: reference/schema.md

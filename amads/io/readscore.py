@@ -487,7 +487,7 @@ def read_score(
                     "  Use amads.io.readscore.set_reader_warning_level() "
                     "for more details."
                 )
-        else:  # "none", "default", or "high"
+        else:  # "none", "default", or "high", but w is empty if "none"
             for warning in w:
                 print(
                     f"{warning.filename}:{warning.lineno}: "
