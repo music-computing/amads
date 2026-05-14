@@ -3,7 +3,7 @@ Pitch interval transition analysis.
 
 Implements the Midi Toolbox `ivdist2` function
 
-Original doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=64
+Original doc: https://github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf, page 65.
 """
 
 from typing import cast
@@ -22,6 +22,8 @@ def interval_distribution_2(
 ) -> Distribution:
     """
     Returns the 2nd-order interval distribution of a musical score.
+
+    This is an implementation of the ivdist2 function in Matlab MIDItoolbox.
 
     Currently, intervals greater than an octave will be ignored.
 

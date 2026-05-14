@@ -3,7 +3,7 @@ This module provides the `pitch_class_distribution_2` function.
 
 Implements the Midi Toolbox `pcdist2` function.
 
-Original doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=81.
+Original doc: https://github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf, page 82.
 """
 
 from typing import cast
@@ -48,6 +48,8 @@ def pitch_class_distribution_2(
     miditoolbox_compatible: bool = False,
 ) -> Distribution:
     """Returns the 2nd order pitch-class distribution of a musical score.
+
+    This is an implementation of the pcdist2 function in Matlab MIDItoolbox.
 
     Parameters
     ----------

@@ -4,7 +4,7 @@ Number of notes per quarter or second in a Score.
 Author:
     Tai Nakamura (2025)
 
-Original Doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=77
+Original Doc: github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf, page 78.
 """
 
 from typing import Optional
@@ -17,6 +17,8 @@ __author__ = "Tai Nakamura"
 def note_density(score: Score, timetype: Optional[str] = "quarters") -> float:
     """
     Returns the number of notes per quarter or per second in a Score as a float.
+
+    This is an implementation of the notedensity function in Matlab MIDItoolbox.
 
     Specifically, compute note density as (number of notes - 1) divided by
     the time span from the first note onset to the last note onset.
