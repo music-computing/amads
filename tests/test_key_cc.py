@@ -7,12 +7,54 @@ from amads.io.readscore import read_score
 from amads.music import example
 from amads.pitch.key.key_cc import key_cc
 
+# C major diatonic: ascend to high C, descend from B (no repeated high C at the turn).
+C_MAJOR_SCALE_UP_SI_DOWN = [
+    60,
+    62,
+    64,
+    65,
+    67,
+    69,
+    71,
+    72,
+    71,
+    69,
+    67,
+    65,
+    64,
+    62,
+    60,
+]
 
-def test_error_handling():
+
+def test_error_handling(capsys):
     """Invalid attribute name should return None"""
     score = Score.from_melody([60, 62, 64])
     result = key_cc(score, prof.krumhansl_kessler, ["invalid_attribute"])
     assert result == [("invalid_attribute", None)]
+    captured = capsys.readouterr()
+    assert (
+        "Warning: Attribute 'invalid_attribute' is invalid or None"
+        in captured.out
+    )
+
+
+def test_metadata_attributes_return_none(capsys):
+    """Reserved profile metadata names yield None and emit a warning."""
+    score = Score.from_melody([60, 62, 64])
+    result = key_cc(
+        score, prof.krumhansl_kessler, ["name", "literature", "about"]
+    )
+    assert result == [
+        ("name", None),
+        ("literature", None),
+        ("about", None),
+    ]
+    captured = capsys.readouterr()
+    assert (
+        captured.out.count("Warning! Attempting to access metadata in profile")
+        == 3
+    )
 
 
 def test_empty_melody():
@@ -54,8 +96,7 @@ def test_crafted_nonempty_melodies():
     These melodies are here to test the various codepaths and are specific
     to the implementation itself...
     """
-    # C major scale
-    score = Score.from_melody([60, 62, 64, 65, 67, 69, 71, 72])
+    score = Score.from_melody(C_MAJOR_SCALE_UP_SI_DOWN)
 
     # transpositionally equivalent
     result = key_cc(score, prof.bellman_budge, ["major", "minor"])
@@ -79,7 +120,7 @@ def test_crafted_nonempty_melodies():
 
 
 def test_salience():
-    score = Score.from_melody([60, 62, 64, 65, 67, 69, 71, 72])
+    score = Score.from_melody(C_MAJOR_SCALE_UP_SI_DOWN)
     result = key_cc(
         score, prof.bellman_budge, ["major", "minor"], salience_flag=True
     )
@@ -88,35 +129,35 @@ def test_salience():
         (
             "major",
             (
-                0.91269250175412,
-                -0.7487980568570414,
-                0.3831455804244438,
-                -0.2403214013870691,
-                -0.12991952699984174,
-                0.6151931033572154,
-                -0.8619783953942095,
-                0.7959468120362349,
-                -0.44534607214102767,
-                0.11127537312370366,
-                0.1414059123565155,
-                -0.5332958302730434,
+                0.8946216389191981,
+                -0.7917203140435142,
+                0.4690501109300461,
+                -0.3038150197974315,
+                -0.06089579038695738,
+                0.5613097618547702,
+                -0.842883055050783,
+                0.8200972956046265,
+                -0.5401071624560434,
+                0.19791784388918282,
+                0.10818994401403131,
+                -0.5117652534771258,
             ),
         ),
         (
             "minor",
             (
-                0.5122258362978889,
-                -0.4512145246564831,
-                0.3454593728930353,
-                -0.6159365356889505,
-                0.46487216789241365,
-                0.15021417133013423,
-                -0.4536556405976428,
-                0.42387649045308,
-                -0.5364189966155352,
-                0.5830992373851366,
-                -0.33248273987015997,
-                -0.09003883882291706,
+                0.45816191343350293,
+                -0.47983237584213273,
+                0.41323904250398913,
+                -0.6198856626342721,
+                0.4979462086597562,
+                0.0578392174389019,
+                -0.37274546359384036,
+                0.39656734129614657,
+                -0.5560791936487984,
+                0.620941340675419,
+                -0.3708595387599168,
+                -0.04529282952875498,
             ),
         ),
     ]
