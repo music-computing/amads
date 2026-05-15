@@ -2,7 +2,7 @@
 
 Filters notes whose onsets fall within a given time window.
 
-Original doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=80
+Original doc: https://github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf, page 81
 """
 
 from typing import Iterable, List, Optional, Union

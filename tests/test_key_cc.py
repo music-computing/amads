@@ -27,11 +27,34 @@ C_MAJOR_SCALE_UP_SI_DOWN = [
 ]
 
 
-def test_error_handling():
+def test_error_handling(capsys):
     """Invalid attribute name should return None"""
     score = Score.from_melody([60, 62, 64])
     result = key_cc(score, prof.krumhansl_kessler, ["invalid_attribute"])
     assert result == [("invalid_attribute", None)]
+    captured = capsys.readouterr()
+    assert (
+        "Warning: Attribute 'invalid_attribute' is invalid or None"
+        in captured.out
+    )
+
+
+def test_metadata_attributes_return_none(capsys):
+    """Reserved profile metadata names yield None and emit a warning."""
+    score = Score.from_melody([60, 62, 64])
+    result = key_cc(
+        score, prof.krumhansl_kessler, ["name", "literature", "about"]
+    )
+    assert result == [
+        ("name", None),
+        ("literature", None),
+        ("about", None),
+    ]
+    captured = capsys.readouterr()
+    assert (
+        captured.out.count("Warning! Attempting to access metadata in profile")
+        == 3
+    )
 
 
 def test_empty_melody():
