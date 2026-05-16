@@ -1,6 +1,7 @@
 """Plot a score using a piano roll visualization.
 
-Based on `pianoroll` in Matlab MIDI Toolbox. [Original documentaion is here.](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=82)
+Based on `pianoroll` in Matlab MIDI Toolbox.
+[Original documentaion is here.](github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf), page 83.
 """
 
 from typing import cast
@@ -22,6 +23,8 @@ def pianoroll(
     show: bool = True,
 ) -> figure.Figure:
     """Converts a Score to a piano roll display of a musical score.
+
+    Based on the pianoroll function in Matlab MIDItoolbox.
 
     You can also create a piano roll display with
     `set_preferred_display_method("pianoroll")` and calling `display_score()`.

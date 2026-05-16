@@ -305,7 +305,7 @@ def _import_score(
                 f"file={import_fn.__name__}."
             )
         return import_fn(
-            filename, format, flatten, collapse, show, group_by_instrument
+            str(filename), format, flatten, collapse, show, group_by_instrument
         )
     elif preferred_reader:
         raise Exception(
@@ -487,7 +487,7 @@ def read_score(
                     "  Use amads.io.readscore.set_reader_warning_level() "
                     "for more details."
                 )
-        else:  # "none", "default", or "high"
+        else:  # "none", "default", or "high", but w is empty if "none"
             for warning in w:
                 print(
                     f"{warning.filename}:{warning.lineno}: "

@@ -4,7 +4,7 @@ Provides the `duration_distribution_1` function.
 
 Can emulate the `ivdurdist1` function in Midi Toolbox.
 
-Original doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=58
+Original doc: github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf, page 59.
 """
 
 from typing import Union, cast
@@ -25,6 +25,8 @@ def duration_distribution_1(
 ) -> Distribution:
     r"""
     Returns the distribution of note durations in a Score.
+
+    This is an implementation of the durdist1 function in Matlab MIDItoolbox.
 
     Each duration is assigned to a bin according to its value.
 

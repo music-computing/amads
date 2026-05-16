@@ -3,7 +3,7 @@ Pitch class distribution analysis.
 
 Implements the Midi Toolbox `pcdist1` function.
 
-Original doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=80.
+Original doc: https://github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf, page 81.
 """
 
 import math
@@ -49,6 +49,8 @@ def pitch_class_distribution_1(
 ) -> Distribution:
     """
     Calculate the pitch-class distribution of a note collection.
+
+    This is an implementation of the pcdist1 function in the Matlab MIDItoolbox.
 
     Parameters
     ----------

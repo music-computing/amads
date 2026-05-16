@@ -1,7 +1,7 @@
 """
 Calculate the relative entropy of a distribution. (MTB)
 
-Original doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=60
+Original doc: https://github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf, page 61
 """
 
 from typing import List
@@ -14,6 +14,8 @@ def entropy(
 ) -> float:
     """
     Calculate the relative entropy of a distribution.
+
+    This is an implementation of the entropy function in the Matlab MIDItoolbox.
 
     This function computes the relative entropy (also known as normalized
     entropy) of a given distribution `d`. The result is a value between 0

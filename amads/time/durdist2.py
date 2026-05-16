@@ -4,7 +4,7 @@ Provides the `duration_distribution_2` function.
 
 Can emulate the `ivdurdist2` function in Midi Toolbox.
 
-Original doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=59
+Original Doc: github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf, page 60.
 """
 
 from typing import Optional, Union, cast
@@ -26,7 +26,9 @@ def duration_distribution_2(
     r"""
     Returns the 2nd-order duration distribution of a musical score.
 
-     Each duration is assigned to one of 9 bins.
+    This is an implementation of the durdist2 function in Matlab MIDItoolkit.
+
+    Each duration is assigned to one of 9 bins.
     The default centers of the bins are on a logarithmic scale as follows:
 
     | component | bin center (in units of quarters) |
