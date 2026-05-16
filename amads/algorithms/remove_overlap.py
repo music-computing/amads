@@ -20,6 +20,10 @@ def remove_overlap(
     from rounding errors. This function can be used to clean up
     these cases.
 
+    Caution: Grace notes read from musicXML files are often represented
+    as starting at the same time as the main note they ornament. Depending
+    on pitches, this could cause the grace note to be removed by this function.
+
     When producing MIDI output for playback, there is a risk of
     rounding error causing a note-on to be placed immediately *before*
     the note-off of a prceding note of the same pitch. This can cause

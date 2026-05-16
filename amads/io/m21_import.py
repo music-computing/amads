@@ -79,15 +79,33 @@ class _TiedNotes:
     ) -> Note:
         """find closest thing to an immediate predecessor to note in choices"""
         # this will search for the note p in choices with an offset that is
-        # closest to the onset of note, i.e., where p and note are adjacent:
-        pred = min(choices, key=lambda p: abs(note.onset - p.offset))
+        # closest to the onset of note, i.e., where p and note are adjacent.
+        # Strangely, a grace note with duration zero has its onset equal
+        # to its offset, so it is "adjacent" to itself. Be careful not to
+        # tie a grace note to itself. Another strange possibility is a grace
+        # tied to a grace tied to a longer note. Both the 2nd grace and the
+        # longer note are "adjacent" to the first grace note, but we want to
+        # tie to the 2nd grace note so it can then tie to the longer note.
+        best = None
+        best_delta = 999999.0
+        for candidate in choices:
+            if (
+                note != candidate
+                and abs(note.onset - candidate.offset) < best_delta
+            ):
+                # test durations and tie to the shortest
+                if not best or candidate.duration < best.duration:
+                    best = candidate
+        if best is None:
+            return None
         # now remove pred from tied_notes
-        choices.remove(pred)
-        return pred
+        choices.remove(best)
+        return best
 
     def continue_note(self, key_num: int, note: Note) -> None:
         if key_num in self.tied_notes:
             origin = self.tied_notes[key_num]
+            print("continue_note: origin", origin, "note", note)
             if isinstance(origin, list):
                 origin_note = self.find_and_remove_predecessor(origin, note)
                 origin.append(note)  # this note is tied to something too
@@ -105,6 +123,8 @@ class _TiedNotes:
                     f"beat {origin.offset}. Tying to it anyway."
                 )
             origin.tie = note
+            print("    continue_note set tie:")
+            origin.show()
         else:  # missing start note
             warnings.warn(
                 f"music21 note (key_num {key_num} at beat"
@@ -115,6 +135,8 @@ class _TiedNotes:
     def stop_note(self, key_num: int, note: Note) -> None:
         if key_num in self.tied_notes:
             origin = self.tied_notes[key_num]
+            print("stop_note: origin", origin, "note", note)
+            note.parent.show()
             if isinstance(origin, list):
                 origin_note = self.find_and_remove_predecessor(origin, note)
                 if len(origin) == 1:  # restore to non-list single note
@@ -131,6 +153,8 @@ class _TiedNotes:
                     f"beat {origin.offset}. Tying to it anyway."
                 )
             origin.tie = note
+            print("    stop_note made tie:")
+            origin.show()
         else:  # missing start note
             warnings.warn(
                 f"music21 note (key_num {key_num} at beat"
@@ -339,6 +363,13 @@ def music21_to_score(
 
     if flatten or collapse:
         score = score.flatten(collapse=collapse)
+    else:
+        if shared_shift > 0.001:
+            # parts are shifted but not measures and time signatures.
+            # shared_shift is in beats
+            score.time_map._time_shift(shared_shift)
+            score._timesignatures_shift(shared_shift)
+
     return score
 
 
@@ -364,6 +395,8 @@ def music21_convert_note(m21note, measure):
         duration=duration,
         dynamic=dynamic,
     )
+    if m21note.duration.isGrace:
+        note.set("is_grace", True)
     if m21note.tie is not None:
         music21_convert_tie(m21note.pitch.midi, note, m21note.tie.type)
 
@@ -382,6 +415,7 @@ def music21_convert_tie(key_num: int, note: Note, tie_type: str) -> None:
     """
     global tied_notes
     assert tied_notes is not None  # initialized in music21_convert_part
+    print("music21_convert_tie: note", note, "tie_type", tie_type)
     if tie_type == "start":
         # Start of a tie
         tied_notes.insert_start_note(key_num, note)
@@ -509,7 +543,7 @@ def append_items_to_measure(
             ts = measure.time_signature()
             if ts.upper != upper or ts.lower != lower:
                 last_ts = measure.score.time_signatures[-1]  # type: ignore
-                if last_ts.time > measure.onset:
+                if last_ts.quarters > measure.onset:
                     warnings.warn(
                         "Encountered a new Music21 time signature"
                         " placed BEFORE an earlier time signature:"

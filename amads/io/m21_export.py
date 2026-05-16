@@ -183,7 +183,11 @@ def _add_measure_content_from_list(m21parent, measure, content, dur, ties):
         if isinstance(item, Note):
             m21note = note.Note(nameWithOctave=item.name_with_octave)
             m21note.offset = measure_delta
-            m21note.duration.quarterLength = duration
+            if duration == 0 or item.get("is_grace"):
+                grace_ql = duration if duration > 0 else 0.25
+                m21note.duration = m21Duration(grace_ql).getGraceDuration()
+            else:
+                m21note.duration.quarterLength = duration
             if isinstance(item.dynamic, int):
                 m21note.volume.velocity = item.dynamic
             # otherwise, use default because I am not sure how
@@ -191,15 +195,23 @@ def _add_measure_content_from_list(m21parent, measure, content, dur, ties):
             m21parent.insert(m21note.offset, m21note)
             # if note is tied or tied to, enter it in ties:
             if item.tie:  # item is tied to item.tie
+                # I think if (item in ties) it must be because it is tied to,
+                # but we'll use the tied_to field just in case.
                 is_tied_to = (item in ties) and ties[item][1]
                 ties[item] = (m21note, is_tied_to)
                 # set ties[item.tie]'s is_tied_to field to True
+                # I don't expect ties[item.tie] to even exist, but if it does,
+                # we've already created the m21 note corresponding to item.tie
+                # and need to maintain the mapping from AMADS Note to m21 note:
                 tied_to_m21 = None
                 if item.tie in ties:
                     tied_to_m21 = ties[item.tie][0]
                 ties[item.tie] = (tied_to_m21, True)
             if (item in ties) and (ties[item][0] is None):
-                # update entry with m21note
+                # update entry with m21note. This happens when we executed
+                # ties[item.tie] = (tied_to_m21, True) just above, but we
+                # did not yet create the m21 note corresponding to item. We
+                # have it now, so save the mapping now:
                 ties[item] = (m21note, ties[item][1])
         elif isinstance(item, Rest):
             m21rest = note.Rest()
@@ -207,13 +219,23 @@ def _add_measure_content_from_list(m21parent, measure, content, dur, ties):
             m21rest.duration.quarterLength = duration
             m21parent.insert(m21rest.offset, m21rest)
         elif isinstance(item, Chord):
-            pitches = [
-                n.name_with_octave for n in item.find_all(Note)  # type: ignore
-            ]
+            amads_notes: list[Note] = item.list_all(Note)  # type: ignore
+            pitches = [n.name_with_octave for n in amads_notes]
             m21chord = chord.Chord(pitches)
             m21chord.offset = measure_delta
             m21chord.duration.quarterLength = duration
             m21parent.insert(m21chord.offset, m21chord)
+            # handle ties on individual notes within the chord
+            for amads_note, m21note in zip(amads_notes, m21chord.notes):
+                if amads_note.tie:
+                    is_tied_to = (amads_note in ties) and ties[amads_note][1]
+                    ties[amads_note] = (m21note, is_tied_to)
+                    tied_to_m21 = None
+                    if amads_note.tie in ties:
+                        tied_to_m21 = ties[amads_note.tie][0]
+                    ties[amads_note.tie] = (tied_to_m21, True)
+                if (amads_note in ties) and (ties[amads_note][0] is None):
+                    ties[amads_note] = (m21note, ties[amads_note][1])
 
     if max_offset < measure.offset - 1e-6:
         # need a rest to fill out the measure in Music21,
@@ -259,9 +281,11 @@ def _score_to_music21(
         m21score.insert(map_quarter.quarter, tempo.MetronomeMark(number=mm))
 
     ties = {}  # map from AMADS Note to (note.Note, tied_to)
-    # where note.Note is the music21 note corresponding to the key or
-    #     None if not processed yet, and tied_to is True if there is an
-    #     incoming tie. (Outgoing ties can be detected by key.tie attribute)
+    # The keys (AMADS Notes) are every Note with a tie or that is tied to.
+    # The keys map to the m21 note and a boolean, giving 3 cases:
+    # the m21 note should "start" a tie if the key has a tie and is not tied_to
+    # the m21 note should "continue" if the key has a tie and is tied_to
+    # the m21 note should "stop" if the key has no tie but is tied_to
 
     time_sigs = score.time_signatures
     for part_num, part in enumerate(score.find_all(Part)):
@@ -301,7 +325,7 @@ def _score_to_music21(
                     number=num, duration=m21Duration(measure.duration)
                 )
                 # add time signature change if any
-                if isclose(time_sig.time, measure.onset, abs_tol=1e-3):
+                if isclose(time_sig.quarters, measure.onset, abs_tol=1e-3):
                     if time_sig.upper != round(time_sig.upper):
                         raise ValueError(
                             "Cannot export fractional time"
@@ -310,7 +334,9 @@ def _score_to_music21(
                     ts_element = m21TimeSignature(
                         f"{round(time_sig.upper)}/{time_sig.lower}"
                     )
-                    m21measure.insert(time_sig.time - measure.onset, ts_element)
+                    m21measure.insert(
+                        time_sig.quarters - measure.onset, ts_element
+                    )
                     # move to the next time_sig, if any left. If not, we do
                     # not change time_sig, but since subsequent measures have
                     # greater onset times, we won't try to add another time_sig
@@ -358,10 +384,12 @@ def _score_to_music21(
 
     # fix up ties
     for amads_note in ties.keys():
+        print("*** amads_note in ties.keys()", amads_note)
         # amads_note.tie points to the next note in the tie (or None if no
         # outgoing tie) is_tied_to indicates if there's an incoming tie
         # from a previous note
         (m21note, is_tied_to) = ties[amads_note]
+        print("    *** m21note", m21note, "is_tied_to", is_tied_to)
 
         if m21note is None:  # note was tied to but we never put the tied-to
             # note into the m21score!
@@ -378,6 +406,7 @@ def _score_to_music21(
         elif not amads_note.tie and is_tied_to:
             # Note is not tied to the next note, but is tied from a prev. note
             m21note.tie = tie.Tie("stop")
+            print("*** set tie to 'stop' on", m21note)
         elif not amads_note.tie and not is_tied_to:
             # No tie at all - don't set tie attribute
             pass

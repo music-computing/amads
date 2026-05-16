@@ -344,7 +344,7 @@ def partitura_convert_part(
             ts = score._find_time_signature(onset + 1e-6)
             if ts.upper != upper or ts.lower != lower:
                 last_ts = score.time_signatures[-1]
-                if last_ts.time > onset:
+                if last_ts.quarters > onset:
                     warnings.warn(
                         "Encountered a new Partitura time signature"
                         " placed BEFORE an earlier time signature:"
