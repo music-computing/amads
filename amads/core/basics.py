@@ -2327,32 +2327,35 @@ class EventGroup(Event):
         mode : Optional[str]
             The slicing mode, ignored if units is "measures" or "bars".
             Valid values are:
-                - "onsets" - include events that start within bounds (default)
-                - "overlaps" - include events that overlap (either onset or
-                               offset) is within the bounds. An event ending
-                               is considered to overlap if its offset is
-                               greater than start.
-                - "offsets" - include events that end within the bounds
-                - "strict" - include only events that start at or after start
-                             and end at or before end. (End times that are
-                             exactly equal to end are considered to be within
-                             bounds, so this is inclusive of end time.)
+
+            - `"onsets"` - include events that start within bounds (default)
+            - `"overlaps"` - include events that overlap (either onset or
+                offset) is within the bounds. An event ending is considered
+                to overlap if its offset is greater than start.
+            - `"offsets"` - include events that end within the bounds
+            - `"strict"` - include only events that start at or after start
+                and end at or before end. (End times that are exactly equal
+                to end are considered to be within bounds, so this is
+                inclusive of end time.)
+
         truncate: Optional[str]
             How to handle events that partially overlap the bounds,
             ignored if units is "measures" or "bars". Valid values are:
-                - "truncate" - truncate (clip) events that partially overlap
-                    the bounds. If the event onset is before start, the onset
-                    is increased to start (adjusting duration to maintain the
-                    offset time). Also, if the event offset is after end, the
-                    duration is decreased so that the offset time is end.
-                - "keep" - no modification/truncation (default). Note that
-                    with the default mode="onsets", no event onsets will be
-                    earlier than start, but offsets may extend beyond end.
-                - "end" or "ending" or "dur" or "duration" - truncate (clip)
-                    events that extend beyond end so that all offsets <= end.
-                - "beginning" - events with onsets before start are moved to
-                    make their onsets equal to start, and their duration is
-                    adjusted to maintain the original offset.
+
+            - `"truncate"` - truncate (clip) events that partially overlap
+                the bounds. If the event onset is before start, the onset
+                is increased to start (adjusting duration to maintain the
+                offset time). Also, if the event offset is after end, the
+                duration is decreased so that the offset time is end.
+            - `"keep"` - no modification/truncation (default). Note that
+                with the default mode="onsets", no event onsets will be
+                earlier than start, but offsets may extend beyond end.
+            - `"end"` or "ending" or "dur" or "duration" - truncate (clip)
+                events that extend beyond end so that all offsets <= end.
+            - `"beginning"` - events with onsets before start are moved to
+                make their onsets equal to start, and their duration is
+                adjusted to maintain the original offset.
+
         min_duration: Optional[float]
             Events with duration less than min_duration (after any truncation
             is applied) are removed.  Ignored if units is "measures" or "bars".
