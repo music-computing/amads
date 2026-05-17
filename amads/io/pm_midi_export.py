@@ -72,10 +72,10 @@ def add_key_signature(
     """Add a Key Signature change to the PrettyMIDI time signatures list."""
     # PrettyMIDI uses key number from -7 (7 flats) to +7 (7 sharps)
     location = len(key_signatures)  # default to appending at end
-    for index, ts in enumerate(key_signatures):
-        if isclose(ts.time, onset, abs_tol=1e-3) and ts.key_number == key_sig:
+    for index, ks in enumerate(key_signatures):
+        if isclose(ks.time, onset, abs_tol=1e-3) and ks.key_number == key_sig:
             return  # Key signature already exists at this time
-        elif ts.time > onset + 1e-3:
+        elif ks.time > onset + 1e-3:
             location = index
             break
     # now location is where to insert a new key signature
@@ -187,7 +187,7 @@ def pretty_midi_export(
     # Create time signature changes
     for ts in score.time_signatures:
         # Convert onset (in quarters) to seconds using time_map
-        time_in_seconds = score.time_map.quarter_to_time(ts.time)
+        time_in_seconds = score.time_map.quarter_to_time(ts.quarters)
         pm_ts = pm.TimeSignature(
             numerator=int(ts.upper),
             denominator=int(ts.lower),

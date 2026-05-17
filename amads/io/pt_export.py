@@ -198,7 +198,7 @@ def _score_to_partitura(
         for ts in score.time_signatures:
             # partitura does not allow float/fractional beats/measure
             pt_ts = ptTimeSignature(round(ts.upper), ts.lower)
-            pt_part.add(pt_ts, round(ts.time * DIVS))  # no end time?
+            pt_part.add(pt_ts, round(ts.quarters * DIVS))  # no end time?
 
         # add content
         id = 1  # At this level, if event is a Staff, id becomes staff number

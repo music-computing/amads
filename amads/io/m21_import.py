@@ -30,6 +30,7 @@ from amads.core.basics import (
     TimeSignature,
 )
 from amads.io.m21_show import music21_show
+from amads.io.readscore import _expand_first_measure, _finish_import
 
 
 class _TiedNotes:
@@ -135,8 +136,6 @@ class _TiedNotes:
     def stop_note(self, key_num: int, note: Note) -> None:
         if key_num in self.tied_notes:
             origin = self.tied_notes[key_num]
-            print("stop_note: origin", origin, "note", note)
-            note.parent.show()
             if isinstance(origin, list):
                 origin_note = self.find_and_remove_predecessor(origin, note)
                 if len(origin) == 1:  # restore to non-list single note
@@ -153,8 +152,6 @@ class _TiedNotes:
                     f"beat {origin.offset}. Tying to it anyway."
                 )
             origin.tie = note
-            print("    stop_note made tie:")
-            origin.show()
         else:  # missing start note
             warnings.warn(
                 f"music21 note (key_num {key_num} at beat"
@@ -361,16 +358,7 @@ def music21_to_score(
                 from_part.remove(from_staff)
                 to_part.insert(from_staff)
 
-    if flatten or collapse:
-        score = score.flatten(collapse=collapse)
-    else:
-        if shared_shift > 0.001:
-            # parts are shifted but not measures and time signatures.
-            # shared_shift is in beats
-            score.time_map._time_shift(shared_shift)
-            score._timesignatures_shift(shared_shift)
-
-    return score
+    return _finish_import(score, flatten, collapse, shared_shift)
 
 
 def music21_convert_note(m21note, measure):
@@ -415,7 +403,6 @@ def music21_convert_tie(key_num: int, note: Note, tie_type: str) -> None:
     """
     global tied_notes
     assert tied_notes is not None  # initialized in music21_convert_part
-    print("music21_convert_tie: note", note, "tie_type", tie_type)
     if tie_type == "start":
         # Start of a tie
         tied_notes.insert_start_note(key_num, note)
@@ -670,38 +657,6 @@ def music21_convert_part(m21part, score, duration):
     tied_notes = None  # type: ignore , free memory used by tied notes tracking
     staff.offset = staff.content[-1].offset
 
-    shift = 0  # how much did we shift to make a full measure 1?
+    shift = _expand_first_measure(staff)
 
-    # expand first measure to a full measure if necessary
-    # what is the maximum offset of the first measure?
-    if len(staff.content) > 0:
-        m1 = staff.content[0]
-        m1 = cast(Measure, m1)
-        max_offset = 0
-        for elem in m1.content:
-            max_offset = max(max_offset, elem.offset)
-        if max_offset < m1.offset - 0.001:  # need to insert rest
-            shift = m1.offset - max_offset
-            for elem in m1.content:
-                if (
-                    isinstance(elem, Note)
-                    or isinstance(elem, Rest)
-                    or isinstance(elem, Chord)
-                ):
-                    elem.time_shift(shift)
-            # insert Rest, Since m1 is first, m1.onset == 0
-            _ = Rest(m1, m1.onset, duration=shift)
-
-            # now, first measure ending may have shifted, so adjust
-            # remainder of the part
-            if len(staff.content) > 1:
-                m2 = staff.content[1]
-                m2 = cast(Measure, m2)
-                shift = m1.offset - m2.onset
-                if shift > 0.001:  # need to shift everything
-                    for m in staff.content[1:]:
-                        m.time_shift(shift)
-            staff.offset = staff.content[-1].offset
-            part.offset = max(part.offset, staff.offset)
-            score.offset = max(score.duration, staff.offset)
     return part, shift

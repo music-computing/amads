@@ -1,4 +1,4 @@
-"""pt_xml_import.py - Partitura XML import and conversion to AMADS"""
+"""pt_import.py - Partitura XML import and conversion to AMADS"""
 
 __author__ = "Roger B. Dannenberg"
 
@@ -11,7 +11,6 @@ import partitura as pt
 from partitura import score as ptScore
 
 from amads.core.basics import (
-    Chord,
     Clef,
     KeySignature,
     Measure,
@@ -23,6 +22,7 @@ from amads.core.basics import (
     TimeSignature,
 )
 from amads.core.pitch import Pitch
+from amads.io.readscore import _expand_first_measure, _finish_import
 
 # plan: multiple passes over iter_all()
 # for each part: add the part to a Concurrence
@@ -151,7 +151,7 @@ def retie_notes(event, staff, rnd: bool):
     notes with duration of 0, which now indicates they have been deleted
     from a series of tied notes.
     """
-    pt_note = event[7]
+    pt_note = event[8]
     if pt_note.tie_prev is not None or pt_note.tie_next is None:
         return
 
@@ -183,7 +183,7 @@ def retie_notes(event, staff, rnd: bool):
             group[i + 1][2] -= extend
             # now if group[i+1] duration rounds to zero, we eliminate it
             if group[i + 1][2] < 0.5 / DIV_TO_QUARTER_ROUNDING:
-                if group[i + 1][7].tie_next is not None:
+                if group[i + 1][8].tie_next is not None:
                     warnings.warn(
                         "Unexpected very short note event in tied group "
                         + str(group[i + 1])
@@ -282,13 +282,17 @@ def partitura_convert_part(
           if False (default), no rounding is done (used for MIDI import)
     Returns
     -------
-      Part - the newly created AMADS Part
+      tuple[Part, float] - the newly created AMADS Part and the shift
+          that was applied to content (but not yet to time signatures
+          and time map).
     """
     # these are globals so we don't have to pass to every
     # helper function that needs to do lookups:
     global measure_map, pt_note_to_note
     # note ppart.quarter_map(x) maps divs to quarters
-    part: Part = Part(parent=score, instrument=ppart.part_name)
+    # convert "" to None for consistency in instrument naming
+    part_name = ppart.part_name if ppart.part_name else None
+    part: Part = Part(parent=score, instrument=part_name)
     durs = ppart.quarter_durations()
     staff_numbers = set()
     # data is stored in ppart in a different order than we want, so
@@ -395,11 +399,12 @@ def partitura_convert_part(
                     duration,
                     item.staff,
                     item.midi_pitch,
+                    item.alter,
                     item.id,
-                    is_tied,  # event[6]
+                    is_tied,  # event[7]
                     item,
                 ]
-            )  # event[7]
+            )
             if is_tied:
                 pt_note_to_note[item] = [notes[-1]]
                 tied_count += 1  # debug
@@ -456,7 +461,7 @@ def partitura_convert_part(
     if rnd:
         for i, event in enumerate(notes):
             staff = staff_for_note(part, event)
-            if event[0] == "note" and event[6]:  # tied
+            if event[0] == "note" and event[7]:  # tied
                 retie_notes(event, staff, rnd)
 
     # pass 4: insert notes and rests into score
@@ -480,14 +485,14 @@ def partitura_convert_part(
                     parent=measure,
                     onset=event[1],
                     duration=event[2],
-                    pitch=Pitch(event[4]),
+                    pitch=Pitch(event[4], event[5]),
                 )
-                if event[6]:  # is tied to another note
+                if event[7]:  # is tied to another note
                     # Multiple cases: 1) note is tied to next note with
                     # non-zero duration, so we put the note in pt_note_to_note
                     # so it can be patched later. 2) note is tied to a previous
                     # note, so we patch the previous note.
-                    pt_note = event[7]
+                    pt_note = event[8]
                     # map pt_note to [event, note], so [0] gives the event,
                     # and event[2] is duration
                     if pt_note.tie_next and pt_note_to_note[pt_note][0][2] != 0:
@@ -502,64 +507,19 @@ def partitura_convert_part(
         else:
             assert False, f"Unknown event type {event[0]}"
 
-    # expand first measures to a full measure if necessary
-    # what is the maximum offset of the first measure?
+    common_shift = None
     for staff in part.content:
-        if len(staff.content) > 0:  # type: ignore
-            m1 = staff.content[0]  # type: ignore
-            max_offset = 0
-            for elem in m1.content:
-                max_offset = max(max_offset, elem.offset)
-            m1_ts_dur = m1.time_signature().quarters
-            if max_offset < m1_ts_dur - 0.001:  # need to insert rest
-                gap = m1_ts_dur - max_offset
-                for elem in m1.content:
-                    if (
-                        isinstance(elem, Note)
-                        or isinstance(elem, Rest)
-                        or isinstance(elem, Chord)
-                    ):
-                        elem.time_shift(gap)
-                # insert Rest, Since m1 is first, m1.onset == 0
-                _ = Rest(m1, m1.onset, duration=gap)
-
-                # if m1 duration increases, shift all other measures
-                gap = m1_ts_dur - m1.offset
-                if gap > 0.001:
-                    m1.duration = m1_ts_dur  # fix m1 duration
-                    staff.pack()  # type: ignore
-
-                # also need to update time map and time_signatures
-                for ts in score.time_signatures[1:]:
-                    ts.time += gap
-                # we're adding gap beats at the initial tempo,
-                # so convert that to a time shift in seconds,
-                # then add (time_gap, gap) to (time, quarter) pairs
-                time_gap = gap * score.time_map.get_tempo_at(0)
-                for mq in score.time_map.changes[1:]:
-                    mq.time += time_gap
-                    mq.quarter += gap
-
-    # last measure of Partitura can be "incomplete" and have a duration
-    # shorter than what is implied by the time signature. Here, we will
-    # "expand" the last measures to full time signature duration, consistent
-    # with expanding incomplete first measures and with Music21 import.
-    # We assume every part has the same structure so we can adjust them
-    # independently:
-    offset = 0.0
-    for staff in part.content:
-        if len(staff.content) > 0:  # type: ignore
-            mn = staff.content[-1]  # type: ignore  last measure
-            mn_ts_dur = mn.time_signature().quarters
-            if mn.duration < mn_ts_dur - 0.001:
-                mn.duration = mn_ts_dur
-                offset = max(offset, mn.offset)
-    for staff in part.content:
-        if offset > staff.offset:
-            staff.offset = offset
-
-    part.duration = part.content[0].duration  # set to equal staff duration
-    return part
+        shift = _expand_first_measure(staff)
+        if common_shift is not None:
+            if not isclose(shift, common_shift):
+                warnings.warn(
+                    "In Partitura import, measure content duration "
+                    f"in a staff ({shift} quarters) does not match "
+                    f"duration of previous staff ({common_shift} "
+                    "quarters)."
+                )
+        common_shift = shift
+    return part, common_shift
 
 
 def partitura_import(
@@ -620,8 +580,8 @@ def partitura_import(
             print(ptpart.pretty())
     score = Score()
     for ptpart in ptscore.parts:
-        partitura_convert_part(ptpart, score)
+        part, shift = partitura_convert_part(ptpart, score)
+
     score.inherit_duration()
-    if flatten or collapse:
-        score = score.flatten(collapse=collapse)
-    return score
+
+    return _finish_import(score, flatten, collapse, shift)

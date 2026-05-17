@@ -6,9 +6,9 @@ import tempfile
 import urllib.request
 import warnings
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Callable, Optional, cast
 
-from amads.core.basics import Score
+from amads.core.basics import Chord, Measure, Note, Rest, Score, Staff
 from amads.io.writescore import _suffix_to_format
 
 # This module, readscore, is regarded as a singleton class with
@@ -512,3 +512,63 @@ def last_used_reader() -> Optional[str]:
     if _last_used_reader is not None:
         return _last_used_reader.__name__
     return None
+
+
+# --------------- shared code for m21 and pt import -----------------
+
+
+def _expand_first_measure(staff: Staff) -> float:
+    """expand first measure to a full measure if necessary"""
+    # what is the maximum offset of the first measure?
+    shift = 0
+    if len(staff.content) > 0:
+        m1: Measure = cast(Measure, staff.content[0])
+        m1_duration = m1.time_signature().duration
+        max_offset = 0
+        for elem in m1.content:
+            max_offset = max(max_offset, elem.offset)
+        if max_offset < m1_duration - 0.001:  # need to insert rest
+            shift = m1_duration - max_offset
+            for elem in m1.content:
+                if (
+                    isinstance(elem, Note)
+                    or isinstance(elem, Rest)
+                    or isinstance(elem, Chord)
+                ):
+                    elem.time_shift(shift)
+            # insert Rest, Since m1 is first, m1.onset == 0
+            _ = Rest(m1, m1.onset, duration=shift)
+            m1.offset = m1_duration
+            # now, first measure ending may have shifted, so adjust
+            # remainder of the part
+            if len(staff.content) > 1 and shift > 0.001:
+                for m in staff.content[1:]:
+                    # score.time_signatures has not been shifted yet, so
+                    # look up the time signature for the meausure duration
+                    # before shifting. We set the measure duration because
+                    # partitura will give measure durations shorter than the
+                    # time signature duration if the measure is not full
+                    m.duration = m.time_signature().duration
+                    m.time_shift(shift)
+            staff.offset = staff.content[-1].offset
+            # update Part offset:
+            part = staff.parent
+            part.offset = max(part.offset, staff.offset)
+            # update Score offset:
+            score = part.parent
+            score.offset = max(score.duration, staff.offset)
+    return shift
+
+
+def _finish_import(
+    score: Score, flatten: bool, collapse: bool, shift: float
+) -> Score:
+    """Apply some final manipulations common to m21 and pt import"""
+    if shift > 0.001:
+        # parts are shifted but not measures and time signatures.
+        # shared_shift is in beats
+        score.time_map._time_shift(shift)
+        score._timesignatures_shift(shift)
+    if flatten or collapse:
+        score = score.flatten(collapse=collapse)
+    return score

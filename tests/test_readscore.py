@@ -6,9 +6,10 @@ Important business first: score from URL ;)
 See more extensive tests on musicXML in test_midi_roundtrip and test_xml_export
 """
 
-from amads.algorithms.scores_compare import notes_compare
+from amads.algorithms.scores_compare import notes_compare, scores_compare
 from amads.core.basics import Measure, Note
 from amads.io.readscore import (
+    last_used_reader,
     read_score,
     set_preferred_kern_reader,
     set_preferred_xml_reader,
@@ -50,15 +51,17 @@ def test_read_kern():
     assert len(nmeasures) == 9, f"Expected 9 measures, got {len(nmeasures)}"
 
     set_preferred_kern_reader("partitura")
-    score = read_score(kern_file)
-    # print("Partitura Kern import:")
-    # score.show()
-    nnotes = score.list_all(Note)
+    ptscore = read_score(kern_file)
+    print("Partitura Kern import:")
+    # ptscore.show()
+    nnotes = ptscore.list_all(Note)
     assert len(nnotes) == 25, f"Expected 25 notes, got {len(nnotes)}"
-    dur = score.duration
+    dur = ptscore.duration
     assert dur == 27.0, f"Expected duration 27.0, got {dur}"
-    nmeasures = score.list_all(Measure)
+    nmeasures = ptscore.list_all(Measure)
     assert len(nmeasures) == 9, f"Expected 9 measures, got {len(nmeasures)}"
+
+    assert scores_compare(score, ptscore), "Expected scores to match."
 
 
 def test_read_musicxml():
@@ -71,7 +74,7 @@ def test_read_musicxml():
     set_reader_warning_level("none")
     xml_file = example.fullpath("musicxml/bwv846m15-16.musicxml")
     assert xml_file is not None
-    score = read_score(xml_file, show=True)
+    score = read_score(xml_file)  # , show=True)
     # print("MusicXML import:")
     # score.show()
     nnotes = score.list_all(Note)
@@ -96,3 +99,46 @@ def test_read_musicxml():
     # result[0] should be True and we can uncomment the following assertion.
     # assert result[0], "Expected scores to match."
     print(result[0])  # only printing here to make flake8 happy by using result
+
+
+def test_time_tempo_example():
+    """Test reading a file with time and tempo changes."""
+    set_preferred_xml_reader("music21")
+    set_reader_warning_level("none")
+    xml_file = example.fullpath("musicxml/time-tempo-test.musicxml")
+    assert xml_file is not None
+    score = read_score(xml_file)  # , show=True)
+    # print("MusicXML import with", last_used_reader())
+    # score.show()
+    assert score.time_map is not None, "Expected time map to be present"
+    assert (
+        len(score.time_map.changes) == 2
+    ), f"Expected 2 tempo changes, got {len(score.time_map.changes)}"
+    assert (
+        score._find_time_signature(0).upper == 4
+    ), "Expected time signature upper to be 4"
+    assert (
+        score._find_time_signature(0).lower == 4
+    ), "Expected time signature lower to be 4"
+    assert (
+        score._find_time_signature(4).upper == 3
+    ), "Expected time signature upper to be 3"
+    assert (
+        score._find_time_signature(4).lower == 4
+    ), "Expected time signature lower to be 4"
+    assert (
+        score.time_map.quarter_to_tempo(0) == 100.0
+    ), "Expected tempo at quarter 0 to be 100.0"
+    assert (
+        score.time_map.quarter_to_tempo(2) == 100.0
+    ), "Expected tempo at quarter 2 to be 100.0"
+    assert (
+        score.time_map.quarter_to_tempo(4) == 80.0
+    ), "Expected tempo at quarter 4 to be 80.0"
+    assert len(score.list_all(Note)) == 16, "Expected 16 notes in score"
+
+    set_preferred_xml_reader("partitura")
+    ptscore = read_score(xml_file)  # , show=True)
+    print("MusicXML import with", last_used_reader())
+    ptscore.show()
+    assert scores_compare(score, ptscore), "Expected scores to match"
