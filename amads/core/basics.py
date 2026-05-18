@@ -1141,8 +1141,13 @@ class Clef(Event):
                  parent: Optional["EventGroup"] = None,
                  onset: float = 0.0, clef: str = "treble"):
         super().__init__(parent, onset, 0)
-        if clef not in ["treble", "bass", "alto", "tenor",
-                      "percussion", "treble8vb"]:
+        if clef not in [
+            "treble", "alto", "tenor", "bass",
+            "treble8va", "treble8vb",
+            "bass8va", "bass8vb",
+            "percussion",
+            "soprano"
+        ]:
             raise ValueError(f"Invalid clef: {clef}")
         self.clef = clef
 
