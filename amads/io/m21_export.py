@@ -6,6 +6,7 @@ from typing import Optional, cast
 from music21 import (
     chord,
     clef,
+    expressions,
     instrument,
     key,
     layout,
@@ -149,6 +150,38 @@ def _add_measure_content(m21measure, measure, ties) -> None:
         )
 
 
+def _add_expressions_to_m21(m21note, item):
+    """make m21 expressions from any expression data in item's properties"""
+    global _m21trills, _m21turns, _m21mordents
+    if item.get("has_trill", False):
+        trill = expressions.Trill()
+        _m21trills.append((m21note, trill, item.get("trill_pitch")))
+        m21note.expressions.append(trill)
+    if item.get("has_trill_extension", False):
+        m21note.expressions.append(expressions.TrillExtension())
+    if item.get("has_turn", False):
+        turn = expressions.Turn()
+        _m21turns.append(m21note, turn, item.get("turn_pitches"))
+        m21note.expressions.append(turn)
+    if item.get("has_inverted_turn", False):
+        turn = expressions.InvertedTurn()
+        _m21turns.append(m21note, turn, item.get("inverted_turn_pitches"))
+        m21note.expressions.append(turn)
+    if item.get("has_mordent", False):
+        mordent = expressions.GeneralMordent()
+        _m21mordents.append(m21note, mordent, item.get("mordent_pitch"))
+        m21note.expressions.append(mordent)
+    if item.get("has_inverted_mordent", False):
+        mordent = expressions.InvertedMordent()
+        pitch = item.get("inverted_mordent_pitch")
+        _m21mordents.append(m21note, mordent, pitch)
+        m21note.expressions.append(mordent)
+    if item.get("has_shake", False):
+        m21note.expressions.append(expressions.Shake())
+    if item.get("has_schleifer", False):
+        m21note.expressions.append(expressions.Schleifer())
+
+
 def _add_measure_content_from_list(m21parent, measure, content, dur, ties):
     """
     insert content (Notes, Chords, Rests) from a Measure to m21 stream
@@ -188,6 +221,7 @@ def _add_measure_content_from_list(m21parent, measure, content, dur, ties):
                 m21note.duration = m21Duration(grace_ql).getGraceDuration()
             else:
                 m21note.duration.quarterLength = duration
+            _add_expressions_to_m21(m21note, item)
             if isinstance(item.dynamic, int):
                 m21note.volume.velocity = item.dynamic
             # otherwise, use default because I am not sure how
@@ -247,6 +281,12 @@ def _add_measure_content_from_list(m21parent, measure, content, dur, ties):
         m21parent.insert(m21rest.offset, m21rest)
 
 
+def music21_resolve_ornaments():
+    """fix up ornaments that need accidentals"""
+    global _m21trills, _m21turns, _m21mordents
+    # YOU ARE HERE
+
+
 def _score_to_music21(
     score: Score, show: bool = False, filename: Optional[Path | str] = None
 ) -> stream.Score:
@@ -268,6 +308,8 @@ def _score_to_music21(
         The AMADS Score object converted to music21
     """
     # create a new music21 score
+    global _m21trills, _m21turns, _m21mordents
+    _m21trills = []
     m21score = stream.Score()
     m21score.metadata = metadata.Metadata()
     if score.has("title"):
@@ -414,6 +456,9 @@ def _score_to_music21(
             assert (
                 False
             ), f"Internal tie-fix-up error {amads_note}, {ties[amads_note]}"
+
+    # fix up ornaments
+    music21_resolve_ornaments()
 
     if show:
         music21_show(m21score, filename)  # type: ignore

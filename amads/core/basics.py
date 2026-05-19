@@ -644,6 +644,36 @@ class Note(Event):
         Lyric text.
     tie : Optional[Note]
         The note that this note is tied to, if any.
+
+    Grace Notes
+    -----------
+    A grace note is indicated by the property `"is_grace"` which can be
+    accessed using `.get("is_grace", False)`. If true, then you can also
+    query for `"has_slash"` using `.get("has_slash", False)`. If true,
+    this is an acciaccatura; if false, this is an appoggiatura. Note
+    that Music21 incorrectly (at present) defaults to adding a slash
+    when it reads a MusicXML grace tag with no slash attribute, and
+    the acciaccatura/appoggiatura distinction is often ambiguous or
+    incorrect to begin with.
+
+    Other Expressions
+    -----------------
+    Other Note properties are set as follows: `"has_trill"` and
+    `"trill_pitch"` are set for Music21 Trill (`"trill_pitch"` has an
+    AMADS Pitch object as its value); `"has_trill_extension"` is
+    set for TrillExtension. `"has_turn"` and `"turn_pitches"` are set
+    for Turn expressions (`"turn_pitches"` consists of a list with the
+    upper pitch and the lower pitch as AMADS Pitch objects);
+    `"has_inverted_turn"` and `"inverted_turn_pitches"` are set for
+    InvertedTurn expressions (`"inverted_turn_pitches"` consists of a
+    list with the lower pitch and the upper pitch as AMADS Pitch objects);
+    `"has_mordent"` and `"mordent_pitch"` are set for Mordent
+    expressions (`"mordent_pitch"` consists of the upper pitch as an
+    AMADS Pitch object); `"has_inverted_mordent"` and
+    `"inverted_mordent_pitch"` are set for InvertedMordent expressions
+    (`"inverted_mordent_pitch"` consists of the upper pitch as an
+    AMADS Pitch object); `"has_shake"` is set for Shake expressions;
+    and `"has_schleifer"` is set for Schleifer expressions.
     """
     __slots__ = ["pitch", "dynamic", "lyric", "tie"]
     pitch: Optional[Pitch]
@@ -803,6 +833,27 @@ class Note(Event):
         grace_info = ""
         if self.get("is_grace", False):
             grace_info = ", gracenote"
+            if self.get("has_slash", False):
+                grace_info += "+slash"
+
+        if self.get("has_trill", False):
+            grace_info += ", trill " + str(self.get("trill_pitch"))
+
+        if self.get("has_trill_extension", False):
+            grace_info += ", trill_ext"
+
+        if self.get("has_turn", False):
+            grace_info += ", turn " + str(self.get("turn_pitches"))
+
+        if self.get("has_inverted_turn", False):
+            grace_info += ", inv.turn " + str(self.get("inverted_turn_pitches"))
+        
+        if self.get("has_shake", False):
+            grace_info += ", shake"
+
+        if self.get("has_schleifer", False):
+            grace_info += ", schleifer"
+
         return (f"Note({self._event_times()}{dynamic_info}{lyric_info}, " +
                 f"pitch={self.name_with_octave}/{self.key_num}{grace_info})")
 

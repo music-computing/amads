@@ -447,6 +447,30 @@ def read_score(
     Music21 may infer a Clef and KeySignature even though MIDI
     does not even have a meta-event for clefs, and even if the
     MIDI file has no key signature meta-event.
+
+    Grace notes are Notes marked by setting the `"is_grace"` property
+    to True. AMADS also uses the `"has_slash"` property (no property
+    means False) to indicate a grace note with a slash (conventionally
+    an acciaccatura), but Music21 incorrectly sets its slash property
+    by default, potentially losing slash information in MusicXML,
+    where the default is no slash.
+
+    Other Note properties are set as follows: `"has_trill"` and
+    `"trill_pitch"` are set for Music21 Trill (`"trill_pitch"` has an
+    AMADS Pitch object as its value); `"has_trill_extension"` is
+    set for TrillExtension. `"has_turn"` and `"turn_pitches"` are set
+    for Turn expressions (`"turn_pitches"` consists of a list with the
+    upper pitch and the lower pitch as AMADS Pitch objects);
+    `"has_inverted_turn"` and `"inverted_turn_pitches"` are set for
+    InvertedTurn expressions (`"inverted_turn_pitches"` consists of a
+    list with the lower pitch and the upper pitch as AMADS Pitch objects);
+    `"has_mordent"` and `"mordent_pitch"` are set for Mordent
+    expressions (`"mordent_pitch"` consists of the upper pitch as an
+    AMADS Pitch object); `"has_inverted_mordent"` and
+    `"inverted_mordent_pitch"` are set for InvertedMordent expressions
+    (`"inverted_mordent_pitch"` consists of the upper pitch as an
+    AMADS Pitch object); `"has_shake"` is set for Shake expressions;
+    and `"has_schleifer"` is set for Schleifer expressions.
     """
     if isinstance(filename, str) and (
         filename.startswith("http") or "://" in filename

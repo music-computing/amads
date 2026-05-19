@@ -8,6 +8,7 @@ from music21 import (
     chord,
     clef,
     converter,
+    expressions,
     instrument,
     key,
     note,
@@ -361,6 +362,34 @@ def music21_to_score(
     return _finish_import(score, flatten, collapse, shared_shift)
 
 
+_trill_types = (
+    expressions.Trill,
+    expressions.TrillExtension,
+    expressions.Turn,
+    expressions.InvertedTurn,
+    expressions.Shake,
+    expressions.Schleifer,
+)
+
+
+def music21_check_trill_details(m21note, expr, note):
+    if expr.nachschlag:
+        note.set("has_nachschlag", True)
+    music21_set_pitch(m21note, expr, note, "trill_pitch")
+
+
+def music21_set_pitch(m21note, expr, note, prop):
+    expr.resolveOrnamentalPitches(m21note)
+    m21pitch = expr.ornamentalPitch
+    note.set(prop, Pitch(m21pitch.midi, m21pitch.alter))
+
+
+def music21_set_pitches(m21note, expr, note, prop):
+    expr.resolveOrnamentalPitches(m21note)
+    m21pitches = expr.ornamentalPitches
+    note.set(prop, [Pitch(p.midi, p.alter) for p in m21pitches])
+
+
 def music21_convert_note(m21note, measure):
     """
     Convert a music21 note into an AMADS Note and append it to the Measure.
@@ -385,6 +414,38 @@ def music21_convert_note(m21note, measure):
     )
     if m21note.duration.isGrace:
         note.set("is_grace", True)
+        if m21note.duration.slash:
+            note.set("has_slash", True)
+    if hasattr(m21note, "expressions"):
+        for expr in m21note.expressions:
+            if not isinstance(expr, _trill_types):
+                continue
+            if isinstance(expr, expressions.Trill):
+                note.set("has_trill", True)
+                music21_check_trill_details(m21note, expr, note)
+            elif isinstance(expr, expressions.TrillExtension):
+                note.set("has_trill_extension", True)
+            elif isinstance(expr, expressions.Turn):
+                note.set("has_turn", True)
+                music21_set_pitches(m21note, expr, note, "turn_pitches")
+            elif isinstance(expr, expressions.InvertedTurn):
+                note.set("has_inverted_turn", True)
+                music21_set_pitches(
+                    m21note, expr, note, "inverted_turn_pitches"
+                )
+            elif isinstance(expr, expressions.GeneralMordent):
+                if expr.direction == "up":
+                    note.set("has_mordent", True)
+                    music21_set_pitch(m21note, expr, note, "mordent_pitch")
+                else:
+                    note.set("has_inverted_mordent", True)
+                    music21_set_pitch(
+                        m21note, expr, note, "inverted_mordent_pitch"
+                    )
+            elif isinstance(expr, expressions.Shake):
+                note.set("has_shake", True)
+            elif isinstance(expr, expressions.Schleifer):
+                note.set("has_schleifer", True)
     if m21note.tie is not None:
         music21_convert_tie(m21note.pitch.midi, note, m21note.tie.type)
 
