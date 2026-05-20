@@ -36,11 +36,11 @@ _expected_clefs = [
 def test_read_clefs():
     xml_file = example.fullpath("musicxml/clefs.musicxml")
     assert xml_file is not None
-    score = read_score(xml_file, show=True)
+    score = read_score(xml_file, show=False)
     # score.show()
     clefs = score.list_all(Clef)
     for i, (expected, clef) in enumerate(zip(_expected_clefs, clefs)):
-        assert expected == clef.clef, f"error in clef {i}"
+        assert expected == clef.clef, f"error in clef {i}"  # type: ignore
     clef = clefs[14]
     info = clef.get("clef_info")
     assert info[0] == "C", "bad constructed symbol"

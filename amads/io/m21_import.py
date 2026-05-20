@@ -419,6 +419,8 @@ def music21_convert_note(m21note, measure):
         note.set("is_grace", True)
         if m21note.duration.slash:
             note.set("has_slash", True)
+        print("Converted music21 note", m21note, "to AMADS note", note)
+        print("    onset specified as", measure.onset + m21note.offset)
     if hasattr(m21note, "expressions"):
         for expr in m21note.expressions:
             if isinstance(expr, expressions.Trill):

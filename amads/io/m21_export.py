@@ -50,7 +50,7 @@ tied_notes = {}  # temporary data to track tied notes, this is a mapping
 # list. (First-in-first-out).
 
 
-def _m21_clef(clef_str: str) -> clef.Clef:
+def _m21_clef(clef_str: str, aclef: Clef) -> clef.Clef:
     """translate AMADS clef ID string to music21 Clef object"""
     if clef_str == "treble":
         return clef.TrebleClef()  # type: ignore
@@ -62,9 +62,49 @@ def _m21_clef(clef_str: str) -> clef.Clef:
         return clef.TenorClef()  # type: ignore
     if clef_str == "percussion":
         return clef.PercussionClef()  # type: ignore
+    if clef_str == "treble8va":
+        return clef.Treble8vaClef()  # type: ignore
     if clef_str == "treble8vb":
         return clef.Treble8vbClef()  # type: ignore
-    raise ValueError(f"Unknown clef string: {clef_str}")
+    if clef_str == "bass8va":
+        return clef.Bass8vaClef()  # type: ignore
+    if clef_str == "bass8vb":
+        return clef.Bass8vbClef()  # type: ignore
+    if clef_str == "bass8va":
+        return clef.Bass8vaClef()  # type: ignore
+    if clef_str == "soprano":
+        return clef.SopranoClef()  # type: ignore
+    if clef_str == "cbaritone":
+        return clef.CBaritoneClef()  # type: ignore
+    if clef_str == "french_violin":
+        return clef.FrenchViolinClef()  # type: ignore
+    if clef_str == "gsoprano":
+        return clef.GSopranoClef()  # type: ignore
+    if clef_str == "mezzosoprano":
+        return clef.MezzoSopranoClef()  # type: ignore
+    if clef_str == "subbass":
+        return clef.SubBassClef()  # type: ignore
+    info = Clef._clef_info.get(clef_str)
+    if not info:
+        info = aclef.get("clef_info")
+    if info is not None:
+        # construct a clef from info
+        c = None
+        if info[0] == "G":
+            c = clef.GClef()
+            c.line = info[1]
+            c.octaveChange = info[2]
+        elif info[0] == "F":
+            c = clef.FClef()
+            c.line = info[1]
+            c.octaveChange = info[2]
+        elif info[0] == "C":
+            c = clef.CClef()
+            c.line = info[1]
+            c.octaveChange = info[2]
+        if c is not None:
+            return c
+    raise ValueError(f"Unknown clef string {clef_str} or clef {aclef}.")
 
 
 def fix_part_ids(musicxml_string):
@@ -522,7 +562,7 @@ def _score_to_music21(
                 for clef_change in measure.find_all(Clef):
                     clef_change = cast(Clef, clef_change)
                     try:
-                        clef_element = _m21_clef(clef_change.clef)
+                        clef_element = _m21_clef(clef_change.clef, clef_change)
                     except ValueError as e:
                         warnings.warn(str(e))
                         continue
@@ -554,12 +594,12 @@ def _score_to_music21(
 
     # fix up ties
     for amads_note in ties.keys():
-        print("*** amads_note in ties.keys()", amads_note)
+        # print("*** amads_note in ties.keys()", amads_note)
         # amads_note.tie points to the next note in the tie (or None if no
         # outgoing tie) is_tied_to indicates if there's an incoming tie
         # from a previous note
         (m21note, is_tied_to) = ties[amads_note]
-        print("    *** m21note", m21note, "is_tied_to", is_tied_to)
+        # print("    *** m21note", m21note, "is_tied_to", is_tied_to)
 
         if m21note is None:  # note was tied to but we never put the tied-to
             # note into the m21score!
@@ -576,7 +616,7 @@ def _score_to_music21(
         elif not amads_note.tie and is_tied_to:
             # Note is not tied to the next note, but is tied from a prev. note
             m21note.tie = tie.Tie("stop")
-            print("*** set tie to 'stop' on", m21note)
+            # print("*** set tie to 'stop' on", m21note)
         elif not amads_note.tie and not is_tied_to:
             # No tie at all - don't set tie attribute
             pass

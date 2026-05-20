@@ -81,6 +81,7 @@ def find_measure_ending_after(staff: Staff, time: float) -> Optional[Measure]:
     -------
       Measure - the first measure that ends after time
     """
+    global measure_map
     i = int(time / 10)
     if i >= len(measure_map):
         return None  # there are no measures to search
@@ -151,6 +152,7 @@ def retie_notes(event, staff, rnd: bool):
     notes with duration of 0, which now indicates they have been deleted
     from a series of tied notes.
     """
+    global pt_note_to_note
     pt_note = event[8]
     if pt_note.tie_prev is not None or pt_note.tie_next is None:
         return
@@ -232,9 +234,8 @@ def process_signatures(
         what staff does measure belong to?
     signatures: list
         list of tuples, currently either ("key_sig", onset, fifths) or
-        ("clef", onset, staff_num, clef). "clef"s are included for all
-        staffs, so this function skips
-
+        ("clef", onset, staff_num, clef, info). "clef"s are included for all
+        staffs, so skip clefs for other staffs.
     """
     while len(signatures) > 0:
         sig = signatures[0]
@@ -249,7 +250,9 @@ def process_signatures(
             del signatures[1]  # skip clefs for other staves even when
             # there is a key signature at the front so that we can swap
             # clef and key signature if needed below
-        if sig[1] >= measure.onset:
+        if sig[1] >= measure.offset - 0.001:
+            return  # no more signatures for this measure
+        if sig[1] >= measure.onset - 0.001:
             # "cheap and dirty" sort since there are only 2 categories:
             if (
                 len(signatures) > 1
@@ -264,7 +267,7 @@ def process_signatures(
             if sig[0] == "key_sig":
                 KeySignature(measure, sig[1], sig[2])
             elif sig[0] == "clef" and sig[2] == staff_num:
-                Clef(measure, sig[1], sig[3])
+                _ = Clef(measure, sig[1], sig[3], sig[4])
             else:
                 assert False, f"Internal error, unexpected sig {sig}"
             del signatures[0]
@@ -274,6 +277,8 @@ def process_signatures(
 
 def _process_ornaments(pt_note: ptScore.Note, note: Note) -> None:
     """encode ornaments found on pt_note into note"""
+    if not pt_note.ornaments:
+        return
     for ornament in pt_note.ornaments:
         warnings.warn(
             "Partitura does not support accidental marks on "
@@ -283,9 +288,29 @@ def _process_ornaments(pt_note: ptScore.Note, note: Note) -> None:
         )
 
 
+_default_line_for_clef_sign = {"G": 2, "C": 3, "F": 4}
+
+
+def _find_clef_name(
+    sign: str, line: int, octave_change: int
+) -> tuple[str, Optional[tuple[str, int, int]]]:
+    """find clef name from Partitura info"""
+    if sign == "percussion":
+        return (sign, None)
+    if octave_change is None:  # replace None with 0 octave_change
+        octave_change = 0  # so that comparisons are possible
+    if line is None:  # replace None with standard placement
+        line = _default_line_for_clef_sign.get(sign)
+    for name in Clef._clef_info.keys():
+        info = Clef._clef_info[name]
+        if info[0] == sign and info[1] == line and info[2] == octave_change:
+            return (name, None)
+    return ("constructed", (sign, line, octave_change))
+
+
 def partitura_convert_part(
     ppart: ptScore.Part, score: Score, rnd: bool = True
-) -> Part:
+) -> tuple[Part, float]:
     """Convert a Partitura part to an AMADS Part and add it to the Score.
     ppart - the Partitura part
     score - the AMADS Score to which the Part will be added
@@ -373,32 +398,11 @@ def partitura_convert_part(
         elif isinstance(item, ptScore.KeySignature):
             signatures.append(("key_sig", onset, item.fifths))
         elif isinstance(item, ptScore.Clef):
-            clef = None
-            if not item.octave_change or item.octave_change == 0:
-                if item.sign == "G":
-                    if item.line == 2:
-                        clef = "treble"
-                elif item.sign == "F":
-                    if item.line == 4:
-                        clef = "bass"
-                elif item.sign == "C":
-                    if item.line == 3:
-                        clef = "alto"
-                    elif item.line == 4:
-                        clef = "tenor"
-            elif (
-                item.octave_change == -1 and item.sign == "G" and item.line == 2
-            ):
-                clef = "treble8vb"
-            elif item.sign == "percussion":
-                clef = "percussion"
-            if clef is None:
-                warnings.warn(
-                    f'Unrecognized Partitura clef "{item}"'
-                    f" octave_change {item.octave_change} ignored."
-                )
-            else:
-                signatures.append(("clef", onset, item.staff, clef))
+            clef, info = _find_clef_name(
+                item.sign, item.line, item.octave_change
+            )
+            signatures.append(("clef", onset, item.staff, clef, info))
+
         elif isinstance(item, ptScore.Note):
             qtr = item.start.quarter  # type: ignore
             duration = (item.end.t - item.start.t) / qtr  # type: ignore
@@ -497,6 +501,30 @@ def partitura_convert_part(
                 duration=event[2],
                 pitch=Pitch(event[4], event[5]),
             )
+            # Special handling for grace notes: if duration is zero, it might
+            # be placed *after* the note it is attached to, so we check the
+            # order within measure.content.
+            if note.duration == 0:
+                i = measure.content.index(note)
+                j = i - 1
+                swap_with = None
+                while j >= 0:
+                    if isclose(
+                        measure.content[j].onset, note.onset, abs_tol=0.001
+                    ):
+                        if measure.content[j].duration > 0:
+                            swap_with = j
+                    else:
+                        break
+                    j = j - 1
+                # now swap_with is the earliest location of a non-grace event
+                # with the same onset as note but positive duration
+                if swap_with is not None:
+                    measure.content[i], measure.content[swap_with] = (
+                        measure.content[swap_with],
+                        measure.content[i],
+                    )
+                # now grace note is placed before the note it is attached to
             pt_note = event[8]
             if event[2] == 0 or isinstance(pt_note, ptScore.GraceNote):
                 note.set("is_grace", True)
@@ -520,8 +548,9 @@ def partitura_convert_part(
         else:
             assert False, f"Unknown event type {event[0]}"
 
-    common_shift = None
+    common_shift = 0
     for staff in part.content:
+        assert isinstance(staff, Staff)
         shift = _expand_first_measure(staff)
         if common_shift is not None:
             if not isclose(shift, common_shift):
@@ -532,7 +561,7 @@ def partitura_convert_part(
                     "quarters)."
                 )
         common_shift = shift
-    return part, common_shift
+    return (part, common_shift)
 
 
 def partitura_import(
@@ -592,8 +621,9 @@ def partitura_import(
         for ptpart in ptscore:
             print(ptpart.pretty())
     score = Score()
+    shift = 0
     for ptpart in ptscore.parts:
-        part, shift = partitura_convert_part(ptpart, score)
+        _, shift = partitura_convert_part(ptpart, score)
 
     score.inherit_duration()
 

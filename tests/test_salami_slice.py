@@ -2,6 +2,8 @@ from pytest import approx
 
 from amads.algorithms.slice.salami import Timepoint, salami_slice
 
+VERBOSE = False  # to minimize test output, set to True for more ouput
+
 
 def test_timepoints_twochan(twochan_notes):
     timepoints = Timepoint.from_notes(twochan_notes, time_n_digits=6)
@@ -13,9 +15,10 @@ def test_salami_slice_twochan(twochan_score):
     twochan_score.show()
     chords = salami_slice(twochan_score)
     print("after salami_slice:", chords)
-    for chord in chords:
-        print("chord at ", chord.onset)
-        chord.show()
+    if VERBOSE:
+        for chord in chords:
+            print("chord at ", chord.onset)
+            chord.show()
     assert len(chords) == 16
 
     pitches = [[int(p.key_num) for p in c.content] for c in chords]

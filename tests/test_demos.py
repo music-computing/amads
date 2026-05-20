@@ -23,4 +23,5 @@ RUNNABLE_DEMO_FILES = [
     ids=[Path(file).name for file in RUNNABLE_DEMO_FILES],
 )
 def test_demos_run_without_errors(file):
+    print(f"Running demo {file}...")
     runpy.run_path(file, run_name="__main__")

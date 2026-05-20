@@ -105,7 +105,7 @@ def test_time_tempo_example():
     """Test reading a file with time and tempo changes."""
     set_preferred_xml_reader("music21")
     set_reader_warning_level("none")
-    xml_file = example.fullpath("musicxml/time-tempo-test.musicxml")
+    xml_file = example.fullpath("musicxml/time_tempo_test.musicxml")
     assert xml_file is not None
     score = read_score(xml_file)  # , show=True)
     # print("MusicXML import with", last_used_reader())

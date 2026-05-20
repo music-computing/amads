@@ -8,6 +8,8 @@ from amads.pitch.pcdist1 import pitch_class_distribution_1
 
 from .test_durdist import assert_equal_dist1d
 
+VERBOSE = False  # to minimize test output, set to True to show score data
+
 
 def test_pcdist1():
     # for some reason, could not open file with just the relative path
@@ -16,7 +18,8 @@ def test_pcdist1():
     print("------- input midi file")
     assert my_midi_file is not None
     myscore = read_score(my_midi_file, show=False)
-    myscore.show()
+    if VERBOSE:
+        myscore.show()
     print("------- finished input midi file")
 
     print("------- Calculate pitch-class distribution")

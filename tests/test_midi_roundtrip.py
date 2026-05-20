@@ -12,7 +12,7 @@ from amads.io.readscore import read_score, set_preferred_midi_reader
 from amads.io.writescore import set_preferred_midi_writer, write_score
 from amads.music import example
 
-VERBOSE = True  # set to True for more debug output
+VERBOSE = False  # set to True for more debug output
 
 
 def verbose_blank():

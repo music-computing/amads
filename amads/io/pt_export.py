@@ -1,3 +1,4 @@
+import warnings
 from math import isclose
 from pathlib import Path
 from typing import Optional, cast
@@ -5,6 +6,7 @@ from typing import Optional, cast
 from partitura import save_musicxml
 from partitura.score import Clef as ptClef
 from partitura.score import GenericNote as ptGenericNote
+from partitura.score import GraceNote as ptGraceNote
 from partitura.score import KeySignature as ptKeySignature
 from partitura.score import Measure as ptMeasure
 from partitura.score import Note as ptNote
@@ -28,31 +30,6 @@ from amads.core.basics import (
 
 DIVS = 600  # divisions per quarter note for Partitura MIDI export
 # 600 corresponds to 1 ms at 100 bpm
-
-CLEF_SIGN = {
-    "treble": "G",
-    "bass": "F",
-    "alto": "C",
-    "tenor": "C",
-    "percussion": "percussion",
-    "treble8vb": "G",
-}
-CLEF_LINE = {
-    "treble": 2,
-    "bass": 4,
-    "alto": 3,
-    "tenor": 4,
-    "percussion": None,
-    "treble8vb": 2,
-}
-CLEF_OCTAVE_CHANGE = {
-    "treble": None,
-    "bass": None,
-    "alto": None,
-    "tenor": None,
-    "percussion": None,
-    "treble8vb": -1,
-}
 
 
 def is_new_key_signature(event: KeySignature, kstimes: list[float]) -> bool:
@@ -117,6 +94,21 @@ def add_event_to_part(
         event = cast(Note, event)
         if event.pitch is None:
             pt_note = ptGenericNote(staff=staff, voice=staff)
+        elif event.has("is_grace"):
+            pt_note = ptGraceNote(
+                grace_type="acciaccatura",  # or appoggiatura? no real standard
+                # but if the duration is zero, it seems more like acciaccatura
+                # (even if appoggiaturas are encoded with zero duration too.)
+                step=event.step,
+                octave=event.octave,
+                alter=event.pitch.alt,
+                staff=staff,
+                voice=staff,
+            )  # type: ignore
+            assert pt_note.midi_pitch == event.key_num, (
+                "internal error in pitch"
+                " conversion; maybe octave confusion for something like B#3?"
+            )
         else:
             pt_note = ptNote(
                 step=event.step,
@@ -159,13 +151,20 @@ def add_event_to_part(
         pt_part.add(pt_key_sig, round(event.onset * DIVS))
     elif isinstance(event, Clef):
         event = cast(Clef, event)
-        pt_clef = ptClef(
-            staff=staff,
-            sign=CLEF_SIGN[event.clef],
-            line=CLEF_LINE[event.clef],
-            octave_change=CLEF_OCTAVE_CHANGE[event.clef],
-        )
-        pt_part.add(pt_clef, round(event.onset * DIVS))
+        if event.clef == "constructed":
+            info = event.get("clef_info")
+        else:
+            info = Clef._clef_info.get(event.clef)
+        if info:
+            pt_clef = ptClef(
+                staff=staff, sign=info[0], line=info[1], octave_change=info[2]
+            )
+            pt_part.add(pt_clef, round(event.onset * DIVS))
+        else:
+            warnings.warn(
+                f"Omitted non-interpretable clef {event} in "
+                "conversion to Partitura"
+            )
     return id
 
 

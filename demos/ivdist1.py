@@ -11,6 +11,8 @@ from amads.all import (
     set_preferred_midi_reader,
 )
 
+VERBOSE = False
+
 my_midi_file = example.fullpath("midi/tones.mid")
 assert my_midi_file is not None
 
@@ -18,13 +20,15 @@ print("------- input from partitura")
 set_preferred_midi_reader("music21")
 myscore = read_score(my_midi_file, show=False)
 print("------- finished input from partitura")
-myscore.show()
+if VERBOSE:
+    myscore.show()
 print("------- Removing all but the first part")
 mono_score = cast(Score, myscore.emptycopy())
 first_part = next(myscore.find_all(Part))  # Get the first part
 first_part.insert_copy_into(mono_score)
 print("------- finished removing all but the first part")
-mono_score.show()
+if VERBOSE:
+    mono_score.show()
 print("------- Calculate pitch-class distribution")
 id = interval_distribution_1(mono_score, weighted=True)
 

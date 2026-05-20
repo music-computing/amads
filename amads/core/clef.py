@@ -28,6 +28,12 @@ class Clef(Event):
     clef : str
         The clef name, one of "treble", "bass", "alto", "tenor",
         "percussion", "treble8vb" (Other clefs may be added later.)
+    parameters : Optionoal[tuple[str, int, int]]
+        If `clef` is `"constructed"`, `parameters` must contain
+        a tuple giving the clef symbol (`"F"`, `"G"`, or `"C"`),
+        the staff line as the clef position (1 through 5), and
+        the octave shift, e.g., 1 for "8va", -1 for "8vb", 0 for
+        the normal octave (F3, G4, C4).
 
     Attributes
     ----------

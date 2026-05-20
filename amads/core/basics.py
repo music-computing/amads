@@ -1845,7 +1845,16 @@ class EventGroup(Event):
         ------
         ValueError
             If event._onset is None (it must be a number)
+
+        Caution Regarding Zero-Duration Event Order
+        -------------------------------------------
+        If you have note N with non-zero duration and, at the same
+        time, a grace note G with zero duration, the notes will be
+        ordered according to when they are inserted. So if you insert
+        N and then G, then N will be placed *before* G. See
+        io.pt_import.py, where this case is dealt with.
         """
+
         assert not event.parent
         if event._onset is None:  # must be a number
             raise ValueError(f"event's _onset attribute must be a number")
