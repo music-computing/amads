@@ -448,6 +448,17 @@ def read_score(
     does not even have a meta-event for clefs, and even if the
     MIDI file has no key signature meta-event.
 
+    Music21 has an optional 8vb treble clef. This becomes simply a
+    treble clef (`Clef.clef == "treble") in AMADS.
+
+    Some Music21 clefs are not supported in AMADS, e.g. tenor clef
+    with an 8vb marking. These become `Clef.clef == "constructed"`
+    and a tuple with (symbol, staff line, octave transposition) is
+    stored as property "clef_info". Some unusual 18th, 19th, and 20th
+    Century clefs are translated into more modern or conventional
+    treble, soprano, alto, and tenor clefs, retaining the note
+    positions on the staff, but not the original symbol.
+
     Grace notes are Notes marked by setting the `"is_grace"` property
     to True. AMADS also uses the `"has_slash"` property (no property
     means False) to indicate a grace note with a slash (conventionally

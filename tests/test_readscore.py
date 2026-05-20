@@ -7,7 +7,7 @@ See more extensive tests on musicXML in test_midi_roundtrip and test_xml_export
 """
 
 from amads.algorithms.scores_compare import notes_compare, scores_compare
-from amads.core.basics import Measure, Note
+from amads.core.basics import Measure, Note, Staff
 from amads.io.readscore import (
     last_used_reader,
     read_score,
@@ -153,4 +153,72 @@ def test_grace_trills_example():
     score = read_score(xml_file)  # , show=True)
     print("MusicXML import with", last_used_reader())
     score.show()
-    assert len(score.list_all(Note)) == 9, "Expected 9 notes in score"
+    assert len(score.list_all(Note)) == 30, "Expected 30 notes in score"
+    staffs: list[Staff] = score.list_all(Staff)  # type: ignore
+    assert len(staffs) == 2, "Expected 2 staffs in score"
+    notes = staffs[0].list_all(Note)
+    assert notes[0].get("has_trill", False)
+    assert notes[0].get("trill_pitch").name_with_octave == "B4"
+    assert notes[2].get("has_turn", False)
+    assert notes[2].get("turn_pitches")[0].name_with_octave == "Db5"
+    assert notes[2].get("turn_pitches")[1].name_with_octave == "B4"
+    assert notes[3].get("has_turn", False)
+    assert notes[3].get("turn_pitches")[0].name_with_octave == "C##5"
+    assert notes[3].get("turn_pitches")[1].name_with_octave == "Ab4"
+    assert notes[4].get("has_mordent", False)
+    assert notes[4].get("mordent_pitch").name_with_octave == "B4"
+    assert notes[5].get("has_inverted_mordent", False)
+    assert notes[5].get("inverted_mordent_pitch").name_with_octave == "F#4"
+    assert notes[6].get("has_inverted_mordent", False)
+    assert notes[6].get("inverted_mordent_pitch").name_with_octave == "Cb5"
+    assert notes[7].get("has_inverted_mordent", False)
+    assert notes[7].get("inverted_mordent_pitch").name_with_octave == "F4"
+    assert notes[8].get("has_mordent", False)
+    assert notes[8].get("mordent_pitch").name_with_octave == "F##4"
+    assert notes[9].get("has_mordent", False)
+    assert notes[9].get("mordent_pitch").name_with_octave == "C5"
+    assert notes[10].get("has_turn", False)
+    assert notes[10].get("turn_pitches")[0].name_with_octave == "C5"
+    assert notes[10].get("turn_pitches")[1].name_with_octave == "A#4"
+    assert notes[11].get("has_turn", False)
+    assert notes[11].get("turn_pitches")[0].name_with_octave == "A4"
+    assert notes[11].get("turn_pitches")[1].name_with_octave == "F##4"
+    assert notes[12].get("has_turn", False)
+    assert notes[12].get("turn_pitches")[0].name_with_octave == "Bbb4"
+    assert notes[12].get("turn_pitches")[1].name_with_octave == "Gb4"
+    assert notes[13].get("has_turn", False)
+    assert notes[13].get("turn_pitches")[0].name_with_octave == "Db5"
+    assert notes[13].get("turn_pitches")[1].name_with_octave == "Bbb4"
+
+    notes = staffs[1].list_all(Note)
+    assert notes[0].get("has_trill", False)
+    assert notes[0].get("trill_pitch").name_with_octave == "Gb3"
+    assert notes[1].get("is_grace", False)
+    assert notes[1].get("has_slash", False)
+    assert not notes[2].get("is_grace", False)
+    assert notes[3].get("is_grace", False)
+    assert notes[3].get("has_slash", False)
+    assert notes[5].get("is_grace", False)
+    assert notes[5].get("has_slash", False)
+    assert notes[7].get("has_trill", False)
+    assert notes[7].get("trill_pitch").name_with_octave == "F3"
+    assert notes[8].get("has_mordent", False)
+    assert notes[8].get("mordent_pitch").name_with_octave == "C#3"
+    assert notes[9].get("has_mordent", False)
+    assert notes[9].get("mordent_pitch").name_with_octave == "D3"
+    assert notes[10].get("has_inverted_mordent", False)
+    assert notes[10].get("inverted_mordent_pitch").name_with_octave == "C#3"
+    assert notes[11].get("has_inverted_mordent", False)
+    assert notes[11].get("inverted_mordent_pitch").name_with_octave == "D3"
+    assert notes[12].get("has_turn", False)
+    assert notes[12].get("turn_pitches")[0].name_with_octave == "G#3"
+    assert notes[12].get("turn_pitches")[1].name_with_octave == "E3"
+    assert notes[13].get("has_turn", False)
+    assert notes[13].get("turn_pitches")[0].name_with_octave == "A3"
+    assert notes[13].get("turn_pitches")[1].name_with_octave == "F#3"
+    assert notes[14].get("has_turn", False)
+    assert notes[14].get("turn_pitches")[0].name_with_octave == "Bb3"
+    assert notes[14].get("turn_pitches")[1].name_with_octave == "G3"
+    assert notes[15].get("has_turn", False)
+    assert notes[15].get("turn_pitches")[0].name_with_octave == "C4"
+    assert notes[15].get("turn_pitches")[1].name_with_octave == "Ab3"

@@ -13,6 +13,7 @@ from music21 import (
     metadata,
     musicxml,
     note,
+    pitch,
     stream,
     tempo,
     tie,
@@ -27,6 +28,7 @@ from amads.core.basics import (
     Measure,
     Note,
     Part,
+    Pitch,
     Rest,
     Score,
     Staff,
@@ -161,20 +163,20 @@ def _add_expressions_to_m21(m21note, item):
         m21note.expressions.append(expressions.TrillExtension())
     if item.get("has_turn", False):
         turn = expressions.Turn()
-        _m21turns.append(m21note, turn, item.get("turn_pitches"))
+        _m21turns.append((m21note, turn, item.get("turn_pitches")))
         m21note.expressions.append(turn)
     if item.get("has_inverted_turn", False):
         turn = expressions.InvertedTurn()
-        _m21turns.append(m21note, turn, item.get("inverted_turn_pitches"))
+        _m21turns.append((m21note, turn, item.get("inverted_turn_pitches")))
         m21note.expressions.append(turn)
     if item.get("has_mordent", False):
         mordent = expressions.GeneralMordent()
-        _m21mordents.append(m21note, mordent, item.get("mordent_pitch"))
+        _m21mordents.append((m21note, mordent, item.get("mordent_pitch")))
         m21note.expressions.append(mordent)
     if item.get("has_inverted_mordent", False):
         mordent = expressions.InvertedMordent()
-        pitch = item.get("inverted_mordent_pitch")
-        _m21mordents.append(m21note, mordent, pitch)
+        apitch = item.get("inverted_mordent_pitch")
+        _m21mordents.append((m21note, mordent, apitch))
         m21note.expressions.append(mordent)
     if item.get("has_shake", False):
         m21note.expressions.append(expressions.Shake())
@@ -281,10 +283,134 @@ def _add_measure_content_from_list(m21parent, measure, content, dur, ties):
         m21parent.insert(m21rest.offset, m21rest)
 
 
+_accidentals = ["double-flat", "flat", "natural", "sharp", "double-sharp"]
+
+
+def lookup_accidental(diff: int) -> str:
+    """convert pitch difference to accidental requuired
+
+    If diff is out of range, just return double-flat or double-sharp.
+    """
+    diff = max(-2, min(2, diff))
+    return _accidentals[diff + 2]
+
+
+def _get_turn_pitches(
+    turn: expressions.Turn, m21note: note.Note
+) -> tuple[pitch.Pitch, pitch.Pitch]:
+    """resolve upper and lower turn pitches from music21"""
+    turn.resolveOrnamentalPitches(m21note)
+    m21pitches = turn.ornamentalPitches
+    if m21pitches[0].midi > m21pitches[1].midi:
+        return (m21pitches[0], m21pitches[1])
+    else:
+        return (m21pitches[1], m21pitches[0])
+
+
+def _get_pitch_diff(
+    m21note: note.Note, expr: expressions.Ornament, apitch: Pitch
+) -> int:
+    """factors out a common calculation for trills and mordents"""
+    expr.resolveOrnamentalPitches(m21note)
+    return apitch.key_num - expr.ornamentalPitches[0].midi
+
+
 def music21_resolve_ornaments():
     """fix up ornaments that need accidentals"""
     global _m21trills, _m21turns, _m21mordents
-    # YOU ARE HERE
+    for item in _m21trills:
+        (m21note, trill, apitch) = item
+        # see if trill pitches are already correct
+        diff = _get_pitch_diff(m21note, trill, apitch)
+        if diff != 0:
+            trill.accidental = lookup_accidental(diff)
+            # if there was already an accidental, we might get the wrong result
+            diff2 = _get_pitch_diff(m21note, trill, apitch)
+            if diff2 != 0:
+                trill.accidental = lookup_accidental(diff + diff2)
+                diff3 = _get_pitch_diff(m21note, trill, apitch)
+                if diff3 != 0:
+                    raise Exception(
+                        "Could not resolve trill accidental."
+                        f" Trilled note is {m21note}, desired pitch is "
+                        f"{trill.ornamentalPitches[0]}. Pitch differences "
+                        f"were {diff} and {diff2}. Tried "
+                        f"{lookup_accidental(diff)} and "
+                        f"{lookup_accidental(diff + diff2)}."
+                    )
+
+    for item in _m21turns:
+        (m21note, turn, pitches) = item
+        assert len(pitches) == 2, "expected 2 Pitches in turn info"
+        p0 = pitches[0].key_num
+        p1 = pitches[1].key_num
+        upper = max(p0, p1)
+        lower = min(p0, p1)
+        # see if turn pitches are correct
+        m21upper, m21lower = _get_turn_pitches(turn, m21note)
+
+        # start with upper pitch and accidental
+        diff = upper.key_num - m21upper.midi
+        if diff != 0:
+            turn.upperAccidental = lookup_accidental(diff)
+            # if there was already an accidental, we might get the wrong result
+            m21upper, m21lower = _get_turn_pitches(turn, m21note)
+            diff2 = upper.key_num - m21upper.midi
+            if diff2 != 0:
+                turn.upperAccidental = lookup_accidental(diff + diff2)
+                m21upper, m21lower = _get_turn_pitches(turn, m21note)
+                diff3 = upper.key_num - m21upper.midi
+                if diff3 != 0:
+                    raise Exception(
+                        "Could not resolve upper turn accidental."
+                        f" Turn note is {m21note}, desired upper pitch is "
+                        f"{m21upper}. Pitch differences were {diff} and "
+                        f"{diff2}. Tried {lookup_accidental(diff)} and "
+                        f"{lookup_accidental(diff + diff2)}."
+                    )
+
+        # now do lower pitch and accidental
+        diff = lower.key_num - m21lower.midi
+        if diff != 0:
+            turn.lowerAccidental = lookup_accidental(diff)
+            # if there was already an accidental, we might get the wrong result
+            m21lower, m21lower = _get_turn_pitches(turn, m21note)
+            diff2 = lower.key_num - m21lower.midi
+            if diff2 != 0:
+                turn.lowerAccidental = lookup_accidental(diff + diff2)
+                m21lower, m21lower = _get_turn_pitches(turn, m21note)
+                diff3 = lower.key_num - m21lower.midi
+                if diff3 != 0:
+                    raise Exception(
+                        "Could not resolve lower turn accidental."
+                        f" Turn note is {m21note}, desired lower pitch is "
+                        f"{m21lower}. Pitch differences were {diff} and "
+                        f"{diff2}. Tried {lookup_accidental(diff)} and "
+                        f"{lookup_accidental(diff + diff2)}."
+                    )
+
+    for item in _m21mordents:
+        (m21note, mordent, apitch) = item
+        # see if mordent pitches are already correct
+        diff = _get_pitch_diff(m21note, mordent, apitch)
+        if diff != 0:
+            mordent.accidental = lookup_accidental(diff)
+            # if there was already an accidental, we might get the wrong result
+            mordent.resolveOrnamentalPitches(m21note)
+            diff2 = _get_pitch_diff(m21note, mordent, apitch)
+            if diff2 != 0:
+                mordent.accidental = lookup_accidental(diff + diff2)
+                mordent.resolveOrnamentalPitches(m21note)
+                diff3 = _get_pitch_diff(m21note, mordent, apitch)
+                if diff3 != 0:
+                    raise Exception(
+                        "Could not resolve mordent accidental."
+                        f" Mordented note is {m21note}, desired pitch is "
+                        f"{mordent.ornamentalPitches[0]}. Pitch "
+                        f"differences were {diff} and {diff2}. Tried "
+                        f"{lookup_accidental(diff)} and "
+                        f"{lookup_accidental(diff + diff2)}."
+                    )
 
 
 def _score_to_music21(
@@ -310,6 +436,8 @@ def _score_to_music21(
     # create a new music21 score
     global _m21trills, _m21turns, _m21mordents
     _m21trills = []
+    _m21turns = []
+    _m21mordents = []
     m21score = stream.Score()
     m21score.metadata = metadata.Metadata()
     if score.has("title"):

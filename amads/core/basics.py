@@ -842,6 +842,13 @@ class Note(Event):
         if self.get("has_trill_extension", False):
             grace_info += ", trill_ext"
 
+        if self.get("has_mordent", False):
+            grace_info += ", mordent " + str(self.get("mordent_pitch"))
+
+        if self.get("has_inverted_mordent", False):
+            grace_info += (", inverted mordent " +
+                           str(self.get("inverted_mordent_pitch")))
+
         if self.get("has_turn", False):
             grace_info += ", turn " + str(self.get("turn_pitches"))
 
@@ -1156,75 +1163,6 @@ class TimeSignature:
             Duration of one full measure of this time signature in quarters.
         """
         return self.upper * 4 / self.lower
-
-
-
-class Clef(Event):
-    """Clef is a zero-duration Event with clef information.
-
-    Parameters
-    ----------
-    parent : Optional["EventGroup"]
-        The containing object or None.
-    onset : float
-        The onset (start) time. An initial value of None might
-        be assigned when the Clef is inserted into an EventGroup.
-    clef : str
-        The clef name, one of "treble", "bass", "alto", "tenor", 
-        "percussion", "treble8vb" (Other clefs may be added later.)
-
-    Attributes
-    ----------
-    parent : Optional["EventGroup"]
-        The containing object or None.
-    _onset : float
-        The onset (start) time.
-    duration : float
-        Always zero for this subclass.
-    clef : str
-        The clef name, one of "treble", "bass", "alto", "tenor", 
-        "percussion", "treble8vb" (Other clefs may be added later.)
-    """
-    __slots__ = ["clef"]
-    clef: str
-
-    def __init__(self,
-                 parent: Optional["EventGroup"] = None,
-                 onset: float = 0.0, clef: str = "treble"):
-        super().__init__(parent, onset, 0)
-        if clef not in [
-            "treble", "alto", "tenor", "bass",
-            "treble8va", "treble8vb",
-            "bass8va", "bass8vb",
-            "percussion",
-            "soprano"
-        ]:
-            raise ValueError(f"Invalid clef: {clef}")
-        self.clef = clef
-
-
-    def __str__(self) -> str:
-        """Short string representation
-        """
-        return f"Clef({self._event_onset()}, {self.clef})"
-
-
-    def show(self, indent: int = 0, file: Optional[TextIO] = None) -> "Clef":
-        """Display the Clef information.
-
-        Parameters
-        ----------
-        indent : int
-            The indentation level for display.
-
-        Returns
-        -------
-        Clef
-            The Clef instance itself.
-        """
-        print(" " * indent, self, sep="", file=file)
-        return self
-
 
 
 class KeySignature(Event):
@@ -4195,3 +4133,12 @@ class Staff(Sequence):
                 new_content.append(measure)
         self.content = new_content
         return self
+
+# This is at the bottom to avoid circular imports - very confusing and fragile.
+# Maybe given Python limitations, we should put ALL these classes Note, Score, etc.,
+# into separate files and consolidate them with a virtual module `basics`.
+# hide file organization from users and mkdocs:
+# note that for mkdocs, this must go here and not in __init__.py
+from amads.core.clef import Clef
+
+Clef.__module__ = "amads.core.basics"

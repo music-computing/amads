@@ -78,7 +78,7 @@ class _TiedNotes:
 
     def find_and_remove_predecessor(
         self, choices: list[Note], note: Note
-    ) -> Note:
+    ) -> Optional[Note]:
         """find closest thing to an immediate predecessor to note in choices"""
         # this will search for the note p in choices with an offset that is
         # closest to the onset of note, i.e., where p and note are adjacent.
@@ -105,29 +105,28 @@ class _TiedNotes:
         return best
 
     def continue_note(self, key_num: int, note: Note) -> None:
+        origin = None
         if key_num in self.tied_notes:
             origin = self.tied_notes[key_num]
             print("continue_note: origin", origin, "note", note)
             if isinstance(origin, list):
                 origin_note = self.find_and_remove_predecessor(origin, note)
                 origin.append(note)  # this note is tied to something too
-                origin = origin_note
-
+                origin = origin_note  # origin might now be None
             else:  # there is only one note that can be the predecessor.
                 # since note is labeled "continue", it becomes a predecessor
                 self.tied_notes[key_num] = note
-            if abs(note.onset - origin.offset > 0.1):
-                warnings.warn(
-                    f"music21 note (key_num {key_num} at beat "
-                    f"{note.onset} continues a tie but the best "
-                    f"candidate for its predecessor (at beat "
-                    f"{origin.onset} is not adjacent. It ends at "
-                    f"beat {origin.offset}. Tying to it anyway."
-                )
-            origin.tie = note
-            print("    continue_note set tie:")
-            origin.show()
-        else:  # missing start note
+            if origin is not None:
+                if abs(note.onset - origin.offset > 0.1):
+                    warnings.warn(
+                        f"music21 note (key_num {key_num} at beat "
+                        f"{note.onset} continues a tie but the best "
+                        f"candidate for its predecessor (at beat "
+                        f"{origin.onset} is not adjacent. It ends at "
+                        f"beat {origin.offset}. Tying to it anyway."
+                    )
+                origin.tie = note
+        if origin is None:
             warnings.warn(
                 f"music21 note (key_num {key_num} at beat"
                 f" {note.onset}) continues a tie, but there is no"
@@ -135,25 +134,27 @@ class _TiedNotes:
             )
 
     def stop_note(self, key_num: int, note: Note) -> None:
+        origin = None
         if key_num in self.tied_notes:
             origin = self.tied_notes[key_num]
             if isinstance(origin, list):
                 origin_note = self.find_and_remove_predecessor(origin, note)
                 if len(origin) == 1:  # restore to non-list single note
                     self.tied_notes[key_num] = origin[0]
-                origin = origin_note
+                origin = origin_note  # origin might now be None
             else:
                 del self.tied_notes[key_num]  # remove the origin
-            if abs(note.onset - origin.offset > 0.1):
-                warnings.warn(
-                    f"music21 note (key_num {key_num} at beat "
-                    f"{note.onset} ends a tie but the best "
-                    f"candidate for its predecessor (at beat "
-                    f"{origin.onset} is not adjacent. It ends at "
-                    f"beat {origin.offset}. Tying to it anyway."
-                )
-            origin.tie = note
-        else:  # missing start note
+            if origin is not None:
+                if abs(note.onset - origin.offset > 0.1):
+                    warnings.warn(
+                        f"music21 note (key_num {key_num} at beat "
+                        f"{note.onset} ends a tie but the best "
+                        f"candidate for its predecessor (at beat "
+                        f"{origin.onset} is not adjacent. It ends at "
+                        f"beat {origin.offset}. Tying to it anyway."
+                    )
+                origin.tie = note
+        if origin is None:
             warnings.warn(
                 f"music21 note (key_num {key_num} at beat"
                 f" {note.onset}) ends a tie, but there is no start"
@@ -272,7 +273,7 @@ def music21_to_score(
     #     to find all Parts whose Staff belong together.
 
     if isinstance(m21score, stream.Part):
-        music21_convert_part(m21score, score, duration)
+        part, shared_shift = music21_convert_part(m21score, score, duration)
     elif isinstance(m21score, stream.Score):
         shared_shift = None  # used to check all parts have same time shift
         for i, m21part in enumerate(m21score.parts):
@@ -359,6 +360,8 @@ def music21_to_score(
                 from_part.remove(from_staff)
                 to_part.insert(from_staff)
 
+    if shared_shift is None:  # might happen if score is empty
+        shared_shift = 0.0
     return _finish_import(score, flatten, collapse, shared_shift)
 
 
@@ -418,8 +421,6 @@ def music21_convert_note(m21note, measure):
             note.set("has_slash", True)
     if hasattr(m21note, "expressions"):
         for expr in m21note.expressions:
-            if not isinstance(expr, _trill_types):
-                continue
             if isinstance(expr, expressions.Trill):
                 note.set("has_trill", True)
                 music21_check_trill_details(m21note, expr, note)
@@ -558,6 +559,54 @@ def _remove_clef_from_measure(measure: Measure, onset: float) -> None:
         measure.remove(elem)
 
 
+def _get_amads_clef_name(
+    m21clef: clef.Clef,
+) -> tuple[str, Optional[tuple[str, int, int]]]:
+    """Convert a music21 clef name to an AMADS clef name."""
+    m21clef_name = m21clef.name.lower()
+    # music21 uses "French Violin" but AMADS uses "french_violin
+    if m21clef_name == "frenchviolin":
+        m21clef_name = "french_violin"
+    # check that the clef is one of the ones we support:
+    parameters = None
+    if m21clef_name not in Clef._clef_info:
+        warnings.warn(
+            f"Music21 clef {m21clef_name} is not one of the clefs"
+            ' supported by AMADS. Using "constructed"'
+        )
+        m21clef_name = "constructed"
+    else:
+        if m21clef_name == "treble" and m21clef.octaveChange == 2:
+            # music21 does not have a "treble15va" clef, but amads does
+            m21clef_name = "treble15va"  # probable name, but we'll still check
+        elif m21clef_name == "bass":
+            if m21clef.octaveChange == 2:
+                m21clef_name = "bass15va"
+            elif m21clef.octaveChange == -2:
+                m21clef_name = "bass15vb"
+        name_info = Clef._clef_info[m21clef_name]
+        # check that the clef parameters match what we expect for this clef
+        if (
+            m21clef.sign != name_info[0]
+            or m21clef.line != name_info[1]
+            or m21clef.octaveChange != name_info[2]
+        ):
+            warnings.warn(
+                f"Music21 clef {m21clef_name} has parameters "
+                f"(sign {m21clef.sign}, line {m21clef.line}, octave change "
+                f"{m21clef.octaveChange}) that do not match the expected "
+                "parameters for this clef name. Using"
+                ' "constructed" instead of "{m21clef_name}".'
+            )
+            m21clef_name = "constructed"
+    if m21clef_name == "constructed":
+        parameters = (m21clef.sign, m21clef.line, m21clef.octaveChange)
+        assert parameters[0] is not None and parameters[1] is not None
+        parameters = cast(tuple[str, int, int], parameters)
+
+    return m21clef_name, parameters
+
+
 def append_items_to_measure(
     measure: Measure, source: stream.Stream, offset: float
 ) -> None:
@@ -615,7 +664,13 @@ def append_items_to_measure(
             # measure
             _remove_clef_from_measure(measure, measure.onset + element.offset)
             # Create a Clef object and associate it with the Measure
-            Clef(measure, measure.onset + element.offset, clef=element.name)
+            name, clef_parameters = _get_amads_clef_name(element)
+            # print("music21_convert_measure: adding clef", name, "at offset",
+            #       element.offset)
+            # print("    clef sign", element.sign, "line", element.line,
+            #       "octave change", element.octaveChange,
+            #       "parameters", clef_parameters)
+            Clef(measure, measure.onset + element.offset, name, clef_parameters)
         elif isinstance(element, chord.Chord):
             music21_convert_chord(element, measure, offset)
         elif isinstance(element, stream.Voice):

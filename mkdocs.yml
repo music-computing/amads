@@ -43,7 +43,8 @@ plugins:
             docstring_options:
               ignore_init_summary: true
             docstring_section_style: list
-            filters: public  # sponsors only, will be released soon
+            filters:
+              - "!^_"
             heading_level: 2
             inherited_members: true
             line_length: 72  # to format signatures with Ruff/Black if installed
@@ -53,6 +54,7 @@ plugins:
             modernize_annotations: true
             parameter_headings: true
             separate_signature: true
+            show_if_no_docstring: false
             show_root_heading: true
             show_root_full_path: false
             show_object_full_path: false

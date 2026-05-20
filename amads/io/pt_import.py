@@ -272,6 +272,17 @@ def process_signatures(
             return  # need to wait for measure to be created
 
 
+def _process_ornaments(pt_note: ptScore.Note, note: Note) -> None:
+    """encode ornaments found on pt_note into note"""
+    for ornament in pt_note.ornaments:
+        warnings.warn(
+            "Partitura does not support accidental marks on "
+            "ornaments, so when importing with Partitura, ornaments "
+            f"are not encoded. Skipping ornament {ornament} on note "
+            f"{pt_note}."
+        )
+
+
 def partitura_convert_part(
     ppart: ptScore.Part, score: Score, rnd: bool = True
 ) -> Part:
@@ -480,28 +491,30 @@ def partitura_convert_part(
                 break  # use previous measure, but probably there is a bug here
             measure = staff.content[mindex]  # type: ignore
         if event[0] == "note":
-            if event[2] > 0:  # zero duration means skip note
-                note = Note(
-                    parent=measure,
-                    onset=event[1],
-                    duration=event[2],
-                    pitch=Pitch(event[4], event[5]),
-                )
-                if event[7]:  # is tied to another note
-                    # Multiple cases: 1) note is tied to next note with
-                    # non-zero duration, so we put the note in pt_note_to_note
-                    # so it can be patched later. 2) note is tied to a previous
-                    # note, so we patch the previous note.
-                    pt_note = event[8]
-                    # map pt_note to [event, note], so [0] gives the event,
-                    # and event[2] is duration
-                    if pt_note.tie_next and pt_note_to_note[pt_note][0][2] != 0:
-                        # associate this new Note with the partitura note:
-                        pt_note_to_note[pt_note].append(note)
-                    if pt_note.tie_prev:
-                        # patch the previous note
-                        pt_note = pt_note.tie_prev
-                        pt_note_to_note[pt_note][1].tie = note
+            note = Note(
+                parent=measure,
+                onset=event[1],
+                duration=event[2],
+                pitch=Pitch(event[4], event[5]),
+            )
+            pt_note = event[8]
+            if event[2] == 0 or isinstance(pt_note, ptScore.GraceNote):
+                note.set("is_grace", True)
+            _process_ornaments(pt_note, note)
+            if event[7]:  # is tied to another note
+                # Multiple cases: 1) note is tied to next note with
+                # non-zero duration, so we put the note in pt_note_to_note
+                # so it can be patched later. 2) note is tied to a previous
+                # note, so we patch the previous note.
+                # map pt_note to [event, note], so [0] gives the event,
+                # and event[2] is duration
+                if pt_note.tie_next and pt_note_to_note[pt_note][0][2] != 0:
+                    # associate this new Note with the partitura note:
+                    pt_note_to_note[pt_note].append(note)
+                if pt_note.tie_prev:
+                    # patch the previous note
+                    pt_note = pt_note.tie_prev
+                    pt_note_to_note[pt_note][1].tie = note
         elif event[0] == "rest":
             Rest(parent=measure, onset=event[1], duration=event[2])
         else:
