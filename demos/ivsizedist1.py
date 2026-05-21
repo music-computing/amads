@@ -5,6 +5,8 @@ from amads.all import (
 )
 from amads.music import example
 
+VERBOSE = False
+
 my_midi_file = example.fullpath("midi/sarabande.mid")
 assert my_midi_file is not None
 
@@ -12,7 +14,8 @@ set_preferred_midi_reader("music21")  # for consistent testing
 print("------- input from music21")
 myscore = read_score(my_midi_file, show=False)
 print("------- finished input from music21")
-myscore.show()
+if VERBOSE:
+    myscore.show()
 
 print("------- Calculate interval size distribution")
 isd = interval_size_distribution_1(myscore, weighted=True)

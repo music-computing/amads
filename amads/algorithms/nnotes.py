@@ -1,7 +1,7 @@
 """
 Provides the `nnotes` function
 
-Original doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=77
+Original doc: github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf, page 78.
 """
 
 from amads.core.basics import Note, Score
@@ -10,6 +10,8 @@ from amads.core.basics import Note, Score
 def nnotes(score: Score, merge_ties: bool = False) -> int:
     """
     Returns the number of notes in a musical score.
+
+    This is an implementation of the nnotes function in Matlab MIDItoolbox.
 
     Parameters
     ----------

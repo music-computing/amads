@@ -5,7 +5,7 @@ Corresponds to maxkkcc in miditoolbox
 
 Reference
 ---------
-https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=69
+https://github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf, page 70.
 """
 
 from itertools import chain
@@ -25,6 +25,8 @@ def max_key_cc(
     """
     Find the maximal correlation value after calling key_cc
     with relevant parameters (see key_cc.py for more details)
+
+    This is an implementation of the maxkkcc function in Matlab MIDItoolbox.
 
     Parameters
     ----------

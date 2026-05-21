@@ -75,19 +75,31 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
         
-        // Reformat Methods
-        const methodsHeading = Array.from(summarySection.querySelectorAll('p > .doc-section-title'))
-            .find(title => title.textContent.trim() === 'Methods:');
-        if (methodsHeading) {
-            const methodsList = methodsHeading.parentNode.nextElementSibling;
-            if (methodsList) {
-                const listItems = methodsList.querySelectorAll('li');
-                reformatSummaryItems(listItems);
+        // Reformat Methods (instance + class methods)
+        ['Methods:', 'Class Methods:'].forEach(label => {
+            const heading = Array.from(summarySection.querySelectorAll(
+                                              'p > .doc-section-title'))
+                .find(title => title.textContent.trim() === label);
+            if (heading) {
+                const list = heading.parentNode.nextElementSibling;
+                if (list) reformatSummaryItems(list.querySelectorAll('li'));
             }
-        }
+        });
+
+        // Reformat Methods
+        // const methodsHeading = Array.from(summarySection.querySelectorAll(
+        //                                          'p > .doc-section-title'))
+        //     .find(title => title.textContent.trim() === 'Methods:');
+        // if (methodsHeading) {
+        //     const methodsList = methodsHeading.parentNode.nextElementSibling;
+        //     if (methodsList) {
+        //         const listItems = methodsList.querySelectorAll('li');
+        //         reformatSummaryItems(listItems);
+        //     }
+        // }
         
         // Now add Properties section (if methods exist)
-        if (!methodsHeading) return;
+        // if (!methodsHeading) return;
         
         // Find all properties in the detailed documentation
         const properties = [];
@@ -188,11 +200,23 @@ document.addEventListener("DOMContentLoaded", function() {
         });
         propertiesParagraph.appendChild(propertiesList);
         
+        // Insert Properties section — find the right anchor or 
+        // fall back to appending
+        if (methodsHeading) {
+            methodsHeading.parentElement.parentNode.insertBefore(
+                propertiesParagraph,
+                methodsHeading.parentElement
+            );
+        } else {
+            // No methods heading — append to summary section instead
+            summarySection.appendChild(propertiesParagraph);
+        }
+
         // Insert Properties section right before Methods section
-        methodsHeading.parentElement.parentNode.insertBefore(
-            propertiesParagraph, 
-            methodsHeading.parentElement
-        );
+        // methodsHeading.parentElement.parentNode.insertBefore(
+        //     propertiesParagraph, 
+        //     methodsHeading.parentElement
+        // );
     });
 
     const h3elements = document.querySelectorAll('h3')

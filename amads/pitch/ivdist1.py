@@ -3,7 +3,7 @@ Pitch interval analysis.
 
 Implements the Midi Toolbox `ivdist1` function
 
-Original doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=63
+Original doc: https://github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf, page 64.
 """
 
 from typing import cast
@@ -22,6 +22,8 @@ def interval_distribution_1(
 ) -> Distribution:
     """
     Returns the interval distribution of a musical score.
+
+    This is an implementation of the ivdist1 function in the Matlab MIDItoolbox.
 
     Currently, intervals greater than an octave will be ignored.
 

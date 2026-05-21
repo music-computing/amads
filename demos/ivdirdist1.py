@@ -17,8 +17,8 @@ assert my_midi_file is not None
 print("------- input from music21")
 set_preferred_midi_reader("music21")  # for consistent testing
 myscore = read_score(my_midi_file, show=False)
-print("------- finished input from music21")
-myscore.show()
+# print("------- finished input from music21")
+# myscore.show()
 
 print("------- Calculate pitch-class distribution")
 id = interval_direction_distribution_1(myscore, weighted=True)

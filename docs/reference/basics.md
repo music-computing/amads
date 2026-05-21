@@ -37,4 +37,4 @@
     options:
       extra:
         exclude-members: [staff, part, score]
-      filters: ["!^staff$", "!^part$", "!^score$"]
+      filters: ["!^_", "!^staff$", "!^part$", "!^score$"]

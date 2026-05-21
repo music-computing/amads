@@ -7,7 +7,7 @@ Cross-correlations between pitch-class distributions and key profiles.
 
 Reference
 ---------
-https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=68 for more details
+https://github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf, kkcc on page 69.
 """
 
 __author__ = ["Tai Nakamura", "Di Wang"]
@@ -31,6 +31,9 @@ def key_cc(
 ) -> List[Tuple[str, Optional[Tuple[float]]]]:
     """
     Calculate the correlation coefficients with specific pitch profiles.
+
+    This is a more general version of kkcc, which is based on the kkcc
+    function of the Matlab MIDIToolbox. See also amads.pitch.key.kkcc.
 
     A score's pitch-class distribution is computed and generally,
     KeyProfiles come from existing data in profiles.py. Within each

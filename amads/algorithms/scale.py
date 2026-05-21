@@ -11,7 +11,8 @@ def scale(
 ):
     """Scale event timings in a score by a given factor.
 
-    [Original MIDI Toolbox doc](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=88)
+    Based on the scale function in
+    [Matlab MIDItoolbox](github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf), page 89.
 
     Note that if notes are tied, scaling by only onset time or only duration
     will result in tied notes where the offset of the first note is not the

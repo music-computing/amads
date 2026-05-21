@@ -8,6 +8,7 @@ from music21 import (
     chord,
     clef,
     converter,
+    expressions,
     instrument,
     key,
     note,
@@ -30,20 +31,150 @@ from amads.core.basics import (
     TimeSignature,
 )
 from amads.io.m21_show import music21_show
+from amads.io.readscore import _expand_first_measure, _finish_import
 
-tied_notes = {}  # temporary data to track tied notes, this is a mapping
-# from key number to Note object for notes that originate a tie. When we
-# see a note that ends or continues a tie, we look up the origin of the
-# tie in this dictionary and link it to the note that ends or continues
-# the tie. Note that we do not encode 'let-ring' or 'continue-let-ring'
-# in the AMADS data model, so we ignore those cases.
-#     It is possible for notes to overlap in time and be tied. What ties
-# to what in Music21 (as well as MIDI files) is ambiguous in this case,
-# but ignoring overlapping ties would create multiple notes when there
-# was only one in the MIDI file, so when there is overlap, we map from
-# pitch to a list of notes that originate unterminated ties for this
-# pitch. When a tie is terminated, we tie from the first note in the
-# list. (First-in-first-out).
+
+class _TiedNotes:
+    """Temporary data to track tied notes.
+
+    This is a mapping from key number to Note object for notes that
+    originate a tie. When we see a note that ends or continues a tie, we
+    look up the origin of the tie in this dictionary and link it to the note
+    that ends or continues the tie. Note that we do not encode 'let-ring' or
+    'continue-let-ring' in the AMADS data model, so we ignore those cases.
+
+    You might expect that if you encounter a tied note at a certain
+    pitch, then the next note at that pitch would be the note that the tie
+    connects to, but surprisingly, things are not so simple. As far as I
+    can tell, the order of notes is pretty arbitrary, maybe because of
+    voices, which are apparently created when notes are tied or beamed or
+    have stems in opposite directions, or even when you have notes of
+    different durations that overlap.
+
+    In any case, it seems to be ambiguous how ties connect. (Music
+    notation itself is ambiguous, e.g., does a tie from a chord to a chord
+    tie all notes in the chords or just one?) When we get a "start" tie
+    for pitch P, we set tied_notes[P] to the corresponding AMADS Note. If
+    tied_notes[P] already exists, we convert it to a list and put the Note
+    on the list. Then, when we find a note that continues or ends a tie,
+    we search tied_notes[P] for the best match, noting that tied notes
+    are not necessarily adjacent (n1.offset may not be exactly n2.onset).
+    """
+
+    tied_notes: Dict[int, Note | list[Note]]
+
+    def __init__(self):
+        self.tied_notes = {}
+
+    def insert_start_note(self, key_num: int, note: Note) -> None:
+        if key_num in self.tied_notes:
+            tied_note = self.tied_notes[key_num]
+            if isinstance(tied_note, list):
+                tied_note.append(note)
+            else:
+                self.tied_notes[key_num] = [tied_note, note]
+        else:
+            self.tied_notes[key_num] = note
+
+    def find_and_remove_predecessor(
+        self, choices: list[Note], note: Note
+    ) -> Optional[Note]:
+        """find closest thing to an immediate predecessor to note in choices"""
+        # this will search for the note p in choices with an offset that is
+        # closest to the onset of note, i.e., where p and note are adjacent.
+        # Strangely, a grace note with duration zero has its onset equal
+        # to its offset, so it is "adjacent" to itself. Be careful not to
+        # tie a grace note to itself. Another strange possibility is a grace
+        # tied to a grace tied to a longer note. Both the 2nd grace and the
+        # longer note are "adjacent" to the first grace note, but we want to
+        # tie to the 2nd grace note so it can then tie to the longer note.
+        best = None
+        best_delta = 999999.0
+        for candidate in choices:
+            if (
+                note != candidate
+                and abs(note.onset - candidate.offset) < best_delta
+            ):
+                # test durations and tie to the shortest
+                if not best or candidate.duration < best.duration:
+                    best = candidate
+        if best is None:
+            return None
+        # now remove pred from tied_notes
+        choices.remove(best)
+        return best
+
+    def continue_note(self, key_num: int, note: Note) -> None:
+        origin = None
+        if key_num in self.tied_notes:
+            origin = self.tied_notes[key_num]
+            print("continue_note: origin", origin, "note", note)
+            if isinstance(origin, list):
+                origin_note = self.find_and_remove_predecessor(origin, note)
+                origin.append(note)  # this note is tied to something too
+                origin = origin_note  # origin might now be None
+            else:  # there is only one note that can be the predecessor.
+                # since note is labeled "continue", it becomes a predecessor
+                self.tied_notes[key_num] = note
+            if origin is not None:
+                if abs(note.onset - origin.offset > 0.1):
+                    warnings.warn(
+                        f"music21 note (key_num {key_num} at beat "
+                        f"{note.onset} continues a tie but the best "
+                        f"candidate for its predecessor (at beat "
+                        f"{origin.onset} is not adjacent. It ends at "
+                        f"beat {origin.offset}. Tying to it anyway."
+                    )
+                origin.tie = note
+        if origin is None:
+            warnings.warn(
+                f"music21 note (key_num {key_num} at beat"
+                f" {note.onset}) continues a tie, but there is no"
+                " start note for that pitch. The tie is ignored."
+            )
+
+    def stop_note(self, key_num: int, note: Note) -> None:
+        origin = None
+        if key_num in self.tied_notes:
+            origin = self.tied_notes[key_num]
+            if isinstance(origin, list):
+                origin_note = self.find_and_remove_predecessor(origin, note)
+                if len(origin) == 1:  # restore to non-list single note
+                    self.tied_notes[key_num] = origin[0]
+                origin = origin_note  # origin might now be None
+            else:
+                del self.tied_notes[key_num]  # remove the origin
+            if origin is not None:
+                if abs(note.onset - origin.offset > 0.1):
+                    warnings.warn(
+                        f"music21 note (key_num {key_num} at beat "
+                        f"{note.onset} ends a tie but the best "
+                        f"candidate for its predecessor (at beat "
+                        f"{origin.onset} is not adjacent. It ends at "
+                        f"beat {origin.offset}. Tying to it anyway."
+                    )
+                origin.tie = note
+        if origin is None:
+            warnings.warn(
+                f"music21 note (key_num {key_num} at beat"
+                f" {note.onset}) ends a tie, but there is no start"
+                " note for that pitch. The tie is ignored."
+            )
+
+    def has_open_ties(self) -> bool:
+        return len(self.tied_notes) > 0
+
+    def get_predecessors(self) -> list[Note]:
+        """Get a list of all the predecessor notes that have not been matched
+        with a note that continues or ends the tie.
+        """
+        preds = []
+        for tied_note in self.tied_notes.values():
+            if isinstance(tied_note, list):
+                preds.extend(tied_note)
+            else:
+                preds.append(tied_note)
+        return preds
 
 
 def music21_import(
@@ -142,7 +273,7 @@ def music21_to_score(
     #     to find all Parts whose Staff belong together.
 
     if isinstance(m21score, stream.Part):
-        music21_convert_part(m21score, score, duration)
+        part, shared_shift = music21_convert_part(m21score, score, duration)
     elif isinstance(m21score, stream.Score):
         shared_shift = None  # used to check all parts have same time shift
         for i, m21part in enumerate(m21score.parts):
@@ -229,9 +360,37 @@ def music21_to_score(
                 from_part.remove(from_staff)
                 to_part.insert(from_staff)
 
-    if flatten or collapse:
-        score = score.flatten(collapse=collapse)
-    return score
+    if shared_shift is None:  # might happen if score is empty
+        shared_shift = 0.0
+    return _finish_import(score, flatten, collapse, shared_shift)
+
+
+_trill_types = (
+    expressions.Trill,
+    expressions.TrillExtension,
+    expressions.Turn,
+    expressions.InvertedTurn,
+    expressions.Shake,
+    expressions.Schleifer,
+)
+
+
+def music21_check_trill_details(m21note, expr, note):
+    if expr.nachschlag:
+        note.set("has_nachschlag", True)
+    music21_set_pitch(m21note, expr, note, "trill_pitch")
+
+
+def music21_set_pitch(m21note, expr, note, prop):
+    expr.resolveOrnamentalPitches(m21note)
+    m21pitch = expr.ornamentalPitch
+    note.set(prop, Pitch(m21pitch.midi, m21pitch.alter))
+
+
+def music21_set_pitches(m21note, expr, note, prop):
+    expr.resolveOrnamentalPitches(m21note)
+    m21pitches = expr.ornamentalPitches
+    note.set(prop, [Pitch(p.midi, p.alter) for p in m21pitches])
 
 
 def music21_convert_note(m21note, measure):
@@ -256,6 +415,40 @@ def music21_convert_note(m21note, measure):
         duration=duration,
         dynamic=dynamic,
     )
+    if m21note.duration.isGrace:
+        note.set("is_grace", True)
+        if m21note.duration.slash:
+            note.set("has_slash", True)
+        print("Converted music21 note", m21note, "to AMADS note", note)
+        print("    onset specified as", measure.onset + m21note.offset)
+    if hasattr(m21note, "expressions"):
+        for expr in m21note.expressions:
+            if isinstance(expr, expressions.Trill):
+                note.set("has_trill", True)
+                music21_check_trill_details(m21note, expr, note)
+            elif isinstance(expr, expressions.TrillExtension):
+                note.set("has_trill_extension", True)
+            elif isinstance(expr, expressions.Turn):
+                note.set("has_turn", True)
+                music21_set_pitches(m21note, expr, note, "turn_pitches")
+            elif isinstance(expr, expressions.InvertedTurn):
+                note.set("has_inverted_turn", True)
+                music21_set_pitches(
+                    m21note, expr, note, "inverted_turn_pitches"
+                )
+            elif isinstance(expr, expressions.GeneralMordent):
+                if expr.direction == "up":
+                    note.set("has_mordent", True)
+                    music21_set_pitch(m21note, expr, note, "mordent_pitch")
+                else:
+                    note.set("has_inverted_mordent", True)
+                    music21_set_pitch(
+                        m21note, expr, note, "inverted_mordent_pitch"
+                    )
+            elif isinstance(expr, expressions.Shake):
+                note.set("has_shake", True)
+            elif isinstance(expr, expressions.Schleifer):
+                note.set("has_schleifer", True)
     if m21note.tie is not None:
         music21_convert_tie(m21note.pitch.midi, note, m21note.tie.type)
 
@@ -272,65 +465,15 @@ def music21_convert_tie(key_num: int, note: Note, tie_type: str) -> None:
     tie_type : str
         the tie type, one of "start", "continue", "stop"
     """
+    global tied_notes
+    assert tied_notes is not None  # initialized in music21_convert_part
     if tie_type == "start":
         # Start of a tie
-        if key_num in tied_notes:
-            # If the note is already tied, we should not see "start":
-            import warnings
-
-            warnings.warn(
-                f"music21 note (key_num {key_num} at beat"
-                f" {note.onset}) starts a tie, but there is already"
-                " an open tie for that pitch. Maybe MIDI file has"
-                " multiple note-on events without an intervening"
-                " note-off event."
-            )
-            # make a list of started ties
-            tied_note = tied_notes[key_num]
-            if isinstance(tied_note, list):
-                tied_note.append(note)
-            else:
-                tied_notes[key_num] = [tied_note, note]
-        else:
-            tied_notes[key_num] = note
+        tied_notes.insert_start_note(key_num, note)
     elif tie_type == "continue":  # Continuation of a tie
-        if key_num in tied_notes:
-            origin = tied_notes[key_num]
-            if isinstance(origin, list):
-                origin_note = origin.pop(0)
-                origin_note.tie = note
-                origin.append(note)  # this note is tied to something too
-                origin = origin_note
-            else:
-                tied_notes[key_num] = note  # to be continued :-)
-            origin.tie = note
-        else:  # missing start note
-            import warnings
-
-            warnings.warn(
-                f"music21 note (key_num {key_num} at beat"
-                f" {note.onset}) continues a tie, but there is no"
-                " start note for that pitch."
-            )
+        tied_notes.continue_note(key_num, note)
     elif tie_type == "stop":  # End of a tie
-        if key_num in tied_notes:
-            origin = tied_notes[key_num]
-            if isinstance(origin, list):
-                origin_note = origin.pop(0)
-                if len(origin) == 1:  # restore to non-list single note
-                    tied_notes[key_num] = origin[0]
-                origin = origin_note
-            else:
-                del tied_notes[key_num]  # remove the origin
-            origin.tie = note
-        else:  # missing start note
-            import warnings
-
-            warnings.warn(
-                f"music21 note (key_num {key_num} at beat"
-                f" {note.onset}) ends a tie, but there is no start"
-                " note for that pitch."
-            )
+        tied_notes.stop_note(key_num, note)
 
 
 def music21_convert_rest(m21rest, measure):
@@ -418,6 +561,54 @@ def _remove_clef_from_measure(measure: Measure, onset: float) -> None:
         measure.remove(elem)
 
 
+def _get_amads_clef_name(
+    m21clef: clef.Clef,
+) -> tuple[str, Optional[tuple[str, int, int]]]:
+    """Convert a music21 clef name to an AMADS clef name."""
+    m21clef_name = m21clef.name.lower()
+    # music21 uses "French Violin" but AMADS uses "french_violin
+    if m21clef_name == "frenchviolin":
+        m21clef_name = "french_violin"
+    # check that the clef is one of the ones we support:
+    parameters = None
+    if m21clef_name not in Clef._clef_info:
+        warnings.warn(
+            f"Music21 clef {m21clef_name} is not one of the clefs"
+            ' supported by AMADS. Using "constructed"'
+        )
+        m21clef_name = "constructed"
+    else:
+        if m21clef_name == "treble" and m21clef.octaveChange == 2:
+            # music21 does not have a "treble15va" clef, but amads does
+            m21clef_name = "treble15va"  # probable name, but we'll still check
+        elif m21clef_name == "bass":
+            if m21clef.octaveChange == 2:
+                m21clef_name = "bass15va"
+            elif m21clef.octaveChange == -2:
+                m21clef_name = "bass15vb"
+        name_info = Clef._clef_info[m21clef_name]
+        # check that the clef parameters match what we expect for this clef
+        if (
+            m21clef.sign != name_info[0]
+            or m21clef.line != name_info[1]
+            or m21clef.octaveChange != name_info[2]
+        ):
+            warnings.warn(
+                f"Music21 clef {m21clef_name} has parameters "
+                f"(sign {m21clef.sign}, line {m21clef.line}, octave change "
+                f"{m21clef.octaveChange}) that do not match the expected "
+                "parameters for this clef name. Using"
+                ' "constructed" instead of "{m21clef_name}".'
+            )
+            m21clef_name = "constructed"
+    if m21clef_name == "constructed":
+        parameters = (m21clef.sign, m21clef.line, m21clef.octaveChange)
+        assert parameters[0] is not None and parameters[1] is not None
+        parameters = cast(tuple[str, int, int], parameters)
+
+    return m21clef_name, parameters
+
+
 def append_items_to_measure(
     measure: Measure, source: stream.Stream, offset: float
 ) -> None:
@@ -451,7 +642,7 @@ def append_items_to_measure(
             ts = measure.time_signature()
             if ts.upper != upper or ts.lower != lower:
                 last_ts = measure.score.time_signatures[-1]  # type: ignore
-                if last_ts.time > measure.onset:
+                if last_ts.quarters > measure.onset:
                     warnings.warn(
                         "Encountered a new Music21 time signature"
                         " placed BEFORE an earlier time signature:"
@@ -475,7 +666,13 @@ def append_items_to_measure(
             # measure
             _remove_clef_from_measure(measure, measure.onset + element.offset)
             # Create a Clef object and associate it with the Measure
-            Clef(measure, measure.onset + element.offset, clef=element.name)
+            name, clef_parameters = _get_amads_clef_name(element)
+            # print("music21_convert_measure: adding clef", name, "at offset",
+            #       element.offset)
+            # print("    clef sign", element.sign, "line", element.line,
+            #       "octave change", element.octaveChange,
+            #       "parameters", clef_parameters)
+            Clef(measure, measure.onset + element.offset, name, clef_parameters)
         elif isinstance(element, chord.Chord):
             music21_convert_chord(element, measure, offset)
         elif isinstance(element, stream.Voice):
@@ -557,7 +754,7 @@ def music21_convert_part(m21part, score, duration):
         name = None
     part = Part(parent=score, instrument=name, duration=duration)
     staff = Staff(parent=part)  # Assuming a single staff for simplicity
-    tied_notes.clear()
+    tied_notes = _TiedNotes()  # reset tied notes tracking for this part
     # Iterate over elements in the music21 part
     for element in m21part.iter():
         if isinstance(element, stream.Measure):
@@ -569,47 +766,15 @@ def music21_convert_part(m21part, score, duration):
             warnings.warn(
                 f"music21_convert_part ignoring non-Measure element: {element}"
             )
-    if len(tied_notes.keys()) > 0:
+    if tied_notes.has_open_ties():
         warnings.warn(
             f"music21_convert_part: tied notes in {part} from these"
             f" notes were not closed at the end of the part:"
-            f" {tied_notes.values()}"
+            f" {tied_notes.get_predecessors()}"
         )
-    tied_notes.clear()
+    tied_notes = None  # type: ignore , free memory used by tied notes tracking
     staff.offset = staff.content[-1].offset
 
-    shift = 0  # how much did we shift to make a full measure 1?
+    shift = _expand_first_measure(staff)
 
-    # expand first measure to a full measure if necessary
-    # what is the maximum offset of the first measure?
-    if len(staff.content) > 0:
-        m1 = staff.content[0]
-        m1 = cast(Measure, m1)
-        max_offset = 0
-        for elem in m1.content:
-            max_offset = max(max_offset, elem.offset)
-        if max_offset < m1.offset - 0.001:  # need to insert rest
-            shift = m1.offset - max_offset
-            for elem in m1.content:
-                if (
-                    isinstance(elem, Note)
-                    or isinstance(elem, Rest)
-                    or isinstance(elem, Chord)
-                ):
-                    elem.time_shift(shift)
-            # insert Rest, Since m1 is first, m1.onset == 0
-            _ = Rest(m1, m1.onset, duration=shift)
-
-            # now, first measure ending may have shifted, so adjust
-            # remainder of the part
-            if len(staff.content) > 1:
-                m2 = staff.content[1]
-                m2 = cast(Measure, m2)
-                shift = m1.offset - m2.onset
-                if shift > 0.001:  # need to shift everything
-                    for m in staff.content[1:]:
-                        m.time_shift(shift)
-            staff.offset = staff.content[-1].offset
-            part.offset = max(part.offset, staff.offset)
-            score.offset = max(score.duration, staff.offset)
     return part, shift

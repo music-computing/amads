@@ -3,9 +3,11 @@ Mapping between quarters and seconds (beats and time).
 
     from amads.core import *
 
-Note: `amads.core` includes `amads.core.basics`, `amads.core.distribution` and amads.core.timemap`.
+Note: `amads.core` includes `amads.core.basics`, `amads.core.distribution` and
+      `amads.core.timemap`.
 """
 
+import math
 import sys
 
 
@@ -69,6 +71,13 @@ class TimeMap:
 
     Since tempo is not continuous, the tempo at a breakpoint is
     defined to be the tempo just *after* the breakpoint.
+
+    The time map is defined from time changes[0].time to infinity,
+    and from quarter changes[0].quarter to infinity. The first
+    breakpoint should correspond to Score.onset.Before the first
+    breakpoint, the time map is defined to have a slope of 1 quarter
+    per second (i.e., 60 qpm). After the last breakpoint, the time map
+    is defined to have a slope of `last_tempo` quarters per second.
 
     Parameters
     ----------
@@ -420,8 +429,8 @@ class TimeMap:
         float
             The score position in changes corresponding to `time`.
         """
-        if time <= 0:
-            return time
+        if time <= self.changes[0].time:
+            return self.changes[0].quarter + time - self.changes[0].time
         i = self._time_to_insert_index(time)
         return (
             self.changes[i - 1].quarter
@@ -446,63 +455,71 @@ class TimeMap:
         """
         return self.get_tempo_at(self._time_to_insert_index(time) - 1)
 
+    def trim(self, start: float, end: float) -> None:
+        """Trim the time map to a specified range, given in seconds."""
+
+        i = 0  # index into changes
+        initial_quarter = self.time_to_quarter(start)
+        final_bpm = self.time_to_tempo(end)
+
+        while i < len(self.changes) and self.changes[i].time < start:
+            i = i + 1
+        # now i is index into changes of the first breakpoint at or after start
+        # if breakpoint at i is after start, insert a breakpoint at start
+        if i < len(self.changes) and (self.changes[i].time > start + 0.001):
+            if i > 0:
+                self.changes[i - 1].time = start
+                self.changes[i - 1].quarter = initial_quarter
+                i = i - 1  # will copy from i to 0
+            else:
+                self.changes.insert(0, MapQuarter(start, initial_quarter))
+                i = 0  # no copy needed since first breakpoint is now at 0
+        # else changes[i].time is within 0.001 of start, so copy from i to 0
+        # now figure out where is last breakpoint before end
+        j = i
+        while j < len(self.changes) and self.changes[j].time < end:
+            j = j + 1
+        self.changes = self.changes[i:j]  # copy from i to j
+        self.last_tempo = final_bpm / 60.0
+
+    def _time_shift(self, quarters: float) -> None:
+        """shift time map by quarters
+
+        When shifting forward, as when inserting beats at the beginning
+        to fill out a measure with pickup notes, quarters are inserted
+        at the beginning of the score at the initial tempo. The first
+        breakpoint (usually 0,0) is unaltered, but others are incremented
+        by the duration of the inital quarters (seconds) and quarters.
+
+        When shifting backward, e.g. quarters = -10, a breakpoint is
+        inserted at time 10 if needed (but it's probably already there),
+        breakpoints before 10 are removed, and all breakpoint times and
+        beats are decremented.
+        """
+        if quarters > 0:
+            initial_tempo = self.get_tempo_at(0) / 60.0
+            delta_time = quarters / initial_tempo
+            for bp in self.changes[1:]:
+                bp.time += delta_time
+                bp.quarter += quarters
+        elif quarters < 0:
+            i = self._quarter_to_insert_index(-quarters)
+            seconds = self.quarter_to_time(-quarters)
+            # i is the breakpoint before -quarters, but if a breakpoint
+            # already exists, it's at i - 1:
+            if i > 0 and math.isclose(self.changes[i - 1].quarter, -quarters):
+                i -= 1
+            else:  # need to insert at i
+                self.changes.insert(0, MapQuarter(seconds, -quarters))
+            # i is now a breakpoint at -quarters with (seconds, -quarters)
+            self.changes = self.changes[i:]
+            for change in self.changes:
+                change.time -= seconds
+                change.quarter += quarters
+
     # Editing methods for TimeMap
     """
-    if we support any extraction of data from scores and want to retain
-    the TimeMap, we'll need some of these editing methods, which were
     originally written in Serpent. They are not converted to Python yet.
-
-    def trim(start, end, units_are_seconds=True):
-        # extract the time map from start to end and shift to time zero
-        # start and end are time in seconds if units_are_seconds is true
-
-        var i = 0 // index into changes
-        var start_index // index of first breakpoint after start
-        var count = 1
-        var initial_quarter = start
-        var final_quarter = end
-        if units_are_seconds:
-            initial_quarter = time_to_quarter(start)
-            final_quarter = time_to_quarter(end)
-        else
-            start = quarter_to_time(initial_quarter)
-            end = quarter_to_time(final_quarter)
-        while i < len(changes) and changes[i].time < start:
-            i = i + 1
-        // now i is index into changes of the first breakpoint after start
-        #if i >= len(changes):
-        #    return // only one
-        // changes[0] is (0,0) and remains that way
-        // copy changes[start_index] to changes[1], etc.
-        // skip any changes at or near (start,initial_quarter), using count
-        // to keep track of how many entries there are
-        start_index = i
-        while i < len(changes) and changes[i].time < end:
-            if changes[i].time - start > alg_eps and
-               changes[i].quarter - initial_quarter > alg_eps:
-                changes[i].time = changes[i].time - start
-                changes[i].quarter = changes[i].quarter - initial_quarter
-                changes[i - start_index + 1] = changes[i]
-                count = count + 1
-            else:
-                start_index = start_index + 1
-            i = i + 1
-        // set last tempo data
-        // we last examined changes[i-1] and copied it to
-        //   changes[i - start_index]. Next tempo should come
-        //   from changes[i] and store in changes[i - start_index + 1]
-        // case 1: there is at least one breakpoint beyond end
-        //         => interpolate to put a breakpoint at end
-        // case 2: no more breakpoints => set last tempo data
-        if i < len(changes):
-            // we know changes[i].time >= end, so case 1 applies
-            changes[i - start_index + 1].time = end - start
-            changes[i - start_index + 1].quarter = (final_quarter -
-                                                     initial_quarter)
-            last_tempo = false // extrapolate to get tempo
-            count = count + 1
-        // else we will just use stored last tempo (if any)
-        changes.set_len(count)
 
     def cut(start, len, units_are_seconds):
         # remove portion of time map from start to start + len,
@@ -526,15 +543,15 @@ class TimeMap:
             len = end - start
         var quarter_len = final_quarter - initial_quarter
 
-        while i < len(changes) and changes[i].time < start - alg_eps:
+        while i < len(changes) and changes[i].time < start - 0.001:
             i = i + 1
         // now i is index into changes of the first breakpoint on or
         // after start, insert (start, initial_quarter) in map
         // note: i may be beyond the last breakpoint, so quarter[i] may
         // be out of bounds
         // display "after while", i, len(changes)
-        if i < len(changes) and within(changes[i].time, start, alg_eps)
-            // perterb time map slightly (within alg_eps) to place
+        if i < len(changes) and within(changes[i].time, start, 0.001)
+            // perterb time map slightly (within 0.001) to place
             // break point exactly at the start time
             //display "reset", i
             changes[i].time = start
@@ -547,7 +564,7 @@ class TimeMap:
         // end so we can start shifting from there
         i = i + 1
         var start_index = i
-        while i < len(changes) and changes[i].time < end + alg_eps:
+        while i < len(changes) and changes[i].time < end + 0.001:
             i = i + 1
         // now changes[i] is the next point to be included in changes
         // but from i onward, we must shift by (-len, -quarter_len)

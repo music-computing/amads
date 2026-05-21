@@ -17,6 +17,8 @@ from amads.core.basics import (
     Staff,
 )
 
+VERBOSE = False  # set to True for more debug output
+
 
 def test_event_onset_none_raises():
     note = Note(parent=None, onset=None, duration=1.0)
@@ -158,12 +160,14 @@ def test_quantize():
     # case 6: a single short B that quantizes to zero duration
     Note(parent=meas2, onset=7.5, duration=0.125, pitch="B4")
 
-    print("Before quantize:")
-    score.show(4)
+    if VERBOSE:
+        print("Before quantize:")
+        score.show(4)
     assert score.has_ties()
     score.quantize(2)
-    print("After quantize:")
-    score.show(4)
+    if VERBOSE:
+        print("After quantize:")
+        score.show(4)
     assert not score.has_ties()
 
     # Check Score structure
@@ -639,13 +643,15 @@ def test_merge_tied_notes():
         durations=[1.0, 0.5, 0.5, 0.5, 1.0, 1.0],
         ties=[True, False, True, True, False, False],
     )
-    print("Before merging tied notes:")
-    score.show(4)
+    if VERBOSE:
+        print("Before merging tied notes:")
+        score.show(4)
 
     score = score.merge_tied_notes()
 
-    print("After merging tied notes:")
-    score.show(4)
+    if VERBOSE:
+        print("After merging tied notes:")
+        score.show(4)
 
     # Check that tied notes have been merged correctly
     part: Part = score.content[0]  # type: ignore (score.content[i] is a Part)
@@ -676,11 +682,13 @@ def test_pack():
         onsets=[0, 2, 3, 4, 5, 6],
         durations=[1.0, 0.5, 0.5, 0.5, 1.0, 1.0],
     )
-    print("Before packing:")
-    score.show(4)
+    if VERBOSE:
+        print("Before packing:")
+        score.show(4)
     score.pack(0.0, sequential=True)
-    print("After packing:")
-    score.show(4)
+    if VERBOSE:
+        print("After packing:")
+        score.show(4)
     assert score.ismonophonic()
     assert score.parts_are_monophonic()
 
@@ -712,8 +720,9 @@ def test_well_formed():
         onset=2,
         parent=chord,
     )
-    print("Modified score with invalid chord:")
-    score1.show(4)
+    if VERBOSE:
+        print("Modified score with invalid chord:")
+        score1.show(4)
     assert score1.is_well_formed_full_score() is False
 
     score1: Score = score.copy()  # type: ignore
@@ -736,6 +745,9 @@ def test_well_formed():
         onset=0,
         parent=score1,
     )
+    if VERBOSE:
+        print("Modified score with invalid staff:")
+        score1.show(4)
     assert score1.is_well_formed_full_score() is False
 
     # insert a Note directly into Part
@@ -795,12 +807,14 @@ def test_collapse_parts():
     where staff is specified."""
     score = make_a_full_score()
     score2: Score = score.copy()  # type: ignore
-    print("Original score with multiple parts:")
-    score.show(4)
+    if VERBOSE:
+        print("Original score with multiple parts:")
+        score.show(4)
     collapsed_score = score.collapse_parts(part=[0], staff=2)
 
-    print("Collapsed score with single part:")
-    collapsed_score.show(4)
+    if VERBOSE:
+        print("Collapsed score with single part:")
+        collapsed_score.show(4)
 
     # Check that the collapsed score has only one part
     assert len(collapsed_score.content) == 1
@@ -816,8 +830,9 @@ def test_collapse_parts():
     score: Score = score2.copy()  # type: ignore  # with has_ties=False:
     collapsed_score = score.collapse_parts(part=[0], staff=2, has_ties=False)
 
-    print("Collapsed score with single part:")
-    collapsed_score.show(4)
+    if VERBOSE:
+        print("Collapsed score with single part:")
+        collapsed_score.show(4)
 
     # Check that the collapsed score has only one part
     assert len(collapsed_score.content) == 1
@@ -873,8 +888,9 @@ def test_collapse_parts():
     note = Note(onset=1, duration=1.0, pitch="C4", parent=part)
     first_note = next(part.find_all(Note))  # type: ignore
     first_note.tie = note
-    print("Score after adding tied Note in Part:")
-    score3.show(4)
+    if VERBOSE:
+        print("Score after adding tied Note in Part:")
+        score3.show(4)
     assert not score3.is_flat()
 
 
@@ -882,7 +898,8 @@ def test_note_containers():
     """Test that Note containers work as expected."""
     score = make_a_full_score()
     containers = score.note_containers()
-    print("note containers:", containers)
+    if VERBOSE:
+        print("note containers:", containers)
 
     # Expecting 3 containers
     assert len(containers) == 3
@@ -895,7 +912,8 @@ def test_note_containers():
     part: Part = score.content[1]  # type: ignore
     part.flatten(in_place=True)  # move content up to Part level
     containers = score.note_containers()
-    print("note containers after flattening part 2:", containers)
+    if VERBOSE:
+        print("note containers after flattening part 2:", containers)
     # Expecting 3 containers now
     assert len(containers) == 3
     assert containers[0] == score.content[0].content[0]  # type: ignore
@@ -912,14 +930,16 @@ def test_remove_measures():
     part: Part = score.content[0]  # type: ignore
     staff: Staff = part.content[0]  # type: ignore
     Note(onset=8, duration=1.0, pitch="E5", parent=staff)
-    print("Original score:")
-    score.show(4)
+    if VERBOSE:
+        print("Original score:")
+        score.show(4)
 
     # Remove measures 1 from part 0
     modified_score = score.remove_measures()
 
-    print("Modified score after removing measures:")
-    modified_score.show(4)
+    if VERBOSE:
+        print("Modified score after removing measures:")
+        modified_score.show(4)
 
     # Check that the measures have been removed correctly
     part: Part = modified_score.content[0]  # type: ignore
@@ -965,8 +985,9 @@ def test_shift_content():
             )
         )
     )
-    print("Original score:")
-    score.show(4)
+    if VERBOSE:
+        print("Original score:")
+        score.show(4)
     # check times in chords
     part = score.content[0]  # type: ignore
     staff = part.content[0]  # type: ignore
@@ -987,8 +1008,9 @@ def test_shift_content():
     # Shift content by 2 quarters
     score.time_shift(2.0, content_only=True)
 
-    print("Modified score after shifting content by 2 quarters:")
-    score.show(4)
+    if VERBOSE:
+        print("Modified score after shifting content by 2 quarters:")
+        score.show(4)
 
     # Check that all notes have been shifted correctly
     assert score.onset == 0.0

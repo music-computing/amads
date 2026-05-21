@@ -24,6 +24,9 @@ def verbose_blank():
         "musicxml/ex1.xml",
         "musicxml/ex2.xml",
         "musicxml/ex3.xml",
+        "musicxml/clefs.musicxml",
+        "musicxml/time_tempo_test.musicxml",
+        "musicxml/trills.musicxml",
     ],
 )
 def test_xml_export_and_reimport(xml_file):
