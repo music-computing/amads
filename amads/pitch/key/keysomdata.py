@@ -901,7 +901,6 @@ class KeyProfileSOM:
         projection_list = [
             self.project_input_onto_SOM(np.array(input)) for input in input_list
         ]
-        print(projection_list)
         if not projection_list:
             print("Warning! No distributions provided to animate!")
             return
