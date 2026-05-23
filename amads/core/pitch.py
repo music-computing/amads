@@ -305,8 +305,10 @@ class Pitch:
         octave : Optional[float], optional
             The octave number if not specified in the name.
             (Defaults to -1)
-        accidental_chars : Optional[str], optional
+        accidental_chars : Optional[tuple[str, str]], optional
             The characters to use for flat and sharp accidentals.
+            This is a tuple of two strings, where the first is all possible
+            flat characters, and the second is all possible sharp characters.
             (Defaults to None, which admits '♭', 'b' or '-' for flat, and
             '♯', '#', and '+' for sharp.)
 
@@ -336,8 +338,8 @@ class Pitch:
             flat_chars = [accidental_chars[0]]
             sharp_chars = [accidental_chars[1]]
         else:
-            flat_chars = ["♭", "b", "-"]
-            sharp_chars = ["♯", "#", "+"]
+            flat_chars = "♭b-"  # first is unicode flat
+            sharp_chars = "♯#+"  # first is unicode sharp
         if all(x in flat_chars for x in name):  # flats
             alteration = -len(name)
         elif all(x in sharp_chars for x in name):  # sharps

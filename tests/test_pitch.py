@@ -85,6 +85,20 @@ def test_constructor():
     assert p8.name == "C#"
     assert p8.name_with_octave == "C#5"
 
+    # edge cases
+    p9 = Pitch(0)
+    assert p9.name_with_octave == "C-1"
+    p10 = Pitch(127)
+    assert p10.name_with_octave == "G9"
+
+    # test exceptions
+    with pytest.raises(ValueError):
+        _ = Pitch("C4", alt=1)  # alt must be None
+    with pytest.raises(ValueError):
+        _ = Pitch("X4", alt=1)  # first char must be ABCDEFG
+    with pytest.raises(ValueError):
+        _ = Pitch.from_name("Cb", 4, ("Ff", "Ss"))  # b not in FS
+
 
 def test_from_name():
     info = Pitch.from_name("C#4")
@@ -95,7 +109,7 @@ def test_from_name():
     assert info == (60, 0)
     info = Pitch.from_name("", 4)
     assert info == (60, 0)
-    info = Pitch.from_name("Gm", 3, "mp")
+    info = Pitch.from_name("Gm", 3, ("m", "p"))
     assert info == (54, -1)
-    info = Pitch.from_name("Ap3", 4, "mp")
+    info = Pitch.from_name("Ap3", 4, ("m", "p"))
     assert info == (58, 1)
