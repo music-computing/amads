@@ -145,10 +145,15 @@ def key_num_to_hz(
         return key_num_to_hz_single(key_num)
 
 
-def key_num_to_name(n, detail="nameoctave"):
-    """
-    Converts key numbers to key names (text).
+"""
+For number, use Pitch(n).name or Pitch(n).name_with_octave
+For list, use [Pitch(p).name for p in n] or use 'name_with_octave'
 
+
+def key_num_to_name(n, detail="nameoctave"):
+
+    Converts key numbers to key names (text).
+    """ """
     Parameters
     ----------
     n : Union(int, list(int))
@@ -169,7 +174,7 @@ def key_num_to_name(n, detail="nameoctave"):
 
     >>> key_num_to_name(61, detail="nameonly")
     'C#'
-    """
+    """ """
 
     def key_num_to_name_single(k):
         pitch = Pitch(k)
@@ -187,6 +192,7 @@ def key_num_to_name(n, detail="nameoctave"):
         return [key_num_to_name_single(k) for k in n]
     else:
         return key_num_to_name_single(n)
+"""
 
 
 def sign(x: float) -> int:

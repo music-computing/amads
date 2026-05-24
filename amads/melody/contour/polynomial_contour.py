@@ -3,10 +3,9 @@ from typing import Optional, Sequence
 import numpy as np
 
 from amads.core.basics import Score
+from amads.core.pitch import Pitch
 
 __author__ = "David Whyatt"
-
-from amads.core.utils import key_num_to_name
 
 
 class PolynomialContour:
@@ -421,7 +420,7 @@ class PolynomialContour:
         unique_pitches = sorted(set(pitches))
         ax.set_yticks(unique_pitches)
         ax.set_yticklabels(
-            [key_num_to_name(p) for p in unique_pitches], fontsize=9
+            [Pitch(p).name_with_octave for p in unique_pitches], fontsize=9
         )
 
         ax.xaxis.set_major_formatter(
