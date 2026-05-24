@@ -26,7 +26,7 @@ def trim(score: Score) -> Score:
 
     """
     # 1. Get a flattened version of the score
-    flat_score = score.flatten(collapse=True)
+    flat_score = score.flatten()
 
     # 2. Get all the notes in the score in sorted order (to get the first note)
     notes = flat_score.get_sorted_notes()
