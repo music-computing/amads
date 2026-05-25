@@ -125,6 +125,7 @@ nav:
       - reference/algorithms/scores_compare.md
       - reference/algorithms/scale.md
       - reference/algorithms/slice.md
+      - reference/algorithms/trim.md
     - Schemata: reference/schema.md
   - Install: user_guide/installation.md
   - Developer:
