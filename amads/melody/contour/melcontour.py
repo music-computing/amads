@@ -7,9 +7,6 @@ Description:
     Compute the sequence of pitches of a subsampling of pitches from a
     monophonic score
 
-Usage:
-    [Add basic usage examples or import statements]
-
 Original doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=71
 
 Reference(s):
@@ -21,12 +18,47 @@ Reference(s):
 import math
 
 import numpy as np
+from itertools import count
+from typing import Optional, List
 
-from ...core.basics import Note, Score
-from ...pitch.ismonophonic import ismonophonic
+from amads.core.basics import Note, Score
+from amads.pitch.ismonophonic import ismonophonic
 
 
-def melodySamplingContour(score: Score, res: float) -> list[tuple[float, int]]:
+def _autoCorrelateContour(contour_input: list[Note]) -> Optional[list[float]]:
+    """
+    Calculates the autocorrelation of a contour output
+
+    Parameters
+    ----------
+    contour_output
+        output of melcontour
+
+    Returns
+    -------
+    list[float]
+        list of tuples of onset differences between contour output and
+        autocorrelation values
+
+    Notes
+    -----
+    Implementation based on the original MATLAB code from:
+    https://github.com/miditoolbox/1.1/blob/master/miditoolbox/melcontour.m
+    """
+
+    # unpack output of melcontour
+    pitches = [note.key_num for note in contour_input]
+    # adjust pitch information based off of matlab implementation
+    pitch_array = np.array(pitches, dtype=float)
+    pitch_array -= np.mean(pitch_array)
+    pitch_array /= math.sqrt(np.dot(pitch_array, pitch_array))
+    # note that with the "full" option, np.correlate gives the exact same output
+    # as matlab's xcorr function
+    correlation_array = np.correlate(pitch_array, pitch_array, "full")
+    return list(correlation_array)
+
+
+def melodySamplingContour(score: Score, res: float) -> Optional[List[Note]]:
     """
     Calculates a sequence of the pitches of the last note onset up to
     each sampling resolution tick
@@ -49,111 +81,43 @@ def melodySamplingContour(score: Score, res: float) -> list[tuple[float, int]]:
 
     Returns
     -------
-    list[tuple[float, float]]
-        list of tuples of onset and midi keypitch correspondences
-        (you can perceive as (sampling_tick, pitch))
+    Optional[list[Note]]
+        None if the score is empty.
+        A time-series list where each element is a reference to the note object
+        with an onset closest to that specific time step (index * resolution).
 
     Notes
     -----
     Implementation based on the original MATLAB code from:
     https://github.com/miditoolbox/1.1/blob/master/miditoolbox/melcontour.m
-
-    Examples
-    --------
-    [Unfortunately, still having problem resolving score construction]
     """
     # this algorithm can only operate on monophonic melodies
     if not ismonophonic(score):
         raise ValueError("Score must be monophonic")
     # make a flattened and collapsed copy of the original score
-    flattened_score = score.flatten(collapse=True)
 
-    # extracting note references here from our flattened score
-    # we can probably run a new iterator based off of find_all and "yield from",
-    # but that's probably something I want to do later, not now.
-    notes = list(flattened_score.find_all(Note))
+    sample_iter = score.find_all(Note)
+    current_note = next(sample_iter, None)
+    if not current_note:
+        return None
+    next_note = next(sample_iter, None)
 
-    if not notes:
-        raise ValueError("Score is empty")
+    sampling_list = []
 
-    # Note that the first sampling "tick" only starts at zero on the onset
-    # of the first note
-    sampling_tick = 0.0
-    sampling_end = float(notes[-1].end - notes[0].start)
+    for sample_time in count(start=0, step=res):
+        if sample_time < current_note.onset:
+            continue
+        while next_note and next_note.onset <= sample_time:
+            current_note = next_note
+            next_note = next(sample_iter, None)
+        # TODO: record current_note for the associated time sample
+        sampling_list.append(current_note)
+        # record pitch for current sample time
+        if not next_note:
+            break
 
-    sampled_note_idx = 0
-
-    # to avoid running past the last note, we insert an extra note at time infinity
-    # we are going to refer to this as the canary value below.
-    notes.append(Note(1, None, None, None, float("infinity")))
-
-    contour_list = []
-    while sampling_tick <= sampling_end:
-        # we want to find the closest note with an onset closest to the current
-        # sampling tick
-        current_note_range = range(sampled_note_idx, len(notes))
-        next_note_range = range(sampled_note_idx + 1, len(notes))
-        for note_idx, next_note_idx in zip(current_note_range, next_note_range):
-            # the next note to the last note up to a sampling resolution tick
-            # will always be the first note after the sampling resolution tick
-            # by definition
-            if (
-                notes[note_idx].start <= sampling_tick + notes[0].start
-                and notes[next_note_idx].start > sampling_tick + notes[0].start
-            ):
-                sampled_note_idx = note_idx
-                break
-            assert notes[note_idx].start <= sampling_tick + notes[0].start
-
-        # assert that the canary value appended to the end hasn't been selected.
-        # this is mostly just a sanity check
-        assert notes[sampled_note_idx].start != float("infinity")
-        # add relevant tuple
-        contour_list.append((sampling_tick, notes[sampled_note_idx].keynum))
-        sampling_tick += res
-
-    return contour_list
+    return sampling_list
 
 
-def autocorrelatecontour(contour_output: list[tuple[float, int]]):
-    """
-    Calculates the autocorrelation of a contour output
-
-    Parameters
-    ----------
-    contour_output
-        output of melcontour
-
-    Returns
-    -------
-    list[tuple[float, float]]
-        list of tuples of onset differences between contour output and
-        autocorrelation values
-
-    Notes
-    -----
-    Implementation based on the original MATLAB code from:
-    https://github.com/miditoolbox/1.1/blob/master/miditoolbox/melcontour.m
-
-    Examples
-    --------
-
-    """
-    # unpack output of melcontour
-    sample_tuple, pitch_tuple = zip(*contour_output)
-    # adjust pitch information based off of matlab implementation
-    pitch_array = np.array(pitch_tuple, dtype=float)
-    pitch_array -= np.mean(pitch_array)
-    pitch_array /= math.sqrt(np.dot(pitch_array, pitch_array))
-    # note that with the "full" option, np.correlate gives the exact same output
-    # as matlab's xcorr function
-    correlation_array = np.correlate(pitch_array, pitch_array, "full")
-    # essentially, we want all values
-    # [-sampling_end, -sampling_end + res ... 0 ... sampling_end]
-    # with a step size of res here
-    # sampling_end in this list is truncated towards the nearest multiple of res
-    sample_array = np.array(sample_tuple, dtype=float)
-    lag_array = np.concatenate((-sample_array[:0:-1], sample_array))
-    assert lag_array.shape == correlation_array.shape
-    # repack correspondence
-    return list(zip(list(lag_array), list(correlation_array)))
+def melodySamplingCorrelation(score: Score, res: float) -> Optional[List[float]]:
+    return _autoCorrelateContour(melodySamplingContour(score, res))
