@@ -23,13 +23,13 @@ Problems
   anywhere after installing our package with no special configuration.
 
 What should our namespace look like?
-----------------------------------
+------------------------------------
 
 There should be one top level module name. "smart" is too generic, so
 possibly amads.
 
 Controlling naming
-----------------
+------------------
 
 Within amads, we should have algorithms, e.g.
 
@@ -57,14 +57,14 @@ import ``durdist1.py``, which can be imported by
     from amads.durdist1 import durdist1
 
 Incremental loading
------------------
+-------------------
 
 (Need to test this) With the organization suggested above, actual
 modules are loaded when imported, so the user will explicitly load
 whatever is needed but nothing else.
 
 Conditional loading
------------------
+-------------------
 
 Maybe it's better to simply load what you want. In particular, users
 can write the following for Partitura IO::
@@ -78,7 +78,7 @@ pt_midi_import or m21_midi_import based on what modules are loaded.
 (Need to test this.)
 
 Running test code with the debugger
---------------------------------
+-----------------------------------
 
 In VScode, you can set PYTHONPATH to include the parent directory, but
 I think we need there to be a directory actually named amads (or

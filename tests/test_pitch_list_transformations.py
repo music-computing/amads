@@ -16,6 +16,7 @@ Source: Gotham and Yust, Serial Analyser, DLfM 2021
 https://github.com/MarkGotham/Serial_Analyser
 """
 
+from amads.pitch.serial import pair_swap_krenek, rotate_hexachords
 from amads.pitch.transformations import (
     invert,
     pitches_to_intervals,
@@ -24,7 +25,6 @@ from amads.pitch.transformations import (
     transpose_by,
     transpose_to,
 )
-from amads.serial import pair_swap_krenek, rotate_hexachords
 
 
 def test_transpose():

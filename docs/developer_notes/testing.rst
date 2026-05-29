@@ -26,7 +26,31 @@ To run tests in a specific file::
 
 To run a specific test function::
 
-    pytest tests/test_pitch_list_transformations.py::test_function_name
+    pytest
+    tests/test_pitch_list_transformations.py::test_function_name
+
+Testing with VSCode
+-------------------
+
+Install pytest-cov::
+
+    pip install pytest-cov
+
+Install anyio::
+
+    pip install anyio
+
+
+In VSCode, type Command Shift P and from the (large) command menu,
+find "Python: Configure Tests". Select "pytest" and then ". (Root
+directory)". Then all tests appear in the Test Explorer. 
+
+To get to Test Explorer, select the Erlenmeyer (conical) flask icon in
+the far left column (pop-up description is "Testing". 
+
+Select a test or set of tests. In the selected test, there are small
+icons to run, run with debugger, or run with coverage, so pick one.
+
 
 Writing tests
 ------------
@@ -70,8 +94,13 @@ Example doctest::
 These doctests are automatically run when you run ``pytest``.
 
 Continuous Integration
---------------------
+----------------------
 
-Tests are automatically run via GitHub Actions CI on pushes to main and pull requests. The CI runs tests against Python versions 3.9, 3.10, and 3.11 on Ubuntu.
+Tests are automatically run via GitHub Actions CI on pushes to main and pull requests.
 
-You can view the CI configuration in ``.github/workflows/tests.yml`` and check test results in the "Actions" tab of the GitHub repository.
+You can view the CI configuration in ``.github/workflows/tests.yml``
+and check test results in the "Actions" tab of the GitHub repository.
+
+By default tests are run in the tests_main CI job.
+However, some tests that require bespoke dependencies are run in separate CI jobs
+(e.g. ``tests_melsim``).

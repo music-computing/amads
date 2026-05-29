@@ -4,22 +4,18 @@ This module implements the salami slice algorithm, which segments a musical scor
 into vertical slices at each note onset and offset. Each slice contains all notes
 that are sounding at that point in time.
 
-Notes
------
-The algorithm is named after the way a salami sausage is sliced into thin,
-vertical segments.
+<small>**Author**: Peter Harrison</small>
 
-Author
-------
-Peter Harrison
+**Note**: The algorithm is named after the way a salami sausage is
+sliced into thin, vertical segments.
 """
 
 from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Iterable, List, Optional, Union
 
-from ...core.basics import Note, Score
-from .slice import Slice
+from amads.algorithms.slice.slice import Slice
+from amads.core.basics import Note, Score
 
 
 @dataclass
@@ -52,7 +48,7 @@ class Timepoint:
         float
             The end time
         """
-        return max(n.offset + n.dur for n in self.sounding_notes)
+        return max(n.offset for n in self.sounding_notes)
 
     @classmethod
     def from_notes(
@@ -76,8 +72,8 @@ class Timepoint:
         note_offs = defaultdict(list)
 
         for note in notes:
-            note_on = note.offset
-            note_off = note.offset + note.dur
+            note_on = note.onset
+            note_off = note.offset
 
             if time_n_digits is not None:
                 note_on = round(note_on, time_n_digits)
@@ -103,7 +99,9 @@ class Timepoint:
                     time=time,
                     note_ons=note_ons[time],
                     note_offs=note_offs[time],
-                    sounding_notes=sorted(list(sounding_notes), key=lambda n: n.keynum),
+                    sounding_notes=sorted(
+                        list(sounding_notes), key=lambda n: n.key_num
+                    ),
                 )
             )
 
@@ -138,7 +136,7 @@ def salami_slice(
         The sequence of vertical slices
     """
     if isinstance(passage, Score):
-        notes = passage.flatten(collapse=True).find_all(Note)
+        notes = passage.get_sorted_notes()
     else:
         notes = passage
 
@@ -164,7 +162,7 @@ def salami_slice(
                     # Don't include empty slices at the end of the score
                     continue
 
-            slice_start = timepoint.time
+            slice_onset = timepoint.time
 
             if next_timepoint is None:
                 if len(timepoint.sounding_notes) == 0:
@@ -174,7 +172,7 @@ def salami_slice(
             else:
                 slice_end = next_timepoint.time
 
-            slice_duration = slice_end - slice_start
+            slice_duration = slice_end - slice_onset
 
             if slice_duration < min_slice_duration:
                 continue
@@ -183,22 +181,14 @@ def salami_slice(
             if remove_duplicated_pitches:
                 pitches = sorted(set(pitches))
 
-            notes = [
-                Note(
-                    offset=slice_start,
-                    dur=slice_duration,
-                    pitch=pitch,
-                )
-                for pitch in pitches
-            ]
-
-            slices.append(
-                Slice(
-                    notes=notes,
-                    original_notes=timepoint.sounding_notes,
-                    start=slice_start,
-                    end=slice_end,
-                )
+            slice = Slice(
+                timepoint.sounding_notes, slice_onset, slice_end - slice_onset
             )
+
+            # construct a new Note for each pitch and add it to the slice
+            for pitch in pitches:
+                Note(slice, slice_onset, slice_duration, pitch)
+
+            slices.append(slice)
 
     return slices

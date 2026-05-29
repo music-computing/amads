@@ -7,53 +7,30 @@ of notes in a MIDI file.
 
 # %%
 import matplotlib.pyplot as plt
-import numpy as np
 
-from amads.algorithms import duration_distribution_2
-from amads.io import partitura_midi_import
+from amads.io.readscore import read_score, set_preferred_midi_reader
 from amads.music import example
+from amads.time.durdist2 import duration_distribution_2
 
 # %%
 # Load example MIDI file
 my_midi_file = example.fullpath("midi/sarabande.mid")
-
+assert my_midi_file is not None, "Example MIDI file not found."
 # %%
-# Import MIDI using partitura
-myscore = partitura_midi_import(my_midi_file, ptprint=False)
-myscore.show()
+# Import MIDI using music21
+set_preferred_midi_reader("music21")  # for consistent testing
+print("------- input from music21")
+myscore = read_score(my_midi_file, show=False)
+# myscore.show()
 
 # %%
 # Calculate duration distribution
 dd = duration_distribution_2(myscore)
 
 print("Duration pair distribution:", dd)
+dd.plot(show=True)  # Creates and displays the plot
 
 # %%
-# Plot the 2nd order duration distribution as a heatmap
-dd_array = np.array(dd)
-plt.figure(figsize=(8, 6))
-plt.imshow(dd_array, cmap="gray_r", interpolation="nearest")
-plt.colorbar(label="Probability")
-plt.xlabel("Duration (to)")
-plt.ylabel("Duration (from)")
-plt.title("2nd Order Duration Distribution")
-
-bin_centers = [
-    "1/4",
-    "sqrt(2)/4",
-    "1/2",
-    "sqrt(2)/2",
-    "1",
-    "sqrt(2)",
-    "2",
-    "2*sqrt(2)",
-    "4",
-]
-plt.xticks(range(len(bin_centers)), bin_centers)
-plt.yticks(range(len(bin_centers)), bin_centers)
-
-plt.gca().invert_yaxis()
-
+# Obtain the figure from dd.plot() and show plot explicitly
+fig = dd.plot()
 plt.show()
-
-# %%

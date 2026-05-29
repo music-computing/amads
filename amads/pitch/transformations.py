@@ -12,7 +12,9 @@ from typing import Iterable
 # ------------------------------------------------------------------------------
 
 
-def transpose_by(pitches: Iterable, semitones: int, mod_12: bool = True) -> list:
+def transpose_by(
+    pitches: Iterable, semitones: int, mod_12: bool = True
+) -> list:
     """
     Transposes a list of pitches by an interval of size
     set by the value of `semitones`.
@@ -50,7 +52,9 @@ def transpose_by(pitches: Iterable, semitones: int, mod_12: bool = True) -> list
     return result
 
 
-def transpose_to(pitches: Iterable, start: int = 0, mod_12: bool = True) -> list:
+def transpose_to(
+    pitches: Iterable, start: int = 0, mod_12: bool = True
+) -> list:
     """
     Transpose a list of pitch classes to start on 0 (by default), or
     any another number set by the value of `start`.

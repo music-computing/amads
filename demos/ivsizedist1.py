@@ -1,39 +1,24 @@
-import matplotlib.pyplot as plt
-
-from amads.ivsizedist1 import ivsizedist1
+from amads.all import (
+    interval_size_distribution_1,
+    read_score,
+    set_preferred_midi_reader,
+)
 from amads.music import example
-from amads.pt_midi_import import partitura_midi_import
+
+VERBOSE = False
 
 my_midi_file = example.fullpath("midi/sarabande.mid")
+assert my_midi_file is not None
 
-print("------- input from partitura")
-myscore = partitura_midi_import(my_midi_file, ptprint=False)
-print("------- finished input from partitura")
-myscore.show()
+set_preferred_midi_reader("music21")  # for consistent testing
+print("------- input from music21")
+myscore = read_score(my_midi_file, show=False)
+print("------- finished input from music21")
+if VERBOSE:
+    myscore.show()
 
 print("------- Calculate interval size distribution")
-isd = ivsizedist1(myscore, weighted=True)
+isd = interval_size_distribution_1(myscore, weighted=True)
 
 print(isd)
-
-# Plot the interval size distribution
-interval_names = [
-    "P1",
-    "m2",
-    "M2",
-    "m3",
-    "M3",
-    "P4",
-    "d5",
-    "P5",
-    "m6",
-    "M6",
-    "m7",
-    "M7",
-    "P8",
-]
-plt.bar(interval_names, isd, color="skyblue")
-plt.xlabel("Interval Size")
-plt.ylabel("Proportion (%)")
-plt.title("Interval Size Distribution")
-plt.show()
+isd.plot(show=True)

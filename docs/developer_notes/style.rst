@@ -77,7 +77,7 @@ Local function definitions should be avoided as they can negatively impact perfo
 
 We plan to implement a pipeline for standardizing code formatting using ``black``. This will ensure consistent code style across the project.
 
-Docstrings should use numpydoc formatting with type hints in the source code::
+Docstrings should use numpydoc formatting::
 
     def calculate_entropy(pitches: list[int]) -> float:
         """Calculate the entropy of a pitch sequence.
@@ -117,6 +117,8 @@ External package imports (except numpy) should be done locally within functions 
 Types
 ~~~~~
 
+- Provide type hints for function parameters and return types
+- If a function accepts either `float` or `int` you can use `float` as the type hint, `int` will be understood as being accepted too 
 - Functions should accept Python base types as inputs but can optionally support numpy arrays
 - Return Python base types by default, use numpy types only when necessary
 - For internal computations, either base Python or numpy is fine
