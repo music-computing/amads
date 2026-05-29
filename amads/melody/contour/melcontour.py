@@ -25,7 +25,7 @@ from amads.core.basics import Note, Score
 from amads.pitch.ismonophonic import ismonophonic
 
 
-def _autoCorrelateContour(contour_input: list[Note]) -> Optional[list[float]]:
+def _autoCorrelateContour(contour_input: List[Note]) -> Optional[List[float]]:
     """
     Calculates the autocorrelation of a contour output
 
@@ -122,4 +122,25 @@ def melodySamplingContour(score: Score, res: float) -> Optional[List[Note]]:
 def melodySamplingCorrelation(
     score: Score, res: float
 ) -> Optional[List[float]]:
+    """
+    Performs autocorrelation on the output computed by melodySamplingContour.
+
+    Parameters
+    ----------
+    score
+        Monophonic input score (class from core.basics for storing music scores)
+    res
+        Sampling resolution (in beats, see core.basics for more details)
+
+    Returns
+    -------
+    Optional[list[float]]
+        None if the score is empty.
+        A time-series list of autocorrelations of melodySamplingContour.
+
+    Notes
+    -----
+    Implementation based on the original MATLAB code from:
+    https://github.com/miditoolbox/1.1/blob/master/miditoolbox/melcontour.m
+    """
     return _autoCorrelateContour(melodySamplingContour(score, res))

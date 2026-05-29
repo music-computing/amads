@@ -80,3 +80,14 @@
 
 ::: amads.melody.fantastic.fantastic_mtype_summary_features 
 
+----------------
+
+::: amads.melody.contour.combcontour.get_pitch_comparison_contour_matrix
+
+----------------
+
+::: amads.melody.contour.melcontour.melodySamplingContour
+
+----------------
+
+::: amads.melody.contour.melcontour.melodySamplingCorrelation
