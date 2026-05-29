@@ -10,6 +10,7 @@ Before building the documentation, ensure you have the dev dependencies installe
 
 .. code-block:: bash
 
+    pip install sphinx-autobuild
     pip install -e ".[dev]"
 
 Building documentation

@@ -1,0 +1,241 @@
+"""
+Local implementation of standard normalization routines centrally
+for use in various functions.  The local implementation serves to
+obviate the need for external libraries (e.g., scipy) in basic cases.
+
+SciPy supports these and many other metrics.
+[Click here for a full list.](https://docs.scipy.org/doc/scipy/reference/spatial.distance.html)
+
+Comparisons on this module support any pair of profiles.
+Example use cases for music include pitch class profile matching for 'best key' measurement,
+and the metrical equivalent.
+
+<small>**Author**: Mark Gotham</small>
+"""
+
+__author__ = "Mark Gotham"
+
+from typing import Iterable
+
+import numpy as np
+
+# ------------------------------------------------------------------------------
+
+l1_names = [
+    "sum",
+    "manhattan",
+    "city",
+    "cityblock",
+    "city block",
+    "taxicab",
+    "l1",
+]
+l2_names = ["euclidean", "l2"]
+max_names = ["max", "maximum", "inf", "infinity"]
+
+
+def normalize(
+    profile: Iterable,
+    method: str = "Euclidean",
+    round_output: bool = False,
+    round_places: int = 3,
+) -> np.array:
+    """
+    Normalize usage profiles in standard ways.
+
+    Parameters
+    ----------
+    profile : list
+        Any 1-D list of numeric data.
+
+    method : str
+        The desired normalization routine. Chose from any of
+
+         - `'Euclidean'` or `'l2'` (scale so that the vector length is 1);
+         - `'Sum'`, `'Manhattan'`, or `'l1'` (divide each value by the total
+            across the profile);
+         - `'max'`, `'maximum'`, `'inf'` or `'infinity'` (divide each value
+            by the largest value).
+
+        These strings are not case-sensitive.
+
+    round_output : bool
+        Optionally, round the output values (default False).
+
+    round_places : int
+        If rounding, how many decimal places to use (default=3).
+        Moot if `round_output` if False (default).
+
+    Returns
+    -------
+    np.array
+        The normalized vector
+
+    Examples
+    --------
+    >>> toy_example = [0, 1, 2, 3, 4]
+    >>> normalize(toy_example, method="l1")
+    array([0. , 0.1, 0.2, 0.3, 0.4])
+
+    >>> normalize(toy_example, method="l2")
+    array([0.        , 0.18257419, 0.36514837, 0.54772256, 0.73029674])
+
+    >>> normalize(toy_example, method="l2", round_output=True, round_places=3)
+    array([0.   , 0.183, 0.365, 0.548, 0.73 ])
+
+    >>> normalize(toy_example, method="max")
+    array([0.  , 0.25, 0.5 , 0.75, 1.  ])
+
+    """
+
+    if not np.array(profile).any():
+        return profile  # All 0s: don't divide by 0 (or indeed do anything!)
+
+    method = method.lower()
+    if method in l1_names:
+        norm_ord = 1
+    elif method in l2_names:
+        norm_ord = 2
+    elif method in max_names:
+        norm_ord = np.inf
+    else:
+        raise ValueError(
+            f"Invalid method. Must be one of {l1_names + l2_names + max_names}"
+        )
+    norm_dist = profile / np.linalg.norm(profile, ord=norm_ord)
+
+    if round_output:
+        return np.round(norm_dist, round_places)
+    else:
+        return norm_dist
+
+
+def shared_length(profile_1: Iterable, profile_2: Iterable) -> int:
+    """
+    Simple checks that two lists are of the same length.
+    If so, returns the length of the list; if not, raises an error.
+
+    Examples
+    --------
+    >>> shared_length([1, 2], [2, 1])
+    2
+    """
+    ln1 = len(profile_1)
+    ln2 = len(profile_2)
+    if ln2 != ln1:
+        raise ValueError(f"Lengths (currently {ln1} and {ln2}) must match")
+    else:
+        return ln1
+
+
+def manhattan_distance(
+    profile_1: Iterable, profile_2: Iterable, norm_: bool = False
+) -> float:
+    """
+    The 'L1' aka 'Manhattan' distance between two points in N dimensional space.
+    The distance is the sum of the absoluted differences along each axis.
+    List length checks are included.
+    Normalization is optional (defaults to False).
+
+    Examples
+    --------
+
+    >>> profile_1 = [0, 1, 2, 3, 4]
+    >>> profile_2 = [1, 2, 3, 4, 5]
+    >>> manhattan_distance(profile_1, profile_2)
+    5.0
+
+    >>> manhattan_distance(profile_1, profile_2, norm_=True)
+    0.2
+
+    """
+    shared_length(profile_1, profile_2)
+    if norm_:
+        profile_1 = normalize(profile_1, "l1")
+        profile_2 = normalize(profile_2, "l1")
+    return pnorm_distance(profile_1, profile_2, p=1)
+
+
+def euclidean_distance(
+    profile_1: Iterable, profile_2: Iterable, norm_: bool = False
+) -> float:
+    """
+    The Euclidean distance between two points
+    is the length of the line segment connecting them in N dimensional space and
+    is given by the Pythagorean formula.
+    List length checks are included.
+    Normalization is optional (defaults to False).
+
+    Examples
+    --------
+    >>> profile_1 = [0, 1, 2, 3, 4]
+    >>> profile_2 = [1, 2, 3, 4, 5]
+    >>> euclidean_distance(profile_1, profile_2)
+    2.23606797749979
+
+    >>> euclidean_distance(profile_1, profile_2, norm_=True)
+    0.17474594224380802
+
+    """
+    shared_length(profile_1, profile_2)
+
+    if norm_:
+        profile_1 = normalize(profile_1, "l2")
+        profile_2 = normalize(profile_2, "l2")
+    return pnorm_distance(profile_1, profile_2, p=2)
+
+
+def pnorm_distance(
+    profile_1: np.array | Iterable,
+    profile_2: np.array | Iterable,
+    p: int | float = 2,
+):
+    """
+    Calculate the p-norm distance between two vectors.
+
+    Parameters
+    ----------
+    profile_1: np.array | Iterable
+        A 1-D numpy array or Iterable of numeric data.
+    profile_2: np.array | Iterable
+        Another 1-D numpy array or Iterable of numeric data.
+    p: int | float
+        The order of the normalisation.
+        The default is 2 (for Euclidean distance), alternatives include 1
+        for Manhattan or any vaue >= 1.
+        The `np.inf` case for max is handled exactly, not via approximation.
+
+    Returns
+    -------
+    float: The p-norm distance.
+
+    Examples
+    --------
+    >>> profile_1 = [0, 1, 2, 3, 4]
+    >>> profile_2 = [1, 2, 3, 4, 5]
+    >>> pnorm_distance(profile_1, profile_2)
+    2.23606797749979
+
+    >>> pnorm_distance(profile_1, profile_2, p=1)
+    5.0
+
+    >>> pnorm_distance(profile_1, profile_2, p=np.inf)
+    1.0
+
+    """
+    vector1 = np.array(profile_1)
+    vector2 = np.array(profile_2)
+    diffs = np.abs(vector1 - vector2)
+    if p < 1:
+        raise ValueError(f"p must be >= 1, got {p}")
+    if p == np.inf:
+        return float(np.max(diffs))
+    return float(np.sum(diffs**p) ** (1 / p))
+
+
+# ------------------------------------------------------------------------------
+
+if __name__ == "__main__":
+    import doctest
+
+    doctest.testmod()

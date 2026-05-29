@@ -1,77 +1,110 @@
 """
-Provides the `ivdist1` function
+Pitch interval analysis.
 
-Original doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=63
+Implements the Midi Toolbox `ivdist1` function
+
+Original doc: https://github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf, page 64.
 """
 
-from ..core.basics import Note, Score
-from .ismonophonic import ismonophonic
+from typing import cast
+
+from amads.core.basics import Note, Part, Score
+from amads.core.distribution import Distribution
+from amads.core.histogram import Histogram1D
+from amads.pitch.pcdist1 import duraccent
 
 
-def update_id(id: list[float], notes: list[Note], weighted: bool):
-    """Updates the interval distribution list based on the given notes.
-
-    Serves as a helper function for `ivdist1`
-
-    Args:
-        id (list[float]): The interval distribution list to be updated.
-        notes (list[Note]): The list of notes to process.
-        weighted (bool): If True, the interval distribution is weighted
-                         by note durations.
-    """
-    prev = None
-    for note in notes:
-        if prev:
-            keynum_curr = note.pitch.keynum
-            keynum_prev = prev.pitch.keynum
-
-            diff = keynum_curr - keynum_prev
-
-            # Ignore intervals greater than an octave
-            if abs(diff) <= 12:
-                if weighted:
-                    # Since diff ranges from -12 to 12,
-                    # diff + 12 prevents negative indicies
-                    id[diff + 12] += prev.duration * note.duration
-                else:
-                    id[diff + 12] += 1
-
-        prev = note
-
-
-def ivdist1(score: Score, weighted=True) -> list[float]:
+def interval_distribution_1(
+    score: Score,
+    name: str = "Interval Distribution",
+    weighted: bool = True,
+    miditoolbox_compatible: bool = True,
+) -> Distribution:
     """
     Returns the interval distribution of a musical score.
 
+    This is an implementation of the ivdist1 function in the Matlab MIDItoolbox.
+
     Currently, intervals greater than an octave will be ignored.
 
-    Args:
-        score (Score): The musical score to analyze
-        weighted (bool, optional): If True, the interval distribution is
-                                   weighted by note durations (default True)
+    Parameters
+    ----------
+    score : Score
+        The musical score to analyze
+    name : str
+        A name for the distribution and plot title.
+    weighted : bool, optional
+        If True, the interval distribution is weighted by note durations
+        in seconds that are modified according to Parncutt's durational
+        accent model (1994), by default True.
+    miditoolbox_compatible : bool
+        Matlab MIDI Toolbox avoids zero division by dividing counts
+        by the total count plus (1e-12 times the number of bins).
+        True enables this behavior. Default is False, which simply skips
+        division when the total count is zero (this also returns a
+        zero matrix when the count is zero).
 
-    Returns:
-        list[float]: A 25-element list representing the normalized
-                     probabilities of each interval. The components are spaced
-                     at semitone distances with the first component
-                     representing the downward octave and the last component
-                     the upward octave. If the score is empty, the
-                     function returns a list with all elements set to zero.
+    Returns
+    -------
+    Distribution
+        A 25-bin distribution representing the probabilities of each pitch
+        interval. The bins are spaced at semitone distances with the first
+        bin representing the downward octave and the last bin representing
+        the upward octave. If the score is empty, the function returns a
+        list with all elements set to zero.
 
-    Raises:
-        Exception: If the score is not monophonic (e.g. contains chords)
+    Raises
+    ------
+    ValueError
+        If the score is not monophonic (e.g. contains chords)
     """
-    if not ismonophonic(score):
-        raise Exception("Error: Score must be monophonic")
+    if not score.ismonophonic():
+        raise ValueError("Error: Score must be monophonic")
 
-    id = [0] * 25  # interval distribution list
+    score = cast(Score, score.merge_tied_notes())
+    if weighted:
+        score.convert_to_seconds()
 
-    for container in score.note_containers():
-        notes = container.find_all(Note)
-        update_id(id, notes, weighted)
+    bin_centers = [float(i - 12) for i in range(25)]  # 25 bins from -12 to +12
+    bin_boundaries = [i - 12 - 0.5 for i in range(26)]  # boundaries
+    x_categories = [str(c) for c in bin_centers]
+    h = Histogram1D(bin_centers, bin_boundaries, "linear", True)
 
-    total = sum(id)
-    if total > 0:
-        id = [value / total for value in id]
+    for p in score.find_all(Part):
+        part: Part = cast(Part, p)
+        prev_pitch = None
+        prev_dur = None
+        for n in part.find_all(Note):
+            note: Note = cast(Note, n)
+            if prev_pitch is not None:
+                iv = round(note.key_num - prev_pitch)
+                if miditoolbox_compatible:
+                    iv = (abs(iv) % 12) * ((iv > 0) - (iv < 0))
+                # otherwise, diff may be ignored by h.add_point
+                if weighted:
+                    dur = duraccent(note)
+                    # prev_dur cannot be None here since prev_pitch is not None
+                    h.add_point(iv, prev_dur + dur)  # type: ignore
+                    prev_dur = dur
+                else:
+                    h.add_point(iv, 1.0)
+            prev_pitch = note.key_num
+            if weighted and prev_dur is None:
+                prev_dur = duraccent(note)
 
-    return id
+    if miditoolbox_compatible:  # miditoolbox "normalization"
+        total = sum(h.bins) + len(h.bins) * 1e-12
+        h.bins = [b / total for b in h.bins]
+    else:  # normalize normally
+        h.normalize()
+
+    return Distribution(
+        name,
+        h.bins,
+        "interval",
+        [len(h.bins)],
+        x_categories,  # type: ignore
+        "Interval (semitones)",
+        None,
+        "Proportion",
+    )

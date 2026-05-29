@@ -1,5 +1,1 @@
-"""
-The 'pitch' module contains functions and classes related to pitch.
-"""
-
-from .transformations import *
+# amads.pitch package initializer

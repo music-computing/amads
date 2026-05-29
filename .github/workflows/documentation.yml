@@ -1,8 +1,14 @@
 name: Documentation
 
+env:
+  # This is needed for R's install_github scripts
+  GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
 on:
   push:
-  workflow_dispatch:
+    branches:
+      - main
+  pull_request:
 
 permissions:
   contents: write
@@ -18,12 +24,12 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install sphinx sphinx_rtd_theme myst_parser
           pip install -e ".[dev]"
+          pip install -r docs/requirements.txt
 
-      - name: Sphinx build
-        run: |
-          sphinx-build docs _build
+      - name: mkdocs build
+        run:
+          mkdocs build --site-dir _build/
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3

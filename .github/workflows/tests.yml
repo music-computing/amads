@@ -1,17 +1,22 @@
 name: Tests
 
+env:
+  # This is needed for R's install_github scripts
+  GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
 on:
   push:
-    branches: [ main ]
+    branches:
+      - "**"
   pull_request:
-    branches: [ main ]
+    types: [opened, reopened, ready_for_review]
 
 jobs:
-  test:
+  tests_main:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.10", "3.11"]
+        python-version: ["3.10", "3.11", "3.12"]
 
     steps:
     - uses: actions/checkout@v4
@@ -30,15 +35,26 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -e .[test]
-        pip install pytest-cov
+
+    - name: Debug - Show file structure
+      run: |
+        pwd
+        ls -la
+        find . -name "*.mid" -o -name "*.mid"
+        echo "Python working directory:"
+        python -c "import os; print(os.getcwd())"
 
     - name: Run tests with coverage
       run: |
-        pytest --cov=./ --cov-report=xml
+        # Test discovery/selection is defined in conftest.py.
+        # amads.ci.run_main_tests() is only a thin wrapper to add coverage args.
+        python -c "from amads.ci import run_main_tests; run_main_tests()"
 
     - name: Upload coverage to Codecov
-      if: always() && matrix.python-version == '3.11'
+      if: success() && matrix.python-version == '3.11'
       uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         fail_ci_if_error: true
+        flags: python-tests
+
