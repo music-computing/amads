@@ -1,15 +1,11 @@
 """Onset-time filtering for notes.
 
 Filters notes whose onsets fall within a given time window.
-
-Original doc: https://github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf, page 81
 """
 
 from typing import Iterable, List, Optional, Union
 
 from ...core.basics import Note, Score
-
-__author__ = "Tai Nakamura"
 
 
 def onset_window(
@@ -22,27 +18,28 @@ def onset_window(
 
     Returns notes whose onset times satisfy: ``min_time <= onset < max_time``.
 
+    <small>**Author**: Tai Nakamura</small>
+
     Parameters
     ----------
     passage : Score or Iterable[Note]
         The musical passage to be filtered.
     min_time : float
-        Minimum limit of the window (inclusive) in quarters (default) or seconds
+        Minimum limit of the window (inclusive) in quarters (default) or seconds.
     max_time : float
-        Maximum limit of the window (exclusive) in quarters (default) or seconds
-    timetype (str, optional, default='quarters'):
-        Time unit for calculation:
-        - 'quarters': notes per quarter (default)
-        - 'seconds' : notes per second
+        Maximum limit of the window (exclusive) in quarters (default) or seconds.
+    timetype : {'quarters', 'seconds'}, optional
+        Time unit for the window bounds. Default is ``'quarters'``.
+
     Returns
     -------
     List[Note]
-        Notes whose onsets are within the specified window ``[min_time, max_time)``
+        Notes whose onsets are within the specified window ``[min_time, max_time)``.
 
     Raises
     ------
     ValueError
-        If timetype is not "quarters" or "seconds"
+        If ``timetype`` is not ``'quarters'`` or ``'seconds'``.
 
     Examples
     --------
@@ -53,6 +50,13 @@ def onset_window(
     2
     >>> [n.pitch.key_num for n in filtered]
     [62, 64]
+
+    References
+    ----------
+    - Toiviainen, P., & Eerola, T. (2016). MIDI Toolbox 1.1. URL: https://github.com/miditoolbox/1.1
+      The ``onsetwindow`` function is
+      documented on p. 81 of the manual:
+      https://github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf
     """
     if timetype not in ("quarters", "seconds"):
         raise ValueError(
