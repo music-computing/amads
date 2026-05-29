@@ -2,7 +2,7 @@
 Tests the 2 melcontour functions to ensure they work as advertised
 """
 
-from amads.core.basics import Score, Note
+from amads.core.basics import Note, Score
 from amads.melody.contour.melcontour import (
     melodySamplingContour,
     melodySamplingCorrelation,

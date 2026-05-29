@@ -16,10 +16,10 @@ Reference(s):
 """
 
 import math
+from itertools import count
+from typing import List, Optional
 
 import numpy as np
-from itertools import count
-from typing import Optional, List
 
 from amads.core.basics import Note, Score
 from amads.pitch.ismonophonic import ismonophonic
@@ -119,5 +119,7 @@ def melodySamplingContour(score: Score, res: float) -> Optional[List[Note]]:
     return sampling_list
 
 
-def melodySamplingCorrelation(score: Score, res: float) -> Optional[List[float]]:
+def melodySamplingCorrelation(
+    score: Score, res: float
+) -> Optional[List[float]]:
     return _autoCorrelateContour(melodySamplingContour(score, res))

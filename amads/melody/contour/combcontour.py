@@ -14,8 +14,9 @@ Reference(s):
         31(2), 225-267.
 """
 
-import numpy as np
 from typing import Optional
+
+import numpy as np
 
 from amads.core.basics import Score
 from amads.pitch.ismonophonic import ismonophonic

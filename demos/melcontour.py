@@ -1,7 +1,7 @@
 from amads.io.pm_midi_import import pretty_midi_import
 from amads.melody.contour.melcontour import (
-    melodySamplingCorrelation,
     melodySamplingContour,
+    melodySamplingCorrelation,
 )
 from amads.music import example
 
