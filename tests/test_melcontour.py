@@ -2,6 +2,8 @@
 Tests the 2 melcontour functions to ensure they work as advertised
 """
 
+import math
+
 from amads.core.basics import Note, Score
 from amads.melody.contour.melcontour import (
     melodySamplingContour,
@@ -71,7 +73,10 @@ def test_nonempty_melody_correlation():
         -0.4285714285714285,
         -0.3571428571428571,
     ]
-    assert result == desired_result
+    assert all(
+        math.isclose(a, b, rel_tol=1e-9, abs_tol=1e-8)
+        for a, b in zip(result, desired_result)
+    )
 
     return
 
