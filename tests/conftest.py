@@ -9,18 +9,18 @@ from amads.music import example
 def twochan_score():
     midi_file = example.fullpath("midi/twochan.mid")
     assert midi_file is not None
-    return read_score(midi_file, show=True).quantize(4)
+    return read_score(midi_file, show=False).quantize(4)
 
 
 @fixture
 def twochan_notes(twochan_score):
     print("twochan_notes fixture gets score:")
     score = twochan_score
-    score.show()
+    # score.show()
     notes = score.get_sorted_notes()
-    print("twochan_notes fixture gets sorted notes:")
-    for note in notes:
-        note.show()
+    # print("twochan_notes fixture gets sorted notes:")
+    # for note in notes:
+    #     note.show()
     return notes
 
 

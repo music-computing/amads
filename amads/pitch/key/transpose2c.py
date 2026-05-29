@@ -7,7 +7,7 @@ the krumhansl-kessler algorithm (kkcc with default parameters).
 
 Reference
 ---------
-https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=93
+https://github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf, page 93.
 """
 
 from amads.core.basics import Note, Score
@@ -19,6 +19,9 @@ def transpose2c(score: Score, profile_name: str = "KRUMHANSL-KESSLER") -> Score:
     """
     returns a copy of score transposed to C-major/minor with the key from the
     original krumhansl-kessler algorithm (kkcc with default parameters).
+
+    This is an implementation of the transpose2c function in the Matlab
+    MIDItoolbox.
 
     Parameters
     ----------

@@ -15,7 +15,8 @@ Warnings
 
 References
 ----------
-https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=66 for more details
+https://github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf,
+page 67.
 
 Toiviainen & Krumhansl, 2003
 
@@ -46,6 +47,8 @@ def keysom(
 ) -> Tuple[np.ndarray, Figure]:
     """
     Projects the pitch-class distribution of a note-collection to a SOM.
+
+    This implementation is based on the keysom function in Matlab MIDItoolbox.
 
     The SOM (self-organized map) is trained on key profile data.
     Returns the resulting projection matrix.

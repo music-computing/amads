@@ -21,7 +21,7 @@ assert my_midi_file is not None, "Example MIDI file not found."
 set_preferred_midi_reader("music21")  # for consistent testing
 print("------- input from music21")
 myscore = read_score(my_midi_file, show=False)
-myscore.show()
+# myscore.show()
 
 # %%
 # Calculate duration distribution

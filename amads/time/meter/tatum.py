@@ -14,6 +14,7 @@ and deduced local and spectral meters.
 __author__ = "Mark Gotham"
 
 from fractions import Fraction
+from typing import Union
 
 from amads.io.readscore import read_score, set_reader_warning_level
 from amads.time.meter.grid import get_tatum_from_priorities
@@ -85,15 +86,21 @@ def score_to_offsets(path_to_score: str, to_indices: bool = True) -> list:
         return timepoints
 
 
-def starts_to_indices(starts: list, tatum: Fraction = None) -> list:
+def starts_to_indices(
+    starts: list, tatum: Union[Fraction, int, None] = None
+) -> list:
     """
     Given a list of start times,
     convert to a list of indices on the tatum grid.
 
     If a tatum value is provided, use that;
-    otherwise, deduce the tatum using gcd methods.
+    otherwise, deduce the tatum using GCD methods.
 
     This is the input format for the IMA algorithm, among others.
+
+    Note that this function is generally applicable to any contiainer.
+    While taking time since the start of the whole piece may be the most typical use case,
+    other reference points include the start of the measure.
 
     Parameters
     ----------

@@ -1,11 +1,6 @@
 import unittest
 
-from amads.core.utils import (
-    dir_to_collection,
-    hz_to_key_num,
-    key_num_to_hz,
-    key_num_to_name,
-)
+from amads.core.utils import dir_to_collection, hz_to_key_num, key_num_to_hz
 from amads.music import example
 
 
@@ -42,8 +37,10 @@ class TestUntils(unittest.TestCase):
             key_num_to_hz(81), 880.0, places=2
         )  # MIDI key 81 is 880 Hz
 
+
+"""Use Pitch(n).name_with_octave instead...
     def test_key_num_to_name(self):
-        """Test converting key numbers to key names."""
+        $$$ ""Test converting key numbers to key names."" $$$
         print("------- Testing key_num_to_name function--------------")
 
         # Test for 'nameoctave' (default) detail option
@@ -85,7 +82,7 @@ class TestUntils(unittest.TestCase):
         # Test invalid detail option
         with self.assertRaises(ValueError):
             key_num_to_name(60, detail="invalid_option")
-
+"""
 
 if __name__ == "__main__":
     unittest.main()

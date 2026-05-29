@@ -1,13 +1,16 @@
 from amads.all import pitch_class_distribution_1, read_score
 from amads.music import example
 
+VERBOSE = False
+
 # for some reason, could not open file with just the relative path
 my_midi_file = example.fullpath("midi/sarabande.mid")
 assert my_midi_file is not None
 
 print("------- input from partitura")
 myscore = read_score(my_midi_file, show=False)
-myscore.show()
+if VERBOSE:
+    myscore.show()
 print("------- finished input from partitura")
 
 

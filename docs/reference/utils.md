@@ -15,10 +15,6 @@
 
 ----------------
 
-::: amads.core.utils.key_num_to_name 
-
-----------------
-
 ::: amads.core.utils.sign 
 
 ----------------

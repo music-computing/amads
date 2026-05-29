@@ -1,7 +1,7 @@
 """
 Convert a frequency in Hertz to the corresponding (float) MIDI pitch number. (From MIDI Toolbox)
 
-Original doc: MIDI Tooolbox (https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=63)
+Original doc: MIDI Tooolbox (https://github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf, page 63)
 """
 
 import math
@@ -10,6 +10,8 @@ import math
 def hz2midi(hertz):
     """
     Convert a frequency in Hertz to the corresponding MIDI note number.
+
+    This is an implementation of the hz2midi function in the Matlab MIDItoolbox.
 
     Validates input to ensure all frequencies are non-negative.
 

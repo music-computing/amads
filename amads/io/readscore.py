@@ -6,9 +6,9 @@ import tempfile
 import urllib.request
 import warnings
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Callable, Optional, cast
 
-from amads.core.basics import Score
+from amads.core.basics import Chord, Measure, Note, Rest, Score, Staff
 from amads.io.writescore import _suffix_to_format
 
 # This module, readscore, is regarded as a singleton class with
@@ -305,7 +305,7 @@ def _import_score(
                 f"file={import_fn.__name__}."
             )
         return import_fn(
-            filename, format, flatten, collapse, show, group_by_instrument
+            str(filename), format, flatten, collapse, show, group_by_instrument
         )
     elif preferred_reader:
         raise Exception(
@@ -447,6 +447,41 @@ def read_score(
     Music21 may infer a Clef and KeySignature even though MIDI
     does not even have a meta-event for clefs, and even if the
     MIDI file has no key signature meta-event.
+
+    Music21 has an optional 8vb treble clef. This becomes simply a
+    treble clef (`Clef.clef == "treble") in AMADS.
+
+    Some Music21 clefs are not supported in AMADS, e.g. tenor clef
+    with an 8vb marking. These become `Clef.clef == "constructed"`
+    and a tuple with (symbol, staff line, octave transposition) is
+    stored as property "clef_info". Some unusual 18th, 19th, and 20th
+    Century clefs are translated into more modern or conventional
+    treble, soprano, alto, and tenor clefs, retaining the note
+    positions on the staff, but not the original symbol.
+
+    Grace notes are Notes marked by setting the `"is_grace"` property
+    to True. AMADS also uses the `"has_slash"` property (no property
+    means False) to indicate a grace note with a slash (conventionally
+    an acciaccatura), but Music21 incorrectly sets its slash property
+    by default, potentially losing slash information in MusicXML,
+    where the default is no slash.
+
+    Other Note properties are set as follows: `"has_trill"` and
+    `"trill_pitch"` are set for Music21 Trill (`"trill_pitch"` has an
+    AMADS Pitch object as its value); `"has_trill_extension"` is
+    set for TrillExtension. `"has_turn"` and `"turn_pitches"` are set
+    for Turn expressions (`"turn_pitches"` consists of a list with the
+    upper pitch and the lower pitch as AMADS Pitch objects);
+    `"has_inverted_turn"` and `"inverted_turn_pitches"` are set for
+    InvertedTurn expressions (`"inverted_turn_pitches"` consists of a
+    list with the lower pitch and the upper pitch as AMADS Pitch objects);
+    `"has_mordent"` and `"mordent_pitch"` are set for Mordent
+    expressions (`"mordent_pitch"` consists of the upper pitch as an
+    AMADS Pitch object); `"has_inverted_mordent"` and
+    `"inverted_mordent_pitch"` are set for InvertedMordent expressions
+    (`"inverted_mordent_pitch"` consists of the upper pitch as an
+    AMADS Pitch object); `"has_shake"` is set for Shake expressions;
+    and `"has_schleifer"` is set for Schleifer expressions.
     """
     if isinstance(filename, str) and (
         filename.startswith("http") or "://" in filename
@@ -487,7 +522,7 @@ def read_score(
                     "  Use amads.io.readscore.set_reader_warning_level() "
                     "for more details."
                 )
-        else:  # "none", "default", or "high"
+        else:  # "none", "default", or "high", but w is empty if "none"
             for warning in w:
                 print(
                     f"{warning.filename}:{warning.lineno}: "
@@ -512,3 +547,63 @@ def last_used_reader() -> Optional[str]:
     if _last_used_reader is not None:
         return _last_used_reader.__name__
     return None
+
+
+# --------------- shared code for m21 and pt import -----------------
+
+
+def _expand_first_measure(staff: Staff) -> float:
+    """expand first measure to a full measure if necessary"""
+    # what is the maximum offset of the first measure?
+    shift = 0
+    if len(staff.content) > 0:
+        m1: Measure = cast(Measure, staff.content[0])
+        m1_duration = m1.time_signature().duration
+        max_offset = 0
+        for elem in m1.content:
+            max_offset = max(max_offset, elem.offset)
+        if max_offset < m1_duration - 0.001:  # need to insert rest
+            shift = m1_duration - max_offset
+            for elem in m1.content:
+                if (
+                    isinstance(elem, Note)
+                    or isinstance(elem, Rest)
+                    or isinstance(elem, Chord)
+                ):
+                    elem.time_shift(shift)
+            # insert Rest, Since m1 is first, m1.onset == 0
+            _ = Rest(m1, m1.onset, duration=shift)
+            m1.offset = m1_duration
+            # now, first measure ending may have shifted, so adjust
+            # remainder of the part
+            if len(staff.content) > 1 and shift > 0.001:
+                for m in staff.content[1:]:
+                    # score.time_signatures has not been shifted yet, so
+                    # look up the time signature for the meausure duration
+                    # before shifting. We set the measure duration because
+                    # partitura will give measure durations shorter than the
+                    # time signature duration if the measure is not full
+                    m.duration = m.time_signature().duration
+                    m.time_shift(shift)
+            staff.offset = staff.content[-1].offset
+            # update Part offset:
+            part = staff.parent
+            part.offset = max(part.offset, staff.offset)
+            # update Score offset:
+            score = part.parent
+            score.offset = max(score.duration, staff.offset)
+    return shift
+
+
+def _finish_import(
+    score: Score, flatten: bool, collapse: bool, shift: float
+) -> Score:
+    """Apply some final manipulations common to m21 and pt import"""
+    if shift > 0.001:
+        # parts are shifted but not measures and time signatures.
+        # shared_shift is in beats
+        score.time_map._time_shift(shift)
+        score._timesignatures_shift(shift)
+    if flatten or collapse:
+        score = score.flatten(collapse=collapse)
+    return score

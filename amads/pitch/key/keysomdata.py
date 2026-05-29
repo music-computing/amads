@@ -330,11 +330,11 @@ class KeyProfileSOM:
     ...                                       show=False)
 
     Train a set of weights from a key profile with 'major' and 'minor'
-    attributes with supplied training parameters:
+    attributes with supplied training parameters (note that max training
+    iterations are reduced to make the test run slightly faster):
     >>> training_profile = prof.krumhansl_kessler # from key/profiles.py
     >>> test_SOM = KeyProfileSOM() # default output dimensions used
-    >>> _ = test_SOM.train_SOM(training_profile) # use default parameters
-
+    >>> _ = test_SOM.train_SOM(training_profile, max_iterations=64)
     """
 
     # corresponds to the number of weights in a pitch-class distribution
@@ -901,7 +901,6 @@ class KeyProfileSOM:
         projection_list = [
             self.project_input_onto_SOM(np.array(input)) for input in input_list
         ]
-        print(projection_list)
         if not projection_list:
             print("Warning! No distributions provided to animate!")
             return

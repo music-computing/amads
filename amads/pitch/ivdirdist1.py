@@ -4,7 +4,7 @@ Provides the `ivdirdist1` function
 
 Can emulate the `ivdurdist1` function in Midi Toolbox.
 
-Original doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=64
+Original doc: https://github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf, page 65.
 """
 
 from amads.core.basics import Score
@@ -20,6 +20,8 @@ def interval_direction_distribution_1(
 ) -> Distribution:
     """
     Returns the proportion of upward intervals for each interval size
+
+    This is an implementation of the ivdirdist1 function in Matlab MIDItoolbox.
 
     Currently, intervals greater than an octave will be ignored.
 

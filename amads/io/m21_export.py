@@ -6,12 +6,14 @@ from typing import Optional, cast
 from music21 import (
     chord,
     clef,
+    expressions,
     instrument,
     key,
     layout,
     metadata,
     musicxml,
     note,
+    pitch,
     stream,
     tempo,
     tie,
@@ -26,6 +28,7 @@ from amads.core.basics import (
     Measure,
     Note,
     Part,
+    Pitch,
     Rest,
     Score,
     Staff,
@@ -47,7 +50,7 @@ tied_notes = {}  # temporary data to track tied notes, this is a mapping
 # list. (First-in-first-out).
 
 
-def _m21_clef(clef_str: str) -> clef.Clef:
+def _m21_clef(clef_str: str, aclef: Clef) -> clef.Clef:
     """translate AMADS clef ID string to music21 Clef object"""
     if clef_str == "treble":
         return clef.TrebleClef()  # type: ignore
@@ -59,9 +62,49 @@ def _m21_clef(clef_str: str) -> clef.Clef:
         return clef.TenorClef()  # type: ignore
     if clef_str == "percussion":
         return clef.PercussionClef()  # type: ignore
+    if clef_str == "treble8va":
+        return clef.Treble8vaClef()  # type: ignore
     if clef_str == "treble8vb":
         return clef.Treble8vbClef()  # type: ignore
-    raise ValueError(f"Unknown clef string: {clef_str}")
+    if clef_str == "bass8va":
+        return clef.Bass8vaClef()  # type: ignore
+    if clef_str == "bass8vb":
+        return clef.Bass8vbClef()  # type: ignore
+    if clef_str == "bass8va":
+        return clef.Bass8vaClef()  # type: ignore
+    if clef_str == "soprano":
+        return clef.SopranoClef()  # type: ignore
+    if clef_str == "cbaritone":
+        return clef.CBaritoneClef()  # type: ignore
+    if clef_str == "french_violin":
+        return clef.FrenchViolinClef()  # type: ignore
+    if clef_str == "gsoprano":
+        return clef.GSopranoClef()  # type: ignore
+    if clef_str == "mezzosoprano":
+        return clef.MezzoSopranoClef()  # type: ignore
+    if clef_str == "subbass":
+        return clef.SubBassClef()  # type: ignore
+    info = Clef._clef_info.get(clef_str)
+    if not info:
+        info = aclef.get("clef_info")
+    if info is not None:
+        # construct a clef from info
+        c = None
+        if info[0] == "G":
+            c = clef.GClef()
+            c.line = info[1]
+            c.octaveChange = info[2]
+        elif info[0] == "F":
+            c = clef.FClef()
+            c.line = info[1]
+            c.octaveChange = info[2]
+        elif info[0] == "C":
+            c = clef.CClef()
+            c.line = info[1]
+            c.octaveChange = info[2]
+        if c is not None:
+            return c
+    raise ValueError(f"Unknown clef string {clef_str} or clef {aclef}.")
 
 
 def fix_part_ids(musicxml_string):
@@ -149,6 +192,38 @@ def _add_measure_content(m21measure, measure, ties) -> None:
         )
 
 
+def _add_expressions_to_m21(m21note, item):
+    """make m21 expressions from any expression data in item's properties"""
+    global _m21trills, _m21turns, _m21mordents
+    if item.get("has_trill", False):
+        trill = expressions.Trill()
+        _m21trills.append((m21note, trill, item.get("trill_pitch")))
+        m21note.expressions.append(trill)
+    if item.get("has_trill_extension", False):
+        m21note.expressions.append(expressions.TrillExtension())
+    if item.get("has_turn", False):
+        turn = expressions.Turn()
+        _m21turns.append((m21note, turn, item.get("turn_pitches")))
+        m21note.expressions.append(turn)
+    if item.get("has_inverted_turn", False):
+        turn = expressions.InvertedTurn()
+        _m21turns.append((m21note, turn, item.get("inverted_turn_pitches")))
+        m21note.expressions.append(turn)
+    if item.get("has_mordent", False):
+        mordent = expressions.GeneralMordent()
+        _m21mordents.append((m21note, mordent, item.get("mordent_pitch")))
+        m21note.expressions.append(mordent)
+    if item.get("has_inverted_mordent", False):
+        mordent = expressions.InvertedMordent()
+        apitch = item.get("inverted_mordent_pitch")
+        _m21mordents.append((m21note, mordent, apitch))
+        m21note.expressions.append(mordent)
+    if item.get("has_shake", False):
+        m21note.expressions.append(expressions.Shake())
+    if item.get("has_schleifer", False):
+        m21note.expressions.append(expressions.Schleifer())
+
+
 def _add_measure_content_from_list(m21parent, measure, content, dur, ties):
     """
     insert content (Notes, Chords, Rests) from a Measure to m21 stream
@@ -183,7 +258,12 @@ def _add_measure_content_from_list(m21parent, measure, content, dur, ties):
         if isinstance(item, Note):
             m21note = note.Note(nameWithOctave=item.name_with_octave)
             m21note.offset = measure_delta
-            m21note.duration.quarterLength = duration
+            if duration == 0 or item.get("is_grace"):
+                grace_ql = duration if duration > 0 else 0.25
+                m21note.duration = m21Duration(grace_ql).getGraceDuration()
+            else:
+                m21note.duration.quarterLength = duration
+            _add_expressions_to_m21(m21note, item)
             if isinstance(item.dynamic, int):
                 m21note.volume.velocity = item.dynamic
             # otherwise, use default because I am not sure how
@@ -191,15 +271,23 @@ def _add_measure_content_from_list(m21parent, measure, content, dur, ties):
             m21parent.insert(m21note.offset, m21note)
             # if note is tied or tied to, enter it in ties:
             if item.tie:  # item is tied to item.tie
+                # I think if (item in ties) it must be because it is tied to,
+                # but we'll use the tied_to field just in case.
                 is_tied_to = (item in ties) and ties[item][1]
                 ties[item] = (m21note, is_tied_to)
                 # set ties[item.tie]'s is_tied_to field to True
+                # I don't expect ties[item.tie] to even exist, but if it does,
+                # we've already created the m21 note corresponding to item.tie
+                # and need to maintain the mapping from AMADS Note to m21 note:
                 tied_to_m21 = None
                 if item.tie in ties:
                     tied_to_m21 = ties[item.tie][0]
                 ties[item.tie] = (tied_to_m21, True)
             if (item in ties) and (ties[item][0] is None):
-                # update entry with m21note
+                # update entry with m21note. This happens when we executed
+                # ties[item.tie] = (tied_to_m21, True) just above, but we
+                # did not yet create the m21 note corresponding to item. We
+                # have it now, so save the mapping now:
                 ties[item] = (m21note, ties[item][1])
         elif isinstance(item, Rest):
             m21rest = note.Rest()
@@ -207,13 +295,23 @@ def _add_measure_content_from_list(m21parent, measure, content, dur, ties):
             m21rest.duration.quarterLength = duration
             m21parent.insert(m21rest.offset, m21rest)
         elif isinstance(item, Chord):
-            pitches = [
-                n.name_with_octave for n in item.find_all(Note)  # type: ignore
-            ]
+            amads_notes: list[Note] = item.list_all(Note)  # type: ignore
+            pitches = [n.name_with_octave for n in amads_notes]
             m21chord = chord.Chord(pitches)
             m21chord.offset = measure_delta
             m21chord.duration.quarterLength = duration
             m21parent.insert(m21chord.offset, m21chord)
+            # handle ties on individual notes within the chord
+            for amads_note, m21note in zip(amads_notes, m21chord.notes):
+                if amads_note.tie:
+                    is_tied_to = (amads_note in ties) and ties[amads_note][1]
+                    ties[amads_note] = (m21note, is_tied_to)
+                    tied_to_m21 = None
+                    if amads_note.tie in ties:
+                        tied_to_m21 = ties[amads_note.tie][0]
+                    ties[amads_note.tie] = (tied_to_m21, True)
+                if (amads_note in ties) and (ties[amads_note][0] is None):
+                    ties[amads_note] = (m21note, ties[amads_note][1])
 
     if max_offset < measure.offset - 1e-6:
         # need a rest to fill out the measure in Music21,
@@ -223,6 +321,136 @@ def _add_measure_content_from_list(m21parent, measure, content, dur, ties):
         m21rest.offset = max_offset - measure.onset
         m21rest.duration.quarterLength = measure.offset - max_offset
         m21parent.insert(m21rest.offset, m21rest)
+
+
+_accidentals = ["double-flat", "flat", "natural", "sharp", "double-sharp"]
+
+
+def lookup_accidental(diff: int) -> str:
+    """convert pitch difference to accidental requuired
+
+    If diff is out of range, just return double-flat or double-sharp.
+    """
+    diff = max(-2, min(2, diff))
+    return _accidentals[diff + 2]
+
+
+def _get_turn_pitches(
+    turn: expressions.Turn, m21note: note.Note
+) -> tuple[pitch.Pitch, pitch.Pitch]:
+    """resolve upper and lower turn pitches from music21"""
+    turn.resolveOrnamentalPitches(m21note)
+    m21pitches = turn.ornamentalPitches
+    if m21pitches[0].midi > m21pitches[1].midi:
+        return (m21pitches[0], m21pitches[1])
+    else:
+        return (m21pitches[1], m21pitches[0])
+
+
+def _get_pitch_diff(
+    m21note: note.Note, expr: expressions.Ornament, apitch: Pitch
+) -> int:
+    """factors out a common calculation for trills and mordents"""
+    expr.resolveOrnamentalPitches(m21note)
+    return apitch.key_num - expr.ornamentalPitches[0].midi
+
+
+def music21_resolve_ornaments():
+    """fix up ornaments that need accidentals"""
+    global _m21trills, _m21turns, _m21mordents
+    for item in _m21trills:
+        (m21note, trill, apitch) = item
+        # see if trill pitches are already correct
+        diff = _get_pitch_diff(m21note, trill, apitch)
+        if diff != 0:
+            trill.accidental = lookup_accidental(diff)
+            # if there was already an accidental, we might get the wrong result
+            diff2 = _get_pitch_diff(m21note, trill, apitch)
+            if diff2 != 0:
+                trill.accidental = lookup_accidental(diff + diff2)
+                diff3 = _get_pitch_diff(m21note, trill, apitch)
+                if diff3 != 0:
+                    raise Exception(
+                        "Could not resolve trill accidental."
+                        f" Trilled note is {m21note}, desired pitch is "
+                        f"{trill.ornamentalPitches[0]}. Pitch differences "
+                        f"were {diff} and {diff2}. Tried "
+                        f"{lookup_accidental(diff)} and "
+                        f"{lookup_accidental(diff + diff2)}."
+                    )
+
+    for item in _m21turns:
+        (m21note, turn, pitches) = item
+        assert len(pitches) == 2, "expected 2 Pitches in turn info"
+        p0 = pitches[0].key_num
+        p1 = pitches[1].key_num
+        upper = max(p0, p1)
+        lower = min(p0, p1)
+        # see if turn pitches are correct
+        m21upper, m21lower = _get_turn_pitches(turn, m21note)
+
+        # start with upper pitch and accidental
+        diff = upper.key_num - m21upper.midi
+        if diff != 0:
+            turn.upperAccidental = lookup_accidental(diff)
+            # if there was already an accidental, we might get the wrong result
+            m21upper, m21lower = _get_turn_pitches(turn, m21note)
+            diff2 = upper.key_num - m21upper.midi
+            if diff2 != 0:
+                turn.upperAccidental = lookup_accidental(diff + diff2)
+                m21upper, m21lower = _get_turn_pitches(turn, m21note)
+                diff3 = upper.key_num - m21upper.midi
+                if diff3 != 0:
+                    raise Exception(
+                        "Could not resolve upper turn accidental."
+                        f" Turn note is {m21note}, desired upper pitch is "
+                        f"{m21upper}. Pitch differences were {diff} and "
+                        f"{diff2}. Tried {lookup_accidental(diff)} and "
+                        f"{lookup_accidental(diff + diff2)}."
+                    )
+
+        # now do lower pitch and accidental
+        diff = lower.key_num - m21lower.midi
+        if diff != 0:
+            turn.lowerAccidental = lookup_accidental(diff)
+            # if there was already an accidental, we might get the wrong result
+            m21lower, m21lower = _get_turn_pitches(turn, m21note)
+            diff2 = lower.key_num - m21lower.midi
+            if diff2 != 0:
+                turn.lowerAccidental = lookup_accidental(diff + diff2)
+                m21lower, m21lower = _get_turn_pitches(turn, m21note)
+                diff3 = lower.key_num - m21lower.midi
+                if diff3 != 0:
+                    raise Exception(
+                        "Could not resolve lower turn accidental."
+                        f" Turn note is {m21note}, desired lower pitch is "
+                        f"{m21lower}. Pitch differences were {diff} and "
+                        f"{diff2}. Tried {lookup_accidental(diff)} and "
+                        f"{lookup_accidental(diff + diff2)}."
+                    )
+
+    for item in _m21mordents:
+        (m21note, mordent, apitch) = item
+        # see if mordent pitches are already correct
+        diff = _get_pitch_diff(m21note, mordent, apitch)
+        if diff != 0:
+            mordent.accidental = lookup_accidental(diff)
+            # if there was already an accidental, we might get the wrong result
+            mordent.resolveOrnamentalPitches(m21note)
+            diff2 = _get_pitch_diff(m21note, mordent, apitch)
+            if diff2 != 0:
+                mordent.accidental = lookup_accidental(diff + diff2)
+                mordent.resolveOrnamentalPitches(m21note)
+                diff3 = _get_pitch_diff(m21note, mordent, apitch)
+                if diff3 != 0:
+                    raise Exception(
+                        "Could not resolve mordent accidental."
+                        f" Mordented note is {m21note}, desired pitch is "
+                        f"{mordent.ornamentalPitches[0]}. Pitch "
+                        f"differences were {diff} and {diff2}. Tried "
+                        f"{lookup_accidental(diff)} and "
+                        f"{lookup_accidental(diff + diff2)}."
+                    )
 
 
 def _score_to_music21(
@@ -246,6 +474,10 @@ def _score_to_music21(
         The AMADS Score object converted to music21
     """
     # create a new music21 score
+    global _m21trills, _m21turns, _m21mordents
+    _m21trills = []
+    _m21turns = []
+    _m21mordents = []
     m21score = stream.Score()
     m21score.metadata = metadata.Metadata()
     if score.has("title"):
@@ -259,9 +491,11 @@ def _score_to_music21(
         m21score.insert(map_quarter.quarter, tempo.MetronomeMark(number=mm))
 
     ties = {}  # map from AMADS Note to (note.Note, tied_to)
-    # where note.Note is the music21 note corresponding to the key or
-    #     None if not processed yet, and tied_to is True if there is an
-    #     incoming tie. (Outgoing ties can be detected by key.tie attribute)
+    # The keys (AMADS Notes) are every Note with a tie or that is tied to.
+    # The keys map to the m21 note and a boolean, giving 3 cases:
+    # the m21 note should "start" a tie if the key has a tie and is not tied_to
+    # the m21 note should "continue" if the key has a tie and is tied_to
+    # the m21 note should "stop" if the key has no tie but is tied_to
 
     time_sigs = score.time_signatures
     for part_num, part in enumerate(score.find_all(Part)):
@@ -301,7 +535,7 @@ def _score_to_music21(
                     number=num, duration=m21Duration(measure.duration)
                 )
                 # add time signature change if any
-                if isclose(time_sig.time, measure.onset, abs_tol=1e-3):
+                if isclose(time_sig.quarters, measure.onset, abs_tol=1e-3):
                     if time_sig.upper != round(time_sig.upper):
                         raise ValueError(
                             "Cannot export fractional time"
@@ -310,7 +544,9 @@ def _score_to_music21(
                     ts_element = m21TimeSignature(
                         f"{round(time_sig.upper)}/{time_sig.lower}"
                     )
-                    m21measure.insert(time_sig.time - measure.onset, ts_element)
+                    m21measure.insert(
+                        time_sig.quarters - measure.onset, ts_element
+                    )
                     # move to the next time_sig, if any left. If not, we do
                     # not change time_sig, but since subsequent measures have
                     # greater onset times, we won't try to add another time_sig
@@ -326,7 +562,7 @@ def _score_to_music21(
                 for clef_change in measure.find_all(Clef):
                     clef_change = cast(Clef, clef_change)
                     try:
-                        clef_element = _m21_clef(clef_change.clef)
+                        clef_element = _m21_clef(clef_change.clef, clef_change)
                     except ValueError as e:
                         warnings.warn(str(e))
                         continue
@@ -358,10 +594,12 @@ def _score_to_music21(
 
     # fix up ties
     for amads_note in ties.keys():
+        # print("*** amads_note in ties.keys()", amads_note)
         # amads_note.tie points to the next note in the tie (or None if no
         # outgoing tie) is_tied_to indicates if there's an incoming tie
         # from a previous note
         (m21note, is_tied_to) = ties[amads_note]
+        # print("    *** m21note", m21note, "is_tied_to", is_tied_to)
 
         if m21note is None:  # note was tied to but we never put the tied-to
             # note into the m21score!
@@ -378,6 +616,7 @@ def _score_to_music21(
         elif not amads_note.tie and is_tied_to:
             # Note is not tied to the next note, but is tied from a prev. note
             m21note.tie = tie.Tie("stop")
+            # print("*** set tie to 'stop' on", m21note)
         elif not amads_note.tie and not is_tied_to:
             # No tie at all - don't set tie attribute
             pass
@@ -385,6 +624,9 @@ def _score_to_music21(
             assert (
                 False
             ), f"Internal tie-fix-up error {amads_note}, {ties[amads_note]}"
+
+    # fix up ornaments
+    music21_resolve_ornaments()
 
     if show:
         music21_show(m21score, filename)  # type: ignore

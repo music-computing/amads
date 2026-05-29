@@ -3,7 +3,7 @@
 """
 
 from math import isclose
-from typing import cast
+from typing import Tuple, cast
 
 from amads.core.basics import (
     Chord,
@@ -92,8 +92,8 @@ def _pitch_dim(event: Event) -> float:
     elif isinstance(event, KeySignature):
         return -5
     elif isinstance(event, Note):
-        pitch = cast(Note, event).pitch
-        return pitch.key_num - pitch.alt * 0.001
+        pitch = event.pitch
+        return pitch.key_num - pitch.alt * 0.001 if pitch else 0
     return 0
 
 
@@ -130,7 +130,7 @@ def _all_but_rests_and_chords(measure: Measure, midi: bool) -> list[Event]:
     return content
 
 
-def scores_compare(score1: Score, score2: Score, midi: bool = False) -> bool:
+def scores_compare(score1: Event, score2: Event, midi: bool = False) -> bool:
     """Compare two Scores for equality.
 
     If they are different, print the first difference found.
@@ -359,24 +359,24 @@ def scores_compare(score1: Score, score2: Score, midi: bool = False) -> bool:
                     return False
                 return True
         elif isinstance(score1, TimeSignature):
-            score2 = cast(TimeSignature, score2)
-            if score1.upper != score2.upper:
+            ts2 = cast(TimeSignature, score2)
+            if score1.upper != ts2.upper:
                 _score_compare_error(
                     "TimeSignature uppers do not match:",
                     score1,
                     score1.upper,
-                    score2,
-                    score2.upper,
+                    ts2,
+                    ts2.upper,
                     "upper is",
                 )
                 return False
-            if score1.lower != score2.lower:
+            if score1.lower != ts2.lower:
                 _score_compare_error(
                     "TimeSignature lowers do not match:",
                     score1,
                     score1.lower,
-                    score2,
-                    score2.lower,
+                    ts2,
+                    ts2.lower,
                     "lower is",
                 )
                 return False
@@ -416,3 +416,191 @@ def scores_compare(score1: Score, score2: Score, midi: bool = False) -> bool:
             return False
 
     return True
+
+
+def _report_unmatched(
+    silent: bool,
+    heading: bool,
+    name: str,
+    unmatched: Note,
+    name1: str,
+    name2: str,
+    early_stop: bool,
+):
+    if silent:
+        return
+    if not heading:
+        print(f"Score differences found comparing {name1} to {name2}:")
+    print(f"    Unmatched note in {name}:", unmatched)
+    if early_stop:
+        print("    Stopping after first mismatch.")
+    return True
+
+
+def notes_compare(
+    score1: Score,
+    name1: str,
+    score2: Score,
+    name2: str,
+    check_offsets: bool = True,
+    spelling: bool = False,
+    tolerance: float = 0.001,
+    early_stop: bool = False,
+    silent: bool = False,
+) -> Tuple[bool, list[Note], list[Note], float, float]:
+    """Compare the notes in two Scores for approximate pitch and time match.
+
+    This function ignores score structure and parts. It only compares extracted
+    notes. Options allow you to: ignore small time differences, ignore duration,
+    and/or ignore pitch spellings.
+
+    By default, two notes are considered a match if their pitches are equal
+    and their onset and offset times are within tolerance of each other. If
+    check_offsets is False, then only onsets are compared. If spelling is True,
+    then pitch spelling (e.g. F# vs Gb) is also compared.
+
+    Normally, tolerance is expected to be small (e.g. 0.001 seconds) to allow
+    for small time differences and possible reordering of notes in chords. If
+    tolerance is large, run time will suffer due to linear search for matches
+    within time span determined by tolerance, and the "greedy" matching
+    strategy may not find the "best" match, leading to reports of mismatched
+    notes that really had a good match but where "true" matching note was
+    paired with some other note further away in time. This would imply that
+    some "true" mismatch was not reported because a poor match was found.
+    We believe that the algorithm will find the optimal *number* of matches
+    but not the optimal (minimum) max_onset_diff or max_offset_diff for that
+    number of matches. (Proof or counterexample is welcome!)
+
+    Ties are tricky: if the score has no ties, we can extract all the notes
+    and compare them. When we return unmatched notes, they will reference
+    the actual Note objects in the score. But if there *are* ties, we have
+    to remove the ties, which creates a copy of the score. Then, unmatched
+    notes will *not* reference the original Note objects in the score.
+    Instead, unmatched notes will be Notes in the copied score without ties.
+    This can be confusing, so we search both scores for tied notes and
+    only copy a score if a tie is found.
+
+    Parameters
+    ----------
+    score1 : Score
+        First score to compare
+    name1 : str
+        A name for the first score, used in error messages.
+    score2 : Score
+        Second score to compare
+    name2 : str
+        A name for the second score, used in error messages.
+    check_offsets : bool, optional
+        If True, compare note offsets as well as onsets, by default True.
+    spelling : bool, optional
+        If True, compare pitch spelling as well as pitch class,
+        by default False.
+    tolerance : float, optional
+        Maximum allowed difference in onsets and offsets for notes to be
+        considered a match, by default 0.001 seconds.
+    early_stop : bool, optional
+        If True, stop at the first mismatch and return.
+    silent : bool, optional
+        If True, do not print unmatched notes, by default False.
+
+    Returns
+    -------
+    Tuple[bool, list[Note], list[Note], max_onset_diff, max_offset_diff]
+        A tuple containing a boolean indicating whether the notes match,
+        a list of unmatched notes from score1, a list of unmatched notes
+        from score2, the maximum onset time difference observed between
+        matched notes and the maximum offset time difference observed
+        between matched notes.
+
+    <small>**Author**: Roger B. Dannenberg</small>
+    """
+    heading = False  # have we printed a heading for unmatched reports?
+    notes1 = score1.get_sorted_notes(has_ties=score1.has_ties())
+    notes2 = score2.get_sorted_notes(has_ties=score2.has_ties())
+    unmatched1 = []
+    unmatched2 = []
+    max_onset_diff = 0.0
+    max_offset_diff = 0.0
+    i_min = 0  # index of first note in notes2 that is within tolerance of
+    # current note in notes1
+    candidates = []  # list of candidate notes in notes2 that are not matched
+    # yet and within tolerance
+    # algorithm: for each note in score1, remove from candidates any notes
+    # that are too early and move them to unmatched2, then extend candidates
+    # with any notes that are now within tolerance, then search candidates
+    # for a match, and if found, remove from candidates. If no match is found,
+    # append the note from score1 to unmatched1. If early_stop is True, stop
+    # at the first mismatch and return.
+    for n1 in notes1:
+        # remove unmatchable notes from candidates and move to unmatched2
+        while (
+            len(candidates) > 0 and candidates[0].onset < n1.onset - tolerance
+        ):
+            unmatched2.append(candidates[0])
+            heading = _report_unmatched(
+                silent, heading, name2, candidates[0], name1, name2, early_stop
+            )
+            if early_stop:
+                return (
+                    False,
+                    unmatched1,
+                    unmatched2,
+                    max_onset_diff,
+                    max_offset_diff,
+                )
+            candidates.pop(0)
+        # add new candidates within tolerance
+        while (
+            i_min < len(notes2) and notes2[i_min].onset <= n1.onset + tolerance
+        ):
+            candidates.append(notes2[i_min])
+            i_min += 1
+
+        for c in candidates:
+            if (
+                (
+                    (not spelling)
+                    and (c.key_num == n1.key_num)
+                    or (c.pitch == n1.pitch)
+                )
+                and (abs(c.onset - n1.onset) < tolerance)
+                and (
+                    (not check_offsets)
+                    or (abs(c.offset - n1.offset) < tolerance)
+                )
+            ):
+                candidates.remove(c)
+                max_onset_diff = max(max_onset_diff, abs(c.onset - n1.onset))
+                max_offset_diff = max(
+                    max_offset_diff, abs(c.offset - n1.offset)
+                )
+                break
+        else:
+            unmatched1.append(n1)
+            heading = _report_unmatched(
+                silent, heading, name1, n1, name1, name2, early_stop
+            )
+            if early_stop:
+                return (
+                    False,
+                    unmatched1,
+                    unmatched2,
+                    max_onset_diff,
+                    max_offset_diff,
+                )
+    # any remaining candidates are unmatched in score2
+    for c in candidates:
+        unmatched2.append(c)
+        heading = _report_unmatched(
+            silent, heading, name2, c, name1, name2, early_stop
+        )
+        if early_stop:
+            return (
+                False,
+                unmatched1,
+                unmatched2,
+                max_onset_diff,
+                max_offset_diff,
+            )
+    result = len(unmatched1) == 0 and len(unmatched2) == 0
+    return (result, unmatched1, unmatched2, max_onset_diff, max_offset_diff)

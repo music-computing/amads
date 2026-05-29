@@ -7,7 +7,7 @@ profiles for other keys are ignored.
 
 Reference
 ---------
-https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=65
+https://github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf, page 66.
 """
 
 from typing import List, Optional
@@ -25,6 +25,8 @@ def keymode(
 ) -> List[str]:
     """
     Find the mode based on cross-correlation values.
+
+    This is an implementation of the keymode function in Matlab MIDItoolbox.
 
     Returns the list of mode(s) whose profile(s) have a maximal
     cross-correlation with the score's pitch distribution.

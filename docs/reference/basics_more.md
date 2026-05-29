@@ -5,7 +5,7 @@
 Note: importing `amads.core` imports `amads.core.basics`, `amads.core.distribution` and `amads.core.timemap`. 
 
 
-::: amads.core.basics.Clef 
+::: amads.core.basics.Clef
 
 ---------------
 
