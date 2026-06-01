@@ -14,7 +14,8 @@ def concur(score: Score, threshold: float = 0.2) -> float:
     the total number of note onsets. Onsets within a certain threshold beats
     are grouped and counted as a single onset.
 
-    This algorithm and its results are not an exact replication of the Matlab MIDI Toolbox concur function.
+    This algorithm and its results are not an exact replication of the
+    Matlab MIDI Toolbox concur function.
 
     Parameters
     ----------
@@ -33,17 +34,16 @@ def concur(score: Score, threshold: float = 0.2) -> float:
     # 1. Get all the notes in the score
     notes = score.get_sorted_notes()
 
-    # 2. Get the onset times of the notes
-    onset_notes = [note.onset for note in notes]
+    # If there are no notes, return 0.0
+    if not notes:
+        return 0.0
 
-    # 3. Group onsets that are within the threshold of each other
-    for i in range(len(onset_notes)):
-        for j in range(i + 1, len(onset_notes)):
-            if abs(onset_notes[i] - onset_notes[j]) <= threshold:
-                onset_notes[j] = onset_notes[i]
+    groups = 1
 
-    # 4. Use a set to get the distinct onsets
-    distinct_onsets = set(onset_notes)
+    # 2. Iterate through the notes and count how many distinct onset groups there are
+    for i in range(1, len(notes)):
+        if notes[i].onset - notes[i - 1].onset > threshold:
+            groups += 1
 
-    # 5. Calculate the ratio of distinct onsets to total onsets
-    return len(distinct_onsets) / len(onset_notes) if onset_notes else 0.0
+    # 3. Calculate the ratio of distinct onsets to total onsets
+    return groups / len(notes)
