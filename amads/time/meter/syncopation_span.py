@@ -45,7 +45,10 @@ __author__ = "Mark Gotham"
 
 import math
 from dataclasses import dataclass, field
-from typing import Callable, Optional
+from typing import Callable, Optional, Tuple
+
+import matplotlib.pyplot as plt
+import numpy as np
 
 from amads.time.meter.representations import StartTimeHierarchy
 
@@ -579,7 +582,8 @@ def plot_transition_heatmap(  # noqa: C901  (complexity acceptable here)
     mask_lower: bool = False,
     vmax: Optional[float] = None,
     title: str = "Syncopation Transition Heatmap",
-) -> None:
+    write_not_show: bool = False,
+) -> Tuple[plt.figure, plt.axes]:
     """
     Plot the syncopation transition heatmap using matplotlib.
 
@@ -611,15 +615,15 @@ def plot_transition_heatmap(  # noqa: C901  (complexity acceptable here)
         computed per plot. Pass an explicit value for cross-meter comparison.
     title : str
         Plot title.
+    write_not_show : bool
+        If True, write to local directory.
+        If False, show (default for use in notebooks)
 
     Returns
     -------
-    None
+    fig, ax : matplotlib figure, matplotlib axes
         Displays the plot via matplotlib.
     """
-    import matplotlib.pyplot as plt
-    import numpy as np
-
     positions, matrix = transition_heatmap(
         hierarchy, granular_pulse, level_weights
     )
@@ -677,7 +681,11 @@ def plot_transition_heatmap(  # noqa: C901  (complexity acceptable here)
                 )
 
     plt.tight_layout()
-    plt.show()
+    if write_not_show:
+        plt.savefig("./syncopation_span.pdf")
+    else:
+        plt.show()
+    return fig, ax
 
 
 # ---------------------------------------------------------------------------
