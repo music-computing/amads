@@ -17,7 +17,7 @@ Moreover, even in the absence of this implied polyphony,
 a single monodic melody often outlines a simpler shape with elaborations.
 Mozart's first piano sonata (K279) begins with the line
 C B D C E D F E G F A
-which clearly outlines (or is an elabroated form of)
+which clearly outlines (or is an elaborated form of)
 C D E F G A.
 
 Both of these scenarios are captures by the `envelope`.
@@ -27,7 +27,7 @@ In the language data science, we seek the "upper and lower envelope for sequenti
 Terminology
 -----------
 The `skyline` is used here to denote the upper envelope (aka the "ceiling", or "roofline").
-The `valleyline` refers to the the lower envelope (aka the "valley floor").
+The `valleyline` refers to the lower envelope (aka the "valley floor").
 
 The algorithm
 -------------
@@ -36,7 +36,7 @@ minimum — i.e. it is not strictly below BOTH of its nearest retained neighbour
 Equivalently: we iteratively remove strict local minima until none remain.
 
 This produces a piecewise-linear boundary that:
-  - passes through actual data points (not a fitted curve)
+  - passes through actual data points (not a fitted curve unlike in some other approaches to contour)
   - retains an arbitrary number of direction changes
   - excludes only points that genuinely dip below (or rise above) their context
   - is parameter-free at tolerance=0 (a tolerance>0 also removes near-flat dips)
@@ -47,9 +47,10 @@ Supported input forms
 ---------------------
 1. String of digit characters  e.g. "313131" as a toy shorthand for test cases
 2. Sequence of scalar values e.g. [3, 1, 3, 1, ...] which is more usable for MIDI pitch numbers for instance
-    (in this case a fake onset sequence is synthesised with natural numbers 1, 2, 3, ...)
-3. Sequence of (onset, pitch) pairs which data source gives us user- or score-specfied x-spacing.
-4. A `Score` object or equivalent (internally using the `.find_all(Note)` functionality to get the above data.
+    (in this case a fake onset sequence is created with natural numbers 1, 2, 3, ...)
+3. Sequence of (onset, pitch) pairs which data source gives us user- or score-specified x-spacing.
+4. A `Score` object or equivalent, in which case we
+    internally use the `.find_all(Note)` functionality to get the above data.
 
 <small>**Author**: Mark Gotham</small>
 """
