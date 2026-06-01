@@ -8,10 +8,11 @@ class NGramCounter:
     """A stateful n-gram counter that accumulates counts across multiple sequences."""
 
     def __init__(self):
-        """Initialize an empty n-gram counter."""
-        self.ngram_counts = (
-            {}
-        )  # Initialize with empty dictionary instead of None
+        """
+        Initialize an empty n-gram counter
+        (sic, empty instead of None)
+        """
+        self.ngram_counts = {}
 
     def count_ngrams(
         self, tokens: list, n: Union[int, list, None] = None
