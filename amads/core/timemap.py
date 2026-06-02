@@ -347,7 +347,7 @@ class TimeMap:
         Parameters
         ----------
         quarter: float
-            A score position in changes.
+            A score position in quarters.
 
         Returns
         -------
@@ -376,6 +376,25 @@ class TimeMap:
             returns the tempo on the right (after the change).
         """
         return self.get_tempo_at(self._quarter_to_insert_index(quarter) - 1)
+
+    def time_stretch(self, factor: float) -> "TimeMap":
+        """
+        Scale all tempos to increase times in seconds by a factor.
+
+        Parameters
+        ----------
+        factor : float
+            The scaling factor for timing.
+
+        Returns
+        -------
+        TimeMap
+            The object. This method modifies the `TimeMap`.
+        """
+        for change in self.changes:
+            change.time *= factor
+        self.last_tempo /= factor
+        return self
 
     # def _index_to_tempo(self, i: int) -> float:
     #     """Return the tempo at entry i in the tempo map.

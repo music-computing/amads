@@ -3678,6 +3678,33 @@ class Score(Concurrence):
         return self
 
 
+    def time_stretch(self, factor: float) -> "Score":
+        """
+        Scale all timing by a factor, affecting all content.
+
+        Stretching works by changing tempos, so the times in
+        quarters are not changed.
+
+        Parameters
+        ----------
+        factor : float
+            The scaling factor for timing.
+
+        Returns
+        -------
+        Score
+            The object. This method modifies the `Score`. The units are
+            not changed.
+        """
+        original_units_are_seconds = self.units_are_seconds
+        if original_units_are_seconds:
+            self.convert_to_quarters()
+        self.time_map.time_stretch(factor)
+        if original_units_are_seconds:
+            self.convert_to_seconds()
+        return self
+
+
     def _timesignatures_shift(self, quarters: float) -> None:
         """shift the time of time signatures.
 

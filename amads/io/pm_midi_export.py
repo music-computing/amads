@@ -79,7 +79,12 @@ def add_key_signature(
             location = index
             break
     # now location is where to insert a new key signature
-    pm_key_sig = pm.KeySignature(key_number=key_sig, time=onset)
+    # our KeySignature class encodes only the number of flats/sharps, while
+    # PrettyMIDI's KeySignature uses a key number 0-12 for Major, 12-23 for
+    # minor. We will assume that all key signatures are Major. Convert from
+    # flats/sharps to key number using circle of fifths:
+    key_number = (1200 + (key_sig * 7)) % 12
+    pm_key_sig = pm.KeySignature(key_number=key_number, time=onset)
     key_signatures.insert(location, pm_key_sig)
 
 

@@ -512,9 +512,16 @@ def notes_compare(
         matched notes and the maximum offset time difference observed
         between matched notes.
 
+    Raises
+    ------
+    ValueError
+        If scores do not have the same units (quarters or seconds).
+
     <small>**Author**: Roger B. Dannenberg</small>
     """
     heading = False  # have we printed a heading for unmatched reports?
+    if score1.units_are_seconds != score2.units_are_seconds:
+        raise ValueError("Scores must have the same unit type.")
     notes1 = score1.get_sorted_notes(has_ties=score1.has_ties())
     notes2 = score2.get_sorted_notes(has_ties=score2.has_ties())
     unmatched1 = []
