@@ -663,6 +663,7 @@ def plot_transition_heatmap(  # noqa: C901  (complexity acceptable here)
     )
     ax.set_ylabel("Starting onset (A)")
     ax.set_title(title)
+    ax.grid(False)
 
     # Annotate all non-masked, non-zero cells
     for i in range(len(positions)):
