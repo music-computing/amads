@@ -1,2 +1,2 @@
-::: amads.polyphony.envelop
+::: amads.polyphony.envelope
 
