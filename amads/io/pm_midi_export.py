@@ -130,8 +130,8 @@ def pretty_midi_export(
     global tied_to_notes  # helps to merge tied notes
     tied_to_notes = {}
 
+    score = score.merge_tied_notes()
     score.convert_to_seconds()
-    score.merge_tied_notes()
 
     # 600 gives 1 ms resolution at 100 bpm
     pmscore = pm.PrettyMIDI(resolution=600)
@@ -209,7 +209,7 @@ def pretty_midi_export(
     if show:
         from amads.io.pm_show import pretty_midi_show
 
-        pretty_midi_show(pmscore, filename)
+        pretty_midi_show(pmscore, str(filename))
 
     # Write to MIDI file
     pmscore.write(str(filename))
