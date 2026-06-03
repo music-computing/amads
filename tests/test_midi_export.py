@@ -1,6 +1,6 @@
 """test_midi_pmexport.py - some tests for pretty_midi_midi_export
 
-Testing input/output with pretty_midi (PM), music21 (M21), and mido_midi (MM)
+Testing input/output with pretty_midi (PM), music21 (M21), and mido (MM)
 We're going to consider PM to be the "reference" reader and use PM to read
 the original MIDI file. Once we have the score as an AMADS Score, we will
 test all writer/reader combinations by writing the score with one writer
@@ -12,6 +12,7 @@ writer:   PM    M21    MM
 reader:
 PM         x      x     x
 M21        x      x     x
+MM         x      x     x
 """
 
 import math
@@ -50,8 +51,8 @@ def test_midi_export_and_reimport(midi_file):
     Tested with different subsystems.
     """
 
-    midi_file_readers = ["pretty_midi", "music21"]
-    midi_file_writers = ["pretty_midi", "music21", "mido_midi"]
+    midi_file_readers = ["pretty_midi", "music21", "mido"]
+    midi_file_writers = ["pretty_midi", "music21", "mido"]
 
     print("==== test_midi_export_and_reimport ====", midi_file)
     midi_path = example.fullpath(midi_file)

@@ -13,7 +13,7 @@ from amads.core.basics import Score
 # This module, writescore, is regarded as a singleton class with
 # the following attributes:
 
-_default_midi_writer = "mido_midi"
+_default_midi_writer = "mido"
 _default_xml_writer = "music21"
 _default_kern_writer = "music21"
 _default_mei_writer = "music21"
@@ -61,7 +61,7 @@ _format_to_suffix = {
 valid_score_extensions = _suffix_to_format.keys()
 
 allowed_subsystems = {
-    "midi": ["music21", "pretty_midi", "mido_midi"],
+    "midi": ["music21", "pretty_midi", "mido"],
     "musicxml": ["music21", "partitura"],
     "kern": ["music21"],
     "mei": ["music21"],
@@ -81,7 +81,7 @@ allowed_subsystems = {
 _subsystem_map = {
     "music21": ("amads.io.m21_export", "music21_export"),
     "pretty_midi": ("amads.io.pm_midi_export", "pretty_midi_export"),
-    "mido_midi": ("amads.io.mido_midi_export", "mido_midi_export"),
+    "mido": ("amads.io.mido_midi_export", "mido_midi_export"),
     "partitura": ("amads.io.pt_export", "partitura_export"),
     "music21-lilypond": ("amads.io.m21_pdf_export", "music21_pdf_export"),
     "music21-xml-lilypond": (
@@ -105,8 +105,7 @@ def set_preferred_midi_writer(writer: str = _default_midi_writer) -> str:
     ----------
     writer : str, optional
         The name of the preferred MIDI writer. Can be "music21",
-        "pretty_midi", or "mido_midi".
-        Defaults to "mido_midi".
+        "pretty_midi", or "mido". Defaults to "mido".
 
     Returns
     -------
@@ -121,12 +120,12 @@ def set_preferred_midi_writer(writer: str = _default_midi_writer) -> str:
     """
     global preferred_midi_writer
     previous_writer = preferred_midi_writer
-    if writer in ["music21", "partitura", "pretty_midi", "mido_midi"]:
+    if writer in ["music21", "partitura", "pretty_midi", "mido"]:
         preferred_midi_writer = writer
     else:
         raise ValueError(
             "Invalid MIDI writer. Choose 'music21', 'partitura', "
-            "'pretty_midi', or 'mido_midi'."
+            "'pretty_midi', or 'mido'."
         )
     return previous_writer
 

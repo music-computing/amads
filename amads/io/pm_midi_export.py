@@ -130,7 +130,7 @@ def pretty_midi_export(
     global tied_to_notes  # helps to merge tied notes
     tied_to_notes = {}
 
-    score = score.merge_tied_notes()
+    score = cast(Score, score.merge_tied_notes())
     score.convert_to_seconds()
 
     # 600 gives 1 ms resolution at 100 bpm
