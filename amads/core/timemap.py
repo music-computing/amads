@@ -344,6 +344,14 @@ class TimeMap:
     def quarter_to_time(self, quarter: float) -> float:
         """Convert time in quarters to time to seconds.
 
+        When score time units are quarters, it is recommended to covert
+        *everything* to seconds using `score.convert_to_seconds()`. This
+        is much faster than calling this method for every event.
+
+        If there is a particular reason to convert the time of one event,
+        you can write something like
+            `note.score.timemap.quarter_to_time(note.onset)`.
+
         Parameters
         ----------
         quarter: float
@@ -437,6 +445,14 @@ class TimeMap:
 
     def time_to_quarter(self, time: float) -> float:
         """Convert time in seconds to quarter position.
+
+        When score time units are seconds, it is recommended to covert
+        *everything* to quarters using `score.convert_to_quarters()`. This
+        is much faster than calling this method for every event.
+
+        If there is a particular reason to convert the time of one event,
+        you can write something like
+            `note.score.timemap.time_to_quarter(note.onset)`.
 
         Parameters
         ----------
