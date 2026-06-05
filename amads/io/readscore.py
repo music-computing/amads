@@ -327,6 +327,7 @@ def read_score(
     show: bool = False,
     format: Optional[str] = None,
     group_by_instrument: bool = True,
+    ignore_hidden=False,
 ) -> Score:
     """Read a file with the given format, 'musicxml', 'midi', 'kern', 'mei'.
 
@@ -370,6 +371,10 @@ def read_score(
         two Violin parts separate. Unfortunately, exact behavior depends on the
         underlying reader, MIDI track names, and/or MusicXML structure and
         naming.
+    ignore_hidden: bool
+        If False (default), MusicXML notes marked with `print-object="no"` are
+        read and marked with the "hide_on_print" property set to True.
+        If `ignore_hidden` is True, these notes are omitted from the AMADS score.
 
     Returns
     -------
@@ -459,6 +464,11 @@ def read_score(
     Century clefs are translated into more modern or conventional
     treble, soprano, alto, and tenor clefs, retaining the note
     positions on the staff, but not the original symbol.
+
+    If a MusicXML note is marked with `print-object="no"`, the
+    "hide_on_print" property will be set to True. You can access this
+    with note.get("hide_on_print", False). Hidden notes as ornaments
+    are independent of the standard ornaments described below.
 
     Grace notes are Notes marked by setting the `"is_grace"` property
     to True. AMADS also uses the `"has_slash"` property (no property

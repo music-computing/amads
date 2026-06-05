@@ -216,6 +216,27 @@ _KEY_TO_SHARPS: dict[str, int] = {
 }
 
 
+def _mido_show(mid: mido.MidiFile, filename: str | Path) -> None:
+    """Print a text summary of the MIDI file to stdout."""
+    print(f"MIDI file: {filename}")
+    print(
+        f"  type={mid.type}, ticks_per_beat={mid.ticks_per_beat}, "
+        f"tracks={len(mid.tracks)}"
+    )
+    for i, track in enumerate(mid.tracks):
+        label = ""
+        for msg in track:
+            if hasattr(msg, "name") and msg.type == "track_name":
+                label = f" ({msg.name})"
+                break
+        print(f"  Track {i}{label}: {len(track)} messages")
+        cummulative = 0
+        for msg in track:
+            cummulative += msg.time
+            cum_qtrs = cummulative / mid.ticks_per_beat
+            print(f"    {cum_qtrs:.3f} qtrs: {msg}")
+
+
 def _parse_meta_track(
     track: mido.MidiTrack,
     tpb: int,
@@ -457,21 +478,6 @@ def _add_notes_to_measures(
                 next_i += 1
                 remaining -= tied_note.duration
             i += 1
-
-
-def _mido_show(mid: mido.MidiFile, filename: str | Path) -> None:
-    """Print a text summary of a MIDO MidiFile to stdout."""
-    print(f"MIDI file: {filename}")
-    print(
-        f"  type={mid.type}  ticks_per_beat={mid.ticks_per_beat}"
-        f"  tracks={len(mid.tracks)}"
-    )
-    for i, track in enumerate(mid.tracks):
-        print(f"  Track {i}: {len(track)} messages")
-        for msg in track[:20]:
-            print(f"    {msg}")
-        if len(track) > 20:
-            print(f"    ... ({len(track) - 20} more messages)")
 
 
 def mido_midi_import(

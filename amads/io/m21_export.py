@@ -264,6 +264,8 @@ def _add_measure_content_from_list(m21parent, measure, content, dur, ties):
             else:
                 m21note.duration.quarterLength = duration
             _add_expressions_to_m21(m21note, item)
+            if item.get("hide_on_print", False):
+                m21note.style.hideObjectOnPrint = True
             if isinstance(item.dynamic, int):
                 m21note.volume.velocity = item.dynamic
             # otherwise, use default because I am not sure how

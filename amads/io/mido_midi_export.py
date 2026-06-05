@@ -29,6 +29,7 @@ import mido
 
 from amads.core.basics import EventGroup, KeySignature, Note, Part, Score, Staff
 from amads.core.timemap import TimeMap  # needed for tm.changes in meta track
+from amads.io.mido_midi_import import _mido_show
 
 __author__ = "Roger B. Dannenberg"
 
@@ -294,31 +295,6 @@ def _build_instrument_track(
 
     track.append(mido.MetaMessage("end_of_track", time=0))
     return track
-
-
-def _mido_show(mid: mido.MidiFile, filename) -> None:
-    """Print a text summary of the MIDI file to stdout."""
-    print(f"MIDI file: {filename}")
-    print(
-        f"  type={mid.type}, ticks_per_beat={mid.ticks_per_beat}, "
-        f"tracks={len(mid.tracks)}"
-    )
-    for i, track in enumerate(mid.tracks):
-        label = ""
-        for msg in track:
-            if hasattr(msg, "name") and msg.type == "track_name":
-                label = f" ({msg.name})"
-                break
-        print(f"  Track {i}{label}: {len(track)} messages")
-        shown = 0
-        for msg in track:
-            print(f"    {msg}")
-            shown += 1
-            if shown >= 20:
-                remaining = len(track) - shown
-                if remaining > 0:
-                    print(f"    ... ({remaining} more messages)")
-                break
 
 
 def mido_midi_export(

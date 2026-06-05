@@ -5,14 +5,16 @@ Original Document: https://github.com/miditoolbox/1.1/blob/master/documentation/
 
 """
 
-from amads.core.basics import Score
+from typing import cast
+
+from amads.core.basics import Part, Score
 
 
 def trim(score: Score) -> Score:
     """
-    Removes all leading silence from a given score such that the first note starts at time 0.0.
+    Removes all leading silence from a given score.
 
-    trim() returns a new, flattened score to ensure that the original score is not altered.
+    trim() returns a flattened score with the first note starting at time 0.0.
 
     Parameters
     ----------
@@ -22,24 +24,28 @@ def trim(score: Score) -> Score:
     Returns
     -------
     Score
-        A new, trimmed, and flattened score.
-
+        A flattened score with the first note starting at 0.0. The original score is
+        returned if it is already flat and its first note starts at 0.0; otherwise,
+        a time-shifted flat copy is returned.
     """
-    # 1. Get a flattened version of the score
-    flat_score = score.flatten()
+    # Make sure the score is flat:
+    flat = score
+    if not score.is_flat():
+        flat = score.flatten()
 
-    # 2. Get all the notes in the score in sorted order (to get the first note)
-    notes = flat_score.get_sorted_notes()
+    # 2. Find earliest note
+    SENTINAL = 1.0e10
+    earliest = SENTINAL
+    for part in flat.find_all(Part):
+        part = cast(Part, part)
+        if len(part.content) > 0:
+            earliest = min(earliest, part.content[0].onset)
 
-    # 2a. If it's empty, return it
-    if not notes:
-        return flat_score
+    # 2a. If it's empty, return the original or possibly flattened copy:
+    if earliest == SENTINAL:
+        return flat
 
-    # 3. Calculate how much we need to shift the score.
-    # If the first note starts at time n, we want to shift everything by -n to make it start at time 0.0
-    first_note = notes[0]
-    shift_amount = -first_note.onset
-
-    # 4. Use the time_shift method to move all notes in the score
-    flat_score.time_shift(shift_amount)
-    return flat_score
+    # 3. Shift the score by -earliest to make it start at time
+    if flat == score:
+        flat = score.copy()  # already know it is flat, so just copy it
+    return flat.time_shift(-earliest, content_only=True)  # type: ignore

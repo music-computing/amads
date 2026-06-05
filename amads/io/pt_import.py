@@ -309,11 +309,12 @@ def _find_clef_name(
 
 
 def partitura_convert_part(
-    ppart: ptScore.Part, score: Score, rnd: bool = True
+    ppart: ptScore.Part, score: Score, ignore_hidden, rnd: bool = True
 ) -> tuple[Part, float]:
     """Convert a Partitura part to an AMADS Part and add it to the Score.
     ppart - the Partitura part
     score - the AMADS Score to which the Part will be added
+    ignore_hidden - whether to convert MusicXML notes marked `print-object="no"`
     rnd - if True, does some select rounding for symbolic scores.
           if False (default), no rounding is done (used for MIDI import)
     Returns
@@ -426,7 +427,7 @@ def partitura_convert_part(
         elif isinstance(item, ptScore.Rest):
             qtr = item.start.quarter  # type: ignore
             duration = (item.end.t - item.start.t) / qtr  # type: ignore
-            notes.append(["rest", onset, duration, item.staff])
+            notes.append(["rest", onset, duration, item.staff, item])
         elif isinstance(item, ptScore.Tempo):
             # Note: partitura "bpm" is really beats per second!
             factor = 1.0  # conversion factor from partitura bpm to AMADS qps
@@ -495,56 +496,59 @@ def partitura_convert_part(
                 break  # use previous measure, but probably there is a bug here
             measure = staff.content[mindex]  # type: ignore
         if event[0] == "note":
-            note = Note(
-                parent=measure,
-                onset=event[1],
-                duration=event[2],
-                pitch=Pitch(event[4], event[5]),
-            )
-            # Special handling for grace notes: if duration is zero, it might
-            # be placed *after* the note it is attached to, so we check the
-            # order within measure.content.
-            if note.duration == 0:
-                i = measure.content.index(note)
-                j = i - 1
-                swap_with = None
-                while j >= 0:
-                    if isclose(
-                        measure.content[j].onset, note.onset, abs_tol=0.001
-                    ):
-                        if measure.content[j].duration > 0:
-                            swap_with = j
-                    else:
-                        break
-                    j = j - 1
-                # now swap_with is the earliest location of a non-grace event
-                # with the same onset as note but positive duration
-                if swap_with is not None:
-                    measure.content[i], measure.content[swap_with] = (
-                        measure.content[swap_with],
-                        measure.content[i],
-                    )
-                # now grace note is placed before the note it is attached to
             pt_note = event[8]
-            if event[2] == 0 or isinstance(pt_note, ptScore.GraceNote):
-                note.set("is_grace", True)
-            _process_ornaments(pt_note, note)
-            if event[7]:  # is tied to another note
-                # Multiple cases: 1) note is tied to next note with
-                # non-zero duration, so we put the note in pt_note_to_note
-                # so it can be patched later. 2) note is tied to a previous
-                # note, so we patch the previous note.
-                # map pt_note to [event, note], so [0] gives the event,
-                # and event[2] is duration
-                if pt_note.tie_next and pt_note_to_note[pt_note][0][2] != 0:
-                    # associate this new Note with the partitura note:
-                    pt_note_to_note[pt_note].append(note)
-                if pt_note.tie_prev:
-                    # patch the previous note
-                    pt_note = pt_note.tie_prev
-                    pt_note_to_note[pt_note][1].tie = note
+            if not ignore_hidden or pt_note.print_object != "no":
+                note = Note(
+                    parent=measure,
+                    onset=event[1],
+                    duration=event[2],
+                    pitch=Pitch(event[4], event[5]),
+                )
+                # Special handling for grace notes: if duration is zero, it
+                # might be placed *after* the note it is attached to, so we
+                # check the order within measure.content.
+                if note.duration == 0:
+                    i = measure.content.index(note)
+                    j = i - 1
+                    swap_with = None
+                    while j >= 0:
+                        if isclose(
+                            measure.content[j].onset, note.onset, abs_tol=0.001
+                        ):
+                            if measure.content[j].duration > 0:
+                                swap_with = j
+                        else:
+                            break
+                        j = j - 1
+                    # now swap_with is the earliest location of a non-grace
+                    # event with the same onset as note but positive duration
+                    if swap_with is not None:
+                        measure.content[i], measure.content[swap_with] = (
+                            measure.content[swap_with],
+                            measure.content[i],
+                        )
+                    # now grace note is placed before the note it is attached to
+                if event[2] == 0 or isinstance(pt_note, ptScore.GraceNote):
+                    note.set("is_grace", True)
+                _process_ornaments(pt_note, note)
+                if event[7]:  # is tied to another note
+                    # Multiple cases: 1) note is tied to next note with
+                    # non-zero duration, so we put the note in pt_note_to_note
+                    # so it can be patched later. 2) note is tied to a previous
+                    # note, so we patch the previous note.
+                    # map pt_note to [event, note], so [0] gives the event,
+                    # and event[2] is duration
+                    if pt_note.tie_next and pt_note_to_note[pt_note][0][2] != 0:
+                        # associate this new Note with the partitura note:
+                        pt_note_to_note[pt_note].append(note)
+                    if pt_note.tie_prev:
+                        # patch the previous note
+                        pt_note = pt_note.tie_prev
+                        pt_note_to_note[pt_note][1].tie = note
         elif event[0] == "rest":
-            Rest(parent=measure, onset=event[1], duration=event[2])
+            pt_rest = event[4]
+            if not ignore_hidden or pt_rest.print_object != "no":
+                Rest(parent=measure, onset=event[1], duration=event[2])
         else:
             assert False, f"Unknown event type {event[0]}"
 
@@ -571,6 +575,7 @@ def partitura_import(
     collapse: bool = False,
     show: bool = False,
     group_by_instrument: bool = True,
+    ignore_hidden: bool = False,
 ) -> Score:
     """Use Partitura to import a MusicXML file.
 
@@ -591,6 +596,8 @@ def partitura_import(
         This parameter is ignored by Partitura, which automatically
         produces parts with multiple staffs. The Partitura grouping
         is respected, and `group_by_instrument` is ignored.
+    ignore_hidden : bool = False
+        Whether to ignore MusicXML notes marked `print-object="no"`
 
     Returns
     -------
@@ -623,7 +630,7 @@ def partitura_import(
     score = Score()
     shift = 0
     for ptpart in ptscore.parts:
-        _, shift = partitura_convert_part(ptpart, score)
+        _, shift = partitura_convert_part(ptpart, score, ignore_hidden)
 
     score.inherit_duration()
 
