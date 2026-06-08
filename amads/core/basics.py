@@ -1115,8 +1115,13 @@ class Note(Event):
 class TimeSignature:
     """TimeSignature is an element of Score.time_signatures.
     
-    Contains time signature representation and a time in units that match
-    Score._units_are_seconds.
+    Contains time signature representation and a time in quarters,
+    whether or not score.units_are_seconds. This is the notational
+    time signature. TimeSignature.duration gives the nominal duration
+    in quarters, but the actual duration of any given measure is
+    given by Measure.duration, and may differ (for example, the
+    first measure with a pick-up note, or a first ending repeating
+    to a first measure with a pick-up note.)
 
     Parameters
     ----------
@@ -2740,6 +2745,8 @@ class Measure(Sequence):
 
     A Measure can contain many object types including Note, Rest, Chord,
     and (in theory) custom Events. Measures are elements of a Staff.
+
+    The duration of a measure may differ from the prevailing time signature.
 
     See <a href="#constructor-details">Constructor Details</a>.
 

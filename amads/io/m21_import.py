@@ -1,3 +1,4 @@
+import copy
 import warnings
 from math import isclose
 from pathlib import Path
@@ -31,7 +32,7 @@ from amads.core.basics import (
     TimeSignature,
 )
 from amads.io.m21_show import music21_show
-from amads.io.readscore import _expand_first_measure, _finish_import
+from amads.io.readscore import _finish_import
 
 
 class _TiedNotes:
@@ -177,6 +178,44 @@ class _TiedNotes:
         return preds
 
 
+def _safe_expand_multistaff(score):
+    # 1. Expand the master part containing the correct structural metadata
+    master_part = score.parts[0]
+    expanded_master = master_part.expandRepeats()
+
+    # 2. Extract the true "as-performed" chronological measure sequence
+    # e.g., [1, 2, 3, 4, 1, 2, 5, 6]
+    performed_measure_sequence = []
+    for m in expanded_master.getElementsByClass(stream.Measure):
+        # Fallback to derivation origin if the integer number changed
+        if m.derivation and m.derivation.origin:
+            performed_measure_sequence.append(m.derivation.origin.number)
+        else:
+            performed_measure_sequence.append(m.number)
+
+    # 3. Rebuild a fresh score matching this exact master blueprint
+    new_score = stream.Score()
+
+    for original_part in score.parts:
+        new_part = stream.Part()
+
+        # Copy over non-measure elements (Instruments, Clefs, etc.)
+        for el in original_part.getElementsNotOfClass(stream.Measure):
+            new_part.insert(el.offset, copy.deepcopy(el))
+
+        # Manually assemble the measures based on the true execution path
+        for m_num in performed_measure_sequence:
+            orig_measure = original_part.measure(m_num)
+            if orig_measure:
+                # Deep copy to isolate the new expanded timeline safely
+                copied = copy.deepcopy(orig_measure)
+                new_part.append(copied)
+
+        new_score.insert(original_part.offset, new_part)
+
+    return new_score.makeNotation()
+
+
 def music21_import(
     filename: str | Path,
     format: str,
@@ -222,7 +261,15 @@ def music21_import(
         filename, format=format, forceSource=True, quantizePost=qp
     )
 
-    m21score = m21score.expandRepeats()
+    # Google AI suggests makeNotation to make the score structurally consistent
+    # before expanding if the 2nd staff is repeating the first ending and getting
+    # desynchronized. (Other, more complex methods were also suggested.)
+    # m21score.makeNotation(inPlace=True)
+
+    # But that didn't work, so here is the more complex method:
+    m21score = _safe_expand_multistaff(m21score)
+
+    # m21score = m21score.expandRepeats()
 
     # m21score can be an Opus, but this is checked in music21_to_score, so we
     # can ignore the type error here:
@@ -280,25 +327,15 @@ def music21_to_score(
     #     to find all Parts whose Staff belong together.
 
     if isinstance(m21score, stream.Part):
-        part, shared_shift = music21_convert_part(
-            m21score, score, duration, ignore_hidden
-        )
+        part = music21_convert_part(m21score, score, duration, ignore_hidden)
     elif isinstance(m21score, stream.Score):
-        shared_shift = None  # used to check all parts have same time shift
         for i, m21part in enumerate(m21score.parts):
             if isinstance(m21part, stream.Part):
                 # Convert the music21 part into an AMADS Part and
                 # append it to the Score:
-                part, shift = music21_convert_part(
+                part = music21_convert_part(
                     m21part, score, duration, ignore_hidden
                 )
-                # check that all parts have the same time shift; this should
-                # be true if all first measures have the same number of beats
-                # either as notes or rest or some combination.
-                if shared_shift is not None:
-                    assert isclose(shared_shift, shift, abs_tol=0.001)
-                else:
-                    shared_shift = shift
                 parts.append(part)
                 m21parts.append(m21part)
                 # if m21part is a PartStaff (subclass of Part), keep
@@ -371,9 +408,7 @@ def music21_to_score(
                 from_part.remove(from_staff)
                 to_part.insert(from_staff)
 
-    if shared_shift is None:  # might happen if score is empty
-        shared_shift = 0.0
-    return _finish_import(score, flatten, collapse, shared_shift)
+    return _finish_import(score, flatten, collapse)
 
 
 _trill_types = (
@@ -855,7 +890,4 @@ def music21_convert_part(m21part, score, duration, ignore_hidden):
         )
     tied_notes = None  # type: ignore , free memory used by tied notes tracking
     staff.offset = staff.content[-1].offset
-
-    shift = _expand_first_measure(staff)
-
-    return part, shift
+    return part

@@ -22,7 +22,9 @@ from amads.core.basics import (
     TimeSignature,
 )
 from amads.core.pitch import Pitch
-from amads.io.readscore import _expand_first_measure, _finish_import
+
+# from amads.io.readscore import _expand_first_measure, _finish_import
+from amads.io.readscore import _finish_import
 
 # plan: multiple passes over iter_all()
 # for each part: add the part to a Concurrence
@@ -552,20 +554,21 @@ def partitura_convert_part(
         else:
             assert False, f"Unknown event type {event[0]}"
 
-    common_shift = 0
-    for staff in part.content:
-        assert isinstance(staff, Staff)
-        shift = _expand_first_measure(staff)
-        if common_shift is not None:
-            if not isclose(shift, common_shift):
-                warnings.warn(
-                    "In Partitura import, measure content duration "
-                    f"in a staff ({shift} quarters) does not match "
-                    f"duration of previous staff ({common_shift} "
-                    "quarters)."
-                )
-        common_shift = shift
-    return (part, common_shift)
+    #     common_shift = None
+    #     for staff in part.content:
+    #         assert isinstance(staff, Staff)
+    #         shift = _expand_first_measure(staff)
+    #         if common_shift is not None:
+    #             if not isclose(shift, common_shift):
+    #                 warnings.warn(
+    #                     "In Partitura import, first measure content duration "
+    #                     f"in a staff ({shift} quarters) does not match "
+    #                     f"duration of previous staff ({common_shift} "
+    #                     "quarters)."
+    #                 )
+    #         common_shift = shift
+    part.inherit_duration()
+    return part
 
 
 def partitura_import(
@@ -628,10 +631,19 @@ def partitura_import(
         for ptpart in ptscore:
             print(ptpart.pretty())
     score = Score()
-    shift = 0
+    #     common_shift = None
     for ptpart in ptscore.parts:
-        _, shift = partitura_convert_part(ptpart, score, ignore_hidden)
+        _ = partitura_convert_part(ptpart, score, ignore_hidden)
+    #         if shift is not None:
+    #             if not isclose(shift, common_shift):
+    #                 warnings.warn(
+    #                     "In Partitura import, first measure content duration "
+    #                     f"in a part ({shift} quarters) does not match "
+    #                     f"duration of a previous part ({common_shift} "
+    #                     "quarters)."
+    #                 )
+    #         common_shift = shift
 
     score.inherit_duration()
 
-    return _finish_import(score, flatten, collapse, shift)
+    return _finish_import(score, flatten, collapse)  # , shift)

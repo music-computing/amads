@@ -5,10 +5,12 @@ __author__ = "Roger B. Dannenberg"
 import tempfile
 import urllib.request
 import warnings
+from math import isclose
 from pathlib import Path
-from typing import Callable, Optional, cast
+from typing import Callable, Optional
 
-from amads.core.basics import Chord, Measure, Note, Rest, Score, Staff
+# from amads.core.basics import Chord, Measure, Note, Rest, Score, Staff
+from amads.core.basics import Measure, Score, Staff
 from amads.io.writescore import _suffix_to_format
 
 # This module, readscore, is regarded as a singleton class with
@@ -563,58 +565,164 @@ def last_used_reader() -> Optional[str]:
 # --------------- shared code for m21 and pt import -----------------
 
 
-def _expand_first_measure(staff: Staff) -> float:
-    """expand first measure to a full measure if necessary"""
-    # what is the maximum offset of the first measure?
-    shift = 0
-    if len(staff.content) > 0:
-        m1: Measure = cast(Measure, staff.content[0])
-        m1_duration = m1.time_signature().duration
-        max_offset = 0
-        for elem in m1.content:
-            max_offset = max(max_offset, elem.offset)
-        if max_offset < m1_duration - 0.001:  # need to insert rest
-            shift = m1_duration - max_offset
-            for elem in m1.content:
-                if (
-                    isinstance(elem, Note)
-                    or isinstance(elem, Rest)
-                    or isinstance(elem, Chord)
-                ):
-                    elem.time_shift(shift)
-            # insert Rest, Since m1 is first, m1.onset == 0
-            _ = Rest(m1, m1.onset, duration=shift)
-            m1.offset = m1_duration
-            # now, first measure ending may have shifted, so adjust
-            # remainder of the part
-            if len(staff.content) > 1 and shift > 0.001:
-                for m in staff.content[1:]:
-                    # score.time_signatures has not been shifted yet, so
-                    # look up the time signature for the meausure duration
-                    # before shifting. We set the measure duration because
-                    # partitura will give measure durations shorter than the
-                    # time signature duration if the measure is not full
-                    m.duration = m.time_signature().duration
-                    m.time_shift(shift)
-            staff.offset = staff.content[-1].offset
-            # update Part offset:
-            part = staff.parent
-            part.offset = max(part.offset, staff.offset)
-            # update Score offset:
-            score = part.parent
-            score.offset = max(score.duration, staff.offset)
-    return shift
+# def _expand_first_measure(staff: Staff) -> float:
+#     """expand first measure to a full measure if necessary"""
+#     # what is the maximum offset of the first measure?
+#     shift = 0
+#     if len(staff.content) > 0:
+#         m1: Measure = cast(Measure, staff.content[0])
+#         m1_duration = m1.time_signature().duration
+#         max_offset = 0
+#         for elem in m1.content:
+#             max_offset = max(max_offset, elem.offset)
+#         if max_offset < m1_duration - 0.001:  # need to insert rest
+#             shift = m1_duration - max_offset
+#             for elem in m1.content:
+#                 if (
+#                     isinstance(elem, Note)
+#                     or isinstance(elem, Rest)
+#                     or isinstance(elem, Chord)
+#                 ):
+#                     elem.time_shift(shift)
+#             # insert Rest, Since m1 is first, m1.onset == 0
+#             _ = Rest(m1, m1.onset, duration=shift)
+#             m1.offset = m1_duration
+#             # now, first measure ending may have shifted, so adjust
+#             # remainder of the part
+#             if len(staff.content) > 1 and shift > 0.001:
+#                 for m in staff.content[1:]:
+#                     # score.time_signatures has not been shifted yet, so
+#                     # look up the time signature for the meausure duration
+#                     # before shifting. We set the measure duration because
+#                     # partitura will give measure durations shorter than the
+#                     # time signature duration if the measure is not full
+#                     m.duration = m.time_signature().duration
+#                     m.time_shift(shift)
+#             staff.offset = staff.content[-1].offset
+#             # update Part offset:
+#             part = staff.parent
+#             part.offset = max(part.offset, staff.offset)
+#             # update Score offset:
+#             score = part.parent
+#             score.offset = max(score.duration, staff.offset)
+#     return shift
+
+
+def _step_to_next_measure(
+    staff_content: list[list[Measure]], staff_ci: list[int]
+):
+    """Advance each staff_ci to next measure. Return done if
+    no more measures anywhere"""
+    for i in range(len(staff_ci)):
+        # advance staff_ci to find Measure
+        ci = staff_ci[i] + 1
+        staff_ci[i] = ci
+        content = staff_content[i]
+        while ci < len(content) and not isinstance(content[ci], Measure):
+            ci += 1
+            staff_ci[i] = ci
+    print("In _step_to_next_measure, staff_ci", staff_ci)
 
 
 def _finish_import(
-    score: Score, flatten: bool, collapse: bool, shift: float
+    score: Score,
+    flatten: bool,
+    collapse: bool,  # shift: float
 ) -> Score:
     """Apply some final manipulations common to m21 and pt import"""
-    if shift > 0.001:
-        # parts are shifted but not measures and time signatures.
-        # shared_shift is in beats
-        score.time_map._time_shift(shift)
-        score._timesignatures_shift(shift)
+    #     if shift > 0.001:
+    #         # parts are shifted but not measures and time signatures.
+    #         # shared_shift is in beats
+    #         score.time_map._time_shift(shift)
+    #         score._timesignatures_shift(shift)
+    # check time signatures correspond to measures. We'll step through
+    # all staffs in parallel, checking that measures have the same
+    # duration and match the time signature. Also check that every
+    # time signature is at the beginning of a measure. (No extras
+    # in the middle of measures.)
+    staffs = score.list_all(Staff)
+    n = len(staffs)
+    if n > 0:
+        staff_content = [staff.content for staff in staffs]
+        staff_ci = [-1] * len(staffs)  # content indices
+        # all of staff_content should be measures, but we'll scan
+        # for measures just to be safe and robust
+        _step_to_next_measure(staff_content, staff_ci)
+        # now we have measures (unless score was empty). Iterate until last
+        # measure was found in every staff:
+        while any(staff_ci[i] < len(staff_content[i]) for i in range(n)):
+            # check if measure durations are the same:
+            measure_start = None
+            measure_dur = None
+            for i, (ci, content) in enumerate(zip(staff_ci, staff_content)):
+                if ci < len(content):
+                    measure_start = content[ci].onset
+                    if measure_dur is not None and not isclose(
+                        content[ci].duration, measure_dur
+                    ):
+                        warnings.warn(
+                            "Unmatched measure durations at "
+                            f"{measure_start}: {measure_dur} and "
+                            f"{content[ci].duration}."
+                        )
+                        break
+                        # one warning is enough
+                    measure_dur = content[ci].duration
+            assert measure_start is not None and measure_dur is not None
+            _step_to_next_measure(staff_content, staff_ci)
+
+        # check for time signatures all on measure boundaries
+        time_sigs = score.time_signatures
+        measures = staffs[0].content
+        m_index = 0
+        final_time_sigs = []
+        for ts in time_sigs:
+            while m_index < len(measures) and (
+                not isinstance(measures[m_index], Measure)
+                or measures[m_index].onset < ts.quarters - 0.01
+            ):
+                m_index += 1
+            # now m_index indexes a measure that starts at or after ts
+            if m_index >= len(measures):
+                warnings.warn(f"Found and removing {ts} after last measure.")
+            else:
+                if measures[m_index].onset > ts.quarters + 0.01:
+                    warnings.warn(
+                        f"Found time signature {ts} "
+                        "that is not on a measure boundary."
+                    )
+                final_time_sigs.append(ts)
+
+            # this code was here to insert fabricated time signatures, but now we use
+            # the measure duration to indicate the measure's "true" duration
+            #             if not isclose(ts.duration, measure_dur):
+            #                 # insert a time signature with the correct duration and if
+            #                 # necessary, move ts
+            #                 lower = ts.lower
+            #                 upper = measure_dur * lower / 4
+            #                 # what if upper is 3.5? We will allow 3.5 or 3.25 (bizarre!)
+            #                 # but nothing like 3+1/3.
+            #                 if not isclose(round(upper * 4), upper * 4):
+            #                     warnings.warn("Strange time signature created to account "
+            #                                   "for observed measure duratation at "
+            #                                   f"{measure_dur}.")
+            #                 # insert corrected
+            #                 new_ts = TimeSignature(measure_start, upper, lower)
+            #                 score.time_signatures.insert(ts_index, new_ts)
+            #
+            #                 # if we displaced ts, we need to move ts to the next measure
+            #                 # if another time signature exists there, we just delete ts
+            #                 if (ts.quarters - 0.001 < measure_start):  # need to move ts
+            #                     # move previous time signature ts:
+            #                     ts.quarters = measure_start + measure_dur
+            #                     if len(time_sigs) > ts_index + 2:
+            #                         if (time_sigs[ts_index + 2].quarters <
+            #                             ts.quarters + ts.duration + 0.01):
+            #                             # ts is at about the same time as the next time
+            #                             # signature, so remove ts
+            #                             time_sigs.pop(ts_index + 1)
+            _step_to_next_measure(staff_content, staff_ci)
+
     if flatten or collapse:
         score = score.flatten(collapse=collapse)
     return score
