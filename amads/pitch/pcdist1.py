@@ -37,7 +37,7 @@ def duraccent(note: Note) -> float:
     float
         The durational accent value.
     """
-    accent = 1 - math.exp(-note.duration / 0.5) ** 2
+    accent = (1 - math.exp(-note.duration / 0.5)) ** 2
     return accent
 
 
@@ -79,15 +79,18 @@ def pitch_class_distribution_1(
     score = cast(Score, score.merge_tied_notes())
     if weighted:
         score.convert_to_seconds()  # need seconds for duraccent calculation
-    initial_value = 1e-12 if miditoolbox_compatible else 0.0
+
+    initial_value = 0.0
     bin_centers = [float(i) for i in range(12)]  # 25 bins from -12 to +12
     xcategories = CHROMATIC_NAMES
     h = Histogram1D(bin_centers, None, "linear", False, initial_value)
 
     for note in score.find_all(Note):
         note = cast(Note, note)
+
+        # TODO: change duraccent_hack back to duraccent when done
         h.add_point(
-            round(note.pitch_class) % 12, duraccent(note) if weighted else 1.0
+            note.pitch_class % 12, (duraccent(note) if weighted else 1.0)
         )
 
     if miditoolbox_compatible:  # miditoolbox "normalization"
