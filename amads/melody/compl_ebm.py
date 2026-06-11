@@ -1,188 +1,264 @@
 __author__ = "Yiwen Zhao"
 
-import numpy as np
-from typing import Literal
-from ..core.basics import Score, Note, Part
+import math
+from enum import Enum
+from itertools import chain
+from typing import List, Optional, Tuple
 
-def calculate_complebm(score: Score, method: Literal['p', 'r', 'o'] = 'o') -> float:
+import numpy as np
+
+import amads.pitch.key.profiles as prof
+from amads.algorithms.entropy import entropy
+from amads.core.basics import Note, Score
+from amads.pitch.ivdist1 import interval_distribution_1
+from amads.pitch.key.keymode import keymode
+from amads.pitch.pcdist1 import duraccent, pitch_class_distribution_1
+from amads.time.durdist1 import duration_distribution_1
+from amads.time.notedensity import note_density
+
+
+class ComplEBMOption(Enum):
+    # only pitch complexity is calculated
+    PITCH = "p"
+    # only rhythm complexity is calculated
+    RHYTHM = "r"
+    # optimal linearly weighted mix of pitch and rhythm complexity
+    OPTIMAL_MIX = "o"
+
+
+# This global variable eludes me
+_GLOBAL_MEAN_VALUE = 5
+
+
+def _temp_tonality(
+    score: Score, profile: prof.KeyProfile = prof.krumhansl_kessler
+) -> Score:
+    """
+    Temporary tonality function for when tonality gets fully implemented
+    """
+    mode_attributes = keymode(score, profile=prof.krumhansl_kessler)
+    profile_coefs = profile[mode_attributes[0]].data
+    for note in score.find_all(Note):
+        pitch_class = note.pitch_class()
+        note.set(profile.name + "_tonality", profile_coefs[pitch_class])
+    return score
+
+
+# TODO: this function can probably be generalized to all functions
+def _temp_extract_tonality(
+    score: Score, profile: prof.KeyProfile = prof.krumhansl_kessler
+) -> Optional[List[float]]:
+    """
+    extracts tonality elements from an already annotated score
+    """
+    tonality_list = []
+    # auxiliary variable to check if all notes are annotated or only some
+    check_counter = 0
+    for note in score.find_all(Note):
+        property = profile.name + "_tonality"
+        note_tonality = note.get(property=property, default=None)
+        ++check_counter
+        if note_tonality is None:
+            if check_counter > 0:
+                raise ValueError(
+                    "corrupted score has partial tonality annotation"
+                )
+            return None
+        tonality_list.append(note_tonality)
+    return tonality_list
+
+
+def _compute_pitch_components(
+    score: Score, profile: prof.KeyProfile
+) -> Optional[Tuple[float, float, float, float]]:
+    """Calculate pitch-related complexity components."""
+    # Extract pitch values
+    pitches = np.array([note.keynum for note in score.find_all(Note)])
+    if len(pitches) < 2:
+        return None
+
+    # Calculate pitch-related features
+
+    # 1. average pitch-interval size
+    intervals = np.diff(pitches)
+    mean_interval = np.mean(intervals)
+
+    # 2. relative entropy of pitch-class distribution
+    score_pcdist = pitch_class_distribution_1(
+        score, miditoolbox_compatible=True
+    )
+    pcdist_entropy = entropy(score_pcdist.data, miditoolbox_compatible=True)
+
+    # 3. relative entropy of interval distribution
+    score_ivdist = interval_distribution_1(score, miditoolbox_compatible=True)
+    ivdist_entropy = entropy(score_ivdist.data, miditoolbox_compatible=True)
+
+    # 4. mean tonality (weighted by accented duration)
+    annotated_score = _temp_tonality(score, profile)
+
+    property = profile.name + "_tonality"
+    try:
+        tonality_iter = (
+            duraccent(note) * note.get(property=property, default=None)
+            for note in annotated_score.find_all(Note)
+        )
+        mean_tonality = sum(tonality_iter) / len(pitches)
+    except TypeError:
+        raise RuntimeError(
+            "invalid results from tonality function "
+            "(not all notes have been annotated with tonality)"
+        )
+
+    # Combine features with empirically derived weights
+    return mean_interval, pcdist_entropy, ivdist_entropy, 1 / mean_tonality
+
+
+def _compute_rhythm_components(
+    score: Score,
+) -> Optional[Tuple[float, float, float, float]]:
+    """Calculate rhythm-related complexity components."""
+    notes = score.get_sorted_notes()
+    if len(notes) < 2:
+        return 0
+
+    # Extract duration values
+    # 1. duration distribution entropy
+    durdist_data = duration_distribution_1(
+        score, miditoolbox_compatible=True
+    ).data
+    durdist_entropy = entropy(durdist_data, miditoolbox_compatible=True)
+
+    # 2. Note Density
+    note_dens = note_density(score, timetype="seconds")
+
+    # 3. rhythmic variation throughout the score
+    original_timestate = score.units_are_quarters()
+    if original_timestate:
+        score.convert_to_seconds()
+    assert score.units_are_seconds()
+    value_iter = (
+        math.log(note.duration) if note.duration > 0 else math.nan
+        for note in score.find_all(Note)
+    )
+    rhythm_variation = np.nanstd(np.array(value_iter))
+    if original_timestate:
+        score.convert_to_quarters()
+
+    # 4. meter accent
+    # TODO: get meter accent implemented...
+    score_meter_accent = 0
+
+    return durdist_entropy, note_dens, rhythm_variation, score_meter_accent
+
+
+def compl_ebm(
+    score: Score,
+    profile: prof.Profile = prof.KrumhanslKessler,
+    method: ComplEBMOption = ComplEBMOption.OPTIMAL_MIX,
+) -> float:
     """
     Calculate the expectancy-based model of melodic complexity.
-    
+
     This function implements the complexity model from Eerola & North (2000),
     which can analyze either pitch-related components, rhythm-related components,
     or their optimal combination. The output is calibrated against the Essen
     collection (mean=5, std=1).
-    
+
     Parameters
     ----------
     score : Score
         A Score object containing the melody to analyze. The score will be
         flattened and collapsed into a single sequence of notes ordered by
         onset time.
-    method : {'p', 'r', 'o'}, optional
+    profile : prof.Profile
+        The Key Profile for which to measure tonality from.
+    method : ComplEBMOption
         The method to use for complexity calculation:
-        - 'p': pitch-related components only
-        - 'r': rhythm-related components only
-        - 'o': optimal combination (default)
-    
+        - ComplEBMOption.PITCH: pitch-related components only
+        - ComplEBMOption.RHYTHM: rhythm-related components only
+        - ComplEBMOption.OPTIMAL_MIX: linear combination of pitch
+        complexity and rhythm complexity with predetermined weights
+        (default; as to what it's supposed to be optimal in, that beats me...)
+
     Returns
     -------
     float
         Complexity value calibrated relative to the Essen Collection.
         Higher values indicate higher complexity.
         Returns 0 for empty scores or single notes.
-    
+
     References
     ----------
     .. [1] Eerola, T. & North, A. C. (2000). Expectancy-Based Model of Melodic
            Complexity. In Proceedings of the Sixth International Conference on
            Music Perception and Cognition.
     .. [2] Schaffrath, H. (1995). The Essen folksong collection in kern format.
-    
+
     Examples
     --------
-    >>> score = Score()
-    >>> part = Part()
-    >>> notes = [Note(pitch=60), Note(pitch=64), Note(pitch=67)]
-    >>> for note in notes:
-    ...     part.append(note)
-    >>> score.append(part)
-    >>> complexity = calculate_complebm(score, 'p')
+    >>> score = Score.from_melody([60, 64, 67])
+    >>> complexity = compl_ebm(score, ComplEBMOption.PITCH)
     >>> print(complexity)
     4.8
     """
-    def calculate_pitch_complexity(notes: list) -> float:
-        """Calculate pitch-related complexity components."""
-        if len(notes) < 2:
-            return 0
-            
-        # Extract pitch values
-        pitches = np.array([note.keynum for note in notes])
-        
-        # Calculate pitch-related features
-        intervals = np.diff(pitches)
-        
-        # 1. Interval size variety
-        interval_variety = len(np.unique(np.abs(intervals)))
-        
-        # 2. Pitch range
-        pitch_range = np.ptp(pitches)
-        
-        # 3. Direction changes (contour complexity)
-        direction_changes = np.sum(np.diff(np.sign(intervals)) != 0)
-        
-        # 4. Interval entropy
-        _, counts = np.unique(np.abs(intervals), return_counts=True)
-        interval_entropy = -np.sum((counts/len(intervals)) * 
-                                 np.log2(counts/len(intervals)))
-        
-        # Combine features with empirically derived weights
-        complexity = (0.25 * interval_variety + 
-                     0.25 * pitch_range/12 +
-                     0.25 * direction_changes/len(intervals) +
-                     0.25 * interval_entropy)
-        
-        return complexity
-
-    def calculate_rhythm_complexity(notes: list) -> float:
-        """Calculate rhythm-related complexity components."""
-        if len(notes) < 2:
-            return 0
-            
-        # Extract duration values
-        durations = np.array([note.dur for note in notes])
-        
-        # 1. Duration variety
-        duration_variety = len(np.unique(durations))
-        
-        # 2. Duration range
-        duration_range = np.max(durations) / np.min(durations)
-        
-        # 3. Duration entropy
-        _, counts = np.unique(durations, return_counts=True)
-        duration_entropy = -np.sum((counts/len(durations)) * 
-                                 np.log2(counts/len(durations)))
-        
-        # Combine features with empirically derived weights
-        complexity = (0.33 * duration_variety/5 +
-                     0.33 * np.log2(duration_range) +
-                     0.34 * duration_entropy)
-        
-        return complexity
 
     # Flatten and collapse the score into a single sequence of notes
     flattened_score = score.flatten(collapse=True)
     notes = list(flattened_score.find_all(Note))
-    
+
     # Handle empty scores or single notes
     if len(notes) < 2:
-        return 0
-    
+        return None
+
     # Calculate complexity based on selected method
-    if method == 'p':
-        raw_complexity = calculate_pitch_complexity(notes)
-    elif method == 'r':
-        raw_complexity = calculate_rhythm_complexity(notes)
-    else:  # method == 'o'
-        pitch_complexity = calculate_pitch_complexity(notes)
-        rhythm_complexity = calculate_rhythm_complexity(notes)
-        # Optimal combination with empirically derived weights
-        raw_complexity = 0.6 * pitch_complexity + 0.4 * rhythm_complexity
-    
-    # Calibrate to Essen collection scale (mean=5, std=1)
-    # These values are empirically derived from the Essen collection
-    essen_mean = 0.5  # hypothetical raw complexity mean
-    essen_std = 0.2   # hypothetical raw complexity std
-    
-    calibrated_complexity = 5 + ((raw_complexity - essen_mean) / essen_std)
-    
+    match method:
+        case ComplEBMOption.PITCH:
+            # the linear weights assigned to the different pitch components
+            # in pitch complexity
+            weights = (0.3, 1, 0.8, 1)
+            offset = -0.2407
+            divisor = 0.9040  # standard deviation of pitches (in Essen)?
+            pitch_components = _compute_pitch_components(score, profile)
+            complexity = offset + sum(
+                weight * component
+                for weight, component in zip(weights, pitch_components)
+            )
+            complexity /= divisor
+        case ComplEBMOption.RHYTHM:
+            # the linear weights assigned to the different pitch components
+            # in rhythm complexity
+            weights = (0.7, 0.2, 0.5, 0.5)
+            offset = -0.7841
+            divisor = 0.3637  # standard deviation of durations (in Essen)?
+            rhythm_components = _compute_rhythm_components(score)
+            complexity = offset + sum(
+                weight * component
+                for weight, component in zip(weights, rhythm_components)
+            )
+            complexity /= divisor
+        case ComplEBMOption.OPTIMAL_MIX:
+            pitch_weights = (0.2, 1.5, 1.3, -1)
+            rhythm_weights = (0.5, 0.4, 0.9, 0.8)
+            offset = -1.9025
+            divisor = 1.5034
+
+            pitch_components = _compute_pitch_components(score, profile)
+            rhythm_components = _compute_rhythm_components(score)
+
+            component_values = chain(pitch_components, rhythm_components)
+            component_weights = chain(pitch_weights, rhythm_weights)
+
+            complexity = offset + sum(
+                weight * component
+                for weight, component in zip(
+                    component_weights, component_values
+                )
+            )
+            complexity /= divisor
+            assert 0
+        case _:
+            return None
+
+    calibrated_complexity = complexity + _GLOBAL_MEAN_VALUE
+
     return calibrated_complexity
-
-
-if __name__ == "__main__":
-    # Test case 1: Simple melody
-    print("\nTest Case 1: Simple melody")
-    score = Score()
-    part = Part()
-    notes = [
-        Note(pitch=60, dur=1.0),  # C4, quarter note
-        Note(pitch=64, dur=0.5),  # E4, eighth note
-        Note(pitch=67, dur=1.0),  # G4, quarter note
-        Note(pitch=65, dur=0.5)   # F4, eighth note
-    ]
-    for note in notes:
-        part.append(note)
-    score.append(part)
-    
-    print("Pitch complexity:", calculate_complebm(score, 'p'))
-    print("Rhythm complexity:", calculate_complebm(score, 'r'))
-    print("Overall complexity:", calculate_complebm(score, 'o'))
-    
-    # Test case 2: Empty score
-    print("\nTest Case 2: Empty score")
-    empty_score = Score()
-    print("Empty score complexity:", calculate_complebm(empty_score))
-    
-    # Test case 3: Single note
-    print("\nTest Case 3: Single note")
-    single_note_score = Score()
-    single_part = Part()
-    single_part.append(Note(pitch=60, dur=1.0))
-    single_note_score.append(single_part)
-    print("Single note complexity:", calculate_complebm(single_note_score))
-    
-    # Test case 4: Complex chromatic melody
-    print("\nTest Case 4: Complex chromatic melody")
-    complex_score = Score()
-    complex_part = Part()
-    complex_notes = [
-        Note(pitch=60, dur=1.0),   # C4
-        Note(pitch=61, dur=0.5),   # C#4
-        Note(pitch=63, dur=0.25),  # D#4
-        Note(pitch=67, dur=1.5),   # G4
-        Note(pitch=65, dur=0.75)   # F4
-    ]
-    for note in complex_notes:
-        complex_part.append(note)
-    complex_score.append(complex_part)
-    print("Complex melody complexity:", calculate_complebm(complex_score, 'o'))
