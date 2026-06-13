@@ -5,7 +5,12 @@ Mapping between quarters and seconds (beats and time).
 
 Note: `amads.core` includes `amads.core.basics`, `amads.core.distribution` and
       `amads.core.timemap`.
+
+<small>**Author**: Roger Dannenberg</small>
 """
+
+__author__ = "Roger Dannenberg"
+
 
 import math
 import sys

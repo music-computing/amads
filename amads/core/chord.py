@@ -29,7 +29,10 @@ We work with a quality registry (see `QUALITIES`) that maps canonical tonal qual
 to the corresponding semitone intervals above the root.
 Further aliases normalise to those canonical names (see `_ALIASES`).
 
+<small>**Author**: Mark Gotham</small>
 """
+
+__author__ = "Mark Gotham"
 
 import re
 from typing import Optional, Sequence, Union

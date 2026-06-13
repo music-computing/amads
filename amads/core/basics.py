@@ -45,6 +45,8 @@ onsets are optional and default to None. To make this simple example work:
   Measure and the Chord onset is replaced with 1.0, then the Notes
   are shifted to 1.0. If the Measure is then passed in the content of
   a Staff, the Measure and all its content might be shifted again.
+
+<small>**Author**: Roger Dannenberg</small>
 """
 
 import copy

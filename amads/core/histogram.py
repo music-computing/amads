@@ -29,7 +29,12 @@ When centers are not provided, boundaries must be provided:
     making the first and last bins open-ended.
   - if ignore_extrema is True, the first and last bins are closed, and values
     outside the bin boundaries are ignored.
+
+<small>**Author**: Roger Dannenberg</small>
 """
+
+__author__ = "Roger Dannenberg"
+
 
 import math
 from typing import Optional, cast
