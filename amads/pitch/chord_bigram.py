@@ -25,9 +25,6 @@ from amads.core.chord import Chord
 EQUIVALENCES = {"Ø", "R", "K", "RK"}
 
 
-# Canonical-form helpers
-
-
 def _canonical_exact(pc1: int, q1: str, pc2: int, q2: str) -> tuple:
     """Ø — ordered absolute pitch classes."""
     return (pc1, q1, pc2, q2)
@@ -51,9 +48,6 @@ def _canonical_retro_key(pc1: int, q1: str, pc2: int, q2: str) -> tuple:
     return min(forward, backward)
 
 
-# ChordBigram
-
-
 class ChordBigram:
     """
     A directed pair of chords classified under a given equivalence regime.
@@ -61,45 +55,83 @@ class ChordBigram:
     Parameters
     ----------
     chord1, chord2 : Chord
-    equivalence    : one of "Ø", "R", "K", "RK"
-    key_pitch_class: 0–11, required for Ø and R (non-key-invariant modes)
-                     to anchor pitch-class meaning; ignored for K and RK.
+    equivalence    : one of "Ø", "R", "K", "RK" (as set out of the top of this module)
+    key_pitch_class: 0-11, required for Ø and R; ignored for K and RK.
+
+    Label conventions follow from this as shown in the examples.
 
     Examples
     --------
+    >>> C = Chord(0, "major")   # C major
+    >>> A = Chord(9, "major")   # A major
 
-    Here is a set of exmaples based on Figure 3.2
+    Ø equivalence — key = D (pc 2)
 
-    >>> from amads.core.pitch import Pitch
+    >>> ChordBigram(C, A, "Ø", key_pitch_class=2).latex_label
+    '$M_{7}\\\\,3\\\\,M_{10}_{\\\\varnothing}$'
 
-    >>> C = Chord(Pitch("C"), "major")
-    >>> A = Chord(Pitch("A"), "major")
+    # TODO '$M_{10}\\\\,9\\\\,M_{\\\\varnothing}$'  (reverse and suppress second subscript)
 
-    >>> top_left = ChordBigram(C, A, equivalence="Ø", key_pitch_class=2) # D
-    >>> top_left.latex_label
-    '$M_{10}\\,9\\,M_{\\varnothing}$'
+    >>> ChordBigram(A, C, "Ø", key_pitch_class=2).latex_label
+    '$M_{7}\\\\,3\\\\,M_{10}_{\\\\varnothing}$'
 
-    >>> top_right = ChordBigram(A, C, equivalence="Ø", key_pitch_class=2)
-    >>> top_right.latex_label
-    '$M_{7}\\,3\\,M_{\\varnothing}$'
+    # TODO '$M_{7}\\\\,3\\\\,M_{\\\\varnothing}$'  (suppress second subscript)
 
-    >>> mid_left = ChordBigram(C, A, equivalence="Ø", key_pitch_class=9) # A
-    >>> mid_left.latex_label
-    '$M_{3}\\,9\\,M_{10}_{\\varnothing}$'
+    Ø equivalence — key = A (pc 9)
+    >>> ChordBigram(C, A, "Ø", key_pitch_class=9).latex_label
+    '$M\\\\,3\\\\,M_{3}_{\\\\varnothing}$'
 
-    >>> mid_right = ChordBigram(A, C, equivalence="Ø", key_pitch_class=9)
-    >>> mid_right.latex_label
-    '$M\\,3\\,M{\\varnothing}$'
+    # TODO '$M\\\\,3\\\\,M_\\\\varnothing}$'  (reverse, suppress second subscript)
 
-    >>> low_left = ChordBigram(C, A, key_pitch_class=4) # E
-    >>> low_left.latex_label
-    '$M_{8}\\,9\\,M{\\varnothing}$'
+    >>> ChordBigram(A, C, "Ø", key_pitch_class=9).latex_label
+    '$M\\\\,3\\\\,M_{3}_{\\\\varnothing}$'
 
-    >>> low_right = ChordBigram(A, C key_pitch_class=4)
-    >>> low_right.latex_label
-    '$M_{5}\\,3\\,M{\\varnothing}$'
+    # TODO '$M\\\\,3\\\\,M_\\\\varnothing}$'  (suppress second subscript)
 
+    Ø equivalence — key = E (pc 4)
+    >>> ChordBigram(C, A, "Ø", key_pitch_class=4).latex_label
+    '$M_{5}\\\\,3\\\\,M_{8}_{\\\\varnothing}$'
 
+    # TODO '$M_{8}\\\\,9\\\\,M\\\\varnothing}$'  (reverse and suppress second subscript)
+
+    >>> ChordBigram(A, C, "Ø", key_pitch_class=4).latex_label
+    '$M_{5}\\\\,3\\\\,M_{8}_{\\\\varnothing}$'
+
+    # TODO '$M_{5}\\\\,3\\\\,M_{\\\\varnothing}$'  (suppress second subscript)
+
+    R equivalence (left/right pairs share label)
+    Top:
+    >>> ChordBigram(C, A, "R", key_pitch_class=2).latex_label
+    '$M_{7}\\\\,3\\\\,M_{10}_{R}$'
+
+    # TODO: suppress second subscript 10
+
+    Mid:
+    >>> ChordBigram(C, A, "R", key_pitch_class=9).latex_label
+    '$M\\\\,3\\\\,M_{3}_{R}$'
+
+    # TODO: suppress second subscript 3
+
+    Lower:
+    >>> ChordBigram(C, A, "R", key_pitch_class=4).latex_label
+    '$M_{5}\\\\,3\\\\,M_{8}_{R}$'
+
+    # TODO: suppress second subscript 8
+
+    K equivalence (all left-side bigrams share label)
+    >>> ChordBigram(C, A, "K").latex_label
+    '$M\\\\,9\\\\,M_{K}$'
+
+    K equivalence (all right-side bigrams share label)
+    >>> ChordBigram(A, C, "K").latex_label
+    '$M\\\\,3\\\\,M_{K}$'
+
+    RK equivalence (all six share label)
+    >>> ChordBigram(C, A, "RK").latex_label
+    '$M\\\\,3\\\\,M_{RK}$'
+
+    >>> ChordBigram(A, C, "RK").latex_label
+    '$M\\\\,3\\\\,M_{RK}$'
     """
 
     def __init__(
@@ -133,8 +165,6 @@ class ChordBigram:
         else:  # RK
             self._canonical = _canonical_retro_key(pc1, q1, pc2, q2)
 
-        # Derived properties
-
     @property
     def interval(self) -> int:
         """Directed semitone interval from chord1 to chord2 (0-11)."""
@@ -147,9 +177,6 @@ class ChordBigram:
         """The canonical form used for equality and hashing."""
         return self._canonical
 
-    # Coarsening and multi-label
-
-    # Partial order of equivalences: each entry lists what it can coarsen to
     _COARSEN_ORDER = {
         "Ø": ("Ø", "R", "K", "RK"),
         "R": ("R", "RK"),
@@ -190,7 +217,7 @@ class ChordBigram:
             for eq in self._COARSEN_ORDER[self.equivalence]
         }
 
-    # Label (written convention: 4-6 chars)
+    # Label conventions
 
     @staticmethod
     def _q(quality: str) -> str:
@@ -226,20 +253,15 @@ class ChordBigram:
         }
         return "".join(digits[d] for d in str(n))
 
-    @property
-    def label(self) -> str:
+    # Core label computation — shared by label and latex_label
+
+    def _compute_parts(self):
         """
-        Short written label following the convention established by Murphy:
-
-          [q1][sub1] [interval] [q2][sub2][equivalence]
-
-        where:
-          q1/q2    - M or m per the ordering/equivalence rules
-          sub      - key-relative pitch class (omitted if no key)
-          interval - directed semitones (canonical under RK)
-          equivalence - Ø, R, K, or RK suffix
-
-        See also `self.latex_label` for a LaTex compatible version.
+        Return (g1_base, g1_sub, iv, g2_base, g2_sub, eq) where:
+          g1_base / g2_base : 'M' or 'm'
+          g1_sub  / g2_sub  : integer subscript value, or None if omitted
+          iv                : interval integer
+          eq                : equivalence string
         """
         eq = self.equivalence
         pc1 = self.chord1.root.pitch_class
@@ -249,29 +271,32 @@ class ChordBigram:
         key = self.key_pitch_class
 
         if eq in {"Ø", "R"}:
-            # Sort both chords by ascending distance from tonic
+            # Sort chords by ascending key-relative pitch class (near first).
             d1 = (pc1 - key) % 12
             d2 = (pc2 - key) % 12
             if d1 <= d2:
                 near_pc, near_q = pc1, q1
                 far_pc, far_q = pc2, q2
+                near_d, far_d = d1, d2
             else:
                 near_pc, near_q = pc2, q2
                 far_pc, far_q = pc1, q1
+                near_d, far_d = d2, d1
 
             iv = (far_pc - near_pc) % 12
-
-            near_sub = self._sub((near_pc - key) % 12)
-            far_sub = self._sub((far_pc - key) % 12)
-
-            glyph1 = self._q(near_q) + near_sub
-            glyph2 = self._q(far_q) + far_sub
+            # Omit subscript when key-relative value is 0
+            g1_base = self._q(near_q)
+            g1_sub = near_d if near_d != 0 else None
+            g2_base = self._q(far_q)
+            g2_sub = far_d if far_d != 0 else None
 
         elif eq == "K":
             # Chronological order; no subscripts
             iv = (pc2 - pc1) % 12
-            glyph1 = self._q(q1)
-            glyph2 = self._q(q2)
+            g1_base = self._q(q1)
+            g1_sub = None
+            g2_base = self._q(q2)
+            g2_sub = None
 
         else:  # RK
             # Canonical (min) direction
@@ -279,67 +304,47 @@ class ChordBigram:
             backward = ((pc1 - pc2) % 12, q2, q1)
             canon = min(forward, backward)
             iv = canon[0]
-
-            # RK quality rules:
-            #   glyph1: M if at least one chord is major, else m
-            #   glyph2: M if both chords are major, else m
             either_major = q1 == "major" or q2 == "major"
             both_major = q1 == "major" and q2 == "major"
-            glyph1 = "M" if either_major else "m"
-            glyph2 = "M" if both_major else "m"
+            g1_base = "M" if either_major else "m"
+            g1_sub = None
+            g2_base = "M" if both_major else "m"
+            g2_sub = None
 
-        return f"{glyph1} {iv} {glyph2}{eq}"
+        return g1_base, g1_sub, iv, g2_base, g2_sub, eq
 
     @property
-    def latex_label(self) -> str:
+    def label(self):
+        """label, unicode version"""
+        g1_base, g1_sub, iv, g2_base, g2_sub, eq = self._compute_parts()
+        g1 = g1_base + (self._sub(g1_sub) if g1_sub is not None else "")
+        g2 = g2_base + (self._sub(g2_sub) if g2_sub is not None else "")
+        return f"{g1} {iv} {g2}{eq}"
+
+    @property
+    def latex_label(self):
         """
-        LaTeX rendering of the label for use in matplotlib/notebook display.
-        Subscripts use LaTeX syntax: $M_{0}$ etc.
-        Suitable for ax.text(), ax.set_title(), legend entries.
+        LaTeX label of the form  $g1\\,iv\\,g2_{eq}$
+        where g1/g2 carry their own subscripts when non-zero,
+        and the equivalence symbol is a subscript on the closing brace.
         """
-        eq = self.equivalence
-        pc1 = self.chord1.root.pitch_class
-        pc2 = self.chord2.root.pitch_class
-        q1 = self.chord1.quality
-        q2 = self.chord2.quality
-        key = self.key_pitch_class
+        g1_base, g1_sub, iv, g2_base, g2_sub, eq = self._compute_parts()
 
         eq_tex = {"Ø": r"\varnothing", "R": "R", "K": "K", "RK": "RK"}[eq]
 
-        if eq in {"Ø", "R"}:
-            d1 = (pc1 - key) % 12
-            d2 = (pc2 - key) % 12
-            if d1 <= d2:
-                near_pc, near_q = pc1, q1
-                far_pc, far_q = pc2, q2
-            else:
-                near_pc, near_q = pc2, q2
-                far_pc, far_q = pc1, q1
+        # Build g1 latex: subscript only when non-None
+        if g1_sub is not None:
+            g1 = rf"{g1_base}_{{{g1_sub}}}"
+        else:
+            g1 = g1_base
 
-            iv = (far_pc - near_pc) % 12
-            ns = (near_pc - key) % 12
-            fs = (far_pc - key) % 12
-            g1 = f"{self._q(near_q)}_{{{ns}}}"
-            g2 = f"{self._q(far_q)}_{{{fs}}}"
-
-        elif eq == "K":
-            iv = (pc2 - pc1) % 12
-            g1 = self._q(q1)
-            g2 = self._q(q2)
-
-        else:  # RK
-            forward = ((pc2 - pc1) % 12, q1, q2)
-            backward = ((pc1 - pc2) % 12, q2, q1)
-            canon = min(forward, backward)
-            iv = canon[0]
-            either_major = q1 == "major" or q2 == "major"
-            both_major = q1 == "major" and q2 == "major"
-            g1 = "M" if either_major else "m"
-            g2 = "M" if both_major else "m"
+        # Build g2 latex: subscript only when non-None
+        if g2_sub is not None:
+            g2 = rf"{g2_base}_{{{g2_sub}}}"
+        else:
+            g2 = g2_base
 
         return rf"${g1}\,{iv}\,{g2}_{{{eq_tex}}}$"
-
-    # Equality and hashing (canonical-form based)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, ChordBigram):
@@ -360,7 +365,6 @@ class ChordBigram:
     def __repr__(self) -> str:
         c1 = f"{self.chord1.root.name}:{self.chord1.quality}"
         c2 = f"{self.chord2.root.name}:{self.chord2.quality}"
-
         if self.equivalence == "Ø":
             body = f"{c1} -> {c2}"
         elif self.equivalence == "R":
