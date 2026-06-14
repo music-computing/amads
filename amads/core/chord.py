@@ -216,7 +216,7 @@ class Chord:
     >>> c.pitch_class_vector
     (1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0)
 
-    Here is a different quality exmaple (see `QUALTIES` for all options):
+    Here is a different quality example (see `QUALTIES` for all options):
 
     >>> Chord("G", "dominant7").label
     'G7'
@@ -225,6 +225,9 @@ class Chord:
 
     >>> Chord.from_roman("IV", "C").root.name
     'F'
+
+    >>> Chord.from_roman("IV", "C").root.pitch_class
+    5
 
     >>> Chord.from_roman("V7", "G").label
     'D7'
