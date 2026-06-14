@@ -308,7 +308,7 @@ class Event:
         self._onset = onset
 
 
-    def _quantize(self, divisions: int) -> "Event":
+    def _quantize(self, divisions: int, dur_divisions=None) -> "Event":
         """Modify onset and offset to a multiple of divisions per quarter note.
 
         This method modifies the Event in place. It also handles tied notes.
@@ -326,6 +326,9 @@ class Event:
         divisions : int
             The number of divisions per quarter note, e.g., 4 for
             sixteenths, to control quantization.
+        dur_divisions : int, optional
+            Optional different grid for duration quantization. If None,
+            uses divisions.
 
         Returns
         -------
@@ -335,8 +338,16 @@ class Event:
         if self._onset is None or self.duration is None:
             raise ValueError(
                 "Cannot quantize Event with None onset or duration")
+
+        if dur_divisions is None:
+            dur_divisions = divisions
+
         self.onset = round(self.onset * divisions) / divisions
-        quantized_offset = round(self.offset * divisions) / divisions
+        if dur_divisions == divisions:
+            quantized_offset = round(self.offset * divisions) / divisions
+        else:
+            quantized_duration = round(self.duration * dur_divisions) / dur_divisions
+            quantized_offset = self.onset + quantized_duration
 
         # tied note cases: Given any two tied notes where the first has a
         # quantized duration of zero, we want to eliminate the first one
@@ -362,8 +373,12 @@ class Event:
         while isinstance(self, Note) and self.tie:  # check tied-to note:
             tie = self.tie  # the note our tie connects to
             onset = round(tie.onset * divisions) / divisions  # type: ignore
-            offset = round(tie.offset * divisions) / divisions  # type: ignore
-            duration = offset - onset  # quantized duration
+            if dur_divisions == divisions:
+                offset = round(tie.offset * divisions) / divisions  # type: ignore
+                duration = offset - onset  # quantized duration
+            else:
+                duration = round(tie.duration * dur_divisions) / dur_divisions
+                offset = onset + duration
             # if we tie from non-zero quantized duration to zero quantized
             # duration, eliminate the tied-to note
             if (quantized_offset - self.onset > 0 and   # type: ignore
@@ -391,8 +406,8 @@ class Event:
         # now that potential ties are handled, set the duration of self
         if self.duration != 0:  # only modify non-zero durations
             self.duration = quantized_offset - self.onset  # type: ignore
-            if self.duration == 0:  # do not allow duration to become zero:
-                self.duration = 1 / divisions 
+            if self.duration == 0:  # do not allow duration to become zero
+                self.duration = 1 / dur_divisions
         # else: original zero duration remains zero after quantization
         return self
 
@@ -2022,14 +2037,14 @@ class EventGroup(Event):
         return self.duration
 
 
-    def _quantize(self, divisions: int) -> "EventGroup":
+    def _quantize(self, divisions: int, dur_divisions=None) -> "EventGroup":
         """"Since `_quantize` is called recursively on children, this method is
         needed to redirect `EventGroup._quantize` to `quantize`
         """
-        return self.quantize(divisions)
+        return self.quantize(divisions, dur_divisions)
 
 
-    def quantize(self, divisions: int) -> "EventGroup":
+    def quantize(self, divisions: int, dur_divisions=None) -> "EventGroup":
         """Align onsets and durations to a rhythmic grid.
 
         Assumes time units are quarters. (See [Score.convert_to_quarters](
@@ -2072,21 +2087,24 @@ class EventGroup(Event):
         divisions : int
             The number of divisions per quarter note, e.g., 4 for
             sixteenths, to control quantization.
+        dur_divisions : int, optional
+            Optional different grid for duration quantization. If None,
+            uses divisions.
 
         Returns
         -------
         EventGroup
-            The EventGroup instance (self) with (modified in place) 
+            The EventGroup instance (self) with (modified in place)
             quantized times.
         """
 
-        super()._quantize(divisions)
+        super()._quantize(divisions, dur_divisions)
         # iterating through content is tricky because we may delete a
         # Note, shifting the content:
         i = 0
         while i < len(self.content):
             event = self.content[i]
-            event._quantize(divisions)
+            event._quantize(divisions, dur_divisions)
             if event == self.content[i]:
                 i += 1
             # otherwise, we deleted event so the next event to
