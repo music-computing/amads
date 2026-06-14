@@ -68,55 +68,43 @@ class ChordBigram:
     Ø equivalence — key = D (pc 2)
 
     >>> ChordBigram(C, A, "Ø", key_pitch_class=2).latex_label
-    '$M_{7}\\\\,3\\\\,M_{10}_{\\\\varnothing}$'
+    '$M_{7}\\\\,3\\\\,M_{\\\\varnothing}$'
 
-    # TODO '$M_{10}\\\\,9\\\\,M_{\\\\varnothing}$'  (reverse and suppress second subscript)
+    # TODO reverse
 
     >>> ChordBigram(A, C, "Ø", key_pitch_class=2).latex_label
-    '$M_{7}\\\\,3\\\\,M_{10}_{\\\\varnothing}$'
-
-    # TODO '$M_{7}\\\\,3\\\\,M_{\\\\varnothing}$'  (suppress second subscript)
+    '$M_{7}\\\\,3\\\\,M_{\\\\varnothing}$'
 
     Ø equivalence — key = A (pc 9)
     >>> ChordBigram(C, A, "Ø", key_pitch_class=9).latex_label
-    '$M\\\\,3\\\\,M_{3}_{\\\\varnothing}$'
+    '$M\\\\,3\\\\,M_{\\\\varnothing}$'
 
-    # TODO '$M\\\\,3\\\\,M_\\\\varnothing}$'  (reverse, suppress second subscript)
+    # TODO reverse: '$M_{3}\\\\,9\\\\,M_\\\\varnothing}$'
 
     >>> ChordBigram(A, C, "Ø", key_pitch_class=9).latex_label
-    '$M\\\\,3\\\\,M_{3}_{\\\\varnothing}$'
-
-    # TODO '$M\\\\,3\\\\,M_\\\\varnothing}$'  (suppress second subscript)
+    '$M\\\\,3\\\\,M_{\\\\varnothing}$'
 
     Ø equivalence — key = E (pc 4)
     >>> ChordBigram(C, A, "Ø", key_pitch_class=4).latex_label
-    '$M_{5}\\\\,3\\\\,M_{8}_{\\\\varnothing}$'
+    '$M_{5}\\\\,3\\\\,M_{\\\\varnothing}$'
 
-    # TODO '$M_{8}\\\\,9\\\\,M\\\\varnothing}$'  (reverse and suppress second subscript)
+    # TODO '$M_{8}\\\\,9\\\\,M\\\\varnothing}$'  (reverse)
 
     >>> ChordBigram(A, C, "Ø", key_pitch_class=4).latex_label
-    '$M_{5}\\\\,3\\\\,M_{8}_{\\\\varnothing}$'
-
-    # TODO '$M_{5}\\\\,3\\\\,M_{\\\\varnothing}$'  (suppress second subscript)
+    '$M_{5}\\\\,3\\\\,M_{\\\\varnothing}$'
 
     R equivalence (left/right pairs share label)
     Top:
     >>> ChordBigram(C, A, "R", key_pitch_class=2).latex_label
-    '$M_{7}\\\\,3\\\\,M_{10}_{R}$'
-
-    # TODO: suppress second subscript 10
+    '$M_{7}\\\\,3\\\\,M_{R}$'
 
     Mid:
     >>> ChordBigram(C, A, "R", key_pitch_class=9).latex_label
-    '$M\\\\,3\\\\,M_{3}_{R}$'
-
-    # TODO: suppress second subscript 3
+    '$M\\\\,3\\\\,M_{R}$'
 
     Lower:
     >>> ChordBigram(C, A, "R", key_pitch_class=4).latex_label
-    '$M_{5}\\\\,3\\\\,M_{8}_{R}$'
-
-    # TODO: suppress second subscript 8
+    '$M_{5}\\\\,3\\\\,M_{R}$'
 
     K equivalence (all left-side bigrams share label)
     >>> ChordBigram(C, A, "K").latex_label
@@ -338,13 +326,9 @@ class ChordBigram:
         else:
             g1 = g1_base
 
-        # Build g2 latex: subscript only when non-None
-        if g2_sub is not None:
-            g2 = rf"{g2_base}_{{{g2_sub}}}"
-        else:
-            g2 = g2_base
+        # g2 is base online (no subscript)
 
-        return rf"${g1}\,{iv}\,{g2}_{{{eq_tex}}}$"
+        return rf"${g1}\,{iv}\,{g2_base}_{{{eq_tex}}}$"
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, ChordBigram):
