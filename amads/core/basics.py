@@ -313,6 +313,18 @@ class Event:
 
         This method modifies the Event in place. It also handles tied notes.
 
+        When a note is tied, the onsets of each tied note are quantized,
+        and durations are adjusted to the inter-onset times. The overall
+        duration is quantized according to dur_divisions by adjusting the
+        final note's duration. If the quantized duration results in one or
+        more tied notes having zero or negative durations, those notes are
+        removed from the score and the duration of the remaining tied
+        sequence is adjusted to be the original duration quantized
+        according to dur_divisions.
+
+        If a note or tied note, after quantization, has a duration of
+        zero, the note is removed.
+
         E.g., use divisions=4 for sixteenth notes. If a
         Note tied to or from other notes quantizes to a zero
         duration, reduce the chain of tied notes to eliminate
@@ -343,11 +355,7 @@ class Event:
             dur_divisions = divisions
 
         self.onset = round(self.onset * divisions) / divisions
-        if dur_divisions == divisions:
-            quantized_offset = round(self.offset * divisions) / divisions
-        else:
-            quantized_duration = round(self.duration * dur_divisions) / dur_divisions
-            quantized_offset = self.onset + quantized_duration
+        quantized_duration = round(self.duration * dur_divisions) / dur_divisions
 
         # tied note cases: Given any two tied notes where the first has a
         # quantized duration of zero, we want to eliminate the first one
@@ -372,24 +380,17 @@ class Event:
 
         while isinstance(self, Note) and self.tie:  # check tied-to note:
             tie = self.tie  # the note our tie connects to
-            onset = round(tie.onset * divisions) / divisions  # type: ignore
-            if dur_divisions == divisions:
-                offset = round(tie.offset * divisions) / divisions  # type: ignore
-                duration = offset - onset  # quantized duration
-            else:
-                duration = round(tie.duration * dur_divisions) / dur_divisions
-                offset = onset + duration
+            duration = round(tie.duration * dur_divisions) / dur_divisions  # type: ignore
             # if we tie from non-zero quantized duration to zero quantized
             # duration, eliminate the tied-to note
-            if (quantized_offset - self.onset > 0 and   # type: ignore
-                duration == 0):                         # type: ignore
+            if (quantized_duration > 0 and duration == 0):  # type: ignore
                 self.tie = tie.tie  # in case tie continues
                 # remove tied_to note from its parent
                 if tie.parent:
                     tie.parent.remove(tie)
                 # print("removed tied-to note", tied_to,
                 #       "because duration quantized to zero")
-            elif quantized_offset - self.onset == 0:    # type: ignore
+            elif quantized_duration == 0:    # type: ignore
                 # remove self from its parent; prefer tied_to note
                 # before removing, transfer duration from self to
                 # tied_to to avoid strange case where the tied group
@@ -405,7 +406,7 @@ class Event:
 
         # now that potential ties are handled, set the duration of self
         if self.duration != 0:  # only modify non-zero durations
-            self.duration = quantized_offset - self.onset  # type: ignore
+            self.duration = quantized_duration  # type: ignore
             if self.duration == 0:  # do not allow duration to become zero
                 self.duration = 1 / dur_divisions
         # else: original zero duration remains zero after quantization
