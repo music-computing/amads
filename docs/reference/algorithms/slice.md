@@ -20,7 +20,7 @@ using any criteria for time intervals, including overlapping windows.
 To select notes by onset time rather than by whether they sound during
 an interval, call
 [`onset_window`](#amads.algorithms.slice.onsetwindow.onset_window).
-It returns a list of notes with ``min_time <= onset < max_time`` and does
+It returns a list of notes within the given onset-time bounds and does
 not construct a [`Slice`](#amads.algorithms.slice.slice.Slice).
 
 

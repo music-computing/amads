@@ -3,8 +3,6 @@
 Author: Tai Nakamura (2026)
 """
 
-import pytest
-
 from amads.algorithms.slice.onsetwindow import onset_window
 from amads.core.basics import Note, Part, Score
 from amads.core.timemap import TimeMap
@@ -20,8 +18,7 @@ class TestOnsetWindow:
             onsets=[0.0, 1.0, 2.0, 3.0, 4.0],
         )
 
-        # Filter notes between 1.0 and 3.0 quarters
-        filtered = onset_window(score, 1.0, 3.0, timetype="quarters")
+        filtered = onset_window(score, 1.0, 3.0)
 
         assert len(filtered) == 2
         assert [n.pitch.key_num for n in filtered] == [62, 64]
@@ -33,13 +30,11 @@ class TestOnsetWindow:
             onsets=[0.0, 1.0, 2.0, 3.0],
         )
 
-        # Test min boundary
         filtered = onset_window(score, 0.0, 1.5)
         assert len(filtered) == 2
         assert filtered[0].pitch.key_num == 60
         assert filtered[1].pitch.key_num == 62
 
-        # Test max boundary
         filtered = onset_window(score, 1.5, 3.0)
         assert len(filtered) == 1
         assert filtered[0].pitch.key_num == 64
@@ -51,53 +46,67 @@ class TestOnsetWindow:
         filtered = onset_window(score, 1.0, 1.0)
         assert len(filtered) == 0
 
-    def test_with_seconds_time_type(self):
-        """Test filtering with seconds time type."""
+    def test_with_seconds_after_convert(self):
+        """Filter in seconds after converting the score."""
         score = Score.from_melody(
             pitches=[60, 62, 64, 65],
             onsets=[0.0, 1.0, 2.0, 3.0],
         )
-        # Set tempo: 120 BPM means 1 quarter = 0.5 seconds
         score.time_map = TimeMap(qpm=120)
+        score.convert_to_seconds()
 
-        # Filter between 0.5 and 1.5 seconds (1.0 and 3.0 quarters)
-        filtered = onset_window(score, 0.5, 1.5, timetype="seconds")
+        filtered = onset_window(score, 0.5, 1.5)
 
         assert len(filtered) == 2
         assert [n.pitch.key_num for n in filtered] == [62, 64]
 
-    def test_quarters_window_when_score_in_seconds(self):
-        """timetype=quarters with onsets stored in seconds converts before filter."""
+    def test_quarters_window_after_convert_to_quarters(self):
+        """Filter in quarters after converting a seconds score."""
         score = Score()
-        score.convert_to_seconds()  # convert to seconds
+        score.convert_to_seconds()
         score.time_map = TimeMap(qpm=120)
         part = Part(parent=score)
-        Note(parent=part, onset=0.0, duration=0.5, pitch=60)  # 0 quarter
-        Note(parent=part, onset=0.5, duration=0.5, pitch=62)  # 1 quarter
-        Note(parent=part, onset=1.0, duration=0.5, pitch=64)  # 2 quarters
-        Note(parent=part, onset=1.5, duration=0.5, pitch=65)  # 3 quarters
+        Note(parent=part, onset=0.0, duration=0.5, pitch=60)
+        Note(parent=part, onset=0.5, duration=0.5, pitch=62)
+        Note(parent=part, onset=1.0, duration=0.5, pitch=64)
+        Note(parent=part, onset=1.5, duration=0.5, pitch=65)
 
-        filtered = onset_window(score, 1.0, 3.0, timetype="quarters")
+        score.convert_to_quarters()
+        filtered = onset_window(score, 1.0, 3.0)
 
         assert len(filtered) == 2
         assert [n.pitch.key_num for n in filtered] == [62, 64]
 
     def test_iterable_passage(self):
-        """Test Iterable[Note]"""
+        """Test Iterable[Note]."""
         score = Score.from_melody(
             pitches=[60, 62, 64, 65],
             onsets=[0.0, 1.0, 2.0, 3.0],
         )
         notes = score.get_sorted_notes()
 
-        filtered = onset_window(notes, 1.0, 3.0, timetype="quarters")
+        filtered = onset_window(notes, 1.0, 3.0)
 
         assert len(filtered) == 2
         assert [n.pitch.key_num for n in filtered] == [62, 64]
 
-    def test_invalid_time_type(self):
-        """Test that invalid timetype raises ValueError."""
-        score = Score.from_melody([60, 62, 64])
+    def test_boundary_miditoolbox_compatible(self):
+        """Closed interval includes onset at max_time."""
+        score = Score.from_melody(
+            pitches=[60, 62, 64, 65],
+            onsets=[0.0, 1.0, 2.0, 3.0],
+        )
 
-        with pytest.raises(ValueError, match="Invalid timetype"):
-            onset_window(score, 0.0, 1.0, timetype="invalid")
+        filtered = onset_window(score, 1.0, 3.0, miditoolbox_compatible=True)
+
+        assert len(filtered) == 3
+        assert [n.pitch.key_num for n in filtered] == [62, 64, 65]
+
+    def test_miditoolbox_zero_duration_window(self):
+        """Closed interval with min_time == max_time"""
+        score = Score.from_melody([60, 62, 64], onsets=[0.0, 1.0, 2.0])
+
+        filtered = onset_window(score, 1.0, 1.0, miditoolbox_compatible=True)
+
+        assert len(filtered) == 1
+        assert filtered[0].pitch.key_num == 62
