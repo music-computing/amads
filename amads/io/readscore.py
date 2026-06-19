@@ -14,7 +14,7 @@ from amads.io.writescore import _suffix_to_format
 # This module, readscore, is regarded as a singleton class with
 # the following attributes:
 
-_default_midi_reader = "pretty_midi"
+_default_midi_reader = "mido"
 _default_xml_reader = "music21"
 _default_kern_reader = "music21"
 _default_mei_reader = "music21"
@@ -34,7 +34,7 @@ valid_score_extensions.remove(".pdf")
 valid_score_extensions.remove(".ly")  # write-only extensions
 
 allowed_subsystems = {
-    "midi": ["music21", "pretty_midi"],
+    "midi": ["music21", "pretty_midi", "mido"],
     "musicxml": ["music21", "partitura"],
     "kern": ["music21", "partitura"],
     "mei": ["music21", "partitura"],
@@ -44,6 +44,7 @@ allowed_subsystems = {
 _subsystem_map = {
     "music21": ("amads.io.m21_import", "music21_import"),
     "pretty_midi": ("amads.io.pm_midi_import", "pretty_midi_import"),
+    "mido": ("amads.io.mido_midi_import", "mido_midi_import"),
     "partitura": ("amads.io.pt_import", "partitura_import"),
 }
 
@@ -58,8 +59,8 @@ def set_preferred_midi_reader(reader: str = _default_midi_reader) -> str:
     Parameters
     ----------
     reader : str, optional
-        The name of the preferred MIDI reader; "music21" or "pretty_midi".
-        Defaults to "pretty_midi".
+        The name of the preferred MIDI reader; "music21", "pretty_midi",
+        or "mido". Defaults to "mido".
 
     Returns
     -------
@@ -72,7 +73,7 @@ def set_preferred_midi_reader(reader: str = _default_midi_reader) -> str:
         If an invalid reader is provided.
     """
     global preferred_midi_reader
-    allowed = ["music21", "pretty_midi"]
+    allowed = ["music21", "pretty_midi", "mido"]
     if reader not in allowed_subsystems["midi"]:
         raise ValueError(f"Invalid MIDI reader. Must be one of {allowed}")
 

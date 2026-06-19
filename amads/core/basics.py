@@ -45,6 +45,8 @@ onsets are optional and default to None. To make this simple example work:
   Measure and the Chord onset is replaced with 1.0, then the Notes
   are shifted to 1.0. If the Measure is then passed in the content of
   a Staff, the Measure and all its content might be shifted again.
+
+<small>**Author**: Roger Dannenberg</small>
 """
 
 import copy
@@ -3673,6 +3675,33 @@ class Score(Concurrence):
         self._timesignatures_shift(increment)
         self.time_map._time_shift(increment)
         super().time_shift(increment, content_only)
+        if original_units_are_seconds:
+            self.convert_to_seconds()
+        return self
+
+
+    def time_stretch(self, factor: float) -> "Score":
+        """
+        Scale all timing by a factor, affecting all content.
+
+        Stretching works by changing tempos, so the times in
+        quarters are not changed.
+
+        Parameters
+        ----------
+        factor : float
+            The scaling factor for timing.
+
+        Returns
+        -------
+        Score
+            The object. This method modifies the `Score`. The units are
+            not changed.
+        """
+        original_units_are_seconds = self.units_are_seconds
+        if original_units_are_seconds:
+            self.convert_to_quarters()
+        self.time_map.time_stretch(factor)
         if original_units_are_seconds:
             self.convert_to_seconds()
         return self

@@ -79,7 +79,12 @@ def add_key_signature(
             location = index
             break
     # now location is where to insert a new key signature
-    pm_key_sig = pm.KeySignature(key_number=key_sig, time=onset)
+    # our KeySignature class encodes only the number of flats/sharps, while
+    # PrettyMIDI's KeySignature uses a key number 0-12 for Major, 12-23 for
+    # minor. We will assume that all key signatures are Major. Convert from
+    # flats/sharps to key number using circle of fifths:
+    key_number = (1200 + (key_sig * 7)) % 12
+    pm_key_sig = pm.KeySignature(key_number=key_number, time=onset)
     key_signatures.insert(location, pm_key_sig)
 
 
@@ -125,8 +130,8 @@ def pretty_midi_export(
     global tied_to_notes  # helps to merge tied notes
     tied_to_notes = {}
 
+    score = cast(Score, score.merge_tied_notes())
     score.convert_to_seconds()
-    score.merge_tied_notes()
 
     # 600 gives 1 ms resolution at 100 bpm
     pmscore = pm.PrettyMIDI(resolution=600)
@@ -204,7 +209,7 @@ def pretty_midi_export(
     if show:
         from amads.io.pm_show import pretty_midi_show
 
-        pretty_midi_show(pmscore, filename)
+        pretty_midi_show(pmscore, str(filename))
 
     # Write to MIDI file
     pmscore.write(str(filename))

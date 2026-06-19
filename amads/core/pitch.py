@@ -2,6 +2,7 @@
 # flake8: noqa E129,E303
 """
 Pitch representation.
+<small>**Author**: Roger Dannenberg</small>
 """
 
 import functools

@@ -1,3 +1,12 @@
+"""
+Shared utils
+
+<small>**Author**: Roger Dannenberg</small>
+"""
+
+__author__ = "Roger Dannenberg"
+
+
 import math
 from typing import Iterator, Optional, Union
 

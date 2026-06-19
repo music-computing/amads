@@ -1,5 +1,7 @@
 """
 The Distribution class represents distributions and distribution metadata.
+
+<small>**Author**: Roger Dannenberg, Tai Nakamura, Di Wang</small>
 """
 
 from typing import Any, List, Optional, Union

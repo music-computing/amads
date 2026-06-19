@@ -6,7 +6,11 @@ from amads.core.basics import Note, Part, Score
 
 
 def remove_overlap(
-    score: Score, tolerance: float = 0.1, min_separation: float = 0.0
+    score: Score,
+    tolerance: float = 0.1,
+    min_separation: float = 0.0,
+    keep_ornaments: bool = True,
+    collapse_parts: bool = False,
 ) -> Score:
     """Remove overlapping notes with the same pitch from a score.
 
@@ -21,8 +25,14 @@ def remove_overlap(
     these cases.
 
     Caution: Grace notes read from musicXML files are often represented
-    as starting at the same time as the main note they ornament. Depending
-    on pitches, this could cause the grace note to be removed by this function.
+    as starting at the same time as the main note they ornament. By
+    default, this function will not remove ornaments, even if they have
+    the same pitch and onset as another note. Ornaments other than
+    grace notes are stored as properties of the note they are attached
+    to, but grace notes are independent notes with the 'is_grace'
+    property set to `True`. By default, grace notes and any ornamented
+    note cannot be merged with overlapping notes, but to allow this,
+    set `keep_ornaments=False`.
 
     When producing MIDI output for playback, there is a risk of
     rounding error causing a note-on to be placed immediately *before*
@@ -52,7 +62,11 @@ def remove_overlap(
       so that it ends at the onset of the second note. The second note
       is extended to the offset of the first if necessary.
 
-    Each part is processed independently.
+    Each part is processed independently, so you must collapse parts
+    (e.g., left and right hand in piano parts) if you want to remove
+    overlap across parts. You can do this by passing `collapse_parts=True`
+    to this function, which is more efficient that collapsing parts before
+    calling this function.
 
     Parameters
     ----------
@@ -69,6 +83,14 @@ def remove_overlap(
         `0.0`, no minimum separation is enforced.  Defaults to `0.0`.
         Must be less than half of `tolerance` to avoid introducing note
         durations less than min_separation.
+    keep_ornaments : bool
+        If `True`, notes with `is_grace` or other ornament properties
+        (including `has_trill`) are not merged with other notes, even
+        if they have the same pitch and onset as another note.
+        Defaults to `True`.
+    collapse_parts : bool
+        If `True`, all parts are merged into a single part before removing
+        overlap.  Defaults to `False`.
 
     Returns
     -------
@@ -123,22 +145,49 @@ def remove_overlap(
     >>> notes[1].duration
     2.0
     """
-    score = score.flatten()
+    if collapse_parts:
+        score = score.collapse_parts()  # also flattens
+    else:
+        score = score.flatten()  # retains parts
+
     assert min_separation * 2 < tolerance, (
         "min_separation must be less " "than half of tolerance"
     )
 
     for part in score.find_all(Part):
-        _remove_overlap_in_part(part, tolerance, min_separation)
+        _remove_overlap_in_part(part, tolerance, min_separation, keep_ornaments)
 
     return score
 
 
+ORNAMENT_PROPERTIES = [
+    "is_grace",
+    "has_trill",
+    "has_turn",
+    "has_inverted_turn",
+    "has_mordent",
+    "has_inverted_mordent",
+    "has_shake",
+    "has_schleifer",
+    "has_trill_extension",
+]
+
+
 def _remove_overlap_in_part(
-    part: Part, tolerance: float, min_separation: float
+    part: Part, tolerance: float, min_separation: float, keep_ornaments: bool
 ) -> None:
     """Resolve overlapping same-pitch notes within a single Part in place."""
     notes: list[Note] = part.list_all(Note)  # type: ignore  (return list[Note])
+
+    if keep_ornaments:
+        # Remove ornaments from consideration by taking them out of notes
+        ornaments = {}
+        for note in notes:
+            if any(note.get(prop, False) for prop in ORNAMENT_PROPERTIES):
+                ornaments[id(note)] = True
+        # If we remove ornaments from notes, they won't be considered and
+        # therefore they will remain in part.content, as desired.
+        notes = [n for n in notes if id(n) not in ornaments]
 
     # Group notes by key_num.  Part.flatten() sorts by (onset, pitch), so
     # each group is already onset-ordered.
@@ -166,7 +215,7 @@ def _remove_overlap_in_part(
                     if a.offset > b.offset:
                         b.offset = a.offset  # extend b to cover a if necessary
                     a.offset = b.onset - min_separation
-                    i = j  # a no longer overlaps; advance to b
+                    i = j  # skip to b and search forward from there
             else:
                 i = j  # no overlap; advance to b
             j = j + 1  # advance to next b
