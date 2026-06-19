@@ -63,12 +63,14 @@ from .pitch.ivdist2 import *
 from .pitch.ivsizedist1 import *
 from .pitch.key.key_cc import *
 from .pitch.key.keymode import *
+from .pitch.key.keyname import *
 from .pitch.key.keysom import *
 from .pitch.key.keysomdata import *
 from .pitch.key.kkcc import *
 from .pitch.key.kkkey import *
 from .pitch.key.max_key_cc import *
 from .pitch.key.profiles import *
+from .pitch.key.tonality import *
 from .pitch.key.transpose2c import *
 from .pitch.pc_set_functions import *
 from .pitch.pc_sets import *

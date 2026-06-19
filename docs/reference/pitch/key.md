@@ -1,3 +1,14 @@
+The ``amads.pitch.key`` package implements MIDI Toolbox-style key finding and
+related tools. Literature key profiles are defined in
+[`profiles`](#amads.pitch.key.profiles) as :class:`~amads.pitch.key.profiles.KeyProfile`
+objects (see ``source_list`` in that module). MIDI Toolbox ``refstat('kkmaj')``
+and ``refstat('kkmin')`` correspond to
+[`krumhansl_kessler`](#amads.pitch.key.profiles.krumhansl_kessler) ``.major`` /
+``.minor`` weights; :func:`~amads.pitch.key.tonality.tonality` uses those via
+:func:`~amads.pitch.key.keymode.keymode` instead of ``refstat``.
+
+To convert MIDI Toolbox key codes (1--24) to text, use
+[`keyname`](#amads.pitch.key.keyname.keyname).
 
 ::: amads.pitch.key.profiles
     options: 
@@ -40,6 +51,14 @@
 ----------------
 
 ::: amads.pitch.key.keymode.keymode
+
+----------------
+
+::: amads.pitch.key.keyname.keyname
+
+----------------
+
+::: amads.pitch.key.tonality.tonality
 
 ----------------
 
