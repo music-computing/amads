@@ -13,6 +13,7 @@ def quantize(
     onset_divisions: int = 8,
     dur_divisions: int | None = None,
     filter_divisions: int | None = None,
+    filter: bool = False,
 ) -> Score:
     """
     Quantize note events in a score according to onset resolution,
@@ -23,6 +24,10 @@ def quantize(
 
     This is an implementation of the quantize function in the Matlab MIDI Toolbox.
 
+    Note: the Matlab MIDI Toolbox default for duration resolution is double
+    the onset resolution. For compatibility, explicitly
+    pass ``dur_divisions = onset_divisions // 2``.
+
     Parameters
     ----------
     score : Score
@@ -30,11 +35,15 @@ def quantize(
     onset_divisions : int
         The grid resolution for onsets, in divisions per quarter note.
         Default is 8.
-    dur_divisions : Optional[int]
-        The grid resolution for durations.
-    filter_divisions : Optional[int]
+    dur_divisions : int or None
+        The grid resolution for durations. If not provided, defaults to
+        onset_divisions.
+    filter_divisions : int or None
         If provided, any note with a duration strictly less than
         (1 / filter_divisions) quarters will be removed before quantization.
+    filter : bool
+        If True, remove all zero-duration notes after quantization.
+        Default is False.
 
     Returns
     -------
@@ -58,6 +67,6 @@ def quantize(
                 note.parent.remove(note)
 
     # 3. Quantize the score using the built-in method
-    flat_score.quantize(onset_divisions, dur_divisions)
+    flat_score.quantize(onset_divisions, dur_divisions, filter)
 
     return flat_score

@@ -38,7 +38,7 @@ def test_quantize_separate_grids():
     assert notes[0].duration == 0.25
 
 
-def test_quantize_filter():
+def test_quantize_filterdiv():
     """Test quantize filtering out short notes"""
     score = Score()
     part = Part(parent=score)
@@ -55,7 +55,42 @@ def test_quantize_filter():
     assert notes[0].pitch.key_num == 60
 
 
+def test_tied():
+    """Test that a tied chain collapses into one note with the total quantized duration."""
+    score = Score()
+    part = Part(parent=score)
+
+    note_a = Note(parent=part, onset=0.0, duration=0.0, pitch=60)
+    note_b = Note(parent=part, onset=0.0, duration=0.25, pitch=60)
+    note_c = Note(parent=part, onset=0.25, duration=1.0, pitch=60)
+    note_a.tie = note_b
+    note_b.tie = note_c
+
+    q_score = quantize(score, onset_divisions=4, dur_divisions=1)
+    notes = q_score.get_sorted_notes()
+
+    assert len(notes) == 1
+    assert notes[0].duration == 1.0
+
+
+def test_filter():
+    """Test that filter=True removes zero-duration notes after quantization."""
+    score = Score()
+    part = Part(parent=score)
+
+    Note(parent=part, onset=0.0, duration=1.0, pitch=60)
+    Note(parent=part, onset=1.0, duration=0.0, pitch=62)
+
+    q_score = quantize(score, onset_divisions=4, filter=True)
+    notes = q_score.get_sorted_notes()
+
+    assert len(notes) == 1
+    assert notes[0].pitch.key_num == 60
+
+
 if __name__ == "__main__":
     test_quantize_basic()
     test_quantize_separate_grids()
-    test_quantize_filter()
+    test_quantize_filterdiv()
+    test_tied()
+    test_filter()
