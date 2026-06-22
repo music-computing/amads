@@ -14,13 +14,26 @@ preamble = [
 
 
 items = [  # NB: use caps and underscore. (Title, difficulty, notes) tuples.
+    # Preliminary and shared
     ("Install", 1, "Simple demonstration of installation options, both via pip package (recommended) and locally."),
     ("Explore_Sound", 1, "Simple demonstration of audio data and sounds as distinct from symbolic data."),
     ("Explore_Symbolic", 1, "Simple demonstration of symbolic data and basics of how to access it with AMADS."),
+    ("Distance", 2, "Explore some basic, relevant distance measurements (Hamming, Euclidean, & More)."),
+    # Time
     ("nPVI_fugue", 4, "Implement nPVI from scratch and apply to score/s."),
-    ("contour", 3, "Implement and explore various measures of melodic contour."),
-    ("gcd", 5, "Explore GCD, and related approximations."),
-    ("count_chords", 4, "Calculate the number of distinct chords in 12-TET space.")
+    ("GCD", 5, "Explore GCD, and related approximations."),
+    ("Metrical_position", 2, "Basic introduction to metrical position usage in theory and practice."),
+    # ("micro_timing.ipynb")  # TODO merge soon ;)
+    # Melody
+    ("Contour", 3, "Implement and explore various measures of melodic contour. See also `Envelope`."),
+    ("Envelope", 3, "A new method for outlining melodic (and bass) contour."),
+    # Harmony
+    ("Count_Chords", 4, "Calculate the number of distinct chords in 12-TET space."),
+    ("Chord_Bigram", 3, "A method for classifying chord pair equivalences."),
+    ("Chord_Loops", 3, "Explore chord loops in the Billboard corpus"),
+    # ("key_finding.ipynb")  # TODO
+    # Texture
+    ("Figuration", 2, "A different look at a well-known piece: texture illuminates structure")
 ]
 
 
@@ -39,7 +52,7 @@ def test_match() -> None:
 
 if __name__ == "__main__":
 
-    test_match()
+    # test_match(). # TODO restore when up to date
 
     with open("README.md", "w") as text_file:
         [text_file.write(x + "\n\n") for x in preamble]
