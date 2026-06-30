@@ -2,7 +2,7 @@
 # flake8: noqa E129,E303
 """
 Pitch representation.
-<small>**Author**: Roger Dannenberg</small>
+<small>**Author**: Roger Dannenberg, Mark Gotham</small>
 """
 
 import functools
@@ -16,8 +16,11 @@ CHROMATIC_NAMES = ["C", "C#", "D", "Eb", "E", "F",
                    "F#", "G", "Ab", "A", "Bb", "B"]
 LETTER_TO_NUMBER = {"C": 0, "D": 2, "E": 4, "F": 5, "G": 7, "A": 9, "B": 11}
 DIATONIC = [0, 2, 4, 5, 7, 9, 11]
+LETTER_TO_FIFTHS = {"C": 0, "G": 1, "D": 2, "A": 3, "E": 4, "B": 5, "F": -1}
 
-__author__ = "Roger B. Dannenberg"
+
+__author__ = "Roger B. Dannenberg, Mark Gotham"
+
 
 @functools.total_ordering
 class Pitch:
@@ -488,6 +491,52 @@ class Pitch:
 
 
     @property
+    def fifths_from_c(self) -> float:
+        """The position of this pitch's spelling on the line of fifths.
+
+        C is 0. Each step sharpward (C->G->D->A->E->B->F#->...) is +1, and
+        each step flatward (C->F->Bb->Eb->Ab->Db->Gb->...) is -1.
+        Unlike `pitch_class`, this distinguishes enharmonic spellings: F# is +6
+        while Gb is -6, even though both have the same `pitch_class`.
+
+        The result is an integer unless `alt` is non-integer
+        (e.g. for a quarter-tone accidental).
+
+        Returns
+        -------
+        float
+            The signed number of fifths from C, sharpward positive.
+
+        Examples
+        --------
+        >>> Pitch("C4").fifths_from_c
+        0
+
+        Octave invariant.
+
+        >>> Pitch("C9").fifths_from_c
+        0
+
+        >>> Pitch("G4").fifths_from_c
+        1
+
+        >>> Pitch("F4").fifths_from_c
+        -1
+
+        >>> Pitch("F#4").fifths_from_c
+        6
+
+        >>> Pitch("Gb4").fifths_from_c
+        -6
+
+        >>> Pitch("B##3").fifths_from_c
+        19
+        """
+        fifths = LETTER_TO_FIFTHS[self.step] + self.alt * 7
+        return int(fifths) if float(fifths).is_integer() else fifths
+
+
+    @property
     def register(self) -> int:
         """Returns the absolute octave number based on `floor(key_num)`.
 
@@ -684,8 +733,8 @@ class Pitch:
 @dataclass
 class PitchCollection:
     """
-    Combined representations of more than one pitch. Differs from Chord
-    which has onset, duration, and contains Notes, not Pitches.
+    Combined representations of more than one pitch.
+    Differs from Chord which has onset, duration, and contains Notes, not Pitches.
 
     Parameters
     ----------
@@ -762,7 +811,8 @@ class PitchCollection:
     @property
     def pitch_class_indicator_vector(self):
         """
-        Return a pitch class indicator vector (12-dimensional) representing the presence (1) or absence (0) of each pitch class in the collection.
+        Return a pitch class indicator vector (12-dimensional) representing
+        the presence (1) or absence (0) of each pitch class in the collection.
         """
         return weighted_to_indicator(self.pitch_class_vector)
 
