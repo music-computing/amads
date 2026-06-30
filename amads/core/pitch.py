@@ -816,6 +816,57 @@ class PitchCollection:
         """
         return weighted_to_indicator(self.pitch_class_vector)
 
+    @property
+    def pitches_from_c(self):
+        """
+        Return a list of each pitch's `fifths_from_c` value, in the same
+        order as `pitches` (duplicates included, unsorted).
+        """
+        return [p.fifths_from_c for p in self.pitches]
+
+    @property
+    def pitches_from_c_centroid(self):
+        """
+        Return the arithmetic mean of `pitches_from_c`,
+        i.e. the "centre of mass" of this collection's pitches on the line of fifths.
+        Duplicate pitches are weighted by their multiplicity
+        (each occurrence counts separately,
+        matching `pitches_from_c`/`pitch_num_multiset`,
+        as opposed to `pitch_class_set`-style deduplication).
+
+        Raises
+        ------
+        ValueError
+            If the collection has no pitches.
+
+        Examples
+        --------
+        >>> test_case = ['G#4', 'G#4', 'B4', 'D4', 'F4', 'Ab4']
+        >>> pitches = [Pitch(p) for p in test_case]
+        >>> pitches_gathered = PitchCollection(pitches)
+        >>> pitches_gathered.pitches_from_c
+        [8, 8, 5, 2, -1, -4]
+
+        >>> pitches_gathered.pitches_from_c_centroid
+        3.0
+
+        Note how this changes with spelling
+
+        >>> test_case = ['G#4', 'G#4', 'B4', 'D4', 'F4', 'G#4']
+        >>> pitches = [Pitch(p) for p in test_case]
+        >>> pitches_gathered = PitchCollection(pitches)
+        >>> pitches_gathered.pitches_from_c
+        [8, 8, 5, 2, -1, 8]
+
+        >>> pitches_gathered.pitches_from_c_centroid
+        5.0
+        """
+        fifths = self.pitches_from_c
+        if not fifths:
+            raise ValueError("pitches_from_c_centroid is undefined for an empty PitchCollection")
+        return sum(fifths) / len(fifths)
+
+
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
