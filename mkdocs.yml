@@ -114,6 +114,7 @@ nav:
       - reference/polyphony/skyline.md
     - Algorithms:
       - reference/algorithms/concur.md
+      - reference/algorithms/dropshortnotes.md
       - reference/algorithms/complexity.md
       - reference/algorithms/entropy.md
       - GCD: reference/algorithms/gcd.md
