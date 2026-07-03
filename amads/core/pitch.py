@@ -15,6 +15,7 @@ CHROMATIC_NAMES = ["C", "C#", "D", "Eb", "E", "F",
                    "F#", "G", "Ab", "A", "Bb", "B"]
 LETTER_TO_NUMBER = {"C": 0, "D": 2, "E": 4, "F": 5, "G": 7, "A": 9, "B": 11}
 DIATONIC = [0, 2, 4, 5, 7, 9, 11]
+NUM_PITCH_CLASSES = 12
 
 __author__ = "Roger B. Dannenberg"
 
