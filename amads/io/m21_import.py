@@ -1,4 +1,5 @@
 import warnings
+from fractions import Fraction
 from math import isclose
 from pathlib import Path
 from typing import Dict, Optional, Tuple, Union, cast
@@ -415,6 +416,9 @@ def music21_convert_note(m21note, measure):
         duration=duration,
         dynamic=dynamic,
     )
+    note.set(
+        "offset_fraction", Fraction(m21note.offset).limit_denominator(10000)
+    )
     if m21note.duration.isGrace:
         note.set("is_grace", True)
         if m21note.duration.slash:
@@ -520,6 +524,10 @@ def music21_convert_chord(m21chord, measure, offset):
             onset=float(measure.onset + m21chord.offset),
             pitch=Pitch(pitch=pitch.midi, alt=pitch.alter),
             duration=duration,
+        )
+        note.set(
+            "offset_fraction",
+            Fraction(m21chord.offset).limit_denominator(10000),
         )
         if m21chord.tie is not None:
             music21_convert_tie(pitch.midi, note, m21chord.tie.type)
