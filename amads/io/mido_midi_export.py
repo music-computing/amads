@@ -207,12 +207,14 @@ def _build_instrument_track(
     channel: int,
     program: int,
     name: str,
+    minimum_duration: float,
 ) -> mido.MidiTrack:
     """Build a MIDI track for one instrument part (Part or Staff).
 
     Zero-duration notes (grace notes) are written as a note_on immediately
     followed by a note_on with velocity 0 (delta = 0), preserving their
-    original order from the Score.
+    original order from the Score unless minimum_duration > 0, in which case
+    durations may be extended and subsequent durations shifted to avoid overlap.
 
     Parameters
     ----------
@@ -224,6 +226,11 @@ def _build_instrument_track(
         MIDI program number (0–127) for the instrument.
     name : str
         Instrument name written as the track name meta message.
+    minimum_duration : float
+        If greater than 0, then notes in MIDI file output will be extended
+        to at least this duration. This is useful when graces notes are
+        encoded with zero duration, but you want them to be visible and
+        audible as MIDI.
 
     Returns
     -------
@@ -253,6 +260,7 @@ def _build_instrument_track(
     #   (1, seq*2)     — note_on (regular or grace)
     #   (1, seq*2+1)   — grace note_off (immediately after its note_on)
     events: list[tuple] = []
+    minimum_onset: dict[int, int] = {}  # pitch → earliest allowed onset tick
 
     for seq, note in enumerate(notes):
         dynamic = note.dynamic if note.dynamic is not None else 100
@@ -261,9 +269,29 @@ def _build_instrument_track(
         velocity = min(127, max(1, int(dynamic)))
         note_num = min(127, max(0, round(note.key_num)))
 
+        # algorithm for minimum_duration: build minimum-onset dictionary mapping
+        # pitch to the earliest allowed onset (must be after any previous note
+        # of the same pitch).  Next, compute offset time -- we want to hold the
+        # offset time even if onset time is shifted. Then, if a note's onset is
+        # earlier than the minimum, shift its onset to reach the minimum and
+        # reapply the minimum_duration -- we do not want a note to have negative
+        # duration or to drop below minimum_duration if onset is shifted.
+        # Finally, update the minimum-onset dictionary for this pitch to the
+        # new offset time.
+
         onset_tick = round(note.onset * TICKS_PER_BEAT)
         # tied_duration spans the full duration including any tied notes.
-        offset_tick = round((note.onset + note.tied_duration) * TICKS_PER_BEAT)
+        dur = max(note.tied_duration, minimum_duration)
+        offset_tick = round((note.onset + dur) * TICKS_PER_BEAT)
+
+        # check for minimum onset for this pitch
+        onset_tick = max(onset_tick, minimum_onset.get(note_num, 0))
+        offset_tick = max(
+            offset_tick, onset_tick + round(minimum_duration * TICKS_PER_BEAT)
+        )
+
+        # update minimum onset for this pitch to the new offset
+        minimum_onset[note_num] = offset_tick
 
         note_on = mido.Message(
             "note_on", channel=channel, note=note_num, velocity=velocity, time=0
@@ -298,7 +326,12 @@ def _build_instrument_track(
 
 
 def mido_midi_export(
-    score: Score, filename: str | Path, format: str, show: bool, is_temp: bool
+    score: Score,
+    filename: str | Path,
+    format: str,
+    show: bool,
+    is_temp: bool,
+    minimum_duration: float = 0.0,
 ) -> None:
     """
     Export a Score as a standard MIDI file using the MIDO library.
@@ -321,6 +354,11 @@ def mido_midi_export(
         Print a text representation of the MIDI data before writing.
     is_temp : bool
         Ignored; no temporary files are created.
+    minimum_duration : float
+        If greater than 0, then notes in MIDI file output will be extended
+        to at least this duration. This is useful when graces notes are
+        encoded with zero duration, but you want them to be visible and
+        audible as MIDI.
     """
     global tied_to_notes
     tied_to_notes = {}
@@ -368,6 +406,7 @@ def mido_midi_export(
             channel,
             program,
             name if name is not None else "Unknown",
+            minimum_duration,
         )
         mid.tracks.append(track)
 

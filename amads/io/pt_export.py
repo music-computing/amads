@@ -80,10 +80,18 @@ def add_event_to_part(
         event = cast(Measure, event)
         name = None if event.number is None else str(event.number)
         pt_group = ptMeasure(number=id, name=name)  # no staff here
+        print(
+            "PT Adding measure",
+            event.number,
+            "onset",
+            event.onset,
+            "offset",
+            event.offset,
+        )
     if isinstance(event, EventGroup):  # e.g. Part, Staff, Measure
         if pt_group is not None:
             pt_part.add(
-                pt_group, round(event.onset) * DIVS, round(event.offset) * DIVS
+                pt_group, round(event.onset * DIVS), round(event.offset * DIVS)
             )
         subid = 1
         for subevent in event.content:

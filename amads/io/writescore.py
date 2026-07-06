@@ -507,6 +507,7 @@ def write_score(
     show: bool = False,
     format: Optional[str] = None,
     is_temp: bool = False,
+    minimum_duration: float = 0.0,
 ) -> Path:
     """Write a file with the given format.
 
@@ -536,6 +537,11 @@ def write_score(
         because filename is in a unique temp directory created by _path_help.
         (This is merely an optimization to group temp files and avoid creating
         another temp directory when it is unnecessary.)
+    minimum_duration: float
+        If greater than 0, then notes in MIDI file output will be extended
+        to at least this duration. This is useful when graces notes are
+        encoded with zero duration, but you want them to be visible and
+        audible as MIDI. Non-MIDI output formats will ignore this parameter.
 
     Returns
     -------

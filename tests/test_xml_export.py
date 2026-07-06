@@ -10,7 +10,7 @@ from amads.io.writescore import set_preferred_xml_writer, write_score
 from amads.music import example
 from amads.pitch.pitch_mean import pitch_mean
 
-VERBOSE = False  # set to True for more debug output
+VERBOSE = True  # set to True for more debug output
 
 
 def verbose_blank():
@@ -27,6 +27,7 @@ def verbose_blank():
         "musicxml/clefs.musicxml",
         "musicxml/time_tempo_test.musicxml",
         "musicxml/trills.musicxml",
+        "musicxml/shortbars.xml",
     ],
 )
 def test_xml_export_and_reimport(xml_file):

@@ -522,8 +522,8 @@ def mido_midi_import(
     >>> from amads.io.readscore import read_score, set_preferred_midi_reader
     >>> from amads.io.readscore import set_reader_warning_level
     >>> from amads.music import example
-    >>> set_preferred_midi_reader("mido")  # already the default
-    'mido'
+    >>> # 'mido' is already the default, but make sure it is set as expected
+    >>> _ = set_preferred_midi_reader("mido")
     >>> _ = set_reader_warning_level("default")
     >>> score = read_score(example.fullpath("midi/sarabande.mid"),
     ...                    flatten=True)  # doctest: +ELLIPSIS

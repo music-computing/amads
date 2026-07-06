@@ -180,3 +180,7 @@ amads-venv/
 /docs/api/
 
 /docs/developer_notes/todo.md
+
+/amads/io/m21_import_brokenexpand.py
+
+/amads/io/m21_import_unfixed.py

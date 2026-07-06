@@ -394,11 +394,20 @@ def read_score(
     an anacrusis (“pickup”). This is somewhat ambiguous and does not
     translate well to MIDI which is less expressive than MusicXML.
 
-    Therefore, if the first measure read with Music21 is not a full
-    measure, a rest is inserted and the remainder is shifted to
-    form a full measure according to its time signature. Remaining
-    measures are shifted in time accordingly and Score, Part and
-    Staff durations are adjusted accordingly.
+    However, we retain the key signature and set the measure duration
+    to the actual duration, which may be shorter in the case of pickup
+    measures and short first endings (that normally are completed by
+    the content of the pickup measure).
+
+    To keep timing consistent, MIDI files with pickup measures are
+    expected to have an initial time signature that matches the
+    actual duration, so for example a 4/4 pickup measure with only
+    one quarter should be encoded as a 1/4 measure, and the next
+    measure will have a new time signature of 4/4. This produces a
+    consistent structure that MIDI editors can use to place bar lines
+    in the correct places, but has the drawback of altering the
+    indicated time signature in the pickup and possibly first ending
+    measures.
 
     General MIDI Import Notes
     -------------------------
@@ -621,7 +630,6 @@ def _step_to_next_measure(
         while ci < len(content) and not isinstance(content[ci], Measure):
             ci += 1
             staff_ci[i] = ci
-    print("In _step_to_next_measure, staff_ci", staff_ci)
 
 
 def _finish_import(

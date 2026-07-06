@@ -536,6 +536,38 @@ def _score_to_music21(
                 m21measure = stream.Measure(
                     number=num, duration=m21Duration(measure.duration)
                 )
+                # if measure is incomplete (e.g., pickup measure),
+                # set paddingLeft to avoid Music21 padding with a rest.
+                # Note that time_sig.duration is the nominal duration in
+                # quarters, while time_sig.quarters is the *time* of the time
+                # signature, also in quarters. time_sig inherits onset, which
+                # gives time in either seconds or quarters.
+                print(
+                    "*** measure 1",
+                    m21measure,
+                    "duration",
+                    m21measure.duration,
+                    "number",
+                    m21measure.number,
+                    "measure.duration",
+                    measure.duration,
+                    "time_sig.duration",
+                    time_sig.duration,
+                )
+                if measure.duration < time_sig.duration - 0.001:
+                    m21measure.paddingLeft = (
+                        time_sig.duration - measure.duration
+                    )
+                    print(
+                        "*** measure 2",
+                        measure,
+                        "duration",
+                        measure.duration,
+                        "time_sig.duration",
+                        time_sig.duration,
+                        "paddingLeft",
+                        m21measure.paddingLeft,
+                    )
                 # add time signature change if any
                 if isclose(time_sig.quarters, measure.onset, abs_tol=1e-3):
                     if time_sig.upper != round(time_sig.upper):

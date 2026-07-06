@@ -179,36 +179,63 @@ class _TiedNotes:
 
 
 def _safe_expand_multistaff(score):
-    # 1. Expand the master part containing the correct structural metadata
+    # This helper rebuilds all parts from the expanded timeline of a single
+    # "master" part. Measure numbers are not reliable across formats (pickup
+    # bars, repeated numbering, Kern's repeated =1 labels), so we map by
+    # original measure index in the master part instead.
     master_part = score.parts[0]
+    master_measures = list(master_part.getElementsByClass(stream.Measure))
+    if not master_measures:
+        return score
+
+    # Use object identity to map master measures to stable indices.
+    master_measure_indices = {
+        id(measure): index for index, measure in enumerate(master_measures)
+    }
+
     expanded_master = master_part.expandRepeats()
+    performed_measure_indices = []
+    for measure in expanded_master.getElementsByClass(stream.Measure):
+        origin = (
+            measure.derivation.origin
+            if measure.derivation and measure.derivation.origin
+            else measure
+        )
+        origin_index = master_measure_indices.get(id(origin))
+        if origin_index is None:
+            # Fall back to nearest matching measure by (number, offset).
+            for index, candidate in enumerate(master_measures):
+                if candidate.number == getattr(
+                    origin, "number", None
+                ) and isclose(
+                    candidate.offset,
+                    float(getattr(origin, "offset", -999999.0)),
+                    abs_tol=1e-6,
+                ):
+                    origin_index = index
+                    break
+        if origin_index is not None:
+            performed_measure_indices.append(origin_index)
 
-    # 2. Extract the true "as-performed" chronological measure sequence
-    # e.g., [1, 2, 3, 4, 1, 2, 5, 6]
-    performed_measure_sequence = []
-    for m in expanded_master.getElementsByClass(stream.Measure):
-        # Fallback to derivation origin if the integer number changed
-        if m.derivation and m.derivation.origin:
-            performed_measure_sequence.append(m.derivation.origin.number)
-        else:
-            performed_measure_sequence.append(m.number)
+    if not performed_measure_indices:
+        return score.expandRepeats()
 
-    # 3. Rebuild a fresh score matching this exact master blueprint
     new_score = stream.Score()
 
     for original_part in score.parts:
         new_part = stream.Part()
+        original_measures = list(
+            original_part.getElementsByClass(stream.Measure)
+        )
 
-        # Copy over non-measure elements (Instruments, Clefs, etc.)
-        for el in original_part.getElementsNotOfClass(stream.Measure):
-            new_part.insert(el.offset, copy.deepcopy(el))
+        # Copy over non-measure elements (Instruments, Clefs, spanners, etc.)
+        for element in original_part.getElementsNotOfClass(stream.Measure):
+            new_part.insert(element.offset, copy.deepcopy(element))
 
-        # Manually assemble the measures based on the true execution path
-        for m_num in performed_measure_sequence:
-            orig_measure = original_part.measure(m_num)
-            if orig_measure:
-                # Deep copy to isolate the new expanded timeline safely
-                copied = copy.deepcopy(orig_measure)
+        # Rebuild this part in the same expanded order as master.
+        for measure_index in performed_measure_indices:
+            if 0 <= measure_index < len(original_measures):
+                copied = copy.deepcopy(original_measures[measure_index])
                 new_part.append(copied)
 
         new_score.insert(original_part.offset, new_part)
@@ -261,13 +288,21 @@ def music21_import(
         filename, format=format, forceSource=True, quantizePost=qp
     )
 
+    if show:
+        print("Music21 score BEFORE _safe_expand_multistaff:")
+        music21_show(m21score, filename)  # type: ignore
+
     # Google AI suggests makeNotation to make the score structurally consistent
     # before expanding if the 2nd staff is repeating the first ending and getting
     # desynchronized. (Other, more complex methods were also suggested.)
     # m21score.makeNotation(inPlace=True)
 
-    # But that didn't work, so here is the more complex method:
-    m21score = _safe_expand_multistaff(m21score)
+    # But that didn't work, so here is the more complex method.
+    # Humdrum/Kern often has non-unique measure numbers (e.g., many "=1"
+    # barlines), so rebuilding by measure number can duplicate one bar and
+    # corrupt pitch content. Keep the original parsed structure for Kern.
+    if format != "humdrum":
+        m21score = _safe_expand_multistaff(m21score)
 
     # m21score = m21score.expandRepeats()
 
@@ -833,16 +868,6 @@ def music21_convert_measure(m21measure, staff, ignore_hidden):
     # now that we know what's in it, fix the duration to actual duration
     assert highest_time - measure.onset <= measure.duration + 0.001
     measure.duration = highest_time - measure.onset
-    print(
-        "Measure at",
-        measure.onset,
-        "hi time",
-        highest_time,
-        "Duration",
-        measure.duration,
-        "Measure",
-        measure,
-    )
     return measure
 
 

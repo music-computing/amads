@@ -34,9 +34,10 @@ def test_read_kern():
     set_preferred_kern_reader("music21")
     kern_file = example.fullpath("krn/happy_birthday_reference.krn")
     assert kern_file is not None
-    score = read_score(kern_file)
-    # print("Music21 Kern import:")
-    # score.show()
+    print("READING KERN FILE", kern_file)
+    score = read_score(kern_file, show=True)
+    print("Music21 Kern import:")
+    score.show()
     nnotes = score.list_all(Note)
     assert len(nnotes) == 25, f"Expected 25 notes, got {len(nnotes)}"
     # Note that first and last measure are shorter than time signature duration:
