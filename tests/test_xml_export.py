@@ -5,6 +5,7 @@ import tempfile
 import pytest
 
 from amads.algorithms.scores_compare import scores_compare
+from amads.core.basics import Measure
 from amads.io.readscore import read_score, set_preferred_xml_reader
 from amads.io.writescore import set_preferred_xml_writer, write_score
 from amads.music import example
@@ -16,6 +17,17 @@ VERBOSE = True  # set to True for more debug output
 def verbose_blank():
     if VERBOSE:
         print()
+
+
+measures = {
+    "musicxml/ex1.xml": 2,
+    "musicxml/ex2.xml": 2,
+    "musicxml/ex3.xml": 1,
+    "musicxml/clefs.musicxml": 27,
+    "musicxml/time_tempo_test.musicxml": 6,
+    "musicxml/trills.musicxml": 12,
+    "musicxml/shortbars.xml": 18,
+}
 
 
 @pytest.mark.parametrize(
@@ -64,11 +76,16 @@ def test_xml_export_and_reimport(xml_file):
     temp_file.close()
     write_score(myscore, exported_file, show=VERBOSE)
     verbose_blank()
+    # read the score back with partitura
     myscore2 = read_score(exported_file, show=VERBOSE)
     if VERBOSE:
         verbose_blank()
         print("AMADS score returned from read_score by partitura:")
         myscore2.show()
+    assert len(myscore2.list_all(Measure)) == measures[xml_file], (
+        f"Expected {measures[xml_file]} measures in {xml_file}, got"
+        f" {len(myscore2.list_all(Measure))}"
+    )
 
     verbose_blank()
     comparison_result = scores_compare(myscore, myscore2)
@@ -76,7 +93,7 @@ def test_xml_export_and_reimport(xml_file):
 
     set_preferred_xml_reader("music21")
     set_preferred_xml_writer("partitura")
-    # Test with partitura
+    # Test write with partitura, read with music21
     temp_file = tempfile.NamedTemporaryFile(
         suffix="_ptexported.xml", delete=False
     )
@@ -84,11 +101,16 @@ def test_xml_export_and_reimport(xml_file):
     temp_file.close()
     write_score(myscore, exported_file, show=VERBOSE)
     verbose_blank()
+    # read the score back with music21
     myscore3 = read_score(exported_file, show=VERBOSE)
     if VERBOSE:
         verbose_blank()
         print("AMADS score returned from read_score by music21:")
         myscore3.show()
+    assert len(myscore3.list_all(Measure)) == measures[xml_file], (
+        f"Expected {measures[xml_file]} measures in {xml_file}, got"
+        f" {len(myscore3.list_all(Measure))}"
+    )
 
     verbose_blank()
     comparison_result = scores_compare(myscore, myscore3)

@@ -384,8 +384,6 @@ def _create_measures(
     cur_beat: float = 0.0
 
     k = 0  # index into ks_changes
-    kbeat = ks_changes[k][0] if k < len(ks_changes) else score_duration + 999
-
     i = 0
     while i <= len(ts_changes):
         tbeat = ts_changes[i][0] if i < len(ts_changes) else score_duration
@@ -394,16 +392,16 @@ def _create_measures(
             measure = Measure(onset=cur_beat, duration=cur_duration)
             staff.insert(measure)
 
-            # Insert key signature into this measure if one is due
-            if k < len(ks_changes) and cur_beat > kbeat - 1e-6:
+            # Insert key signature into this measure if one is due. If there
+            # are multiple key signatures due, insert only the last one.
+            while (
+                k + 1 < len(ks_changes)
+                and cur_beat > ks_changes[k + 1][0] - 1e-6
+            ):
+                k = k + 1  # skip to the next key signature change at this time
+            if k < len(ks_changes) and cur_beat > ks_changes[k][0] - 1e-6:
                 _ = KeySignature(measure, cur_beat, ks_changes[k][1])
                 k += 1
-                kbeat = (
-                    ks_changes[k][0]
-                    if k < len(ks_changes)
-                    else score_duration + 999
-                )
-
             cur_beat += cur_duration
 
         # Advance to the next time signature

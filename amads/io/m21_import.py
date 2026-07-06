@@ -193,7 +193,15 @@ def _safe_expand_multistaff(score):
         id(measure): index for index, measure in enumerate(master_measures)
     }
 
-    expanded_master = master_part.expandRepeats()
+    # Expand at score level first. For some MusicXML files with alternate
+    # endings, part-level expandRepeats can drop ending context that is
+    # preserved when expansion is done on the full score.
+    expanded_score = score.expandRepeats()
+    expanded_master = (
+        expanded_score.parts[0]
+        if hasattr(expanded_score, "parts") and len(expanded_score.parts) > 0
+        else master_part.expandRepeats()
+    )
     performed_measure_indices = []
     for measure in expanded_master.getElementsByClass(stream.Measure):
         origin = (
@@ -203,17 +211,30 @@ def _safe_expand_multistaff(score):
         )
         origin_index = master_measure_indices.get(id(origin))
         if origin_index is None:
-            # Fall back to nearest matching measure by (number, offset).
-            for index, candidate in enumerate(master_measures):
-                if candidate.number == getattr(
-                    origin, "number", None
-                ) and isclose(
-                    candidate.offset,
-                    float(getattr(origin, "offset", -999999.0)),
-                    abs_tol=1e-6,
-                ):
-                    origin_index = index
-                    break
+            origin_number = getattr(origin, "number", None)
+            numbered_matches = [
+                index
+                for index, candidate in enumerate(master_measures)
+                if candidate.number == origin_number
+            ]
+
+            # If measure number uniquely identifies a measure in this part,
+            # trust that even when stored offsets differ (which can happen
+            # with some first/second-ending encodings).
+            if len(numbered_matches) == 1:
+                origin_index = numbered_matches[0]
+            else:
+                # Fall back to matching by (number, offset) when measure
+                # numbers are reused (e.g., Kern files with repeated =1).
+                for index in numbered_matches:
+                    candidate = master_measures[index]
+                    if isclose(
+                        candidate.offset,
+                        float(getattr(origin, "offset", -999999.0)),
+                        abs_tol=1e-6,
+                    ):
+                        origin_index = index
+                        break
         if origin_index is not None:
             performed_measure_indices.append(origin_index)
 
@@ -287,10 +308,6 @@ def music21_import(
     m21score = converter.parse(
         filename, format=format, forceSource=True, quantizePost=qp
     )
-
-    if show:
-        print("Music21 score BEFORE _safe_expand_multistaff:")
-        music21_show(m21score, filename)  # type: ignore
 
     # Google AI suggests makeNotation to make the score structurally consistent
     # before expanding if the 2nd staff is repeating the first ending and getting

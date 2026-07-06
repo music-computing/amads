@@ -63,9 +63,7 @@ def _time_map_from_tick_scales(tick_scales, resolution: int) -> TimeMap:
 
 
 def _create_measures(
-    staff: Staff,
-    time_map: TimeMap,
-    pmscore: PrettyMIDI,
+    staff: Staff, time_map: TimeMap, pmscore: PrettyMIDI, need_time_signatures
 ) -> None:
     """Create measures in Staff according to pmscore time_signature_changes
 
@@ -100,7 +98,7 @@ def _create_measures(
         else:  # trick to fill measures to the end of score
             tsig = None
             tbeat = score.duration  # should we add 1e-6 here?
-        need_time_signature = True
+        need_time_signature = need_time_signatures
         while cur_beat < tbeat - 1e-6:  # avoid rounding
             measure = Measure(onset=cur_beat, duration=cur_duration)
             if need_time_signature:  # first measure after time signature change
@@ -110,9 +108,12 @@ def _create_measures(
             staff.insert(measure)
             # if needed now, insert key signature into measure
             if cur_beat > kbeat - 1e-6:  # avoid rounding error
-                _ = KeySignature(
-                    measure, cur_beat, ksig.key_number  # type: ignore
-                )  # type: ignore
+                if ksig.key_number < 12:
+                    # magic to go from key to number of sharps from -5 to +6):
+                    sharps = (ksig.key_number * 7 + 5) % 12 - 5
+                else:  # minor keys have 3 more flats:
+                    sharps = (ksig.key_number * 7 + 2) % 12 - 5
+                _ = KeySignature(measure, cur_beat, sharps)  # type: ignore
                 # get next key signature
                 k += 1
                 if k < len(ksigs):
@@ -339,6 +340,7 @@ def pretty_midi_import(
     # eliminated the small extra work of copying parts when not grouping.
     if not flatten:
         score.content.clear()  # remove parts from score
+        need_time_signatures = True
         for group in instrument_groups.values():
             new_part = group[0].insert_emptycopy_into(score)
             new_part = cast(Part, new_part)
@@ -359,7 +361,13 @@ def pretty_midi_import(
                 # write another loop to insert each note list to a corresponding
                 # staff. Besides, _create_measures might even be faster than
                 # calling deepcopy on a Staff to copy the measures.
-                _create_measures(staff, score.time_map, pmscore)
+                #
+                # On the other hand, we only want to create time signatures once,
+                # so we use need_time_signatures = True on the first time only
+                _create_measures(
+                    staff, score.time_map, pmscore, need_time_signatures
+                )
+                need_time_signatures = False
                 notes = cast(
                     list[Note], notes
                 )  # tell type checker notes is list of Note

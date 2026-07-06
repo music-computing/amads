@@ -9,6 +9,7 @@ from typing import Optional
 
 import partitura as pt
 from partitura import score as ptScore
+from partitura.score import unfold_part_maximal
 
 from amads.core.basics import (
     Clef,
@@ -312,7 +313,7 @@ def _find_clef_name(
 
 def partitura_convert_part(
     ppart: ptScore.Part, score: Score, ignore_hidden, rnd: bool = True
-) -> tuple[Part, float]:
+) -> Part:
     """Convert a Partitura part to an AMADS Part and add it to the Score.
     ppart - the Partitura part
     score - the AMADS Score to which the Part will be added
@@ -321,9 +322,8 @@ def partitura_convert_part(
           if False (default), no rounding is done (used for MIDI import)
     Returns
     -------
-      tuple[Part, float] - the newly created AMADS Part and the shift
-          that was applied to content (but not yet to time signatures
-          and time map).
+    Part
+        the AMADS Part created from the Partitura part
     """
     # these are globals so we don't have to pass to every
     # helper function that needs to do lookups:
@@ -385,6 +385,10 @@ def partitura_convert_part(
             # find the time signature in effect at onset, add small offset
             # to avoid floating point rounding errors:
             ts = score._find_time_signature(onset + 1e-6)
+            assert ts is not None, (
+                "Internal error: could not find time signature"
+                f" at {onset} in part {part_name}"
+            )
             if ts.upper != upper or ts.lower != lower:
                 last_ts = score.time_signatures[-1]
                 if last_ts.quarters > onset:
@@ -626,13 +630,20 @@ def partitura_import(
     assert ptscore is not None, (
         "Partitura failed to load score from " f"{filename}"
     )
+
+    # make a list of unfolded parts for printing and conversion.
+    ptparts = []
+    for part in ptscore.parts:
+        ptparts.append(unfold_part_maximal(part))
+
     if show:
         print(f"Partitura score structure from {filename}:")
-        for ptpart in ptscore:
+        for ptpart in ptparts:
             print(ptpart.pretty())
+
     score = Score()
     #     common_shift = None
-    for ptpart in ptscore.parts:
+    for ptpart in ptparts:
         _ = partitura_convert_part(ptpart, score, ignore_hidden)
     #         if shift is not None:
     #             if not isclose(shift, common_shift):

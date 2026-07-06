@@ -34,6 +34,7 @@ from amads.core.basics import (
     Staff,
 )
 from amads.io.m21_show import music21_show
+from amads.io.pm_midi_export import _get_midi_time_signatures
 
 tied_notes = {}  # temporary data to track tied notes, this is a mapping
 # from key number to Note object for notes that originate a tie. When we
@@ -456,7 +457,10 @@ def music21_resolve_ornaments():
 
 
 def _score_to_music21(
-    score: Score, show: bool = False, filename: Optional[Path | str] = None
+    score: Score,
+    show: bool = False,
+    filename: Optional[Path | str] = None,
+    ismidi: bool = False,
 ) -> stream.Score:
     """
     Convert a Score to music21
@@ -499,7 +503,13 @@ def _score_to_music21(
     # the m21 note should "continue" if the key has a tie and is tied_to
     # the m21 note should "stop" if the key has no tie but is tied_to
 
-    time_sigs = score.time_signatures
+    if ismidi:
+        time_sig_tuples = _get_midi_time_signatures(score)
+    else:
+        time_sigs = score.time_signatures
+        time_sig_tuples = [
+            (ts.quarters, ts.upper, ts.lower, ts.duration) for ts in time_sigs
+        ]
     for part_num, part in enumerate(score.find_all(Part)):
         part = cast(Part, part)
         part_id = f"P{part_num + 1}"
@@ -529,7 +539,7 @@ def _score_to_music21(
                 m21container.insert(0, instr)
             staff = cast(Staff, staff)
             time_sig_index = 0
-            time_sig = time_sigs[time_sig_index]
+            time_sig_tuple = time_sig_tuples[time_sig_index]
             for index, measure in enumerate(staff.find_all(Measure)):
                 measure = cast(Measure, measure)
                 num = measure.number if measure.number else (index + 1)
@@ -542,51 +552,30 @@ def _score_to_music21(
                 # quarters, while time_sig.quarters is the *time* of the time
                 # signature, also in quarters. time_sig inherits onset, which
                 # gives time in either seconds or quarters.
-                print(
-                    "*** measure 1",
-                    m21measure,
-                    "duration",
-                    m21measure.duration,
-                    "number",
-                    m21measure.number,
-                    "measure.duration",
-                    measure.duration,
-                    "time_sig.duration",
-                    time_sig.duration,
-                )
-                if measure.duration < time_sig.duration - 0.001:
+                if measure.duration < time_sig_tuple[3] - 0.001:
                     m21measure.paddingLeft = (
-                        time_sig.duration - measure.duration
-                    )
-                    print(
-                        "*** measure 2",
-                        measure,
-                        "duration",
-                        measure.duration,
-                        "time_sig.duration",
-                        time_sig.duration,
-                        "paddingLeft",
-                        m21measure.paddingLeft,
+                        time_sig_tuple[3] - measure.duration
                     )
                 # add time signature change if any
-                if isclose(time_sig.quarters, measure.onset, abs_tol=1e-3):
-                    if time_sig.upper != round(time_sig.upper):
+                if isclose(time_sig_tuple[0], measure.onset, abs_tol=1e-3):
+                    if time_sig_tuple[1] != round(time_sig_tuple[1]):
                         raise ValueError(
-                            "Cannot export fractional time"
-                            f" signature {time_sig} to Music21."
+                            "Cannot export fractional time signagure "
+                            f"{time_sig_tuple[1]}/{time_sig_tuple[2]} to "
+                            "Music21."
                         )
                     ts_element = m21TimeSignature(
-                        f"{round(time_sig.upper)}/{time_sig.lower}"
+                        f"{round(time_sig_tuple[1])}/{time_sig_tuple[2]}"
                     )
                     m21measure.insert(
-                        time_sig.quarters - measure.onset, ts_element
+                        time_sig_tuple[0] - measure.onset, ts_element
                     )
                     # move to the next time_sig, if any left. If not, we do
                     # not change time_sig, but since subsequent measures have
                     # greater onset times, we won't try to add another time_sig
                     time_sig_index += 1
-                    if time_sig_index < len(time_sigs):
-                        time_sig = time_sigs[time_sig_index]
+                    if time_sig_index < len(time_sig_tuples):
+                        time_sig_tuple = time_sig_tuples[time_sig_index]
                 # add key signature changes
                 for ks in measure.find_all(KeySignature):
                     ks = cast(KeySignature, ks)
@@ -606,11 +595,11 @@ def _score_to_music21(
                 # add notes, rests, chords
                 _add_measure_content(m21measure, measure, ties)
                 m21container.append(m21measure)
-            if time_sig_index != len(time_sigs):
+            if time_sig_index != len(time_sig_tuples):
                 warnings.warn(
                     f"After converting AMADS staff {staff} to"
                     " Music21, there are left-over, unused time"
-                    f" signatures, starting with {time_sig}."
+                    f" signatures, starting with {time_sig_tuple}."
                 )
         # make a layout.StaffGroup to group the staffs if needed
         if make_staff_group:
@@ -689,7 +678,8 @@ def music21_export(
     is_temp: bool
         This is ignored since we do not create temp files here.
     """
-    m21score = _score_to_music21(score, show, filename)
+    score.convert_to_quarters()
+    m21score = _score_to_music21(score, show, filename, format == "midi")
 
     if format == "musicxml":
         # Export as text and fix part id's

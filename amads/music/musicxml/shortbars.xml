@@ -8,7 +8,7 @@
     <creator type="composer">Composer / arranger</creator>
     <encoding>
       <software>MuseScore 4.5.2</software>
-      <encoding-date>2026-07-05</encoding-date>
+      <encoding-date>2026-07-06</encoding-date>
       <supports element="accidental" type="yes"/>
       <supports element="beam" type="yes"/>
       <supports element="print" attribute="new-page" type="yes" value="yes"/>
@@ -18,23 +18,23 @@
     </identification>
   <defaults>
     <scaling>
-      <millimeters>6.99911</millimeters>
+      <millimeters>6.99912</millimeters>
       <tenths>40</tenths>
       </scaling>
     <page-layout>
       <page-height>1596.77</page-height>
       <page-width>1233.87</page-width>
       <page-margins type="even">
-        <left-margin>85.7252</left-margin>
-        <right-margin>85.7252</right-margin>
-        <top-margin>85.7252</top-margin>
-        <bottom-margin>85.7252</bottom-margin>
+        <left-margin>85.725</left-margin>
+        <right-margin>85.725</right-margin>
+        <top-margin>85.725</top-margin>
+        <bottom-margin>85.725</bottom-margin>
         </page-margins>
       <page-margins type="odd">
-        <left-margin>85.7252</left-margin>
-        <right-margin>85.7252</right-margin>
-        <top-margin>85.7252</top-margin>
-        <bottom-margin>85.7252</bottom-margin>
+        <left-margin>85.725</left-margin>
+        <right-margin>85.725</right-margin>
+        <top-margin>85.725</top-margin>
+        <bottom-margin>85.725</bottom-margin>
         </page-margins>
       </page-layout>
     <appearance>
@@ -67,11 +67,11 @@
     </defaults>
   <credit page="1">
     <credit-type>title</credit-type>
-    <credit-words default-x="616.935484" default-y="1511.049022" justify="center" valign="top" font-size="22">Short Measures Example</credit-words>
+    <credit-words default-x="616.9347" default-y="1511.047129" justify="center" valign="top" font-size="22">Short Measures Example</credit-words>
     </credit>
   <credit page="1">
     <credit-type>composer</credit-type>
-    <credit-words default-x="1148.145796" default-y="1411.049022" justify="right" valign="bottom">Dannenberg</credit-words>
+    <credit-words default-x="1148.144364" default-y="1411.047256" justify="right" valign="bottom">Dannenberg</credit-words>
     </credit>
   <part-list>
     <score-part id="P1">
@@ -91,7 +91,7 @@
       </score-part>
     </part-list>
   <part id="P1">
-    <measure number="1" width="196.19">
+    <measure number="1" width="190.87">
       <print>
         <system-layout>
           <system-margins>
@@ -149,7 +149,7 @@
         <staff>2</staff>
         </note>
       </measure>
-    <measure number="2" width="205.89">
+    <measure number="2" width="195.25">
       <note default-x="12.5" default-y="-30">
         <pitch>
           <step>G</step>
@@ -161,7 +161,7 @@
         <stem>up</stem>
         <staff>1</staff>
         </note>
-      <note default-x="108.3" default-y="-25">
+      <note default-x="102.97" default-y="-25">
         <pitch>
           <step>A</step>
           <octave>4</octave>
@@ -187,7 +187,7 @@
         <stem>up</stem>
         <staff>2</staff>
         </note>
-      <note default-x="108.3" default-y="-130">
+      <note default-x="102.97" default-y="-130">
         <pitch>
           <step>C</step>
           <octave>3</octave>
@@ -199,7 +199,7 @@
         <staff>2</staff>
         </note>
       </measure>
-    <measure number="3" width="205.89">
+    <measure number="3" width="195.25">
       <note default-x="12.5" default-y="-20">
         <pitch>
           <step>B</step>
@@ -212,7 +212,7 @@
         <stem>down</stem>
         <staff>1</staff>
         </note>
-      <note default-x="108.3" default-y="-25">
+      <note default-x="102.97" default-y="-25">
         <pitch>
           <step>A</step>
           <octave>4</octave>
@@ -237,7 +237,7 @@
         <stem>down</stem>
         <staff>2</staff>
         </note>
-      <note default-x="108.3" default-y="-115">
+      <note default-x="102.97" default-y="-115">
         <pitch>
           <step>F</step>
           <octave>3</octave>
@@ -249,7 +249,7 @@
         <staff>2</staff>
         </note>
       </measure>
-    <measure number="4" width="127.15">
+    <measure number="4" width="121.83">
       <barline location="left">
         <ending number="1" type="start" default-y="32.88">1.</ending>
         </barline>
@@ -284,7 +284,7 @@
         <repeat direction="backward"/>
         </barline>
       </measure>
-    <measure number="5" width="110.1">
+    <measure number="5" width="150.01">
       <barline location="left">
         <ending number="2" type="start" default-y="32.88">2.</ending>
         </barline>
@@ -293,23 +293,23 @@
           <step>C</step>
           <octave>5</octave>
           </pitch>
-        <duration>1</duration>
+        <duration>2</duration>
         <voice>1</voice>
-        <type>quarter</type>
+        <type>half</type>
         <stem>down</stem>
         <staff>1</staff>
         </note>
       <backup>
-        <duration>1</duration>
+        <duration>2</duration>
         </backup>
       <note default-x="12.5" default-y="-120">
         <pitch>
           <step>E</step>
           <octave>3</octave>
           </pitch>
-        <duration>1</duration>
+        <duration>2</duration>
         <voice>5</voice>
-        <type>quarter</type>
+        <type>half</type>
         <stem>down</stem>
         <staff>2</staff>
         </note>
@@ -317,7 +317,7 @@
         <ending number="2" type="discontinue"/>
         </barline>
       </measure>
-    <measure number="6" width="167.19">
+    <measure number="6" width="159.21">
       <note default-x="12.5" default-y="-35">
         <pitch>
           <step>F</step>

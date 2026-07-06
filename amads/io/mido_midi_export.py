@@ -30,6 +30,7 @@ import mido
 from amads.core.basics import EventGroup, KeySignature, Note, Part, Score, Staff
 from amads.core.timemap import TimeMap  # needed for tm.changes in meta track
 from amads.io.mido_midi_import import _mido_show
+from amads.io.pm_midi_export import _get_midi_time_signatures
 
 __author__ = "Roger B. Dannenberg"
 
@@ -153,8 +154,9 @@ def _build_meta_track(score: Score, tm: TimeMap) -> mido.MidiTrack:
     # --- Time signatures ---
     # ts.quarters is always in quarter-note units (invariant under
     # convert_to_seconds), so ticks = quarters * TICKS_PER_BEAT directly.
-    for i, ts in enumerate(score.time_signatures):
-        abs_tick = round(ts.quarters * TICKS_PER_BEAT)
+    tss = _get_midi_time_signatures(score)
+    for i, ts in enumerate(tss):  # ts is (quarters, upper, lower)
+        abs_tick = round(ts[0] * TICKS_PER_BEAT)
         meta_events.append(
             (
                 abs_tick,
@@ -162,8 +164,8 @@ def _build_meta_track(score: Score, tm: TimeMap) -> mido.MidiTrack:
                 i,
                 mido.MetaMessage(
                     "time_signature",
-                    numerator=int(ts.upper),
-                    denominator=int(ts.lower),
+                    numerator=int(ts[1]),
+                    denominator=int(ts[2]),
                     time=0,
                 ),
             )

@@ -143,6 +143,9 @@ def scores_compare(score1: Event, score2: Event, midi: bool = False) -> bool:
     some MIDI readers fill out duration to even number of measures and others
     do not.  And Staff numbers do not have to match.
 
+    If a note.dynamic is None, it is treated as 100 since this is the default
+    dynamic used when writing MIDI files in the absence of a dynamic.
+
     Parameters
     ----------
     score1 : Event
@@ -306,7 +309,10 @@ def scores_compare(score1: Event, score2: Event, midi: bool = False) -> bool:
                     "pitch is",
                 )
                 return False
-            if score1.dynamic != score2.dynamic:
+            # dynamic match if one and only one score has None
+            if ((score1.dynamic is None) == (score2.dynamic is None)) and (
+                score1.dynamic != score2.dynamic
+            ):
                 _score_compare_error(
                     "Note velocities do not match:",
                     score1,
