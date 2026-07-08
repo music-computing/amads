@@ -652,6 +652,11 @@ def music21_convert_chord(m21chord, measure, offset, ignore_hidden):
         if isinstance(exp, expressions.ArpeggioMark):
             chord.set("rolled", True)
 
+    # Some MusicXML arpeggiation marks are represented by music21 as
+    # ArpeggioMarkSpanner rather than per-chord ArpeggioMark expressions.
+    if m21chord.getSpannerSites(expressions.ArpeggioMarkSpanner):
+        chord.set("rolled", True)
+
     return measure.onset + m21chord.offset + duration
 
 
