@@ -132,7 +132,7 @@ def fix_part_ids(musicxml_string):
     return musicxml_string
 
 
-def _add_measure_content(m21measure, measure, ties) -> None:
+def _add_measure_content(m21measure, measure, ties, ismidi) -> None:
     """
     insert content (Notes, Chords, Rests) from a Measure to m21 measure
 
@@ -143,9 +143,12 @@ def _add_measure_content(m21measure, measure, ties) -> None:
     ----------
     m21measure: stream.measure
         The Music21 measure in which to add content
-
     measure: Measure
         The AMADS measure serving as a content source
+    ties: dict
+        See ties initialization comment in _score_to_music21.
+    ismidi: bool
+        Is this going to be a MIDI file? Requires non-zero durations.
 
     Returns
     -------
@@ -184,12 +187,12 @@ def _add_measure_content(m21measure, measure, ties) -> None:
         for voice_num, voice in enumerate(voices):
             m21voice = stream.Voice(id=str(voice_num + 1))
             _add_measure_content_from_list(
-                m21voice, measure, voice, measure.offset, ties
+                m21voice, measure, voice, ties, ismidi
             )
             m21measure.insert(0, m21voice)
     else:
         _add_measure_content_from_list(
-            m21measure, measure, measure.content, measure.offset, ties
+            m21measure, measure, measure.content, ties, ismidi
         )
 
 
@@ -225,7 +228,9 @@ def _add_expressions_to_m21(m21note, item):
         m21note.expressions.append(expressions.Schleifer())
 
 
-def _add_measure_content_from_list(m21parent, measure, content, dur, ties):
+def _add_measure_content_from_list(
+    m21parent, measure, content, ties, ismidi
+) -> None:
     """
     insert content (Notes, Chords, Rests) from a Measure to m21 stream
 
@@ -233,17 +238,29 @@ def _add_measure_content_from_list(m21parent, measure, content, dur, ties):
     Voices are needed when content overlaps. `content` must be non-overlapping.
     m21parent is padded with a rest to achieve a duration of `dur`
     """
+    # keep track of the maximum offset of any item in the measure, so we can
+    # add a rest at the end if needed to fill out the measure.
     max_offset = measure.onset
     measure_position = 0  # keeps track of expected next onset time
     for item in content:
-        measure_delta = item.onset - measure.onset
-        duration = item.duration
-        max_offset = max(max_offset, item.offset)
-        if (
-            isinstance(item, Note)
-            or isinstance(item, Rest)
-            or isinstance(item, Chord)
-        ) and (measure_delta > measure_position + 1e-6):
+        actual_onset = item.onset
+        actual_offset = item.offset
+        if ismidi and actual_offset < actual_onset + 0.001:
+            actual_offset = actual_onset + 0.001  # minimum midi dur is 0.001qtr
+        max_offset = max(max_offset, actual_offset)
+        measure_delta = actual_onset - measure.onset
+        duration = actual_offset - actual_onset
+        print(
+            "m21_export: duration",
+            duration,
+            "actual_onset",
+            actual_onset,
+            "actual_offset",
+            actual_offset,
+        )
+        if isinstance(item, (Note, Rest, Chord)) and (
+            measure_delta > measure_position + 1e-6
+        ):
             m21rest = note.Rest()
             m21rest.offset = measure_position
             m21rest.duration.quarterLength = measure_delta - measure_position
@@ -252,18 +269,21 @@ def _add_measure_content_from_list(m21parent, measure, content, dur, ties):
         # measure_position is the place where the item after this one
         # is expected. It is used to determine on the next iteration if
         # we need to pad with a rest
-        measure_position = measure_delta + duration
+        measure_position = actual_offset - measure.onset
 
         # now that we've padded to measure_position with a rest if necessary,
         # insert the Note, Rest, or Chord from the score:
         if isinstance(item, Note):
             m21note = note.Note(nameWithOctave=item.name_with_octave)
-            m21note.offset = measure_delta
-            if duration == 0 or item.get("is_grace"):
+            m21note.offset = measure_delta  # "offset" = "from measure start"
+            # special encoding for grace notes:
+            if not ismidi and (duration == 0 or item.get("is_grace")):
                 grace_ql = duration if duration > 0 else 0.25
                 m21note.duration = m21Duration(grace_ql).getGraceDuration()
             else:
                 m21note.duration.quarterLength = duration
+            print("m21_export duration", m21note.duration.quarterLength)
+            print("    ismidi", ismidi)
             _add_expressions_to_m21(m21note, item)
             if item.get("hide_on_print", False):
                 m21note.style.hideObjectOnPrint = True
@@ -323,6 +343,9 @@ def _add_measure_content_from_list(m21parent, measure, content, dur, ties):
         # music21 offset is relative to measure:
         m21rest.offset = max_offset - measure.onset
         m21rest.duration.quarterLength = measure.offset - max_offset
+        assert (
+            m21rest.duration.quarterLength > 0
+        ), "rest duration must be positive"
         m21parent.insert(m21rest.offset, m21rest)
 
 
@@ -473,6 +496,11 @@ def _score_to_music21(
         If True, print the music21 score structure for debugging.
     filename : Optional[Path |  str]
         If `show` and not None, `filename` is shown
+    ismidi : bool, optional
+        If True, the score is to be written as a MIDI file, so constructed
+        time signatures are inserted when measure durations do not match the
+        notated time signature. (This keeps bar lines in the right place when
+        MIDI files are displayed.)
 
     Returns
     -------
@@ -538,8 +566,13 @@ def _score_to_music21(
                     instr.instrumentName = part.instrument
                 m21container.insert(0, instr)
             staff = cast(Staff, staff)
-            time_sig_index = 0
-            time_sig_tuple = time_sig_tuples[time_sig_index]
+
+            time_sig_tuple = (4, 4, 0, 4)
+            time_sig_index = 0  # index of the *next* time signature
+            if len(time_sig_tuples) > 0 and time_sig_tuples[0][0] < 0.001:
+                time_sig_tuple = time_sig_tuples[time_sig_index]
+                time_sig_index = 1
+
             for index, measure in enumerate(staff.find_all(Measure)):
                 measure = cast(Measure, measure)
                 num = measure.number if measure.number else (index + 1)
@@ -556,8 +589,13 @@ def _score_to_music21(
                     m21measure.paddingLeft = (
                         time_sig_tuple[3] - measure.duration
                     )
-                # add time signature change if any
-                if isclose(time_sig_tuple[0], measure.onset, abs_tol=1e-3):
+                # add time signature change if any. If there are no time
+                # signatures, time_sig_tuple is just providing a default
+                # measure duration and should not be used to create an
+                # explicit time signature
+                if len(time_sig_tuples) > 0 and isclose(
+                    time_sig_tuple[0], measure.onset, abs_tol=1e-3
+                ):
                     if time_sig_tuple[1] != round(time_sig_tuple[1]):
                         raise ValueError(
                             "Cannot export fractional time signagure "
@@ -573,9 +611,9 @@ def _score_to_music21(
                     # move to the next time_sig, if any left. If not, we do
                     # not change time_sig, but since subsequent measures have
                     # greater onset times, we won't try to add another time_sig
-                    time_sig_index += 1
                     if time_sig_index < len(time_sig_tuples):
                         time_sig_tuple = time_sig_tuples[time_sig_index]
+                        time_sig_index += 1
                 # add key signature changes
                 for ks in measure.find_all(KeySignature):
                     ks = cast(KeySignature, ks)
@@ -593,7 +631,7 @@ def _score_to_music21(
                         clef_change.onset - measure.onset, clef_element
                     )
                 # add notes, rests, chords
-                _add_measure_content(m21measure, measure, ties)
+                _add_measure_content(m21measure, measure, ties, ismidi)
                 m21container.append(m21measure)
             if time_sig_index != len(time_sig_tuples):
                 warnings.warn(
@@ -657,6 +695,69 @@ def _score_to_music21(
     return m21score
 
 
+def _insert_measures_into(staff, score) -> None:
+    """make measures to cover duration of staff based on
+    score.time_signatures
+    """
+    dur = staff.duration
+    mdur = 0  # duration of all the measures
+    tsi = 0  # index of the next time signature
+    tsdur = 4  # default time signature quarters duration
+    while mdur < dur:
+        # first, update tsdur if we have arrived at a new time signature:
+        if (
+            tsi < len(score.time_signatures)
+            and score.time_signatures[tsi].quarters <= mdur + 0.001
+        ):
+            tsdur = score.time_signatures[tsi].duration
+            tsi += 1
+        _ = Measure(parent=staff, onset=mdur, duration=tsdur)
+        mdur += tsdur
+
+
+def _unflatten(score: Score) -> Score:
+    """_score_to_music21 expects a full score, so this function makes a
+    full score from a flattened one if score is flat. Maybe this should be
+    a part of basics.py like score.flatten(), but maybe it is not a good
+    idea to encourage unflattening, since flattening can lose a lot of
+    information.
+
+    Construct one Staff per Part. Add measures according to the time
+    signatures. Fill in measures with tied notes.
+    """
+    if not score.is_flat():
+        return score
+    score.convert_to_quarters()
+    full_score = cast(Score, score.emptycopy())
+    for part in cast(list[Part], score.list_all(Part)):
+        full_part = cast(Part, part.insert_copy_into(full_score))
+        full_staff = Staff(parent=full_part, duration=full_part.duration)
+        _insert_measures_into(full_staff, score)
+        # insert each note into measures:
+        measures = full_staff.content
+        mi = 0  # index of measure
+        for a_note in part.content:  # a_note is a Note, note is a Music21 class
+            onset = a_note.onset
+            while mi + 1 < len(measures) and onset >= measures[mi].offset:
+                mi += 1  # advance to next measure
+            measure = measures[mi]
+            full_note = cast(Note, a_note.insert_copy_into(measure))
+            nexti = mi + 1
+            while full_note.offset > measure.offset:  # tie across bar line
+                next_measure = measures[nexti]
+                tied_note = Note(
+                    parent=next_measure,
+                    onset=next_measure.onset,
+                    duration=full_note.offset - next_measure.onset,
+                )
+                full_note.tie = tied_note
+                full_note.duration = tied_note.onset - full_note.onset
+                full_note = tied_note
+                measure = next_measure
+                nexti += 1
+    return full_score
+
+
 def music21_export(
     score: Score, filename: Path | str, format: str, show: bool, is_temp: bool
 ) -> None:
@@ -679,6 +780,7 @@ def music21_export(
         This is ignored since we do not create temp files here.
     """
     score.convert_to_quarters()
+    score = _unflatten(score)
     m21score = _score_to_music21(score, show, filename, format == "midi")
 
     if format == "musicxml":

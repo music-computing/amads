@@ -17,6 +17,8 @@ from amads.io.readscore import (
 )
 from amads.music import example
 
+VERBOSE = False
+
 
 def test_pitch_comparison():
     set_reader_warning_level("none")
@@ -35,7 +37,7 @@ def test_read_kern():
     kern_file = example.fullpath("krn/happy_birthday_reference.krn")
     assert kern_file is not None
     print("READING KERN FILE", kern_file)
-    score = read_score(kern_file, show=True)
+    score = read_score(kern_file, show=VERBOSE)
     print("Music21 Kern import:")
     score.show()
     nnotes = score.list_all(Note)
@@ -47,7 +49,7 @@ def test_read_kern():
     assert len(nmeasures) == 9, f"Expected 9 measures, got {len(nmeasures)}"
 
     set_preferred_kern_reader("partitura")
-    ptscore = read_score(kern_file, show=True)
+    ptscore = read_score(kern_file, show=VERBOSE)
     print("Partitura Kern import:")
     ptscore.show()
     nnotes = ptscore.list_all(Note)
@@ -70,7 +72,7 @@ def test_read_musicxml():
     set_reader_warning_level("none")
     xml_file = example.fullpath("musicxml/bwv846m15-16.musicxml")
     assert xml_file is not None
-    score = read_score(xml_file)  # , show=True)
+    score = read_score(xml_file)  # , show=VERBOSE)
     # print("MusicXML import:")
     # score.show()
     nnotes = score.list_all(Note)
@@ -103,7 +105,7 @@ def test_time_tempo_example():
     set_reader_warning_level("none")
     xml_file = example.fullpath("musicxml/time_tempo_test.musicxml")
     assert xml_file is not None
-    score = read_score(xml_file, show=True)
+    score = read_score(xml_file, show=VERBOSE)
     # print("MusicXML import with", last_used_reader())
     # score.show()
     assert score.time_map is not None, "Expected time map to be present"
@@ -134,7 +136,7 @@ def test_time_tempo_example():
     assert len(score.list_all(Note)) == 16, "Expected 16 notes in score"
 
     set_preferred_xml_reader("partitura")
-    ptscore = read_score(xml_file)  # , show=True)
+    ptscore = read_score(xml_file)  # , show=VERBOSE)
     print("MusicXML import with", last_used_reader())
     ptscore.show()
     assert scores_compare(score, ptscore), "Expected scores to match"
@@ -146,7 +148,7 @@ def test_grace_trills_example():
     set_reader_warning_level("none")
     xml_file = example.fullpath("musicxml/trills.musicxml")
     assert xml_file is not None
-    score = read_score(xml_file)  # , show=True)
+    score = read_score(xml_file)  # , show=VERBOSE)
     print("MusicXML import with", last_used_reader())
     score.show()
     assert len(score.list_all(Note)) == 30, "Expected 30 notes in score"

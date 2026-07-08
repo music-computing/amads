@@ -53,7 +53,6 @@ tied_to_notes = None  # global to help merge tied notes
 def add_note_to_instrument(
     note: Note,
     instrument: pm.Instrument,
-    minimum_duration: float,
     minimum_onset: dict[int, float],
 ) -> None:
     """Add a Note to a PrettyMIDI Instrument."""
@@ -66,17 +65,12 @@ def add_note_to_instrument(
         dynamic = string_to_velocity(dynamic)
     pitch = round(note.key_num)
     start = note.onset
-    end = start + note.tied_duration
+    # force non-zero duration so midi file is generally readable:
+    end = start + max(note.tied_duration, 0.001)
     start = max(start, minimum_onset.get(pitch, 0.0))
-    end = max(end, start + minimum_duration)
     minimum_onset[pitch] = end  # update for next note of same pitch
 
-    pm_note = pm.Note(
-        velocity=dynamic,
-        pitch=pitch,
-        start=note.onset,
-        end=note.onset + note.tied_duration,
-    )
+    pm_note = pm.Note(velocity=dynamic, pitch=pitch, start=note.onset, end=end)
     if note.tie:
         note = note.tie
         while note:
@@ -115,7 +109,6 @@ def add_eventgroup_to_instrument(
     evgroup: EventGroup,
     instrument: pm.Instrument,
     key_signatures: list[pm.KeySignature],
-    minimum_duration: float,
     minimum_onset: dict[int, float],
 ) -> None:
     """Add events from a Part or Staff to a PrettyMIDI Instrument.
@@ -127,15 +120,12 @@ def add_eventgroup_to_instrument(
             add_key_signature(event.onset, event.key_sig, key_signatures)
         elif isinstance(event, Note):
             note = cast(Note, event)
-            add_note_to_instrument(
-                note, instrument, minimum_duration, minimum_onset
-            )
+            add_note_to_instrument(note, instrument, minimum_onset)
         elif isinstance(event, EventGroup):
             add_eventgroup_to_instrument(
                 event,
                 instrument,
                 key_signatures,
-                minimum_duration,
                 minimum_onset,
             )
         # else event is unhandled, hopefully a Rest, or Clef
@@ -193,8 +183,7 @@ def pretty_midi_export(
     filename: str | Path,
     format: str,
     show: bool,
-    is_temp: bool,
-    minimum_duration: float = 0.0,
+    is_temp: bool = False,
 ) -> None:
     """
     Export a Score as a standard MIDI file using PrettyMIDI library.
@@ -211,11 +200,6 @@ def pretty_midi_export(
         Print a text representation of the data.
     is_temp : bool
         This is ignored since we do not create temp files here.
-    minimum_duration : float
-        If greater than 0, then notes in MIDI file output will be extended
-        to at least this duration. This is useful when grace notes are
-        encoded with zero duration, but you want them to be visible and
-        audible as MIDI.
     """
     global tied_to_notes  # helps to merge tied notes
     tied_to_notes = {}
@@ -280,16 +264,15 @@ def pretty_midi_export(
             program, name=name if name is not None else "Unknown"
         )
 
-        add_eventgroup_to_instrument(
-            evgroup, instrument, key_signatures, minimum_duration, {}
-        )
+        add_eventgroup_to_instrument(evgroup, instrument, key_signatures, {})
         pmscore.instruments.append(instrument)
 
     for ts in midi_tss:  # tuples: (time, upper, lower, duration)
         tsec = score.time_map.quarter_to_time(ts[0])
-        # PrettyMIDI uses a 128th note as the denominator, so we
-        # convert from AMADS quarter note units to 128th notes.
-        pm_ts = pm.TimeSignature(numerator=ts[1], denominator=ts[2], time=tsec)
+        # do not allow fractional numerator or denominator (even if it's wrong)
+        pm_ts = pm.TimeSignature(
+            numerator=round(ts[1]), denominator=round(ts[2]), time=tsec
+        )
         pmscore.time_signature_changes.append(pm_ts)
 
     # Add key signatures to pmscore

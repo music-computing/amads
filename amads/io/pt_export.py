@@ -242,7 +242,11 @@ def _score_to_partitura(
 
 
 def partitura_export(
-    score: Score, filename: Path | str, format: str, show: bool, is_temp: bool
+    score: Score,
+    filename: Path | str,
+    format: str,
+    show: bool,
+    s_temp: bool = False,
 ) -> None:
     """Save a Score to a file in musicxml format using Partitura.
 

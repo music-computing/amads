@@ -1,6 +1,7 @@
 """Remove overlapping notes with the same pitch from a score."""
 
 from collections import defaultdict
+from typing import cast
 
 from amads.core.basics import Note, Part, Score
 
@@ -155,7 +156,9 @@ def remove_overlap(
     )
 
     for part in score.find_all(Part):
-        _remove_overlap_in_part(part, tolerance, min_separation, keep_ornaments)
+        _remove_overlap_in_part(
+            cast(Part, part), tolerance, min_separation, keep_ornaments
+        )
 
     return score
 

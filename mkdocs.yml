@@ -112,6 +112,7 @@ nav:
       - reference/harmony/root_finding.md
     - Polyphony:
       - reference/polyphony/skyline.md
+      - reference/polyphony/envelope.md
     - Algorithms:
       - reference/algorithms/concur.md
       - reference/algorithms/complexity.md

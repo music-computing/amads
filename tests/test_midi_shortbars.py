@@ -15,7 +15,7 @@ from amads.io.readscore import (
 from amads.io.writescore import set_preferred_midi_writer, write_score
 from amads.music import example
 
-VERBOSE = True
+VERBOSE = False
 
 
 def _time_signature_tuples(score):
@@ -35,7 +35,7 @@ def _make_true_and_expected_scores():
 
     set_reader_warning_level("none")
     set_preferred_xml_reader(readscore._default_xml_reader)
-    true_score = read_score(xml_path, show=True)
+    true_score = read_score(xml_path, show=VERBOSE)
 
     expected_score = cast(Score, true_score.copy())
     if VERBOSE:
