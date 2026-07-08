@@ -647,6 +647,11 @@ def music21_convert_chord(m21chord, measure, offset, ignore_hidden):
         )
         if m21chord.tie is not None:
             music21_convert_tie(pitch.midi, note, m21chord.tie.type)
+
+    for exp in m21chord.expressions:
+        if isinstance(exp, expressions.ArpeggioMark):
+            chord.set("rolled", True)
+
     return measure.onset + m21chord.offset + duration
 
 

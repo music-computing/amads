@@ -867,6 +867,9 @@ class Note(Event):
         if self.get("hide_on_print", False):
             grace_info += ", hidden"
 
+        if self.get("rolled", False):
+            grace_info += ", rolled"
+
         return (f"Note({self._event_times()}{dynamic_info}{lyric_info}, " +
                 f"pitch={self.name_with_octave}/{self.key_num}{grace_info})")
 
@@ -1674,6 +1677,9 @@ class EventGroup(Event):
         primarily for internal use when `expand_chords` is called recursively
         on score content.
 
+        If a chord has a "rolled" property, after expansion, the notes will
+        each have a "rolled" property.
+
         Parameters
         ----------
         parent : EventGroup
@@ -1688,8 +1694,11 @@ class EventGroup(Event):
         group = self.insert_emptycopy_into(parent)
         for item in self.content:
             if isinstance(item, Chord):
+                rolled = item.get("rolled", False)
                 for note in item.content:  # expand chord
                     note.insert_copy_into(group)
+                    if rolled:
+                        note.set("rolled", True)
             if isinstance(item, EventGroup):
                 item.expand_chords(group)  # recursion for deep copy/expand
             else:
@@ -2318,7 +2327,7 @@ class EventGroup(Event):
         result will therefore contain whole measures. It is assumed that notes
         are tied across measure boundaries. The result will contain only the
         parts of tied notes that are within the specified measures, excluding
-        measure numbered by `end`.
+<        measure numbered by `end`.
 
         For any units besides "measures" or "bars", the score must be flat.
         Notes that extend beyond the start or end time are included in the
@@ -2688,6 +2697,9 @@ class Chord(Concurrence):
     use a Concurrence with Note objects as elements. Each Note.tie can
     be None (no tie) or tie to a Note in another Chord or Measure.
 
+    Rolled chord annotations are encoded as the "rolled" property of the
+    Chord, and accessible as `chord.get("rolled", False)`.
+
     Parameters
     ----------
     *args : Event
@@ -2726,6 +2738,13 @@ class Chord(Concurrence):
                  onset: Optional[float] = None,
                  duration: Optional[float] = None):
         super().__init__(parent, onset, duration, list(args))
+
+
+    def __str__(self) -> str:
+        """Short string representation
+        """
+        rstr = ", rolled" if self.get("rolled", False) else ""
+        return f"Chord({self._event_times()}{rstr})"
 
 
     def _is_well_formed(self):
@@ -3349,6 +3368,12 @@ class Score(Concurrence):
             notes : list[Note] = score.list_all(Note)  # type: ignore
             score.content = [new_part]  # remove all other parts and events
             for note in notes:
+                # preserve "rolled" property of chord when removing notes from
+                # chords:
+                if isinstance(note.parent, Chord):
+                    rolled = note.parent.get("rolled", False)
+                    if rolled:
+                        note.set("rolled", True)
                 note.parent = new_part
             # notes with equal onset times are sorted in pitch from high to low
             notes.sort(key=lambda x: (x.onset, x.pitch))
@@ -3956,6 +3981,12 @@ class Part(EventGroup):
         notes : List[Note] \
               = part.list_all(Note)  # type: ignore (Notes < Events)
         for note in notes:
+            # preserve "rolled" property of chord when removing notes from
+            # chords:
+            if isinstance(note.parent, Chord):
+                rolled = note.parent.get("rolled", False)
+                if rolled:
+                    note.set("rolled", True)
             note.parent = part
         notes.sort(key=lambda x: (x.onset, x.pitch))
         part.content = notes  # type: ignore (List[Note] < List[Event])

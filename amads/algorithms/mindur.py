@@ -59,7 +59,6 @@ def impose_mindur(score: Score, minimum_duration: float) -> Score:
                 original_offset = note.offset
                 note.duration = minimum_duration
                 new_offset = note.offset
-                print(f"  final for lengthened note {note}")
                 # move all notes between original_offset and new_offset to
                 # begin at new_offset
                 j = i + 1
@@ -68,11 +67,4 @@ def impose_mindur(score: Score, minimum_duration: float) -> Score:
                         offset_j = notes[j].offset
                         notes[j].onset = new_offset
                         notes[j].duration = offset_j - new_offset  # keep offset
-                        print(
-                            f"    notes[{j}] {notes[j]}, "
-                            f"onset {new_offset}, offset {notes[j].offset}, "
-                            f"dur {notes[j].duration}"
-                        )
-            else:
-                print(f"  final note not lengthened {note}")
     return result
