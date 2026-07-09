@@ -485,6 +485,7 @@ def mido_midi_import(
     collapse: bool = False,
     show: bool = False,
     group_by_instrument: bool = True,
+    ignore_hidden=False,
 ) -> Score:
     """Import a MIDI file and return an AMADS ``Score`` using the MIDO library.
 
@@ -509,6 +510,9 @@ def mido_midi_import(
     group_by_instrument : bool, optional
         If True (default), tracks with the same instrument name are merged
         as multiple Staffs under one Part.
+    ignore_hidden: bool
+        Unused in MIDI import. See read_score() for details.
+
 
     Returns
     -------

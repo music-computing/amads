@@ -292,6 +292,7 @@ def _import_score(
     collapse: bool = False,
     show: bool = False,
     group_by_instrument: bool = True,
+    ignore_hidden=False,
 ) -> Score:
     """Import a score file
 
@@ -307,7 +308,13 @@ def _import_score(
                 f"file={import_fn.__name__}."
             )
         return import_fn(
-            str(filename), format, flatten, collapse, show, group_by_instrument
+            str(filename),
+            format,
+            flatten,
+            collapse,
+            show,
+            group_by_instrument,
+            ignore_hidden,
         )
     elif preferred_reader:
         raise Exception(
@@ -531,7 +538,13 @@ def read_score(
         )
 
         score = _import_score(
-            filename, format, flatten, collapse, show, group_by_instrument
+            filename,
+            format,
+            flatten,
+            collapse,
+            show,
+            group_by_instrument,
+            ignore_hidden,
         )
 
         # Warning handling

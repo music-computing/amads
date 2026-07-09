@@ -213,6 +213,7 @@ def pretty_midi_import(
     collapse: bool = False,
     show: bool = False,
     group_by_instrument: bool = True,
+    ignore_hidden=False,
 ) -> Score:
     """
     Use PrettyMIDI to import a MIDI file and convert it to a Score.
@@ -237,6 +238,8 @@ def pretty_midi_import(
     group_by_instrument : bool, optional
         If True, group parts by instrument name into staffs. Defaults to True.
         See read_midi() for more details.
+    ignore_hidden: bool
+        Unused in MIDI import. See read_score() for details.
 
     Returns
     -------
