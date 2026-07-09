@@ -46,7 +46,7 @@ leverage the fact that each note start has a unique note in the score and
 emit start and strength pairs...
 """
 
-from amads.core.basics import Score
+from amads.core.basics import Note, Score
 
 
 def boundary(score: Score) -> Score:
@@ -104,17 +104,14 @@ def boundary(score: Score) -> Score:
     sp = list_strengths(pp, rp)
     so = list_strengths(po, ro)
     sr = list_strengths(pr, rr)
-
+    # annotate the original score
+    note_iter = score.find_all(Note)
     if len(notes) > 0:
-        notes[0].set("boundary_strength", 1)
-    for sp_elem, so_elem, sr_elem, note in zip(sp, so, sr, notes[1:]):
+        note = next(note_iter, None)
+        note.set("boundary_strength", 1)
+    for sp_elem, so_elem, sr_elem, note in zip(sp, so, sr, note_iter):
         note.set(
             "boundary_strength", 0.25 * sp_elem + 0.5 * so_elem + 0.25 * sr_elem
         )
-
-        # b = [1]
-        # for sp_elem, so_elem, sr_elem in zip(sp, so, sr):
-        #    b.append(0.25 * sp_elem + 0.5 * so_elem + 0.25 * sr_elem)
-    # assert len(b) == len(notes)
 
     return score
