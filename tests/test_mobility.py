@@ -1,6 +1,7 @@
 import math
-from amads.io.pm_midi_import import pretty_midi_import
+
 from amads.core.basics import Note, Part, Score
+from amads.io.pm_midi_import import pretty_midi_import
 from amads.melody.mobility import mobility
 from amads.music import example
 
@@ -27,13 +28,7 @@ def test_simple_melody():
     score = Score.from_melody(pitches=[60, 64, 62, 67, 65])
 
     annotated_score = mobility(score)
-    desired_mobilities = [
-        0,
-        0,
-        0,
-        2.4999999999999996,
-        0.5833333333333333
-    ]
+    desired_mobilities = [0, 0, 0, 2.4999999999999996, 0.5833333333333333]
     test_mobilities = []
 
     for note in annotated_score.find_all(Note):
@@ -71,7 +66,9 @@ def test_midi_sarabande():
         durations=durations,
         onsets=onsets,
     )
-    assert hasattr(test_score, "time_map") and hasattr(test_score, "time_signatures")
+    assert hasattr(test_score, "time_map") and hasattr(
+        test_score, "time_signatures"
+    )
     test_score.time_map = time_map
     test_score.time_signatures = time_signatures
 

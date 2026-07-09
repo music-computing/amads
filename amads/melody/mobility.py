@@ -6,12 +6,13 @@ Ports the `mobility` function in Midi Toolbox.
 Original doc: github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf, page 74-75.
 """
 
-import numpy as np
 import math
-from typing import cast, Optional
+from itertools import accumulate
+from typing import Optional, cast
+
+import numpy as np
 
 from amads.core.basics import Note, Score
-from itertools import accumulate
 
 
 def mobility(score: Score) -> Optional[Score]:
@@ -39,9 +40,9 @@ def mobility(score: Score) -> Optional[Score]:
 
     References
     ----------
-    .. [1] von Hippel, P. (2000). Redefining pitch proximity: Tessitura and 
-           mobility as constraints on melodic interval size. Music Perception, 
-           17 (3), 315-327. 
+    .. [1] von Hippel, P. (2000). Redefining pitch proximity: Tessitura and
+           mobility as constraints on melodic interval size. Music Perception,
+           17 (3), 315-327.
     """
     # hack to check if score is empty
     if not score.ismonophonic():
@@ -62,8 +63,8 @@ def mobility(score: Score) -> Optional[Score]:
         mobility_val = abs(current_corrcoef * (pitches[idx + 1] - means[idx]))
         mobility_vals.append(mobility_val)
         # prepare next corrcoef by slicing the pitch diff lists for corrcoef
-        prev_list = pitch_diffs[:idx + 2]
-        next_list = pitch_diffs[1:idx + 2]
+        prev_list = pitch_diffs[: idx + 2]
+        next_list = pitch_diffs[1 : idx + 2]
         next_list.append(pitch_diffs[idx + 1])
         slice_list = [prev_list, next_list]
         slice_array = np.array(slice_list)
@@ -73,7 +74,9 @@ def mobility(score: Score) -> Optional[Score]:
     # annotate a score
     annotated_score = cast(Score, score.merge_tied_notes())
     annotate_str = "mobility"
-    for note, mobility_val in zip(annotated_score.find_all(Note), mobility_vals):
+    for note, mobility_val in zip(
+        annotated_score.find_all(Note), mobility_vals
+    ):
         note.set(annotate_str, mobility_val)
 
     return annotated_score
