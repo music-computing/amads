@@ -1,7 +1,7 @@
 """
 Basic, local calculations of the greatest common divisor (GCD)
 at a central point in the code base for wide applicability.
-Parameter-specific adaptations are in the relevant place (e.g., `amads.time.meter`).
+Parameter-specific adaptations are in the relevant place (e.g., `amads.time.meter.grid`).
 
 The module is organised in a kind of logical quadrant for
 data type (e.g., integer vs fraction)
@@ -42,7 +42,9 @@ def integer_gcd_pair(a: int, b: int) -> int:
     return a
 
 
-def float_gcd_pair(a: float, b: float = 1.0, rtol=1e-05, atol=1e-08) -> float:
+def float_gcd_pair(
+    a: float, b: float = 1.0, rtol: float = 1e-05, atol: float = 1e-08
+) -> float:
     """
     Calculate approximate greatest common divisor (GCD) for values a and b given the specified
     relative and absolute tolerance (`rtol` and `atol`).
@@ -160,7 +162,7 @@ def fraction_gcd_pair(x: Fraction, y: Fraction) -> Fraction:
 # Combined operations on iterable (list, tuple, ... ) of values.
 
 
-def calculate_gcd(numbers: Sequence):
+def calculate_gcd(numbers: Sequence, max_denominator: int = 10**12) -> Fraction:
     """
     Compute GCD.
     Wrapper function when you don't know the type of the numeric data.
@@ -168,6 +170,17 @@ def calculate_gcd(numbers: Sequence):
     use the more specific ``{type}_gcd`` function.
 
     Integers and fractions are lossless and processed first, before any floats.
+    If any float is present, the result is inherently approximate: the running
+    GCD is coerced to `float` before mixing with float inputs
+    (to avoid the result silently depending on Fraction/float operator coercion order),
+    and the final value is snapped back to a `Fraction` via
+    `Fraction.limit_denominator(max_denominator)`.
+
+    `max_denominator` exists only to bound the precision loss in that final snap-back.
+    There is no inherently musical logic here.
+    Musically-informed, parameter-specific adaptations are in the relevant place (e.g., `amads.time.meter.grid`).
+
+    The default is set high enough to affect binary float representation noise only.
 
     Warning
     -------
@@ -179,6 +192,15 @@ def calculate_gcd(numbers: Sequence):
     ValueError
         If `numbers` is empty.
 
+    Parameters
+    ----------
+    numbers
+        Sequence of any numeric values (int and/or float and/or Fraction).
+    max_denominator
+        Upper bound on the denominator used when snapping the float-derived
+        result back to an exact `Fraction` for the return.
+        Only applies when at least one float is present in `numbers`.
+
     >>> calculate_gcd([1, 2])
     Fraction(1, 1)
 
@@ -186,18 +208,31 @@ def calculate_gcd(numbers: Sequence):
     Fraction(1, 2)
 
     >>> calculate_gcd([0, 1/2])
-    0.5
+    Fraction(1, 2)
 
     >>> calculate_gcd([0, Fraction(1, 2), 1/2])
     Fraction(1, 2)
 
-    >>> gcd = calculate_gcd([0, Fraction(1, 2), 4/12])
-    >>> round(gcd, 3)
-    0.167
+    >>> calculate_gcd([0, Fraction(1, 2), 4/12])
+    Fraction(1, 6)
 
-    All-float input is supported:
-    >>> calculate_gcd([0.5, 0.25])
-    0.25
+    All-float input is supported, and now also returns a `Fraction`:
+
+    >>> trivial = [0.5, 0.25]
+    >>> calculate_gcd(trivial)
+    Fraction(1, 4)
+
+    >>> non_trivial = [0.5, 0.25, 0.3333333]
+    >>> calculate_gcd(non_trivial)
+    Fraction(17387909711, 208654999994)
+
+    Note the effect of setting a `max_denominator`
+    >>> calculate_gcd(non_trivial, max_denominator=50)
+    Fraction(1, 12)
+
+    # A tighter `max_denominator` bounds how finely floats get resolved:
+    >>> calculate_gcd([1/3, 1/7], max_denominator=30)
+    Fraction(1, 21)
 
     """
     if not numbers:
@@ -210,13 +245,19 @@ def calculate_gcd(numbers: Sequence):
         gcd = Fraction(ints_fractions[0])
         for num in ints_fractions[1:]:
             gcd = fraction_gcd_pair(Fraction(num), gcd)
-        for f in floats:
-            gcd = float_gcd_pair(f, gcd)
+        if floats:
+            running = float(
+                gcd
+            )  # force float here to avoid Fraction/float coercion ambiguity
+            for f in floats:
+                running = float_gcd_pair(f, running)
+            gcd = Fraction(running).limit_denominator(max_denominator)
     else:
         # All floats
-        gcd = floats[0]
+        running = floats[0]
         for f in floats[1:]:
-            gcd = float_gcd_pair(f, gcd)
+            running = float_gcd_pair(f, running)
+        gcd = Fraction(running).limit_denominator(max_denominator)
 
     return gcd
 
