@@ -860,6 +860,41 @@ class PitchCollection:
 
         >>> pitches_gathered.pitches_from_c_centroid
         5.0
+
+        The function is simply sum(fifths) / len(fifths)
+        Notice how, given a major triad, the centroid is least affected by removing the fifth ...
+
+        >>> test_case = ['C', 'E', 'G']
+        >>> pitches_gathered = PitchCollection([Pitch(p) for p in test_case])
+        >>> pitches_gathered.pitches_from_c
+        [0, 4, 1]
+
+        >>> centroid = pitches_gathered.pitches_from_c_centroid
+        >>> centroid
+        1.6666666666666667
+
+        >>> option_1 = sum([0, 4]) / len([0, 4])
+        >>> option_2 = sum([0, 1]) / len([0, 1])
+        >>> abs(centroid - option_1) < abs(centroid - option_2)
+        True
+
+        ... and the same is true of the minor triad, despite differences ...
+
+        >>> test_case = ['C', 'Eb', 'G']
+        >>> pitches_gathered = PitchCollection([Pitch(p) for p in test_case])
+        >>> pitches_gathered.pitches_from_c
+        [0, -3, 1]
+
+        >>> centroid = pitches_gathered.pitches_from_c_centroid
+        >>> centroid
+        -0.6666666666666666
+
+        >>> option_1 = sum([0, -3]) / len([0, -3]) # -1.5
+        >>> option_2 = sum([0, 1]) / len([0, 1]) # 1
+        >>> abs(centroid - option_1) < abs(centroid - option_2)
+        True
+
+
         """
         fifths = self.pitches_from_c
         if not fifths:
