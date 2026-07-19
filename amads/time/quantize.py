@@ -5,6 +5,8 @@ Original Document: https://github.com/miditoolbox/1.1/blob/master/documentation/
 
 """
 
+import copy
+
 from amads.core.basics import Note, Score
 
 
@@ -19,8 +21,9 @@ def quantize(
     Quantize note events in a score according to onset resolution,
     duration resolution, and optionally filter out short note events.
 
-    This function flattens the input score and
-    returns a new flattened score that has been quantized.
+    This function returns a new flattened score that has been quantized.
+    Tied note chains are handled correctly: each note's onset is preserved
+    and the chain is trimmed or adjusted as needed before merging.
 
     This is an implementation of the quantize function in the Matlab MIDI Toolbox.
 
@@ -51,22 +54,18 @@ def quantize(
         A new, flattened, and quantized score.
     """
 
-    # 1. Create a flattened copy of the score
-    flat_score = score.flatten()
+    # deep copy so tied chains are intact when quantize runs
+    score_copy = copy.deepcopy(score)
 
-    # 2. Filter out short notes if a filter threshold is provided
     if filter_divisions is not None:
         threshold = 1.0 / filter_divisions
-        notes_to_remove = []
-        for note in flat_score.find_all(Note):
-            if note.duration < threshold:
-                notes_to_remove.append(note)
-
+        notes_to_remove = [
+            n for n in score_copy.find_all(Note) if n.duration < threshold
+        ]
         for note in notes_to_remove:
             if note.parent:
                 note.parent.remove(note)
 
-    # 3. Quantize the score using the built-in method
-    flat_score.quantize(onset_divisions, dur_divisions, filter)
+    score_copy.quantize(onset_divisions, dur_divisions, filter)
 
-    return flat_score
+    return score_copy.flatten()
