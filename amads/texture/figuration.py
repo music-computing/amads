@@ -1,8 +1,16 @@
 """
 Handle figuration of the kind seen in middle-voice keyboard arpeggiation for instance.
 
-Note that this assumes clean separation of textural elements.
-In the wild, keyboard music often combines >2 voices into 2 staves.
+Note 1:
+    This module assumes clean separation of textural elements.
+    In the wild, keyboard music often combines >2 voices into 2 staves, for instance.
+    See the paired notebook (notebooks/figuration) for an example.
+
+Note:
+    This functionality has been implemented for work on figuration,
+    but none of ir is specific to that use case.
+    Any or all of this may move to a more central part of AMADS or otherwise be refactored
+    if deemed useful to share in wider settings.
 
 <small>**Author**: Mark Gotham</small>
 """
@@ -18,10 +26,6 @@ def encode(items):
     Compresses a sequence of items into (item, count) tuples.
 
     Complements `decode`.
-
-    Note:
-    this may move to a more central part of AMADS or otherwise be refactored
-    if it becomes ueful to share in wider settings.
 
     Examples
     --------
@@ -78,6 +82,8 @@ def get_size_order(numbers):
     - Initialize result array with zeros
     - Assign ranks (1-indexed) to the original indices
 
+    The ranking based on distinct sorted values ("dense" ranking), to accommodate repeated values (they share a rank).
+
     As a fail-safe, if there is any `None` in numbers return None.
     If there are any non-numeric values, there will be errors.
 
@@ -89,18 +95,23 @@ def get_size_order(numbers):
     >>> get_size_order([5, 4, 8])
     [2, 1, 3]
 
+    Repeated numbers are accepted
+    >>> get_size_order([5, 4, 8, 5])
+    [2, 1, 3, 2]
+
     >>> get_size_order([None, 4, 8]) is None
     True
 
     """
     if None in numbers:
         return None
-    indexed_nums = [(num, i) for i, num in enumerate(numbers)]
-    sorted_nums = sorted(indexed_nums, key=lambda x: x[0])
-    result = [0] * len(numbers)
 
-    for rank, (_, original_index) in enumerate(sorted_nums, start=1):
-        result[original_index] = rank
+    unique_sorted = sorted(set(numbers))
+    value_to_rank = {
+        value: rank for rank, value in enumerate(unique_sorted, start=1)
+    }
+
+    result = [value_to_rank[num] for num in numbers]
 
     return result
 
