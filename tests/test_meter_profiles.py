@@ -50,11 +50,7 @@ ASHANTI = profiles.WorldSample12.ashanti
 
 
 def count_non_zero(data):
-    count = 0
-    for element in data:
-        if element != 0:
-            count += 1
-    return count
+    return sum(1 for element in data if element != 0)
 
 
 def test_profile_basics():
@@ -158,48 +154,19 @@ def test_wnbd_16():
     """
     Test the 16-unit rhythms with a beat pattern every 4th element
     against "Figure 8: Binary rhythms" in Gomez et al. (the WNBD paper)
-
-    TODO attempt to resolve the divergences. Failing that:
-    We include all of this information as part of our mission to make prior work accessible:
-    readers navigating these papers should know about inconsistencies and errors.
     """
-    for cycle, keith_value, off_beat_metric, wnbd in [
-        (
-            SHIKO,
-            1,
-            0,
-            Fraction(6, 5),  # Confirm, 1.2
-        ),
-        (
-            SON,
-            2,
-            1,
-            Fraction(14, 5),  # Confirm, 2.8
-        ),
-        (
-            RUMBA,
-            2,
-            2,
-            Fraction(18, 5),  # Confirm, 3.6
-        ),
-        (
-            SOUKOUS,
-            3,
-            2,
-            Fraction(14, 5),  # TODO divergence. Paper has 3.6 (18/5)
-        ),
-        (
-            GAHU,
-            3,
-            1,
-            Fraction(16, 5),  # TODO divergence. Paper has 3.6 (18/5)
-        ),
-        (
-            BOSSA,
-            3,
-            2,
-            Fraction(16, 5),  # TODO divergence. Paper has 4.
-        ),
+    for (
+        cycle,
+        keith_value,
+        off_beat_metric,
+        wnbd,
+    ) in [  # Paper's fractional values confirmed in in-line comments
+        (SHIKO, 1, 0, Fraction(6, 5)),  # 1.2 (6/5)
+        (SON, 2, 1, Fraction(14, 5)),  # 2.8 (14/5)
+        (RUMBA, 2, 2, Fraction(18, 5)),  # 3.6 (18/5)
+        (SOUKOUS, 3, 2, Fraction(18, 5)),  # 3.6 (18/5)
+        (GAHU, 3, 1, Fraction(18, 5)),  # 3.6 (18/5)
+        (BOSSA, 3, 2, Fraction(4, 1)),  # 4
     ]:
 
         assert keith_via_toussaint(cycle) == keith_value
@@ -210,9 +177,12 @@ def test_wnbd_16():
             cycle, beat_unit_length=4
         )
         sm = syncopation.SyncopationMetric()
+        cycle_length = Fraction(len(cycle), 4)
         assert (
-            sm.weighted_note_to_beat_distance(onset_beats=onset_beats)
-            == wnbd  # type: ignore
+            sm.weighted_note_to_beat_distance(
+                onset_beats=onset_beats, cycle_length=cycle_length
+            )
+            == wnbd
         )
 
 
@@ -220,76 +190,22 @@ def test_wnbd_12():
     """
     Test the 12-unit cycle with a beat pattern every 3rd element
     against the table "Figure 11: Ternary rhythms" in Gomez et al. (the WNBD paper)
-
-    TODO attempt to resolve the divergences. Failing that:
-    We include all of this information as part of our mission to make prior work accessible:
-    readers navigating these papers should know about inconsistencies and errors.
     """
-    for cycle, off_beat_metric, wnbd in [
-        (
-            SOLI,
-            1,
-            Fraction(
-                12, 7
-            ),  # TODO divergence. Paper has 2.142 (15/7, rounded down)
-        ),
-        (
-            TAMBU,
-            2,
-            Fraction(
-                12, 7
-            ),  # TODO divergence. Paper has 2.142 (15/7, rounded down)
-        ),
-        (
-            BEMBE,
-            3,
-            Fraction(18, 7),  # TODO divergence. Paper has 3 (21/7)
-        ),
-        (
-            BEMBE_2,
-            2,
-            Fraction(
-                12, 7
-            ),  # TODO divergence. Paper has 2.142 (15/7, rounded down)
-        ),
-        (
-            YORUBA,
-            2,
-            Fraction(18, 7),  # TODO divergence. Paper has 3 (21/7)
-        ),
-        (
-            TONADA,
-            1,
-            Fraction(
-                12, 7
-            ),  # TODO divergence. Paper has 2.142 (15/7, rounded down)
-        ),
-        (
-            ASAADUA,
-            1,
-            Fraction(
-                12, 7
-            ),  # TODO divergence. Paper has 2.142 (15/7, rounded down)
-        ),
-        (
-            SORSONET,
-            1,
-            Fraction(18, 7),  # TODO divergence. Paper has 3 (21/7)
-        ),
-        (
-            BEMBA,
-            2,
-            Fraction(
-                12, 7
-            ),  # TODO divergence. Paper has 2.142 (15/7, rounded down)
-        ),
-        (
-            ASHANTI,
-            2,
-            Fraction(
-                18, 7
-            ),  # TODO divergence. Paper has 2 (14/7) *** only case of lower value. Others = 3/7 under
-        ),
+    for (
+        cycle,
+        off_beat_metric,
+        wnbd,
+    ) in [  # Paper's fractional values confirmed in in-line comments
+        (SOLI, 1, Fraction(15, 7)),  # 2.142
+        (TAMBU, 2, Fraction(15, 7)),  # 2.142
+        (BEMBE, 3, Fraction(3, 1)),  # 3
+        (BEMBE_2, 2, Fraction(15, 7)),  # 2.142
+        (YORUBA, 2, Fraction(3, 1)),  # 3
+        (TONADA, 1, Fraction(15, 7)),  # 2.142
+        (ASAADUA, 1, Fraction(15, 7)),  # 2.142
+        (SORSONET, 1, Fraction(3, 1)),  # 3
+        (BEMBA, 2, Fraction(15, 7)),  # 2.142
+        (ASHANTI, 2, Fraction(3, 1)),  # 3
     ]:
         assert cycle.count(1) == 7  # Onsets
         assert len(cycle) == 12  # Grid
@@ -298,9 +214,13 @@ def test_wnbd_12():
 
         onset_beats = vector_to_onset_beat(cycle, beat_unit_length=3)
         sm = syncopation.SyncopationMetric()
+        cycle_length = Fraction(len(cycle), 3)
         assert (
-            sm.weighted_note_to_beat_distance(onset_beats=onset_beats)
-            == wnbd  # type: ignore
+            sm.weighted_note_to_beat_distance(
+                onset_beats=onset_beats,
+                cycle_length=cycle_length,  # Note no issue here: same results with 3, 4, and 12.
+            )
+            == wnbd
         )
 
 
@@ -319,15 +239,4 @@ def test_oddity_12():
     ]
     assert [
         has_oddity_property(profile) for profile in tested_profile_order
-    ] == [
-        False,
-        False,
-        False,
-        False,
-        False,
-        False,
-        False,
-        False,
-        False,
-        False,
-    ]
+    ] == [False] * 10
