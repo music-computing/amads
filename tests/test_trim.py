@@ -18,6 +18,8 @@ def test_trim():
     notes = trimmed_score.get_sorted_notes()
 
     # Verify the results using assert
+    assert trimmed_score.onset == 0.0
+    assert trimmed_score.content[0].onset == 0.0  # part should start at 0.0 too
 
     # The first note should now be at 0.0
     assert notes[0].onset == 0.0

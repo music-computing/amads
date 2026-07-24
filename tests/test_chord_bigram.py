@@ -28,6 +28,8 @@ from amads.pitch.chord_bigram import (
     _canonical_key,
     _canonical_retro,
     _canonical_retro_key,
+    _q,
+    _sub,
 )
 
 # ---------------------------------------------------------------------------
@@ -326,19 +328,19 @@ class TestLabels:
     def test_null_has_all_four(self, C, A):
         b = ChordBigram(C, A, "Ø", key_pitch_class=2)
         labs = b.labels
-        assert set(labs.keys()) == {"Ø", "R", "K", "RK"}
+        assert set(labs.keys()) == {"IK", "Ø", "I", "IRK", "RK", "R", "K", "IR"}
 
     def test_r_has_two(self, C, A):
         b = ChordBigram(C, A, "R", key_pitch_class=2)
-        assert set(b.labels.keys()) == {"R", "RK"}
+        assert set(b.labels.keys()) == {"RK", "IR", "R", "IRK"}
 
     def test_k_has_two(self, C, A):
         b = ChordBigram(C, A, "K")
-        assert set(b.labels.keys()) == {"K", "RK"}
+        assert set(b.labels.keys()) == {"K", "RK", "IK", "IRK"}
 
     def test_rk_has_one(self, C, A):
         b = ChordBigram(C, A, "RK")
-        assert set(b.labels.keys()) == {"RK"}
+        assert set(b.labels.keys()) == {"RK", "IRK"}
 
     def test_labels_values_are_strings(self, C, A):
         b = ChordBigram(C, A, "Ø", key_pitch_class=2)
@@ -352,22 +354,22 @@ class TestLabels:
 
 class TestHelpers:
     def test_q_major(self):
-        assert ChordBigram._q("major") == "M"
+        assert _q("major") == "M"
 
     def test_q_minor(self):
-        assert ChordBigram._q("minor") == "m"
+        assert _q("minor") == "m"
 
     def test_q_invalid(self):
         with pytest.raises(ValueError):
-            ChordBigram._q("diminished")
+            _q("diminished")
 
     def test_sub_single_digit(self):
-        assert ChordBigram._sub(0) == "₀"
-        assert ChordBigram._sub(9) == "₉"
+        assert _sub(0) == "₀"
+        assert _sub(9) == "₉"
 
     def test_sub_double_digit(self):
-        assert ChordBigram._sub(10) == "₁₀"
-        assert ChordBigram._sub(11) == "₁₁"
+        assert _sub(10) == "₁₀"
+        assert _sub(11) == "₁₁"
 
 
 # ---------------------------------------------------------------------------
@@ -416,7 +418,7 @@ class TestLabel:
     def test_mixed_quality_rk_glyph1_major(self, C, Am):
         # either major → g1=M; not both major → g2=m
         b = ChordBigram(C, Am, "RK")
-        assert b.label == "M 3 mRK"
+        assert b.label == "M 9 mRK"
 
 
 # ---------------------------------------------------------------------------
