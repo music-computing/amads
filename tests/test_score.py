@@ -1015,9 +1015,9 @@ def test_shift_content():
     # Check that all notes have been shifted correctly
     assert score.onset == 0.0
     part = score.content[0]  # type: ignore
-    assert part.onset == 2.0
+    assert part.onset == 0.0
     staff = part.content[0]  # type: ignore
-    assert staff.onset == 2.0
+    assert staff.onset == 0.0
     measure = staff.content[0]  # type: ignore
     assert measure.onset == 2.0
     chord1 = measure.content[0]  # type: ignore

@@ -224,7 +224,7 @@ class Event:
         return (self.info is not None) and (property in self.info)
         
 
-    def time_shift(self, increment: float) -> "Event":
+    def time_shift(self, increment: float, content_only=False) -> "Event":
         """
         Change the onset by an increment.
 
@@ -232,7 +232,8 @@ class Event:
         ----------
         increment : float
             The time increment (in quarters or seconds).
-
+        content_only : bool, optional
+            This parameter is ignored. (See EventGroup.time_shift)
         Returns
         -------
         Event
@@ -874,6 +875,12 @@ class Note(Event):
         if self.get("has_schleifer", False):
             grace_info += ", schleifer"
 
+        if self.get("hide_on_print", False):
+            grace_info += ", hidden"
+
+        if self.get("rolled", False):
+            grace_info += ", rolled"
+
         return (f"Note({self._event_times()}{dynamic_info}{lyric_info}, " +
                 f"pitch={self.name_with_octave}/{self.key_num}{grace_info})")
 
@@ -1122,8 +1129,13 @@ class Note(Event):
 class TimeSignature:
     """TimeSignature is an element of Score.time_signatures.
     
-    Contains time signature representation and a time in units that match
-    Score._units_are_seconds.
+    Contains time signature representation and a time in quarters,
+    whether or not score.units_are_seconds. This is the notational
+    time signature. TimeSignature.duration gives the nominal duration
+    in quarters, but the actual duration of any given measure is
+    given by Measure.duration, and may differ (for example, the
+    first measure with a pick-up note, or a first ending repeating
+    to a first measure with a pick-up note.)
 
     Parameters
     ----------
@@ -1444,15 +1456,15 @@ class EventGroup(Event):
             for elem in content:
                 if isinstance(elem, EventGroup):
                     elem_copy = elem.insert_emptycopy_into(self)
-                    e_min, e_max = elem._add_slice_children(elem_copy, start,
+                    e_min, e_max = elem_copy._add_slice_children(elem, start,
                                            end, mode, truncate, min_duration)
                     min_onset = min(min_onset, e_min)
                     max_offset = max(max_offset, e_max)
             return min_onset, max_offset
         
-        assert(isinstance(source, Sequence))  # content is a list of Notes
-
-        for elem in content:
+        assert isinstance(source, EventGroup), "expecting to find content"
+        
+        for elem in content:  # content is a list of Notes
             copied = None
             if mode == "onsets":
                 if elem.onset >= start and elem.onset < end:
@@ -1533,6 +1545,16 @@ class EventGroup(Event):
         """
         Change the onset by an increment, affecting all content.
 
+        If content_only is true, preserves EventGroup times (Score, Part,
+        Staff, but *not* Chord or Measure) and shifts only the content
+        (recursively). Otherwise, shifts this container and all content by the
+        increment. Container onsets (recursively) are not allowed to become
+        negative, so the onset time is set to zero if the increment would
+        make it negative. However, even if the onset is is not shifted by
+        increment, time_shift is still applied recursively to the content,
+        and non-EventGroup events (e.g., Notes) are allowed to have negative
+        onsets, even if this may not be well-defined for all AMADS operations.
+
         Parameters
         ----------
         increment : float
@@ -1545,11 +1567,21 @@ class EventGroup(Event):
         -------
         Event
             The object. This method modifies the `EventGroup`.
+
+        Raises
+        ------
+        ValueError
+            If the EventGroup has an unknown (None) onset and
+            content_only is false.
         """
-        if not content_only:
-            self._onset += increment  # type: ignore (onset is now number)
+        # note that Chord and Measures are special cases
+        if not content_only or isinstance(self, (Chord, Measure)):
+            if self._onset is None:
+                raise ValueError(
+                        "Cannot shift time of EventGroup with unknown onset")
+            self._onset = max(0.0, self._onset + increment)
         for elem in self.content:
-            elem.time_shift(increment)
+            elem.time_shift(increment, content_only)
         return self
 
 
@@ -1656,6 +1688,9 @@ class EventGroup(Event):
         primarily for internal use when `expand_chords` is called recursively
         on score content.
 
+        If a chord has a "rolled" property, after expansion, the notes will
+        each have a "rolled" property.
+
         Parameters
         ----------
         parent : EventGroup
@@ -1670,8 +1705,11 @@ class EventGroup(Event):
         group = self.insert_emptycopy_into(parent)
         for item in self.content:
             if isinstance(item, Chord):
+                rolled = item.get("rolled", False)
                 for note in item.content:  # expand chord
                     note.insert_copy_into(group)
+                    if rolled:
+                        note.set("rolled", True)
             if isinstance(item, EventGroup):
                 item.expand_chords(group)  # recursion for deep copy/expand
             else:
@@ -2314,7 +2352,7 @@ class EventGroup(Event):
         result will therefore contain whole measures. It is assumed that notes
         are tied across measure boundaries. The result will contain only the
         parts of tied notes that are within the specified measures, excluding
-        measure numbered by `end`.
+<        measure numbered by `end`.
 
         For any units besides "measures" or "bars", the score must be flat.
         Notes that extend beyond the start or end time are included in the
@@ -2451,9 +2489,8 @@ class EventGroup(Event):
             min_time = c_min
             max_time = c_max
         else:   
-            min_time, max_time = self._add_slice_children(self, result,
-                                                  start_time, end_time,
-                                          mode, truncate, min_duration)
+            min_time, max_time = result._add_slice_children(self, start_time,
+                                      end_time, mode, truncate, min_duration)
         result._trim_map_and_signatures(min_time, max_time)
         if shift and min_time != float("inf") and min_time > 0:
             result.time_shift(-min_time)
@@ -2685,6 +2722,9 @@ class Chord(Concurrence):
     use a Concurrence with Note objects as elements. Each Note.tie can
     be None (no tie) or tie to a Note in another Chord or Measure.
 
+    Rolled chord annotations are encoded as the "rolled" property of the
+    Chord, and accessible as `chord.get("rolled", False)`.
+
     Parameters
     ----------
     *args : Event
@@ -2725,6 +2765,13 @@ class Chord(Concurrence):
         super().__init__(parent, onset, duration, list(args))
 
 
+    def __str__(self) -> str:
+        """Short string representation
+        """
+        rstr = ", rolled" if self.get("rolled", False) else ""
+        return f"Chord({self._event_times()}{rstr})"
+
+
     def _is_well_formed(self):
         """Test if Chord conforms to strict hierarchy of Chord-Note
         """
@@ -2742,6 +2789,8 @@ class Measure(Sequence):
 
     A Measure can contain many object types including Note, Rest, Chord,
     and (in theory) custom Events. Measures are elements of a Staff.
+
+    The duration of a measure may differ from the prevailing time signature.
 
     See <a href="#constructor-details">Constructor Details</a>.
 
@@ -2813,14 +2862,14 @@ class Measure(Sequence):
         return True
 
 
-    def time_signature(self) -> TimeSignature:
+    def time_signature(self) -> Optional[TimeSignature]:
         """Retrieve the time signature that applies to this measure.
 
         Returns
         -------
-        TimeSignature
+        Optional[TimeSignature]
             The time signature from the score corresponding to the
-            time of this measure.
+            time of this measure, or None if not found.
 
         Raises
         ------
@@ -3282,7 +3331,7 @@ class Score(Concurrence):
 
     
 
-    def _find_time_signature(self, when: float) -> TimeSignature:
+    def _find_time_signature(self, when: float) -> Optional[TimeSignature]:
         """Look up TimeSignature in effect at time `when`
 
         Parameters
@@ -3293,13 +3342,13 @@ class Score(Concurrence):
 
         Returns
         -------
-        TimeSignature
-            The time signature in effect at time `when`.
+        Optional[TimeSignature]
+            The time signature in effect at time `when`, or None if not found.
         """
         for ts in reversed(self.time_signatures):
             if ts.quarters <= when:
                 return ts
-        assert False, "No time signature found"
+        return None
 
     
     def flatten(self, collapse=False):
@@ -3344,6 +3393,12 @@ class Score(Concurrence):
             notes : list[Note] = score.list_all(Note)  # type: ignore
             score.content = [new_part]  # remove all other parts and events
             for note in notes:
+                # preserve "rolled" property of chord when removing notes from
+                # chords:
+                if isinstance(note.parent, Chord):
+                    rolled = note.parent.get("rolled", False)
+                    if rolled:
+                        note.set("rolled", True)
                 note.parent = new_part
             # notes with equal onset times are sorted in pitch from high to low
             notes.sort(key=lambda x: (x.onset, x.pitch))
@@ -3790,8 +3845,13 @@ class Score(Concurrence):
         if (len(self.time_signatures) == 0 or
             (self.time_signatures[0].quarters > start_quarter + 0.001)):
             start_ts = self._find_time_signature(start_quarter)
-            start_ts = TimeSignature(start_quarter, start_ts.numerator,
-                                     start_ts.denominator)
+            if not start_ts:  # since we have a time signature at some point,
+                # we need to have a time signature throughout, so we create a
+                # default 4/4 time signature at start_quarter
+                start_ts = TimeSignature(start_quarter, 4, 4)
+            else:  # move the time_signature in effect to start_quarter
+                start_ts = TimeSignature(start_quarter, start_ts.upper,
+                                         start_ts.lower)
             self.time_signatures.insert(0, start_ts)
     
 
@@ -3946,6 +4006,12 @@ class Part(EventGroup):
         notes : List[Note] \
               = part.list_all(Note)  # type: ignore (Notes < Events)
         for note in notes:
+            # preserve "rolled" property of chord when removing notes from
+            # chords:
+            if isinstance(note.parent, Chord):
+                rolled = note.parent.get("rolled", False)
+                if rolled:
+                    note.set("rolled", True)
             note.parent = part
         notes.sort(key=lambda x: (x.onset, x.pitch))
         part.content = notes  # type: ignore (List[Note] < List[Event])

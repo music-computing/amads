@@ -17,7 +17,15 @@ from typing import cast
 
 import pretty_midi as pm
 
-from amads.core.basics import EventGroup, KeySignature, Note, Part, Score, Staff
+from amads.core.basics import (
+    EventGroup,
+    KeySignature,
+    Measure,
+    Note,
+    Part,
+    Score,
+    Staff,
+)
 
 __author__ = "Roger B. Dannenberg"
 
@@ -42,7 +50,11 @@ def string_to_velocity(dynamic: str) -> int:
 tied_to_notes = None  # global to help merge tied notes
 
 
-def add_note_to_instrument(note: Note, instrument: pm.Instrument) -> None:
+def add_note_to_instrument(
+    note: Note,
+    instrument: pm.Instrument,
+    minimum_onset: dict[int, float],
+) -> None:
     """Add a Note to a PrettyMIDI Instrument."""
     global tied_to_notes
 
@@ -51,12 +63,14 @@ def add_note_to_instrument(note: Note, instrument: pm.Instrument) -> None:
     dynamic = note.dynamic if note.dynamic is not None else 100
     if isinstance(dynamic, str):
         dynamic = string_to_velocity(dynamic)
-    pm_note = pm.Note(
-        velocity=dynamic,
-        pitch=round(note.key_num),
-        start=note.onset,
-        end=note.onset + note.tied_duration,
-    )
+    pitch = round(note.key_num)
+    start = note.onset
+    # force non-zero duration so midi file is generally readable:
+    end = start + max(note.tied_duration, 0.001)
+    start = max(start, minimum_onset.get(pitch, 0.0))
+    minimum_onset[pitch] = end  # update for next note of same pitch
+
+    pm_note = pm.Note(velocity=dynamic, pitch=pitch, start=note.onset, end=end)
     if note.tie:
         note = note.tie
         while note:
@@ -70,20 +84,23 @@ def add_key_signature(
     onset: float, key_sig: int, key_signatures: list[pm.KeySignature]
 ) -> None:
     """Add a Key Signature change to the PrettyMIDI time signatures list."""
-    # PrettyMIDI uses key number from -7 (7 flats) to +7 (7 sharps)
+    # Our key_sig uses key number from -7 (7 flats) to +7 (7 sharps)
+    # PrettyMIDI's KeySignature uses a key number 0-12 for Major, 12-23 for
+    # minor. We will assume that all key signatures are Major. Convert from
+    # flats/sharps to key number using circle of fifths:
+    key_number = (1200 + (key_sig * 7)) % 12
     location = len(key_signatures)  # default to appending at end
     for index, ks in enumerate(key_signatures):
-        if isclose(ks.time, onset, abs_tol=1e-3) and ks.key_number == key_sig:
+        if (
+            isclose(ks.time, onset, abs_tol=1e-3)
+            and ks.key_number == key_number
+        ):
             return  # Key signature already exists at this time
         elif ks.time > onset + 1e-3:
             location = index
             break
     # now location is where to insert a new key signature
     # our KeySignature class encodes only the number of flats/sharps, while
-    # PrettyMIDI's KeySignature uses a key number 0-12 for Major, 12-23 for
-    # minor. We will assume that all key signatures are Major. Convert from
-    # flats/sharps to key number using circle of fifths:
-    key_number = (1200 + (key_sig * 7)) % 12
     pm_key_sig = pm.KeySignature(key_number=key_number, time=onset)
     key_signatures.insert(location, pm_key_sig)
 
@@ -92,6 +109,7 @@ def add_eventgroup_to_instrument(
     evgroup: EventGroup,
     instrument: pm.Instrument,
     key_signatures: list[pm.KeySignature],
+    minimum_onset: dict[int, float],
 ) -> None:
     """Add events from a Part or Staff to a PrettyMIDI Instrument.
 
@@ -102,14 +120,70 @@ def add_eventgroup_to_instrument(
             add_key_signature(event.onset, event.key_sig, key_signatures)
         elif isinstance(event, Note):
             note = cast(Note, event)
-            add_note_to_instrument(note, instrument)
+            add_note_to_instrument(note, instrument, minimum_onset)
         elif isinstance(event, EventGroup):
-            add_eventgroup_to_instrument(event, instrument, key_signatures)
+            add_eventgroup_to_instrument(
+                event,
+                instrument,
+                key_signatures,
+                minimum_onset,
+            )
         # else event is unhandled, hopefully a Rest, or Clef
 
 
+def _get_midi_time_signatures(
+    score: Score,
+) -> list[tuple[float, int, int, float]]:
+    """Create time signature changes found in AMADS Score."""
+    time_signatures = []
+    if score.is_well_formed_full_score():
+        # check for short measures in first staff
+        staff = next(score.find_all(Staff), None)
+        ts = score.time_signatures
+        tsi = 0
+        need_ts = True  # always insert default 4/4 if nothing else is there
+        upper = 4
+        lower = 4
+        if staff is not None:
+            staff = cast(Staff, staff)
+            for measure in staff.find_all(Measure):
+                # if there is a time signature at the start of the measure,
+                # it will provide the lower number for a time signature.
+                if tsi < len(ts) and isclose(
+                    measure.onset, ts[tsi].quarters, abs_tol=1e-3
+                ):
+                    need_ts = True
+                    upper = ts[tsi].upper
+                    lower = ts[tsi].lower
+                if not isclose(
+                    measure.duration, upper * 4 / lower, abs_tol=1e-3
+                ):
+                    need_ts = True
+                    upper = measure.duration * lower / 4
+                    # if measure is fractional, e.g., 0.5/4, then increase lower
+                    # to get, e.g., 1/8 (which could be for a 1/8 pickup note).
+                    while lower < 128 and not isclose(
+                        upper, round(upper), abs_tol=1e-3
+                    ):
+                        lower *= 2
+                        upper *= 2
+                    # maximum lower is 128, and at this point we just assume
+                    # upper is an integer (or close to one).
+                    upper = round(upper)
+                if need_ts:
+                    time_signatures.append(
+                        (measure.onset, upper, lower, upper * 4 / lower)
+                    )
+                    need_ts = False
+    return time_signatures
+
+
 def pretty_midi_export(
-    score: Score, filename: str | Path, format: str, show: bool, is_temp: bool
+    score: Score,
+    filename: str | Path,
+    format: str,
+    show: bool,
+    is_temp: bool = False,
 ) -> None:
     """
     Export a Score as a standard MIDI file using PrettyMIDI library.
@@ -131,6 +205,10 @@ def pretty_midi_export(
     tied_to_notes = {}
 
     score = cast(Score, score.merge_tied_notes())
+    score.convert_to_quarters()
+    # Create time signature changes
+    midi_tss = _get_midi_time_signatures(score)
+
     score.convert_to_seconds()
 
     # 600 gives 1 ms resolution at 100 bpm
@@ -186,17 +264,14 @@ def pretty_midi_export(
             program, name=name if name is not None else "Unknown"
         )
 
-        add_eventgroup_to_instrument(evgroup, instrument, key_signatures)
+        add_eventgroup_to_instrument(evgroup, instrument, key_signatures, {})
         pmscore.instruments.append(instrument)
 
-    # Create time signature changes
-    for ts in score.time_signatures:
-        # Convert onset (in quarters) to seconds using time_map
-        time_in_seconds = score.time_map.quarter_to_time(ts.quarters)
+    for ts in midi_tss:  # tuples: (time, upper, lower, duration)
+        tsec = score.time_map.quarter_to_time(ts[0])
+        # do not allow fractional numerator or denominator (even if it's wrong)
         pm_ts = pm.TimeSignature(
-            numerator=int(ts.upper),
-            denominator=int(ts.lower),
-            time=time_in_seconds,
+            numerator=round(ts[1]), denominator=round(ts[2]), time=tsec
         )
         pmscore.time_signature_changes.append(pm_ts)
 

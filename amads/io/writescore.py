@@ -320,7 +320,10 @@ def _check_for_subsystem(
     format: str,
 ) -> tuple[
     Optional[
-        Callable[[Score, Optional[str | Path], Optional[str], bool, bool], None]
+        Callable[
+            [Score, Optional[str | Path], Optional[str], bool, float, bool],
+            None,
+        ]
     ],
     Optional[str],
 ]:
@@ -577,6 +580,20 @@ def write_score(
     Pretty MIDI also requires an instrument name. If the AMADS Part
     `instrument` attribute is `None`, then `"Unknown"` is used. The
     Pretty MIDI reader will convert `"Unknown"` back to `None`.
+
+    Music21 output to MusicXML can contain ornaments, which are
+    indicated by special properties on Notes. See `read_score`
+    documentation for a description of ornament properties. Some
+    Music21 ornaments are described in terms of accidentals rather
+    than actual pitches, which means AMADS must sometimes use a
+    generate-and-test approach to finding the correct accidental,
+    given that the actual pitch is determined by both the accidental
+    label and the current key signature. An exception is raised if
+    the ornament cannot be expressed in Music21.
+
+    Music21 output to MusicXML will set `print-object="no"` if
+    Note.get("hide_on_print", False) is True. This property is
+    set by the Music21-based MusicXML reader.
 
     """
     if not isinstance(filename, Path):
