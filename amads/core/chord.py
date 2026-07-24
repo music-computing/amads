@@ -62,7 +62,7 @@ QUALITIES: dict[str, tuple[int, ...]] = {
 }
 
 
-_ALIASES: dict[str, str] = {
+ALIASES: dict[str, str] = {
     # triads
     "maj": "major", "M": "major", "": "major",
     "min": "minor", "m": "minor",
@@ -80,7 +80,7 @@ _ALIASES: dict[str, str] = {
 }
 
 #: Reverse lookup: pitch-class intervals -> canonical quality name.
-_INTERVAL_SET_TO_QUALITY: dict[frozenset[int], str] = {
+INTERVAL_SET_TO_QUALITY: dict[frozenset[int], str] = {
     frozenset(intervals): name
     for name, intervals in QUALITIES.items()
 }
@@ -88,23 +88,23 @@ _INTERVAL_SET_TO_QUALITY: dict[frozenset[int], str] = {
 
 # ---------------------------------------------------------------------------
 
-_ROMAN_TO_DEGREE: dict[str, int] = {
+ROMAN_TO_DEGREE: dict[str, int] = {
     "I": 0, "II": 1, "III": 2, "IV": 3,
     "V": 4, "VI": 5, "VII": 6,
 }
 
-_ROMAN_RE = re.compile(
+ROMAN_RE = re.compile(
     r'^([b#]?)([IViv]+)([o°]?)(ø?)([\+]?)(\d*)$'
 )
 
 #: Scale intervals (minor = natural)
-_MAJOR_SCALE = (0, 2, 4, 5, 7, 9, 11)
-_MINOR_SCALE = (0, 2, 3, 5, 7, 8, 10)
+MAJOR_SCALE = (0, 2, 4, 5, 7, 9, 11)
+MINOR_SCALE = (0, 2, 3, 5, 7, 8, 10)
 
 # Diatonic triad qualities by root
-_MAJOR_TRIADS = ("major", "minor", "minor", "major",
+MAJOR_TRIADS = ("major", "minor", "minor", "major",
                  "major", "minor", "diminished")
-_MINOR_TRIADS = ("minor", "diminished", "major", "minor",
+MINOR_TRIADS = ("minor", "diminished", "major", "minor",
                  "minor", "major",  "major")
 
 
@@ -113,11 +113,11 @@ def _canonical_quality(quality: str) -> str:
     q = quality.strip()
     if q in QUALITIES:
         return q
-    if q in _ALIASES:
-        return _ALIASES[q]
+    if q in ALIASES:
+        return ALIASES[q]
     raise ValueError(
         f"Unknown chord quality {quality!r}. "
-        f"Known qualities: {sorted(QUALITIES)} and aliases: {sorted(_ALIASES)}"
+        f"Known qualities: {sorted(QUALITIES)} and aliases: {sorted(ALIASES)}"
     )
 
 
@@ -141,16 +141,16 @@ def _parse_key(key: Union[str, int, Pitch]) -> tuple[tuple[int, ...], int]:
 
     """
     if isinstance(key, (int, Pitch)):
-        return _MAJOR_SCALE, int(_parse_root(key).key_num) % 12
+        return MAJOR_SCALE, int(_parse_root(key).key_num) % 12
     key_str = str(key).strip()
     if key_str.lower().endswith(" minor"):
-        scale, tonic_name = _MINOR_SCALE, key_str[:-6].strip().capitalize()
+        scale, tonic_name = MINOR_SCALE, key_str[:-6].strip().capitalize()
     elif key_str.lower().endswith(" major"):
-        scale, tonic_name = _MAJOR_SCALE, key_str[:-6].strip().capitalize()
+        scale, tonic_name = MAJOR_SCALE, key_str[:-6].strip().capitalize()
     elif key_str[0].islower():
-        scale, tonic_name = _MINOR_SCALE, key_str.capitalize()
+        scale, tonic_name = MINOR_SCALE, key_str.capitalize()
     else:
-        scale, tonic_name = _MAJOR_SCALE, key_str
+        scale, tonic_name = MAJOR_SCALE, key_str
     return scale, int(_parse_root(tonic_name).key_num) % 12
 
 
@@ -317,17 +317,17 @@ class Chord:
         key_str = str(key).strip()  # preserved for chord.key attribute only
         raw = numeral.strip()
 
-        m = _ROMAN_RE.match(raw)
+        m = ROMAN_RE.match(raw)
         if not m:
             raise ValueError(f"Unrecognised Roman numeral {numeral!r}.")
         accidental, core_raw, dim_flag, hdim_flag, aug_flag, num_str = m.groups()
 
         core = core_raw.upper()
-        if core not in _ROMAN_TO_DEGREE:
+        if core not in ROMAN_TO_DEGREE:
             raise ValueError(f"Unrecognised Roman numeral {numeral!r}.")
 
         add7 = bool(num_str) or seventh
-        degree = _ROMAN_TO_DEGREE[core]
+        degree = ROMAN_TO_DEGREE[core]
 
         # Handle chromatic roots (bVII, #IV etc.)
         root_pc = (tonic_pc + scale[degree]) % 12
@@ -351,7 +351,7 @@ class Chord:
                 for i in range(n_tones)
             ]
             intervals = frozenset((pc - root_pc) % 12 for pc in stacked_pcs)
-            quality = _INTERVAL_SET_TO_QUALITY.get(intervals)
+            quality = INTERVAL_SET_TO_QUALITY.get(intervals)
             if quality is None:
                 raise ValueError(
                     f"Scale-stacked intervals {intervals} for {numeral!r} in {key!r} "
@@ -446,8 +446,8 @@ class Chord:
         for candidate_root in pc_set:
             intervals = tuple(sorted((pc - candidate_root) % 12 for pc in pc_set))
             key = frozenset(intervals)
-            if key in _INTERVAL_SET_TO_QUALITY:
-                matches.append((Pitch(candidate_root), _INTERVAL_SET_TO_QUALITY[key]))
+            if key in INTERVAL_SET_TO_QUALITY:
+                matches.append((Pitch(candidate_root), INTERVAL_SET_TO_QUALITY[key]))
 
         chord = cls.__new__(cls)
         chord.key  = None
@@ -479,8 +479,8 @@ class Chord:
         )
         for r in candidates:
             intervals = frozenset(sorted((pc - r) % 12 for pc in pc_set))
-            if intervals in _INTERVAL_SET_TO_QUALITY:
-                return _INTERVAL_SET_TO_QUALITY[intervals]
+            if intervals in INTERVAL_SET_TO_QUALITY:
+                return INTERVAL_SET_TO_QUALITY[intervals]
         return None
 
     def _infer_root(self) -> Optional[Pitch]:
