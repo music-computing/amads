@@ -94,8 +94,34 @@ ROMAN_TO_DEGREE: dict[str, int] = {
 }
 
 ROMAN_RE = re.compile(
-    r'^([b#]?)([IViv]+)([o°]?)(ø?)([\+]?)(\d*)$'
+    r'^([b#]?)([IViv]+)([o°]?)(ø?)([\+]?)([\d/]*)$'
 )
+
+
+INVERSION_FIGURES: dict[str, tuple[int, bool]] = {
+
+    "53": (0, False), # root-position triad (accept blank but avoid "5" and "3")
+    "": (0, False),
+
+    "63": (1, False), # first-inversion triad
+    "6": (1, False), "6/3": (1, False),
+
+    "64": (2, False), # second-inversion triad
+    "6/4": (2, False),
+
+    "753": (0, True), # root-position seventh
+    "7": (0, True), "7/5/3": (0, True),
+
+    "653": (1, True), # first-inversion seventh
+    "65": (1, True), "6/5/3": (1, True), "6/5": (1, True),
+
+    "643": (2, True), # second-inversion seventh
+    "43": (2, True), "6/4/3": (2, True), "4/3": (2, True), # "
+
+    "642": (3, True), # third-inversion seventh
+    "42": (3, True), "6/4/2": (3, True), "4/2": (3, True), "2": (3, True),
+}
+
 
 #: Scale intervals (minor = natural)
 MAJOR_SCALE = (0, 2, 4, 5, 7, 9, 11)
@@ -258,6 +284,37 @@ class Chord:
     >>> Chord.from_roman("iio7", "d").label
     'Eo7'
 
+    Figured-bass inversion figures are recognised and set the bass note accordingly:
+
+    >>> c_e = Chord.from_roman("I6", "C")   # first-inversion tonic triad
+    >>> c_e.label
+    'C/E'
+    >>> c_e.inversion
+    1
+    >>> Chord.from_roman("I64", "C").label  # second-inversion tonic triad
+    'C/G'
+    >>> Chord.from_roman("V65", "C").label  # first-inversion dominant seventh
+    'G7/B'
+    >>> Chord.from_roman("V42", "C").label  # third-inversion dominant seventh
+    'G7/F'
+
+    Some flexibiltiy in the string formatting, e.g., here simplifying to `2` and expanding to the full 642
+    >>> Chord.from_roman("V642", "C").label  # "
+    'G7/F'
+
+    >>> Chord.from_roman("V2", "C").label    # "
+    'G7/F'
+
+    >>> Chord.from_roman("V642", "C").inversion
+    3
+
+    Only specific, recognised figured-bass syntax is accepted.
+
+    >>> Chord.from_roman("I69", "C")  # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+        ...
+    ValueError: Unrecognised figure '69' in 'I69'. Recognised figures: ...
+
     3. From pitches directly, either as pitch name or pitch class:
 
     >>> Chord(pitches=["C", "Eb", "G"]).quality
@@ -320,13 +377,20 @@ class Chord:
         m = ROMAN_RE.match(raw)
         if not m:
             raise ValueError(f"Unrecognised Roman numeral {numeral!r}.")
-        accidental, core_raw, dim_flag, hdim_flag, aug_flag, num_str = m.groups()
+        accidental, core_raw, dim_flag, hdim_flag, aug_flag, figure = m.groups()
 
         core = core_raw.upper()
         if core not in ROMAN_TO_DEGREE:
             raise ValueError(f"Unrecognised Roman numeral {numeral!r}.")
 
-        add7 = bool(num_str) or seventh
+        if figure not in INVERSION_FIGURES:
+            raise ValueError(
+                f"Unrecognised figure {figure!r} in {numeral!r}. Recognised figures: "
+                f"{sorted(INVERSION_FIGURES, key=len)} (figured-bass inversion symbols, "
+                f"not arbitrary digits -- e.g. '6' is a first-inversion triad, not 'add a 6th')."
+            )
+        inversion, has_seventh = INVERSION_FIGURES[figure]
+        add7 = has_seventh or seventh
         degree = ROMAN_TO_DEGREE[core]
 
         # Handle chromatic roots (bVII, #IV etc.)
@@ -358,7 +422,14 @@ class Chord:
                     f"don't match any known quality."
                 )
 
-        chord = cls(Pitch(root_pc), quality)
+        if inversion >= len(QUALITIES[quality]):
+            raise ValueError(
+                f"Figure {figure!r} implies inversion {inversion}, but the resolved quality "
+                f"{quality!r} only has {len(QUALITIES[quality])} tones."
+            )
+        bass = Pitch((root_pc + QUALITIES[quality][inversion]) % 12) if inversion else None
+
+        chord = cls(Pitch(root_pc), quality, bass=bass)
         chord.key = key_str
         return chord
 
@@ -543,10 +614,22 @@ class Chord:
 
     @property
     def inversion(self) -> Optional[int]:
-        """0 = root position, 1 = first inversion, etc.; None if undetermined."""
-        if self.root is None or self.pitches is None or not self.pitches:
+        """
+        0 = root position, 1 = first inversion, etc.
+
+        None if undetermined.
+
+        Prefers `self.bass` when set
+        (e.g., via `from_roman`'s figured-bass parsing, or an explicit slash chord).
+        """
+        if self.root is None:
             return None
-        bass_pc = int(self.pitches[0].key_num) % 12
+        bass_pitch = self.bass if self.bass is not None else (
+            self.pitches[0] if self.pitches else None
+        )
+        if bass_pitch is None:
+            return None
+        bass_pc = int(bass_pitch.key_num) % 12
         root_pc = int(self.root.key_num) % 12
         if bass_pc == root_pc:
             return 0
