@@ -1,6 +1,6 @@
 import math
 
-from amads.core.basics import Note, Part, Score
+from amads.core.basics import Note, Score
 from amads.io.pm_midi_import import pretty_midi_import
 from amads.melody.mobility import mobility
 from amads.music import example

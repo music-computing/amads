@@ -148,6 +148,10 @@ Melody
    :caption: Melody:
 
    amads.melody.boundary
+   amads.melody.complexity
+   amads.melody.mobility
+   amads.melody.melodic_accent
+   amads.melody.melodic_distance
    amads.melody.segment_gestalt
    amads.melody.contour.interpolation_contour
    amads.melody.contour.step_contour

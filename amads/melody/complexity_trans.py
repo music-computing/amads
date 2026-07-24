@@ -17,7 +17,7 @@ from amads.core.pitch import CHROMATIC_NAMES, NUM_PITCH_CLASSES
 
 """
 Simonton's pitch-transition probabilities (summarized from 15618 classical music
-themes) from his 1984 paper. Deviating from the original paper is, all other 
+themes) from his 1984 paper. Deviating from the original paper is, all other
 transitions that fall within minor or major scale (plus F#G and GF#) is set to
 probability of 0.05.
 """
@@ -106,7 +106,7 @@ simonton_transition_dist = Distribution(
 
 def complexity_trans(score: Score) -> Optional[float]:
     """
-    Calculate Simonton's melodic originality score based on 2nd order
+    Calculate Simonton's complexity originality score based on 2nd order
     pitch-class transition probabilities derived from classical themes.
 
     This function implements Simonton's (1984, 1994) measure of melodic
@@ -163,7 +163,7 @@ def complexity_trans(score: Score) -> Optional[float]:
     weighted_transition_avg = np.sum(simonton_dist_data * pitch_transition_sums)
     weighted_transition_avg /= (num_notes - 1) * -1
     # scaled from 0-10 (10=complex)
-    # numbers copied directly from the matlab port.
+    # numbers copied directly from the matlab version (in compltrans.m).
     scaled_transition_weight = (weighted_transition_avg + 0.0530) * 188.68
 
     return scaled_transition_weight

@@ -108,6 +108,10 @@ nav:
       - reference/melody/segment.md
       - reference/melody/segment_gestalt.md
       - reference/melody/similarity.md
+      - reference/melody/complexity.md
+      - reference/melody/melodic_accent.md
+      - reference/melody/melodic_distance.md
+      - reference/melody/mobility.md
     - Harmony:
       - reference/harmony/consonance.md
       - reference/harmony/root_finding.md

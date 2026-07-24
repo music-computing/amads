@@ -92,7 +92,7 @@ def melodic_accent(score: Score) -> Optional[Score]:
             current_coef, next_coef = 0.5, 0.5
         else:
             raise RuntimeError(
-                "how did we end up in a case that " "is an impossibility?"
+                "how did we end up in a case that is an impossibility?"
             )
 
         current_val = current_note.get(annotation_name, None)
