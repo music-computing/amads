@@ -88,9 +88,10 @@ INTERVAL_SET_TO_QUALITY: dict[frozenset[int], str] = {
 
 # ---------------------------------------------------------------------------
 
-ROMAN_TO_DEGREE: dict[str, int] = {
-    "I": 0, "II": 1, "III": 2, "IV": 3,
-    "V": 4, "VI": 5, "VII": 6,
+_ROMAN_NUMERALS = ("I", "II", "III", "IV", "V", "VI", "VII")
+
+ROMAN_TO_DEGREE: dict[str, int] = {  # NB: +1 to map from 0- to 1-index
+    name: i + 1 for i, name in enumerate(_ROMAN_NUMERALS)
 }
 
 ROMAN_RE = re.compile(
@@ -391,10 +392,11 @@ class Chord:
             )
         inversion, has_seventh = INVERSION_FIGURES[figure]
         add7 = has_seventh or seventh
-        degree = ROMAN_TO_DEGREE[core]
+        degree = ROMAN_TO_DEGREE[core]  # 1-index
+        scale_index = degree - 1  # 0-indexed offset into `scale`
 
         # Handle chromatic roots (bVII, #IV etc.)
-        root_pc = (tonic_pc + scale[degree]) % 12
+        root_pc = (tonic_pc + scale[scale_index]) % 12
         if accidental == 'b':
             root_pc = (root_pc - 1) % 12
         elif accidental == '#':
@@ -411,7 +413,8 @@ class Chord:
             # Derive quality by stacking scale tones
             n_tones = 4 if add7 else 3
             stacked_pcs = [
-                (tonic_pc + scale[(degree + 2 * i) % 7]) % 12
+                # (tonic_pc + scale[(degree + 2 * i) % 7]) % 12
+                (tonic_pc + scale[(scale_index + 2 * i) % 7]) % 12
                 for i in range(n_tones)
             ]
             intervals = frozenset((pc - root_pc) % 12 for pc in stacked_pcs)
