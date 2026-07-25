@@ -34,21 +34,18 @@ def test_dropshortnotes_grace_notes():
     assert notes[0].pitch.key_num == 62
 
 
-def test_dropshortnotes_threshold_is_inclusive():
-    """Notes with tied_duration exactly equal to threshold are dropped."""
+def test_dropshortnotes_threshold_is_exclusive():
+    """Notes with tied_duration exactly equal to threshold are kept."""
     score = Score()
     part = Part(parent=score)
 
-    Note(
-        parent=part, onset=0.0, duration=0.25, pitch=60
-    )  # exactly 0.25 so dropped
+    Note(parent=part, onset=0.0, duration=0.25, pitch=60)  # exactly 0.25, kept
     Note(parent=part, onset=1.0, duration=0.5, pitch=62)  # kept
 
     result = dropshortnotes(score, threshold=0.25)
     notes = result.get_sorted_notes()
 
-    assert len(notes) == 1
-    assert notes[0].pitch.key_num == 62
+    assert len(notes) == 2
 
 
 def test_dropshortnotes_tied_chain():
@@ -61,7 +58,7 @@ def test_dropshortnotes_tied_chain():
     n1.tie = n2
     Note(parent=part, onset=1.0, duration=1.0, pitch=64)  # kept
 
-    result = dropshortnotes(score, threshold=0.25)
+    result = dropshortnotes(score, threshold=0.3)
     notes = result.get_sorted_notes()
 
     assert len(notes) == 1
@@ -71,5 +68,5 @@ def test_dropshortnotes_tied_chain():
 if __name__ == "__main__":
     test_dropshortnotes_basic()
     test_dropshortnotes_grace_notes()
-    test_dropshortnotes_threshold_is_inclusive()
+    test_dropshortnotes_threshold_is_exclusive()
     test_dropshortnotes_tied_chain()

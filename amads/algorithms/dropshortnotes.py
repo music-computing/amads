@@ -3,6 +3,7 @@ Implementation of the dropshortnotes() function from the Matlab MIDI Toolbox
 
 Original Document: https://github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf, Page 57
 
+<small>**Author**: Arnav Sayooj</small>
 """
 
 from amads.core.basics import Note, Score
@@ -10,46 +11,54 @@ from amads.core.basics import Note, Score
 
 def dropshortnotes(score: Score, threshold: float) -> Score:
     """
-    Removes notes whose total tied duration is less than or equal to a threshold.
+    Removes notes whose total tied duration is strictly less than a threshold.
 
-    The score is first flattened, which merges any tied note chains into single
-    notes. Notes whose duration is then less than or equal to ``threshold`` are
-    removed.
+    For each note that starts a tied chain, the total tied duration is compared
+    against the threshold. If the total duration is strictly less than the
+    threshold, all notes in the chain are removed.
 
-    Note: this is not an exact port of the MIDI Toolbox function, which uses
-    strictly less than for the threshold comparison. This implementation uses
-    less than or equal to.
+    Zero is a special case: passing ``threshold = 0`` removes only notes whose
+    tied duration is exactly zero.
 
     Parameters
     ----------
     score : Score
         The score to filter.
     threshold : float
-        Duration threshold in beats. Notes with ``tied_duration <= threshold``
-        are removed. Use 0 to drop only zero-duration grace notes.
+        Duration threshold in beats. Notes with ``tied_duration < threshold``
+        are removed. Pass ``0`` to remove only zero-duration grace notes.
 
     Returns
     -------
     Score
-        A new, flattened score with short notes removed.
-
-    Notes
-    -----
-    To drop notes strictly shorter than a duration *d*, it is recommended to first quantize the score
-    to an appropriate sub-multiple of *d* so that durations slightly less than
-    *d* round up to *d*. Then call ``dropshortnotes`` with ``threshold = d -
-    1.0e-6``.
+        A copy of the score with short notes removed.
     """
-    # 1. Flatten the score
-    flat_score = score.flatten()
+    # 1. Copy the score to avoid modifying the original
+    score_copy = score.copy()
+    all_notes = list(score_copy.find_all(Note))
 
-    # 2. Remove notes whose duration is at or below the threshold
-    for part in flat_score.content:
-        i = 0
-        while i < len(part.content):
-            event = part.content[i]
-            if isinstance(event, Note) and event.tied_duration <= threshold:
-                event.parent.remove(event)  # doesn't increment i
-            else:
-                i += 1
-    return flat_score
+    # 2. Find notes to remove, starting only from chain heads
+    tied_to_ids = {id(n.tie) for n in all_notes if n.tie}
+
+    to_remove = []
+    for note in all_notes:
+        if id(note) in tied_to_ids:
+            continue
+        if threshold == 0:
+            should_drop = note.tied_duration == 0
+        else:
+            should_drop = note.tied_duration < threshold
+        if should_drop:
+            node = note
+            while isinstance(node, Note):
+                to_remove.append(node)
+                if node.tie is None:
+                    break
+                node = node.tie
+
+    # 3. Remove all collected notes
+    for note in to_remove:
+        if note.parent:
+            note.parent.remove(note)
+
+    return score_copy
