@@ -33,15 +33,27 @@ C_MAJOR = Key.from_str("C")
 
 # Section 2, paper's own dependency-principle example
 
-# TODO currently failing, investigate.
-# def test_a_full_example_C_A7_Dm_G_C():
-#     tree = parse(["I", "V7/ii", "ii", "V", "I"], C_MAJOR)
-#     assert [leaf.chord.label for leaf in tree.leaves()] == ["C", "A7", "Dm", "G", "C"]
-#     # A7 must be dependent on Dm (rule 17), not directly on the opening C:
-#     a7_leaf = next(n for n in tree if n.kind == "surface" and n.chord.label == "A7")
-#     dm_leaf = next(n for n in tree if n.kind == "surface" and n.chord.label == "Dm")
-#     scaledegree_parent = next(n for n in tree if dm_leaf in n.children and a7_leaf in n.children)
-#     assert scaledegree_parent.rule == "17"
+
+def test_a_full_example_C_A7_Dm_G_C():
+    tree = parse(["I", "V7/ii", "ii", "V", "I"], C_MAJOR)
+    assert [leaf.chord.label for leaf in tree.leaves()] == [
+        "C",
+        "A7",
+        "Dm",
+        "G",
+        "C",
+    ]
+    # A7 must be dependent on Dm (rule 17), not directly on the opening C:
+    a7_leaf = next(
+        n for n in tree if n.kind == "surface" and n.chord.label == "A7"
+    )
+    dm_leaf = next(
+        n for n in tree if n.kind == "surface" and n.chord.label == "Dm"
+    )
+    scaledegree_parent = next(
+        n for n in tree if dm_leaf in n.children and a7_leaf in n.children
+    )
+    assert scaledegree_parent.rule == "17"
 
 
 def test_b_drop_A7_still_acceptable():
