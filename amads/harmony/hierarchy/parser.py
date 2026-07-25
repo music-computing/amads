@@ -560,7 +560,13 @@ def parse_with_modulation(
         ):  # case 2: try nesting under an open frame via psi
             for depth, frame in enumerate(reversed(stack)):
                 for x in NON_TONIC_FUNCTIONS:
-                    if psi(x, frame.key) == k:
+                    n_options = len(
+                        FUNCTION_REALIZATION.get(x, {}).get(frame.key.mode, [])
+                    )
+                    if any(
+                        psi(x, frame.key, degree_choice=dc) == k
+                        for dc in range(n_options)
+                    ):
                         target_idx = len(stack) - 1 - depth
                         close_to(stack, target_idx + 1)
                         stack.append(
