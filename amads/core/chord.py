@@ -6,8 +6,10 @@ This is not intended to compete with fuller representations elsewhere
 but to cover here in AMADS ("in house")
 the basic functionality needed for the majority of use cases.
 
-Note that the "chord" is almost always a somewhat abstract (often analytic) category,
-even when included in notation.
+We situate this chord module within 'core' alongside basics, pitch, and the like,
+because it is sometimes notated (e.g., in leadsheets),
+while noting that the "chord" is almost always a somewhat abstract (often analytic) category,
+even when notated.
 Most symbols define limited elements.
 The inclusion of pitch class is a normal minimum.
 The root is common.
