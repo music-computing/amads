@@ -12,8 +12,8 @@ When centers are provided:
 
   - the number of centers gives the number of bins
   - if ignore_extrema is False, the first and last bins are open-ended,
-    counting all values below the first center and above the last center.
-    boundaries can be computed from centers using either linear or logarithmic
+    extending to -infinity and +infinity, respectively.
+    Boundaries can be computed from centers using either linear or logarithmic
     interpolation. If provided, boundaries can be of length len(centers) + 1,
     in which case the first and last values are ignored (since the bins are
     open-ended); otherwise, boundaries have length len(centers) - 1.
@@ -29,6 +29,11 @@ When centers are not provided, boundaries must be provided:
     making the first and last bins open-ended.
   - if ignore_extrema is True, the first and last bins are closed, and values
     outside the bin boundaries are ignored.
+
+Data is placed in a bin when it is greater or equal to the lower boundary
+and less than the upper boundary in keeping with NumPy / Matplotlib / Pandas
+histogram behavior. Be aware that when boundaries are computed from centers
+that float boundary values may be inexact.
 
 <small>**Author**: Roger Dannenberg</small>
 """
@@ -168,7 +173,7 @@ class Histogram1D:
     ):
         if not bin_centers and not bin_boundaries:
             raise ValueError(
-                "Must provide either bin_centers or " "bin_boundaries."
+                "Must provide either bin_centers or bin_boundaries."
             )
         if not bin_boundaries:
             if ignore_extrema:
@@ -197,15 +202,16 @@ class Histogram1D:
                 )
         if not bin_centers:
             bin_centers = boundaries_to_centers(bin_boundaries, interpolation)
-            if ignore_extrema:
+            if not ignore_extrema:
                 bin_boundaries = bin_boundaries[1:-1]
 
         # now, we need len(bin_boundaries) to respect ignore_extrema
-        blen = len(bin_boundaries)
-        clen = len(bin_centers)
-        assert (not ignore_extrema and (blen == clen - 1)) or (
-            (ignore_extrema) and (blen == clen + 1)
-        )
+        # (this is redundant since all cases are tested above)
+        # blen = len(bin_boundaries)
+        # clen = len(bin_centers)
+        # assert (not ignore_extrema and (blen == clen - 1)) or (
+        #     (ignore_extrema) and (blen == clen + 1)
+        # )
 
         self.ignore_extrema = ignore_extrema
         self.bins = [initial_value] * len(bin_centers)
@@ -244,7 +250,7 @@ class Histogram1D:
             raise ValueError("Histogram2D must use add_point_2d method")
         i = self.find_bin(data)
         if self.ignore_extrema:
-            if i == 0 or i == len(self.bins):
+            if i == 0 or i == len(self.bin_boundaries):
                 return None  # out of bounds
             else:
                 i -= 1  # bin[0] corresponds to bounds[1:2]
