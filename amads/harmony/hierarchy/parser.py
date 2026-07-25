@@ -149,7 +149,10 @@ def parse_token(token: str, key: Key) -> Terminal:
         if main_core == "V":
             root_pc = (target_root_pc + 7) % 12
             quality = "dominant7" if seventh else "major"
-        elif main_core in ("VII", "VIIO", "VII0"):
+        elif main_core in (
+            "VII",
+            "VIIO",
+        ):  # NB: "VII0" is unreachable as `isalpha()` removes digits
             root_pc = (target_root_pc + 11) % 12
             quality = "diminished7" if seventh else "diminished"
         else:
@@ -690,6 +693,10 @@ def _cyk_region_chart(
             if all(p is not None for p in trio) and tuple(
                 p[0] for p in trio
             ) == (1, 4, 1):
+                # TODO consider something like adding `and all(
+                #     p[1].chord is not None and p[1].chord.quality == "major"
+                #     for p in trio`
+                # )):
                 t_node = Node(
                     "t",
                     "function",
