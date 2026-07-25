@@ -149,7 +149,10 @@ def parse_token(token: str, key: Key) -> Terminal:
         if main_core == "V":
             root_pc = (target_root_pc + 7) % 12
             quality = "dominant7" if seventh else "major"
-        elif main_core in ("VII", "VIIO", "VII0"):
+        elif main_core in (
+            "VII",
+            "VIIO",
+        ):  # NB: "VII0" is unreachable as `isalpha()` removes digits
             root_pc = (target_root_pc + 11) % 12
             quality = "diminished7" if seventh else "diminished"
         else:
@@ -166,9 +169,12 @@ def parse_token(token: str, key: Key) -> Terminal:
         raise ParseError(
             f"Could not parse token {token!r} as a Roman numeral in {key}: {e}"
         )
-    assert (
-        chord.key == key.as_chord_key_str()
-    )  # from_roman tags the chord with the key it used
+
+    if chord.key != key.as_chord_key_str():
+        raise ParseError(
+            f"Internal error: `from_roman` tagged {token!r} with key {chord.key!r}, "
+            f"expected {key.as_chord_key_str()!r}."
+        )
 
     # Rule (23): d is always V (major/dominant7) or VII (diminished/diminished7),
     if (
@@ -560,7 +566,13 @@ def parse_with_modulation(
         ):  # case 2: try nesting under an open frame via psi
             for depth, frame in enumerate(reversed(stack)):
                 for x in NON_TONIC_FUNCTIONS:
-                    if psi(x, frame.key) == k:
+                    n_options = len(
+                        FUNCTION_REALIZATION.get(x, {}).get(frame.key.mode, [])
+                    )
+                    if any(
+                        psi(x, frame.key, degree_choice=dc) == k
+                        for dc in range(n_options)
+                    ):
                         target_idx = len(stack) - 1 - depth
                         close_to(stack, target_idx + 1)
                         stack.append(
@@ -681,6 +693,10 @@ def _cyk_region_chart(
             if all(p is not None for p in trio) and tuple(
                 p[0] for p in trio
             ) == (1, 4, 1):
+                # TODO consider something like adding `and all(
+                #     p[1].chord is not None and p[1].chord.quality == "major"
+                #     for p in trio`
+                # )):
                 t_node = Node(
                     "t",
                     "function",

@@ -26,7 +26,12 @@ Rule 28 (surface repetition) is implemented but trivial.
 
 from dataclasses import dataclass
 
-from amads.harmony.hierarchy.core import Key, function_to_chord, psi
+from amads.harmony.hierarchy.core import (
+    FUNCTION_REALIZATION,
+    Key,
+    function_to_chord,
+    psi,
+)
 
 
 @dataclass(frozen=True)
@@ -155,10 +160,13 @@ def modulation_expansions(function: str, key: Key) -> list[RHS]:
     recursive region domain at a new local key."""
     if function == "t":
         return []
-    new_key = psi(function, key)
-    if new_key is None:
-        return []
-    return [RHS("15", (ChildSpec("region", "TR", new_key),))]
+    out = []
+    n_options = len(FUNCTION_REALIZATION.get(function, {}).get(key.mode, []))
+    for degree_choice in range(n_options):
+        new_key = psi(function, key, degree_choice=degree_choice)
+        if new_key is not None:
+            out.append(RHS("15", (ChildSpec("region", "TR", new_key),)))
+    return out
 
 
 def mode_change_expansions(function: str, key: Key) -> list[RHS]:
