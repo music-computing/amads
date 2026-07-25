@@ -166,9 +166,12 @@ def parse_token(token: str, key: Key) -> Terminal:
         raise ParseError(
             f"Could not parse token {token!r} as a Roman numeral in {key}: {e}"
         )
-    assert (
-        chord.key == key.as_chord_key_str()
-    )  # from_roman tags the chord with the key it used
+
+    if chord.key != key.as_chord_key_str():
+        raise ParseError(
+            f"Internal error: `from_roman` tagged {token!r} with key {chord.key!r}, "
+            f"expected {key.as_chord_key_str()!r}."
+        )
 
     # Rule (23): d is always V (major/dominant7) or VII (diminished/diminished7),
     if (
