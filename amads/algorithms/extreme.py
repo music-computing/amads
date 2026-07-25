@@ -3,9 +3,10 @@ Implementation of the extreme() function from the Matlab MIDI Toolbox
 
 Original Document: https://github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf, Page 61
 
+<small>**Author**: Arnav Sayooj</small>
 """
 
-from amads.core.basics import Note, Part, Score
+from amads.core.basics import Note, Score
 
 
 def extreme(score: Score, method: str = "high") -> Score:
@@ -48,15 +49,10 @@ def extreme(score: Score, method: str = "high") -> Score:
             elif method == "low" and note.pitch.key_num < current.pitch.key_num:
                 onset_note[onset] = note
 
-    # 3. Build a new score with only the extreme notes
-    result = Score()
-    part = Part(parent=result)
-    for note in sorted(onset_note.values(), key=lambda n: n.onset):
-        Note(
-            parent=part,
-            onset=note.onset,
-            duration=note.duration,
-            pitch=note.pitch.key_num,
-        )
+    # 3. Replace part content with only the extreme notes
+    part = flat_score.content[0]
+    part.content = sorted(onset_note.values(), key=lambda n: n.onset)
+    for note in part.content:
+        note.parent = part
 
-    return result
+    return flat_score
