@@ -1,5 +1,5 @@
-from amads.algorithms.extreme import extreme
 from amads.core.basics import Note, Part, Score
+from amads.pitch.extreme import extreme
 
 
 def test_extreme_high():
