@@ -5,8 +5,6 @@ Original Document: https://github.com/miditoolbox/1.1/blob/master/documentation/
 
 """
 
-import copy
-
 from amads.core.basics import Note, Score
 
 
@@ -54,8 +52,8 @@ def quantize(
         A new, flattened, and quantized score.
     """
 
-    # deep copy so tied chains are intact when quantize runs
-    score_copy = copy.deepcopy(score)
+    # copy so tied chains are intact when quantize runs
+    score_copy = score.copy()
 
     if filter_divisions is not None:
         threshold = 1.0 / filter_divisions

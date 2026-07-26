@@ -121,6 +121,32 @@ def test_tied_trims_end():
     assert notes[2].duration == 0.7  # trimmed from 0.8 to fill to 2.5
 
 
+def test_tied_deletes_end():
+    """Test that a note at the end of a chain is deleted when its onset
+    falls at or beyond the final quantized offset.
+
+    Tests EventGroup.quantize().
+    """
+    part = Part()
+
+    # total = 0.9, dur_divisions=2 rounds to 1.0, final_offset = 1.0
+    # N3.onset = 1.0 >= final_offset, so N3 is deleted
+    note_a = Note(parent=part, onset=0.0, duration=0.2, pitch=60)
+    note_b = Note(parent=part, onset=0.5, duration=0.2, pitch=60)
+    note_c = Note(parent=part, onset=1.0, duration=0.5, pitch=60)
+    note_a.tie = note_b
+    note_b.tie = note_c
+
+    part.quantize(divisions=1, dur_divisions=2)
+    notes = sorted(part.find_all(Note), key=lambda n: n.onset)
+
+    assert len(notes) == 2
+    assert notes[0].onset == 0.0
+    assert notes[0].duration == 0.5
+    assert notes[1].onset == 0.5
+    assert notes[1].duration == 0.5
+
+
 def test_filter():
     """Test that filter=True removes zero-duration notes after quantization."""
     score = Score()
