@@ -1,1 +1,0 @@
-::: amads.algorithms.extreme.extreme
