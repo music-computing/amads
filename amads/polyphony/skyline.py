@@ -1,16 +1,16 @@
 """
-On this module:
-- `skyline` demonstrates a strict case for
-    retrieving the highest sounding notes at any given point (with caveats as noted below).
-- `extreme` is a similar function but for returning the *single* highest/lowest/sharpest/flatest note only.
+In this directory:
+- [this module] `skyline` returns a score with the highest sounding notes at any given point.
+- `extreme` is similar, and designed to match the MIDI toolkit as exactly as possible.
+- `envelope` is a variant on skyline that could be said to constitute a "smoothed" form,
+    and (currently) operates on pitch-onset pairs only (analysis only, no score return).
+- `superlative` is the most reductive, returning only the *single* highest/lowest/sharpest/flattest value.
 
-See also
- -`envelope.py` for a variant on skyline that could be said to constitute a "smoothed" form of the same.
-
-<small>**Authors**: Roger Dannenberg, Arnav Sayooj, Mark Gotham</small>
+This module author:
+<small>**Author**: Roger Dannenberg
 """
 
-__authors__ = ["Roger Dannenberg", "Arnav Sayooj", "Mark Gotham"]
+__author__ = "Roger Dannenberg"
 
 from typing import List, Optional, cast
 
@@ -154,86 +154,3 @@ def skyline(score: Score, threshold: float = 0.1) -> Score:
         else:
             assert False, "Unexpected condition, implementation error detected"
     return score
-
-
-def extreme(score: Score, attribute: str = "high") -> int:
-    """
-    Returns the extreme pitched Note from any score, as measured by one of four `attribute` options.
-
-    The highest/lowest pair is relatively clear.
-    This resembles the `skyline` functionality also in this module
-    as well as the `extreme` function in in MIDI Toolbox
-    (https://github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf, Page 61)
-    except that this function returns the single highest/lowest note overall.
-
-    To this logic we add another pair of options: the sharpest/flattest note,
-    for that note who's pitch *spelling* is furthest along the spiral of fifths.
-
-    Parameters
-    ----------
-    score : Score
-        The polyphonic score to process.
-    attribute : str. One of 4 options:
-        "high" (default) or "low" by absolute pitch value (MIDI number, no spelling)
-        or "sharp" or "flat" for that note who's pitch spelling is furthest along the spiral of fifths.
-        Note that for the latter pair, the integer refers to the number of fifths from C,
-        so F is -1 and G is plus 1, for example.
-
-    Returns
-    -------
-    int
-        The value in question.
-
-    Examples
-    --------
-    >>> from amads.music import example
-    >>> from amads.io.readscore import read_score
-    >>> mid = read_score(example.fullpath("midi/sarabande.mid"))  # doctest: +ELLIPSIS
-    Reading ...
-    >>> extreme(mid, attribute="high")
-    92
-    >>> extreme(mid, attribute="low")
-    62
-    >>> extreme(mid, attribute="sharp")
-    7
-    >>> extreme(mid, attribute="flat")
-    -4
-
-    >>> extreme(mid, attribute="invalid_attribute")
-    Traceback (most recent call last):
-    ...
-    ValueError: attribute must be one of ('high', 'low', 'sharp', 'flat'), got 'invalid_attribute'
-
-    """
-
-    valid_attributes = ("high", "low", "sharp", "flat")
-    attribute = attribute.lower()
-    if attribute not in valid_attributes:
-        raise ValueError(
-            f"attribute must be one of {valid_attributes}, got {attribute!r}"
-        )
-
-    flat_score = score.flatten()
-    notes = flat_score.get_sorted_notes()
-
-    if len(notes) < 2:
-        raise ValueError(
-            "Only call this function on cases with at least two notes."
-        )
-
-    if attribute in ("high", "low"):
-        current = notes[0].pitch.key_num
-    elif attribute in ("sharp", "flat"):
-        current = notes[0].pitch.fifths_from_c
-
-    for note in notes[1:]:
-        if attribute == "high" and note.pitch.key_num > current:
-            current = note.pitch.key_num
-        elif attribute == "low" and note.pitch.key_num < current:
-            current = note.pitch.key_num
-        elif attribute == "sharp" and note.pitch.fifths_from_c > current:
-            current = note.pitch.fifths_from_c
-        elif attribute == "flat" and note.pitch.fifths_from_c < current:
-            current = note.pitch.fifths_from_c
-
-    return current
