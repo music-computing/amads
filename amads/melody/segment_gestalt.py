@@ -52,16 +52,25 @@ the musician is chief among them, and maintaining that ambiguity in our internal
 representation is also paramount)
 
 Also legit think we need well-defined rules to split and merge scores...
-
-On a completely separate and unrelated note, there are 2 pitchmeans with,
-the *exact* same implementation and 2 filenames...
 """
 
 from operator import lt
 from typing import List, cast
 
 from amads.core.basics import Note, Part, Score
-from amads.pitch.pitch_mean import pitch_mean
+
+
+def _calculate_interim_pitch_means(notes, cl_indices):
+    means = []
+    for start, last in zip(cl_indices, cl_indices[1:]):
+
+        pitch_sum = 0
+        dur_sum = 0
+        for note in notes[start:last]:
+            pitch_sum += note.key_num * note.duration
+            dur_sum += note.duration
+        means.append(pitch_sum / dur_sum)
+    return means
 
 
 def _construct_score_list(notes, intervals):
@@ -76,7 +85,30 @@ def _construct_score_list(notes, intervals):
         for note in notes[interval[0] : interval[1]]:
             note.insert_copy_into(new_part)
         score_list.append(new_score)
-    return score_list
+
+
+def _calculate_segdist(
+    clang_boundary_notes,
+    next_clang_boundary_start,
+    current_pitch_mean,
+    next_pitch_mean,
+):
+    """
+    calculates the segment distances from a list of notes that belong
+    to a singular clang based off of its constituent notes, the current pitch mean
+    """
+
+    first_note, last_note = clang_boundary_notes
+    next_first_note = next_clang_boundary_start
+    local_seg_dist = 0.0
+    # be careful of the indices when calculating segdist here
+    local_seg_dist += abs(next_pitch_mean - current_pitch_mean)
+    # first first distance
+    local_seg_dist += next_first_note.onset - first_note.onset
+    # first of next clang to last of current clang distance
+    local_seg_dist += abs(next_first_note.key_num - last_note.key_num)
+    local_seg_dist += 2 * (next_first_note.onset - last_note.onset)
+    return local_seg_dist
 
 
 def _find_peaks(target_list, comp=lt):
@@ -85,15 +117,39 @@ def _find_peaks(target_list, comp=lt):
     according to a comparison
     """
     peaks = []
-    for i, triplet in enumerate(
+
+    _min_diff = 1e-11
+
+    for i, (prev, current, next) in enumerate(
         zip(target_list, target_list[1:], target_list[2:])
     ):
-        if comp(triplet[0], triplet[1]) and comp(triplet[2], triplet[1]):
-            peaks.append(i + 1)
+        if comp(_min_diff, current - prev) and comp(_min_diff, current - next):
+            peaks.append(i + 2)
     return peaks
 
 
-def segment_gestalt(score: Score) -> tuple[list[float], list[float]]:
+def _annotate_score(score, clang_onset_iterator, segment_onset_iterator):
+    """
+    annotates the score when there is a clang onset and/or segment onset
+    by setting has_clang_onset and/or has_segment_onset to True
+    and False otherwise
+    """
+    clang_val = next(clang_onset_iterator, None)
+    seg_val = next(segment_onset_iterator, None)
+    for note in score.find_all(Note):
+        note.set("has_clang_onset", False)
+        note.set("has_segment_onset", False)
+        if clang_val == note.onset:
+            note.set("has_clang_onset", True)
+            clang_val = next(clang_onset_iterator, None)
+        if seg_val == note.onset:
+            note.set("has_segment_onset", True)
+            seg_val = next(segment_onset_iterator, None)
+
+    return score
+
+
+def segment_gestalt(score: Score) -> Score:
     """
     Given a monophonic score, returns clang and segment boundary onsets
 
@@ -104,10 +160,11 @@ def segment_gestalt(score: Score) -> tuple[list[float], list[float]]:
 
     Returns
     -------
-    tuple[list[float], list[float]]
-        None if no clangs can be formed, else, 2-tuple of:
-        (sorted list of onsets denoting clangs boundaries,
-        sorted list of onsets denoting segments segment boundaries)
+    Score
+    The same score that was passed in, but it is annotated with clang boundaries
+    by attaching two boolean attributes "has_clang_onset" and
+    "has_segment_onset" to each note in the score, where they are True
+    if the note is a clang or onset, respectively, and False otherwise.
 
 
     Raises
@@ -118,76 +175,74 @@ def segment_gestalt(score: Score) -> tuple[list[float], list[float]]:
     if not score.ismonophonic():
         raise Exception("score not monophonic, input is not valid.")
 
+    score.convert_to_quarters()
+    # No matter what I do I will need to collapse the notes.
+    # If I don't collapse the nodes, I will need node onsets...
     notes: List[Note] = cast(
         List[Note], score.flatten(collapse=True).list_all(Note)
     )
 
     if len(notes) <= 0:
-        return ([], [])
+        return _annotate_score(score, iter([]), iter([]))
 
     cl_values = []
     # calculate clang distances here
-    for note_pair in zip(notes[:-1], notes[1:]):
-        pitch_diff = note_pair[1].key_num - note_pair[0].key_num
-        onset_diff = note_pair[1].onset - note_pair[0].onset
+    for current_note, next_note in zip(notes[:-1], notes[1:]):
+        pitch_diff = next_note.key_num - current_note.key_num
+        onset_diff = next_note.onset - current_note.onset
         cl_values.append(2 * onset_diff + abs(pitch_diff))
 
     # combines the boolean map and the scan function that was done in matlab
     if len(cl_values) < 3:
-        return ([], [])
+        return _annotate_score(score, iter([]), iter([]))
 
     clang_soft_peaks = _find_peaks(cl_values)
+
     cl_indices = [0]
-    # worry about indices here
-    # starting index here
-    # 1 past the end so we can construct score list easier
-    cl_indices.extend([idx + 1 for idx in clang_soft_peaks])
+    # think about this and whether or not there's an off-by-one
+    cl_indices.extend(clang_soft_peaks)
+    # this is added for convenience
     cl_indices.append(len(notes))
 
-    clang_onsets = list(map(lambda i: (notes[i].onset), cl_indices[:-1]))
+    clang_onsets = (notes[i + 1].onset for i in clang_soft_peaks)
 
-    if len(clang_onsets) <= 2:
-        return (clang_onsets, [])
+    if len(clang_soft_peaks) <= 2:
+        return _annotate_score(score, clang_onsets, iter([]))
 
-    # we can probably split the clangs here and organize them into scores
-    clang_scores = _construct_score_list(
-        notes, zip(cl_indices[:-1], cl_indices[1:])
-    )
     # calculate segment boundaries
     # we need to basically follow segment_gestalt.m
     # (1) calculate individual clang pitch means
-    mean_pitches = [pitch_mean(score, weighted=True) for score in clang_scores]
+    mean_pitches = _calculate_interim_pitch_means(notes, cl_indices)
 
     # (2) calculate segment distances
     seg_dist_values = []
     # calculating segment distance...
-    for i in range(len(clang_scores) - 1):
-        local_seg_dist = 0.0
-        # be careful of the indices when calculating segdist here
-        local_seg_dist += abs(mean_pitches[i + 1] - mean_pitches[i])
-        # first first distance
-        local_seg_dist += (
-            notes[cl_indices[i + 1]].onset - notes[cl_indices[i]].onset
+    for start_idx, next_idx, mean, next_mean in zip(
+        cl_indices, cl_indices[1:], mean_pitches, mean_pitches[1:]
+    ):
+        current_start = start_idx
+        current_end = next_idx - 1
+        clang_boundary_notes = (notes[current_start], notes[current_end])
+        # Note that, this will not be executed when we hit our convenience value
+        # in next_idx because the next_mean won't exist
+        next_clang_start = notes[next_idx]
+
+        local_segdist = _calculate_segdist(
+            clang_boundary_notes, next_clang_start, mean, next_mean
         )
-        # first of next clang to last of distance
-        local_seg_dist += abs(
-            notes[cl_indices[i + 1]].key_num
-            - notes[cl_indices[i + 1] - 1].key_num
-        )
-        local_seg_dist += 2 * (
-            notes[cl_indices[i + 1]].onset - notes[cl_indices[i + 1] - 1].onset
-        )
-        seg_dist_values.append(local_seg_dist)
+
+        seg_dist_values.append(local_segdist)
     if len(seg_dist_values) < 3:
-        return (clang_onsets, [])
+        return _annotate_score(score, clang_onsets, iter([]))
 
     seg_soft_peaks = _find_peaks(seg_dist_values)
-    assert seg_soft_peaks[-1] < len(cl_indices) - 1
-    seg_indices = [0]
+    assert seg_soft_peaks[-1] < len(notes)
     # do we need to add 1 here? where do we add 1
     # worry about indices here
-    seg_indices.extend([cl_indices[idx + 1] for idx in seg_soft_peaks])
-    seg_indices.append(len(notes))
+    # TODO: worry about this a bit.
+    seg_indices = [cl_indices[idx] + 1 for idx in seg_soft_peaks]
 
-    segment_onsets = list(map(lambda i: (notes[i].onset), seg_indices[:-1]))
-    return (clang_onsets, segment_onsets)
+    segment_onsets = (notes[i].onset for i in seg_indices)
+
+    # mark the fields in the original score.
+    return _annotate_score(score, clang_onsets, segment_onsets)

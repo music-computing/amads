@@ -92,7 +92,9 @@ def key_cc(
     """
 
     # Get pitch-class distribution
-    pcd = np.array([pitch_class_distribution_1(score, weighted=False).data])
+    pcd = np.array(
+        [pitch_class_distribution_1(score, miditoolbox_compatible=True).data]
+    )
 
     # Apply salience weighting if requested
     if salience_flag:
@@ -135,6 +137,7 @@ def key_cc(
             results.append((attr_name, None))
             continue
         profiles_matrix = attr_value.as_canonical_matrix()
+        # TODO: figure out the arithmetic here!
         correlations = tuple(_compute_correlations(pcd, profiles_matrix))
         if any(math.isnan(val) for val in correlations):
             raise RuntimeError(
