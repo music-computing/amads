@@ -1,7 +1,7 @@
 """
 In this directory:
 - `skyline` returns a score with the highest sounding notes at any given point.
-- `superlative` is similar, and designed to match the MIDI toolkit as exactly as possible.
+- `extreme` is similar, and designed to match the MIDI toolkit as exactly as possible.
 - `envelope` is a variant on skyline that could be said to constitute a "smoothed" form,
     and (currently) operates on pitch-onset pairs only (analysis only, no score return).
 - [this module] `superlative` is the most reductive, returning only the *single* highest/lowest/sharpest/flattest value.
@@ -13,18 +13,17 @@ This module author:
 __author__ = "Mark Gotham"
 
 
-from amads.core.basics import Score
+from amads.core.basics import Note, Score
 
 
 def superlative(score: Score, attribute: str = "high") -> int:
     """
-    Returns the superlative pitched Note from any score, as measured by one of four `attribute` options.
+    Returns an integer relating to the one of four `attribute` options
+    for "superlative" pitched Note from any score, as measured by that attribute.
 
     The highest/lowest pair is relatively clear.
-    This resembles the `skyline` functionality also in this module
-    as well as the `superlative` function in in MIDI Toolbox
-    (https://github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf, Page 61)
-    except that this function returns the single highest/lowest note overall.
+    This broadly resembles the `skyline` and `extreme` functionality also in this module,
+    except that this function returns the single highest/lowest note overall rather than a score.
 
     To this logic we add another pair of options: the sharpest/flattest note,
     for that note who's pitch *spelling* is furthest along the spiral of fifths.
@@ -73,8 +72,7 @@ def superlative(score: Score, attribute: str = "high") -> int:
             f"attribute must be one of {valid_attributes}, got {attribute!r}"
         )
 
-    flat_score = score.flatten()
-    notes = flat_score.get_sorted_notes()
+    notes = score.find_all(Note)
 
     if len(notes) < 2:
         raise ValueError(
