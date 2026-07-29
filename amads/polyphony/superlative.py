@@ -74,24 +74,15 @@ def superlative(score: Score, attribute: str = "high") -> int:
 
     notes = score.find_all(Note)
 
-    if len(notes) < 2:
-        raise ValueError(
-            "Only call this function on cases with at least two notes."
-        )
-
-    if attribute in ("high", "low"):
-        current = notes[0].pitch.key_num
-    elif attribute in ("sharp", "flat"):
-        current = notes[0].pitch.fifths_from_c
-
-    for note in notes[1:]:
-        if attribute == "high" and note.pitch.key_num > current:
-            current = note.pitch.key_num
-        elif attribute == "low" and note.pitch.key_num < current:
-            current = note.pitch.key_num
-        elif attribute == "sharp" and note.pitch.fifths_from_c > current:
-            current = note.pitch.fifths_from_c
-        elif attribute == "flat" and note.pitch.fifths_from_c < current:
-            current = note.pitch.fifths_from_c
-
-    return current
+    if attribute == "high":
+        return max(notes, key=lambda n: n.pitch.key_num).pitch.key_num
+    elif attribute == "low":
+        return min(notes, key=lambda n: n.pitch.key_num).pitch.key_num
+    elif attribute == "sharp":
+        return max(
+            notes, key=lambda n: n.pitch.fifths_from_c
+        ).pitch.fifths_from_c
+    elif attribute == "flat":
+        return min(
+            notes, key=lambda n: n.pitch.fifths_from_c
+        ).pitch.fifths_from_c
