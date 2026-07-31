@@ -59,6 +59,14 @@ class EulerTonnetz(Tonnetz):
         super().__init__(faces)
 
 
+_EULER_TONNETZ = EulerTonnetz()
+"""
+Module-level singleton, shared by every `EulerTriad`.
+The face/edge structure is fixed and stateless, so there is no reason
+for each triad to rebuild its own 24 faces.
+"""
+
+
 class EulerTriad:
     """
     A major or minor triad, located on the `EulerTonnetz`,
@@ -163,6 +171,55 @@ class EulerTriad:
             return False, root
         raise ValueError("Not a major or minor triad.")
 
+    def _face(self) -> Tuple[int, int, int]:
+        """
+        Returns this triad's face on `_EULER_TONNETZ`:
+        the (root, third, fifth) pitch classes, in the exact tuple form
+        `EulerTonnetz` builds its faces in, so it can be looked up
+        directly rather than searched for.
+        """
+        third_interval = 4 if self.major_not_minor else 3
+        return (
+            self.root,
+            (self.root + third_interval) % 12,
+            (self.root + 7) % 12,
+        )
+
+    def _cross_edge(self, pitch_class_to_change: int) -> Tuple[int, ...]:
+        """
+        Finds the neighbouring triad reached by moving away from
+        `pitch_class_to_change`, via `EulerTonnetz.transform`,
+        and applies the resulting semitone shift to `pitch_multiset`.
+
+        The edge crossed is the one *not* touching `pitch_class_to_change`,
+        i.e. the edge joining the other two (shared, unchanged) pitch classes of the face.
+        The transposition applied is not hardcoded:
+        it is read off as the difference between the old and new pitch class,
+        i.e., whatever `EulerTonnetz`'s face structure says it is.
+        The difference is canonicalized to the smaller-magnitude
+        representative mod 12 (e.g. a shift of 11 is treated as -1),
+        matching the small up/down semitone moves P, L and R make.
+        """
+        face = self._face()
+        edge = frozenset(face) - {pitch_class_to_change}
+        try:
+            new_face = _EULER_TONNETZ.transform(face, edge)
+        except ValueError as error:
+            # Should be unreachable
+            # EulerTonnetz's 24 faces are fixed and always meet in well-formed pairs.
+            raise ValueError(
+                f"Could not find a neighbouring triad for face {face} across edge {set(edge)}."
+                "This points to a bug in `EulerTriad`'s face construction,"
+                f"not to the input chord {self.pitch_multiset}."
+            ) from error
+        (new_pitch_class,) = frozenset(new_face) - edge
+        transposition = (new_pitch_class - pitch_class_to_change) % 12
+        if transposition > 6:
+            transposition -= 12
+        return transform_pitch_multiset(
+            self.pitch_multiset, pitch_class_to_change, transposition
+        )
+
     def leading_tone_exchange(self) -> None:
         """
         The L-transform (leading-tone exchange).
@@ -172,13 +229,9 @@ class EulerTriad:
         """
         if self.major_not_minor:
             pitch_class_to_change = self.root
-            transposition = -1
         else:
             pitch_class_to_change = (self.root + 7) % 12
-            transposition = 1
-        self.l_transform = transform_pitch_multiset(
-            self.pitch_multiset, pitch_class_to_change, transposition
-        )
+        self.l_transform = self._cross_edge(pitch_class_to_change)
 
     def parallel(self) -> None:
         """
@@ -190,13 +243,9 @@ class EulerTriad:
         """
         if self.major_not_minor:
             pitch_class_to_change = (self.root + 4) % 12
-            transposition = -1
         else:
             pitch_class_to_change = (self.root + 3) % 12
-            transposition = 1
-        self.p_transform = transform_pitch_multiset(
-            self.pitch_multiset, pitch_class_to_change, transposition
-        )
+        self.p_transform = self._cross_edge(pitch_class_to_change)
 
     def relative(self) -> None:
         """
@@ -207,13 +256,9 @@ class EulerTriad:
         """
         if self.major_not_minor:
             pitch_class_to_change = (self.root + 7) % 12
-            transposition = 2
         else:
             pitch_class_to_change = self.root
-            transposition = -2
-        self.r_transform = transform_pitch_multiset(
-            self.pitch_multiset, pitch_class_to_change, transposition
-        )
+        self.r_transform = self._cross_edge(pitch_class_to_change)
 
 
 if __name__ == "__main__":
