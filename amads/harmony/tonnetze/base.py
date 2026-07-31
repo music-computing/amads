@@ -4,26 +4,24 @@ Much harmonic transformation functionality is described on a "Tonnetz" represent
 The best known Tonnetz is that described by Euler [1]
 and later adopted by Riemannian, "neo-Riemannian" scholars, and others.
 
-This module and directory generalises and extends this to include more recent work including by
-Konstanze Rietsch whose "Generalising Euler’s Tonnetz" [2]
-demonstrated other "Tonnetze", including with pitches on the edges rather than the vertices.
+This module and directory generalises and extends this to include more recent work
+by Konstanze Rietsch [2]
+and Boland & Hughston [3].
 
-Related Files (in the directory)
-- base.py: Generic Tonnetz class for
-    vertices/edges/faces,
-    vertex- or edge-labeling,
-    generic edge-crossing transform().
-    This is foundation for everything else.
-_pitch_io.py
-    Shared adapter for taking a List[int]/Chord/PitchCollection to an octave-preserving MIDI multiset.
-    Also serves as a semitone-shift helper used by P/L/R.
+These extensions include
+placement of pitches on edges rather than vertices
+and tesselation based on pitch combinations other than major/minor triads.
 
-Specific Tonnetze:
-- euler.py
-- g2.py
-- fano.py
-- fano_tonnetz.py
+This directory includes
+core, shared files including:
+- base.py which is a generic Tonnetz class for vertices/edges/faces, labelling, and transforms;
+_pitch_io.py which is a shared adapter for taking a List/Chord/PitchCollection to an octave-preserving MIDI multiset.
+and Tonnetz-specific modules including:
+- euler
+- b2, c2, g2 ... (after Rietsch)
+- levi, ... (after Boland & Hughston).
 
+See specific modules, classes etc. for more detail on each.
 
 References
 ----------
@@ -31,7 +29,11 @@ References
 dilucide expositae. Saint Petersburg Academy.
 [2] Konstanze Rietsch (2024) Generalizations of Euler's Tonnetz on triangulated surfaces,
 Journal of Mathematics and Music, 18:3, 328-346, DOI: 10.1080/17459737.2024.2362132
-
+https://doi.org/10.1080/17459737.2024.2362132
+[3] Jeﬀrey R. Boland & Lane P. Hughston (2026):
+Configurations, tessellations and tone networks,
+Journal of Mathematics and Music, DOI: 10.1080/17459737.2026.2678317
+https://doi.org/10.1080/17459737.2026.2678317
 
 <small>**Author**: Mark Gotham</small>
 
@@ -67,6 +69,10 @@ class Tonnetz:
     This class stores only combinatorial structure and labels.
     It has no notion of a particular geometric embedding or surface,
     and no notion of key or tonic.
+    The Tonnetz assumes a closed, orientable, manifold surface
+    (i.e., looping around a space like a torus):
+    every edge must border exactly one other face, or `neighbors`/`transform` will
+    raise a `ValueError`.
 
     Concrete tonnetze such as the Euler tonnetz
     are built by supplying a fixed set of faces and a labelling.
@@ -163,6 +169,15 @@ class Tonnetz:
                 raise ValueError(
                     f"No pitch-class label given for edges: {missing}."
                 )
+            invalid = {
+                edge: label
+                for edge, label in edge_labels.items()
+                if edge in all_edges and not 0 <= label <= 11
+            }
+            if invalid:
+                raise ValueError(
+                    f"Edge labels must be pitch classes 0-11: {invalid}."
+                )
             self.edge_labels: Optional[Dict[Edge, int]] = edge_labels
             self.vertex_labels: Optional[Dict[Vertex, int]] = None
         else:
@@ -172,6 +187,15 @@ class Tonnetz:
             if missing:
                 raise ValueError(
                     f"No pitch-class label given for vertices: {sorted(missing, key=str)}."
+                )
+            invalid = {
+                v: label
+                for v, label in vertex_labels.items()
+                if v in self.vertices and not 0 <= label <= 11
+            }
+            if invalid:
+                raise ValueError(
+                    f"Vertex labels must be pitch classes 0-11: {invalid}."
                 )
             self.vertex_labels = vertex_labels
             self.edge_labels = None
