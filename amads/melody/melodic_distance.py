@@ -6,9 +6,6 @@ Ports the `melaccent` function in Midi Toolbox.
 Original doc: github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf, page 70.
 """
 
-from collections.abc import Callable
-from typing import Tuple
-
 import numpy as np
 
 from amads.algorithms.norm import pnorm_distance
@@ -20,10 +17,10 @@ from amads.pitch.ivdist2 import interval_distribution_2
 from amads.pitch.pcdist1 import pitch_class_distribution_1
 from amads.pitch.pcdist2 import pitch_class_distribution_2
 
-
 repr = ["ivdist1", "ivdist2", "pcdist1", "pcdist2", "durdist1", "durdist2"]
 
 # calculating the numbers and putting them into the score
+
 
 # Need to think about metric... there seems to be a ton of metric problems here
 # how do I make a metric?
@@ -43,10 +40,10 @@ def melodic_distance(
     in the miditoolbox version. Namely, there is no support for melcontour
     and combcontour repr options, which means the samples argument is
     not in use as of now. As more feature branches are included, more support
-    will be included. 
+    will be included.
 
     NOTE: (documentation for limits on repr_func and metric_func)
-    Enforce dimensionality 
+    Enforce dimensionality
 
     Parameters
     ----------

@@ -112,6 +112,7 @@ nav:
       - reference/melody/melodic_accent.md
       - reference/melody/melodic_distance.md
       - reference/melody/mobility.md
+      - reference/melody/ambitus.md
     - Harmony:
       - reference/harmony/consonance.md
       - reference/harmony/root_finding.md

@@ -1,11 +1,12 @@
-__author__ = "Yiwen Zhao"
+from amads.core.basics import Note, Score
 
-import numpy as np
-from ..core.basics import Score, Note
 
-def calculate_ambitus(score: Score) -> int:
+def ambitus(score: Score) -> int | None:
     """
-    Calculate the melodic range (ambitus) in semitones of a Score object.
+    Returns the pitch range (ambitus) in semitones (or midi keynums)
+    of a Score object.
+
+    Ports the "ambitus" function from miditoolbox.
 
     Parameters
     ----------
@@ -14,20 +15,14 @@ def calculate_ambitus(score: Score) -> int:
 
     Returns
     -------
-    tuple
-        A tuple containing the melodic range in semitones, 
-        the name of the lowest pitch, and the name of the highest pitch.
-
-    Examples
-    --------
-    >>> ambitus(score)
-    (7, 'C4', 'G4')  # The range is 7 semitones from C4 to G4
+    int | None
+        None if score is empty.
+        Otherwise, the difference between the largest pitch and the smallest
+        pitch (in semitones specified by midi keynums).
     """
-    pitches = [note.keynum for note in score.find_all(Note)]
+    if next(score.find_all(Note), None) is None:
+        return None
+    min_pitch = min(note.key_num for note in score.find_all(Note))
+    max_pitch = max(note.key_num for note in score.find_all(Note))
 
-    if not pitches:
-        return 0  # No notes found, return 0 as ambitus
-    
-    melodic_range = max(pitches) - min(pitches)
-
-    return melodic_range
+    return max_pitch - min_pitch
