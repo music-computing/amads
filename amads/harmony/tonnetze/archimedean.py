@@ -45,7 +45,7 @@ from typing import Dict, FrozenSet, Iterable, Tuple
 from amads.harmony.tonnetze.base import Face
 from amads.harmony.tonnetze.euler import EulerTonnetz
 from amads.harmony.tonnetze.graph import BipartiteGraph
-from amads.harmony.tonnetze.levi import is_major_triad
+from amads.harmony.tonnetze.levi import is_major_triad, root_of
 
 __author__ = "Mark Gotham"
 
@@ -120,6 +120,60 @@ def _archimedean_adjacency(
         )
         adjacency[face_a] = neighbors
     return adjacency
+
+
+def obverse_type(face_a: Face, face_b: Face) -> str:
+    """
+    Classifies an Archimedean tonnetz edge as P', L' or R',
+    following Boland and Hughston, Section 5, footnote.
+
+    These "obverse" relations are as defined at the head of this module
+    and can also be defined as compositions of the familiar P, L, R transforms:
+    L' = RLP, P' = RPL, R' = LRP,
+    each applied right to left.
+
+    Composing the root shifts each single transform makes on a major
+    triad's root, following `EulerTriad`, gives a closed form instead
+    of simulating three steps: from a major triad of root `r`, P' reaches
+    the minor triad of root `r + 1`, L' reaches root `r + 5`, and R'
+    reaches root `r + 7`, all modulo 12.
+    Checked directly against Boland and Hughston's own example: from
+    `CM`, `r = 0`, this gives `C#m`, `Fm` and `Gm`, matching their
+    footnote exactly.
+
+    Examples
+    --------
+    >>> obverse_type((0, 4, 7), (1, 4, 8))
+    "P'"
+    >>> obverse_type((0, 4, 7), (5, 8, 0))
+    "L'"
+    >>> obverse_type((0, 4, 7), (7, 10, 2))
+    "R'"
+    """
+    major, minor = (
+        (face_a, face_b) if is_major_triad(face_a) else (face_b, face_a)
+    )
+    diff = (root_of(minor) - root_of(major)) % 12
+    return {1: "P'", 5: "L'", 7: "R'"}[diff]
+
+
+def is_p_prime_edge(face_a: Face, face_b: Face) -> bool:
+    """
+    Checks whether two adjacent Archimedean tonnetz triads are joined
+    by a P' edge.
+
+    Used as the `is_parallel_edge` argument to `p_number` and
+    `cycle_table` for the Archimedean tonnetz, following Boland and
+    Hughston's p-number, Appendix.
+
+    Examples
+    --------
+    >>> is_p_prime_edge((0, 4, 7), (1, 4, 8))
+    True
+    >>> is_p_prime_edge((0, 4, 7), (5, 8, 0))
+    False
+    """
+    return obverse_type(face_a, face_b) == "P'"
 
 
 class ArchimedeanTonnetz:

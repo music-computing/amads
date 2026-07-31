@@ -14,6 +14,8 @@ import pytest
 
 from amads.harmony.tonnetze.archimedean import (
     ArchimedeanTonnetz,
+    is_p_prime_edge,
+    obverse_type,
     shares_one_tone,
 )
 
@@ -114,20 +116,42 @@ def test_cycle_count_by_length(archimedean, length, expected_total):
     )
 
 
+@pytest.mark.parametrize(
+    "length, expected_row",
+    [
+        (4, {2: 3}),
+        (6, {1: 6, 2: 12, 3: 2}),
+        (8, {1: 6, 3: 18}),
+        (10, {2: 12, 3: 18, 4: 12, 5: 6}),
+        (12, {0: 1, 3: 2, 4: 3, 5: 6}),
+    ],
+)
+def test_cycle_table_rows(archimedean, length, expected_row):
+    """
+    The Appendix's p-number columns, read directly from the paper's
+    Archimedean tonnetz table, classified by `is_p_prime_edge`.
+    """
+    table = archimedean.components[0].cycle_table([length], is_p_prime_edge)
+    assert table[length] == expected_row
+
+
+def test_obverse_type():
+    """
+    Section V, footnote: from `CM`, P' reaches `C#m`, L' reaches `Fm`,
+    R' reaches `Gm`, matching Boland and Hughston's own example.
+    """
+    c_major = (0, 4, 7)
+    assert obverse_type(c_major, (1, 4, 8)) == "P'"
+    assert obverse_type(c_major, (5, 8, 0)) == "L'"
+    assert obverse_type(c_major, (7, 10, 2)) == "R'"
+
+
 def test_grand_total(archimedean):
     """
     Appendix: the Archimedean tonnetz admits 107 cycles in total.
-
-    This sums row totals directly, rather than via `cycle_table`,
-    since the Appendix's p-number columns for this tonnetz classify
-    edges by Boland and Hughston's P', L', R' obverse relations.
-
-    Note the p-number columns of this table are not reproduced,
-    only the row and grand totals, which do not depend on it.
     """
-    lengths = (4, 6, 8, 10, 12)
-    grand_total = sum(
-        len(archimedean.components[0].cycles_of_length(length))
-        for length in lengths
+    table = archimedean.components[0].cycle_table(
+        [4, 6, 8, 10, 12], is_p_prime_edge
     )
+    grand_total = sum(sum(row.values()) for row in table.values())
     assert grand_total == 107
