@@ -9,6 +9,7 @@ making all their public exports available at the package level.
 from .algorithms.complexity import *
 from .algorithms.entropy import *
 from .algorithms.gcd import *
+from .algorithms.mindur import *
 from .algorithms.mtype_tokenizer import *
 from .algorithms.ngrams import *
 from .algorithms.nnotes import *

@@ -29,6 +29,8 @@ import mido
 
 from amads.core.basics import EventGroup, KeySignature, Note, Part, Score, Staff
 from amads.core.timemap import TimeMap  # needed for tm.changes in meta track
+from amads.io.mido_midi_import import _mido_show
+from amads.io.pm_midi_export import _get_midi_time_signatures
 
 __author__ = "Roger B. Dannenberg"
 
@@ -152,8 +154,9 @@ def _build_meta_track(score: Score, tm: TimeMap) -> mido.MidiTrack:
     # --- Time signatures ---
     # ts.quarters is always in quarter-note units (invariant under
     # convert_to_seconds), so ticks = quarters * TICKS_PER_BEAT directly.
-    for i, ts in enumerate(score.time_signatures):
-        abs_tick = round(ts.quarters * TICKS_PER_BEAT)
+    tss = _get_midi_time_signatures(score)
+    for i, ts in enumerate(tss):  # ts is (quarters, upper, lower)
+        abs_tick = round(ts[0] * TICKS_PER_BEAT)
         meta_events.append(
             (
                 abs_tick,
@@ -161,8 +164,8 @@ def _build_meta_track(score: Score, tm: TimeMap) -> mido.MidiTrack:
                 i,
                 mido.MetaMessage(
                     "time_signature",
-                    numerator=int(ts.upper),
-                    denominator=int(ts.lower),
+                    numerator=int(ts[1]),
+                    denominator=int(ts[2]),
                     time=0,
                 ),
             )
@@ -202,10 +205,7 @@ def _build_meta_track(score: Score, tm: TimeMap) -> mido.MidiTrack:
 
 
 def _build_instrument_track(
-    evgroup: EventGroup,
-    channel: int,
-    program: int,
-    name: str,
+    evgroup: EventGroup, channel: int, program: int, name: str
 ) -> mido.MidiTrack:
     """Build a MIDI track for one instrument part (Part or Staff).
 
@@ -252,6 +252,7 @@ def _build_instrument_track(
     #   (1, seq*2)     — note_on (regular or grace)
     #   (1, seq*2+1)   — grace note_off (immediately after its note_on)
     events: list[tuple] = []
+    minimum_onset: dict[int, int] = {}  # pitch → earliest allowed onset tick
 
     for seq, note in enumerate(notes):
         dynamic = note.dynamic if note.dynamic is not None else 100
@@ -262,7 +263,14 @@ def _build_instrument_track(
 
         onset_tick = round(note.onset * TICKS_PER_BEAT)
         # tied_duration spans the full duration including any tied notes.
-        offset_tick = round((note.onset + note.tied_duration) * TICKS_PER_BEAT)
+        dur = max(note.tied_duration, 0.001)  # force non-zero duration
+        offset_tick = round((note.onset + dur) * TICKS_PER_BEAT)
+
+        # check for minimum onset for this pitch
+        onset_tick = max(onset_tick, minimum_onset.get(note_num, 0))
+
+        # update minimum onset for this pitch to the new offset
+        minimum_onset[note_num] = offset_tick
 
         note_on = mido.Message(
             "note_on", channel=channel, note=note_num, velocity=velocity, time=0
@@ -296,42 +304,29 @@ def _build_instrument_track(
     return track
 
 
-def _mido_show(mid: mido.MidiFile, filename) -> None:
-    """Print a text summary of the MIDI file to stdout."""
-    print(f"MIDI file: {filename}")
-    print(
-        f"  type={mid.type}, ticks_per_beat={mid.ticks_per_beat}, "
-        f"tracks={len(mid.tracks)}"
-    )
-    for i, track in enumerate(mid.tracks):
-        label = ""
-        for msg in track:
-            if hasattr(msg, "name") and msg.type == "track_name":
-                label = f" ({msg.name})"
-                break
-        print(f"  Track {i}{label}: {len(track)} messages")
-        shown = 0
-        for msg in track:
-            print(f"    {msg}")
-            shown += 1
-            if shown >= 20:
-                remaining = len(track) - shown
-                if remaining > 0:
-                    print(f"    ... ({remaining} more messages)")
-                break
-
-
 def mido_midi_export(
-    score: Score, filename: str | Path, format: str, show: bool, is_temp: bool
-) -> None:
+    score: Score,
+    filename: str | Path,
+    format: str,
+    show: bool,
+    is_temp: bool = False,
+) -> None:  # type: ignore  (unused parameter)
     """
     Export a Score as a standard MIDI file using the MIDO library.
 
     Unlike PrettyMIDI, MIDO writes note_on and note_off events in the order
-    they are appended to a track, so zero-duration notes (grace notes) are
-    correctly encoded as a note_on immediately followed (delta=0) by a
+    they are appended to a track, so zero-duration notes (grace notes) *could*
+    be correctly encoded as a note_on immediately followed (delta=0) by a
     note_on with velocity 0, preserving the original note sequence from
-    the Score.
+    the Score. However, these files cannot be read by pretty_midi, so we
+    change the duration to 0.001 quarters.
+
+    This causes another problem if there is a zero-length note followed by
+    another note at the same pitch: moving the note-off of the first note
+    after the note-on of the first creates overlapping notes, which is not
+    well-defined in MIDI. We solve this problem by tracking the minimum_onset
+    allowed for each pitch (key_number) and moving the onset later if it
+    comes before the offset of a note already sounding.
 
     Parameters
     ----------
@@ -388,10 +383,7 @@ def mido_midi_export(
         program = part.get("midi_program")
 
         track = _build_instrument_track(
-            evgroup,
-            channel,
-            program,
-            name if name is not None else "Unknown",
+            evgroup, channel, program, name if name is not None else "Unknown"
         )
         mid.tracks.append(track)
 

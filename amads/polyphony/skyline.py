@@ -1,10 +1,13 @@
 """
-This `skyline.py` module demonstrates a strict case retrieving the
-highest sounding notes at any given point (with caveats as noted below).
+In this directory:
+- [this module] `skyline` returns a score with the highest sounding notes at any given point.
+- `extreme` is similar, and designed to match the MIDI toolkit as exactly as possible.
+- `envelope` is a variant on skyline that could be said to constitute a "smoothed" form,
+    and (currently) operates on pitch-onset pairs only (analysis only, no score return).
+- `superlative` is the most reductive, returning only the *single* highest/lowest/sharpest/flattest value.
 
-See also `envelope` for a variant that could be said to constitute a "smoothed" form of the same.
-
-<small>**Author**: Roger Dannenberg</small>
+This module author:
+<small>**Author**: Roger Dannenberg
 """
 
 __author__ = "Roger Dannenberg"

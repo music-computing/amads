@@ -92,9 +92,11 @@ def pitch_class_distribution_2(
         for n in part.find_all(Note):
             note: Note = cast(Note, n)
             pc = note.pitch_class
-            if weighted and prev_pc is not None:
+            if weighted:
                 dur = duraccent(note)
-                w = prev_dur + dur  # type: ignore
+                # NB: prev_dur is None until we have a second note to pair it with;
+                # only then do we have a transition to weight.
+                w = (prev_dur + dur) if prev_pc is not None else 1.0
                 prev_dur = dur
             else:
                 w = 1.0
