@@ -94,11 +94,12 @@ def tonality(
 
     Examples
     --------
+    >>> import amads.pitch.key.profiles as prof
     >>> from amads.core.basics import Score
     >>> score = Score.from_melody([60, 62, 64, 65, 67, 69, 71, 72])
     >>> values = tonality(score)
-    >>> values[0]
-    6.35
+    >>> values[0] == prof.krumhansl_kessler.major.data[0]
+    True
     """
     notes: List[Note] = score.get_sorted_notes()
     if not notes:
