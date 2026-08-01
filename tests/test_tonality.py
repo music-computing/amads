@@ -1,10 +1,17 @@
 """Tests for tonality."""
 
+import warnings
+
 import pytest
 
 from amads.core.basics import Score
 from amads.pitch.key import profiles as prof
-from amads.pitch.key.tonality import tonality
+from amads.pitch.key.tonality import (
+    _mode_from_keymode_result,
+    _stability_for_note,
+    _weights_c_tonic,
+    tonality,
+)
 
 
 def test_tonality_empty_score():
@@ -35,7 +42,30 @@ def test_tonality_c_minor_uses_minor_profile():
     assert values == pytest.approx(expected)
 
 
-def test_tonality_alternate_profile():
-    melody = Score.from_melody([60, 64, 67])
-    values = tonality(melody, profile=prof.temperley)
-    assert values[0] == prof.temperley.major.data[0]
+def test_mode_from_keymode_result_major_and_minor():
+    """Test that the mode from a keymode result is major or minor."""
+    assert _mode_from_keymode_result(["major"]) == "major"
+    assert _mode_from_keymode_result(["minor"]) == "minor"
+
+
+def test_mode_from_keymode_result_unspecified():
+    """Test that the mode from a keymode result is unspecified."""
+    assert _mode_from_keymode_result(["major", "minor"]) == "unspecified"
+    assert _mode_from_keymode_result([]) == "unspecified"
+
+
+def test_weights_c_tonic_unspecified_warns_and_uses_major():
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        weights = _weights_c_tonic("unspecified")
+    assert len(caught) == 1
+    assert "Key mode not specified" in str(caught[0].message)
+    assert weights == list(prof.krumhansl_kessler.major.data)
+
+
+def test_tonality_undefined_pitch_raises():
+    note = Score.from_melody([60]).get_sorted_notes()[0]
+    note.pitch = None
+    weights = list(prof.krumhansl_kessler.major.data)
+    with pytest.raises(ValueError, match="defined pitch"):
+        _stability_for_note(note, weights)

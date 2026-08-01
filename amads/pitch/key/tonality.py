@@ -1,8 +1,20 @@
 """
 Tonal stability of notes in a melody using key-profile weights.
 
-After estimating major/minor mode with :func:`~amads.pitch.key.keymode.keymode`,
-each note receives the profile weight for its pitch class (tonic C assumed).
+After estimating major/minor mode with [keymode][amads.pitch.key.keymode.keymode],
+each note receives the Krumhansl--Kessler profile weight for its pitch class.
+Profiles are not rotated to an estimated key: weights are those of C major or
+C minor, matching the MIDI Toolbox ``tonality`` behavior (same assumption as
+``keymode``).
+
+MIDI Toolbox-compatible port. For key-aware stability with per-note annotation,
+see [tonal_stability][amads.pitch.key.tonal_stability.tonal_stability].
+
+<small>**Author**: Tai Nakamura</small>
+
+Reference
+---------
+https://github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf, page 93.
 """
 
 import warnings
@@ -13,66 +25,80 @@ from amads.core.basics import Note, Score
 from amads.pitch.key.keymode import keymode
 
 
-def _profile_weights_for_mode(
-    profile: prof.KeyProfile, mode: str
-) -> List[float]:
+def _mode_from_keymode_result(modes: List[str]) -> str:
+    """Map keymode output to a mode label for C-aligned weight lookup."""
+    if modes == ["major"]:
+        return "major"
+    if modes == ["minor"]:
+        return "minor"
+    return "unspecified"
+
+
+def _weights_c_tonic(mode: str) -> List[float]:
+    """Return unrotated Krumhansl--Kessler weights for C major or C minor."""
     if mode == "major":
-        pitch_profile = profile.major
-    elif mode == "minor":
-        pitch_profile = profile.minor
-    else:
-        raise ValueError(f"unsupported mode {mode!r}")
-    return list(pitch_profile.data)
+        return list(prof.krumhansl_kessler.major.data)
+    if mode == "minor":
+        return list(prof.krumhansl_kessler.minor.data)
+    warnings.warn(
+        "Key mode not specified (major=1, minor=2)",
+        stacklevel=3,
+    )
+    return list(prof.krumhansl_kessler.major.data)
+
+
+def _stability_for_note(note: Note, weights: List[float]) -> float:
+    """Return the stability value for a note."""
+    if note.pitch is None or note.pitch.key_num is None:
+        raise ValueError("tonality requires notes with defined pitch")
+    pc = int(note.pitch.key_num) % 12
+    return float(weights[pc])
 
 
 def tonality(
     score: Score,
-    profile: prof.KeyProfile = prof.krumhansl_kessler,
     salience_flag: bool = False,
 ) -> List[float]:
     """Tonal stability rating for each note in a score.
 
-    Calls :func:`~amads.pitch.key.keymode.keymode` to choose major or minor, then
-    looks up Krumhansl--Kessler-style profile weights by pitch class (MIDI Toolbox
-    ``tonality`` with ``refstat('kkmaj')`` / ``refstat('kkmin')``).
-
-    <small>**Author**: Tai Nakamura</small>
+    Calls [keymode][amads.pitch.key.keymode.keymode] to choose major or minor,
+    then looks up unrotated Krumhansl--Kessler profile weights by pitch class
+    (C major or C minor profiles, not rotated to the score's key).
 
     Parameters
     ----------
     score : Score
         The musical passage to analyze.
-    profile : KeyProfile, optional
-        Key profiles for mode estimation and stability weights. Default is
-        :data:`~amads.pitch.key.profiles.krumhansl_kessler` (MIDI Toolbox
-        ``kkmaj`` / ``kkmin``).
     salience_flag : bool, optional
-        Passed to :func:`~amads.pitch.key.keymode.keymode`. Default is ``False``.
+        Passed to [keymode][amads.pitch.key.keymode.keymode]. Default is
+        ``False``.
 
     Returns
     -------
     list of float
         Stability value per note, in the same order as
-        :meth:`~amads.core.basics.Score.get_sorted_notes`.
+        [get_sorted_notes][amads.core.basics.Score.get_sorted_notes].
 
     See Also
     --------
-    keymode
-    amads.pitch.key.profiles.krumhansl_kessler
+    keymode : Estimate major/minor mode (key of C assumed).
+    tonal_stability : Key-aware stability with per-note annotation.
+    profiles : Key profile data, including ``krumhansl_kessler``.
 
     References
     ----------
-    - Krumhansl, C. L. (1990). *Cognitive Foundations of Musical Pitch*.
+    - Krumhansl, C. L. (1990). Cognitive Foundations of Musical Pitch.
       New York: Oxford University Press.
-    - Toiviainen, P., & Eerola, T. (2016). MIDI Toolbox 1.1. URL:
-      https://github.com/miditoolbox/1.1
+    - Toiviainen, P., & Eerola, T. (2016). MIDI Toolbox 1.1.
+      https://github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf, page 93.
 
     Examples
     --------
     >>> from amads.core.basics import Score
     >>> score = Score.from_melody([60, 62, 64, 65, 67, 69, 71, 72])
-    >>> len(tonality(score)) == 8
-    True
+    >>> values = tonality(score)
+    >>> values[0]
+    6.35
     """
     notes: List[Note] = score.get_sorted_notes()
     if not notes:
@@ -80,26 +106,14 @@ def tonality(
 
     modes = keymode(
         score,
-        profile=profile,
+        profile=prof.krumhansl_kessler,
         attribute_names=["major", "minor"],
         salience_flag=salience_flag,
     )
-    if modes == ["major"]:
-        weights = _profile_weights_for_mode(profile, "major")
-    elif modes == ["minor"]:
-        weights = _profile_weights_for_mode(profile, "minor")
-    else:
-        warnings.warn(
-            "Key mode not clearly major or minor; using major profile weights "
-            f"(keymode returned {modes!r}).",
-            stacklevel=2,
-        )
-        weights = _profile_weights_for_mode(profile, "major")
+    mode = _mode_from_keymode_result(modes)
+    weights = _weights_c_tonic(mode)
 
     result: List[float] = []
     for note in notes:
-        if note.pitch is None or note.pitch.key_num is None:
-            raise ValueError("tonality requires notes with defined pitch")
-        pc = int(note.pitch.key_num) % 12
-        result.append(weights[pc])
+        result.append(_stability_for_note(note, weights))
     return result

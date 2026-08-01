@@ -14,8 +14,8 @@ def test_keyname_minor_c():
 
 
 def test_keyname_long_spelling():
-    assert keyname(2, detail=False) == "C#/Db"
-    assert keyname(14, detail=False) == "c#/db"
+    assert keyname(2, detail=True) == "C#/Db"
+    assert keyname(14, detail=True) == "c#/db"
 
 
 def test_keyname_list():

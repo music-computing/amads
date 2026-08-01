@@ -2,7 +2,7 @@
 Pitch class usage profiles (PCP) from the literature.
 
 MIDI Toolbox ``refstat`` names for 12-element key profiles map to module-level
-instances below (use ``.major`` / ``.minor`` :class:`PitchProfile` ``.data``):
+instances below (use ``.major`` / ``.minor`` [PitchProfile][amads.pitch.key.profiles.PitchProfile] ``.data``):
 
 - ``kkmaj`` / ``kkmin`` → ``krumhansl_kessler`` (Krumhansl & Kessler, 1982)
 - ``kkmajt`` / ``kkmint`` → ``temperley`` (Temperley, 1999 revision)
@@ -11,7 +11,7 @@ instances below (use ``.major`` / ``.minor`` :class:`PitchProfile` ``.data``):
 Other ``refstat`` statistics (Essen pitch-class counts, interval matrices,
 duration distributions, and so on) live in dedicated modules such as
 ``pcdist1``, ``ivdist1``, and ``durdist1`` rather than here. Use
-``amads.pitch.key.tonality`` with a :class:`KeyProfile` directly instead of
+[tonality][amads.pitch.key.tonality.tonality] with a [KeyProfile][amads.pitch.key.profiles.KeyProfile] directly instead of
 ``refstat``.
 
 In almost all cases reported here, keys are assumed to be
