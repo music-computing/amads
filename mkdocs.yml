@@ -94,6 +94,7 @@ nav:
       - Key Profiles: reference/pitch/key.md
       - Serial: reference/pitch/serial.md
     - Time:
+      - Quantize: reference/time/quantize.md
       - Duration Distributions: reference/time/durations.md
       - Meter: reference/time/meter.md
       - Note Density: reference/time/notedensity.md
