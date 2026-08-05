@@ -22,7 +22,7 @@ by testing:
 
 import pytest
 
-from amads.pitch.chord_bigram import (
+from amads.harmony.chord_bigram import (
     ChordBigram,
     _canonical_exact,
     _canonical_key,
