@@ -34,6 +34,7 @@ items = [  # NB: use caps and underscore. (Title, difficulty, notes) tuples.
     ("Chord_Bigram", 3, "A method for classifying chord pair equivalences after Murphy."),
     ("Chord_Ngram", 4, "Extending the bigram taxonomy to chord successions of any length."),
     ("Chord_Loops", 3, "Explore chord loops in the Billboard corpus"),
+    ("Tonal_Space", 3, "Visualise tonal space for 24 triads; explore paths and cycles through."),
     # ("Key_Finding.ipynb")  # TODO
     # Texture
     ("Figuration", 2, "A different look at a well-known piece: texture illuminates structure")
