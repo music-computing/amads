@@ -165,14 +165,19 @@ To process all notes in time order, call the Score method
 [`amads.core.basics.Score.get_sorted_notes`][], which returns a flat
 list of all notes, ordered by onset time, with ties merged.
 
-If you need notes from a particular staff or part, use
-[`amads.core.basics.Score.collapse_parts`][] to obtain a score with
-only the desired information, and then call
-[`score.find_all(Note)`][amads.core.basics.EventGroup.find_all] 
-to get an
-iterator for all notes in onset time order, or use
+To process all notes ordered by staff, use
+[`score.find_all(Note)`][amads.core.basics.EventGroup.find_all] or
 [`score.list_all(Note)`][amads.core.basics.EventGroup.list_all] 
 if you need a list rather than an iterator.
+
+If you need notes from a particular staff or part, you can use
+`staff.find_all(Note)` or `part.find_all(Note)` or
+`staff.list_all(Note)` or `part.list_all(Note)`. You can iterate
+over staffs or parts with `score.find_all(Staff)`, etc.
+
+If you want a score consisting of an extracted part or staff, use
+[`amads.core.basics.Score.collapse_parts`][]. This returns a score
+that can be passed to analysis algorithms as opposed to a note iterator.
 
 The [`score.find_all()`][amads.core.basics.EventGroup.find_all]
 and [`score.list_all()`][amads.core.basics.EventGroup.list_all]

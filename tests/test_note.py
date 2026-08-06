@@ -9,5 +9,5 @@ def test_ties():
 
     # I'm not sure if this is the desired behavior,
     # but it's what the code looks like it's trying to do
-    assert note_1.duration == 1.0
-    assert note_1.tied_duration == 2.0
+    assert note_1._duration == 1.0
+    assert note_1.duration == 2.0

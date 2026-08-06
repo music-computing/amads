@@ -97,7 +97,7 @@ class _TiedNotes:
                 and abs(note.onset - candidate.offset) < best_delta
             ):
                 # test durations and tie to the shortest
-                if not best or candidate.duration < best.duration:
+                if not best or candidate._duration < best._duration:
                     best = candidate
         if best is None:
             return None

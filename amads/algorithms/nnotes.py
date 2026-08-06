@@ -7,7 +7,7 @@ Original doc: github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.
 from amads.core.basics import Note, Score
 
 
-def nnotes(score: Score, merge_ties: bool = False) -> int:
+def nnotes(score: Score, merge_ties: bool = True) -> int:
     """
     Returns the number of notes in a musical score.
 
@@ -19,7 +19,7 @@ def nnotes(score: Score, merge_ties: bool = False) -> int:
         The musical score to analyze
 
     merge_ties : bool
-        Count tied sequences of notes as a single note.
+        Count tied sequences of notes as a single note. Default is True.
 
 
     Returns
@@ -36,14 +36,10 @@ def nnotes(score: Score, merge_ties: bool = False) -> int:
     >>> with contextlib.redirect_stdout(None):
     ...     score = read_score(example.fullpath("musicxml/ex3.xml"))
     >>> nnotes(score)
-    2
-    >>> nnotes(score, merge_ties=True)
     1
+    >>> nnotes(score, merge_ties=False)
+    2
     """
-
-    if merge_ties:
-        score = score.merge_tied_notes()  # type: ignore
-    total = 0
-    for _ in score.find_all(Note):
-        total += 1
-    return total
+    return sum(
+        1 for _ in score.find_all(Note, include_tied_to_notes=not merge_ties)
+    )

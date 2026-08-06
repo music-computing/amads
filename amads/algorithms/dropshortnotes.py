@@ -6,6 +6,8 @@ Original Document: https://github.com/miditoolbox/1.1/blob/master/documentation/
 <small>**Author**: Arnav Sayooj</small>
 """
 
+from typing import cast
+
 from amads.core.basics import Note, Score
 
 
@@ -17,7 +19,7 @@ def dropshortnotes(score: Score, threshold: float) -> Score:
     against the threshold. If the total duration is strictly less than the
     threshold, all notes in the chain are removed.
 
-    Zero is a special case: passing ``threshold = 0`` removes only notes whose
+    Zero is a special case: passing `threshold = 0` removes only notes whose
     tied duration is exactly zero.
 
     Parameters
@@ -25,8 +27,8 @@ def dropshortnotes(score: Score, threshold: float) -> Score:
     score : Score
         The score to filter.
     threshold : float
-        Duration threshold in beats. Notes with ``tied_duration < threshold``
-        are removed. Pass ``0`` to remove only zero-duration grace notes.
+        Duration threshold in beats. Notes with (tied) `duration < threshold`
+        are removed. Pass `0` to remove only zero-duration grace notes.
 
     Returns
     -------
@@ -34,7 +36,7 @@ def dropshortnotes(score: Score, threshold: float) -> Score:
         A copy of the score with short notes removed.
     """
     # 1. Copy the score to avoid modifying the original
-    score_copy = score.copy()
+    score_copy = cast(Score, score.copy())
     all_notes = list(score_copy.find_all(Note))
 
     # 2. Find notes to remove, starting only from chain heads
@@ -45,9 +47,9 @@ def dropshortnotes(score: Score, threshold: float) -> Score:
         if id(note) in tied_to_ids:
             continue
         if threshold == 0:
-            should_drop = note.tied_duration == 0
+            should_drop = note.duration == 0
         else:
-            should_drop = note.tied_duration < threshold
+            should_drop = note.duration < threshold
         if should_drop:
             node = note
             while isinstance(node, Note):
