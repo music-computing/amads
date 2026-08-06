@@ -31,6 +31,7 @@ items = [  # NB: use caps and underscore. (Title, difficulty, notes) tuples.
     ("Envelope", 3, "A new method for outlining melodic (and bass) contour."),
     # Harmony
     ("Count_Chords", 4, "Calculate the number of distinct chords in 12-TET space."),
+    ("Key_Chord_Matching", 2, "Basic start on profile matching."),
     ("Chord_Bigram", 3, "A method for classifying chord pair equivalences after Murphy."),
     ("Chord_Ngram", 4, "Extending the bigram taxonomy to chord successions of any length."),
     ("Chord_Loops", 3, "Explore chord loops in the Billboard corpus"),
