@@ -528,8 +528,8 @@ def notes_compare(
     heading = False  # have we printed a heading for unmatched reports?
     if score1.units_are_seconds != score2.units_are_seconds:
         raise ValueError("Scores must have the same unit type.")
-    notes1 = score1.get_sorted_notes(has_ties=score1.has_ties())
-    notes2 = score2.get_sorted_notes(has_ties=score2.has_ties())
+    notes1 = score1.get_sorted_notes()
+    notes2 = score2.get_sorted_notes()
     unmatched1 = []
     unmatched2 = []
     max_onset_diff = 0.0

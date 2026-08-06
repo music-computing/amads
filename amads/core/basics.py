@@ -1658,9 +1658,7 @@ class EventGroup(Event):
             True if the list of notes is monophonic, False otherwise.
         """
         prev = None
-        notes = self.list_all(Note)
-        # Sort the notes by start time
-        notes.sort(key=lambda note: note.onset)
+        notes = self.get_sorted_notes()
         # Check for overlaps
         for note in notes:
             if prev:
@@ -1910,7 +1908,7 @@ class EventGroup(Event):
                                          ignore)
 
 
-    def get_sorted_notes(self, has_ties: bool = True) -> List[Note]:
+    def get_sorted_notes(self) -> List[Note]:
         """Return a list of sorted notes with merged ties.
 
         This should generally be called on Parts and Scores since
@@ -1918,13 +1916,6 @@ class EventGroup(Event):
         Notes retrieved with `find_all()` or `list_all()` are in
         time order. However, `get_sorted_notes` *also* sorts notes
         into increasing pitch (`keynum`) where note onsets are equal.
-
-        Parameters
-        ----------
-        has_ties: bool
-            If True (default), copy the score, merge the ties, and
-            return a list of these merged copies. If False, assume
-            there are no ties and return a list of original notes.
 
         Raises
         ------
@@ -1936,17 +1927,9 @@ class EventGroup(Event):
         list(Note)
             a list of sorted notes with merged ties
         """
-        if has_ties:
-            # after flatten, score will have one Part with all Notes:
-            return self.flatten(collapse=True).content[0].content  # type: ignore
-        else:
-            notes : List[Note] = cast(List[Note], self.list_all(Note))
-            for note in notes:
-                if note.tie is not None:
-                    raise ValueError(
-                            "tie found by get_sorted_notes with has_ties=False")
-            notes.sort(key=lambda x: (x.onset, x.pitch))
-            return notes
+        notes : List[Note] = cast(List[Note], self.list_all(Note))
+        notes.sort(key=lambda x: (x.onset, x.pitch))
+        return notes
 
 
     def has_instanceof(self, the_class: Type[Event]) -> bool:
@@ -4267,8 +4250,7 @@ class Part(EventGroup):
         List[Note]
             The sorted list of Notes with calculated IOIs and IOI-ratios.
         """
-        # this will raise an exception if there are ties:
-        notes : List[Note] = self.get_sorted_notes(has_ties=False)
+        notes : List[Note] = self.get_sorted_notes()
         do_ioi = "ioi" in what or "ioi_ratio" in what
         do_interval = "interval" in what
         do_ioi_ratio = "ioi_ratio" in what

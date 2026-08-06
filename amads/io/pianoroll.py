@@ -9,7 +9,7 @@ from typing import cast
 import matplotlib.pyplot as plt
 from matplotlib import figure, patches
 
-from amads.core.basics import Note, Part, Score
+from amads.core.basics import Note, Score
 from amads.core.pitch import Pitch
 
 
@@ -65,8 +65,6 @@ def pianoroll(
         If there are invalid input arguments
     """
 
-    # remove ties and make a sorted list of all notes:
-    score = score.flatten(collapse=True)
     # Check for correct x_label input argument
     if x_label != "quarter" and x_label != "sec":
         raise ValueError("Invalid x_label type")
@@ -80,7 +78,7 @@ def pianoroll(
     min_note, max_note = 127.0, 0.0
     max_time = 1  # plot at least 1 second or beat
     # now score has one part that is all notes
-    for note in cast(Part, next(score.find_all(Part))).content:
+    for note in score.find_all(Note):
         note = cast(Note, note)
         onset_time = note.onset
         offset_time = note.offset

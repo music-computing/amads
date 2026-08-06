@@ -362,8 +362,8 @@ def read_score(
         `'musicxml'`, `'midi'`, `'kern'`, `'mei'`)
     group_by_instrument : bool
         If True (default), when the underlying reader (e.g. for "pretty_midi",
-        "music21" or "partitura") reads Parts with the same instrument, their
-        content will be grouped into a single part. This means that if
+        "mido","music21" or "partitura") reads Parts with the same instrument,
+        their content will be grouped into a single part. This means that if
         `flatten`, then parts with the same instrument will be merged into a
         single part. If `flatten` is False, then the staffs of parts with the
         same instrument will be grouped within a single part.
