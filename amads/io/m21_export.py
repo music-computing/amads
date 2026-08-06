@@ -244,7 +244,7 @@ def _add_measure_content_from_list(
     measure_position = 0  # keeps track of expected next onset time
     for item in content:
         actual_onset = item.onset
-        actual_offset = item.offset
+        actual_offset = item.onset + item._duration  # avoid tied duration here
         if ismidi and actual_offset < actual_onset + 0.001:
             actual_offset = actual_onset + 0.001  # minimum midi dur is 0.001qtr
         max_offset = max(max_offset, actual_offset)
@@ -751,7 +751,7 @@ def _unflatten(score: Score) -> Score:
                     duration=full_note.offset - next_measure.onset,
                 )
                 full_note.tie = tied_note
-                full_note.duration = tied_note.onset - full_note.onset
+                full_note._duration = tied_note.onset - full_note.onset
                 full_note = tied_note
                 measure = next_measure
                 nexti += 1

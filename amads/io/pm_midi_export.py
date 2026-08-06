@@ -66,7 +66,7 @@ def add_note_to_instrument(
     pitch = round(note.key_num)
     start = note.onset
     # force non-zero duration so midi file is generally readable:
-    end = start + max(note.tied_duration, 0.001)
+    end = start + max(note.duration, 0.001)
     start = max(start, minimum_onset.get(pitch, 0.0))
     minimum_onset[pitch] = end  # update for next note of same pitch
 

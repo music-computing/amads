@@ -75,7 +75,7 @@ def test_read_musicxml():
     score = read_score(xml_file)  # , show=VERBOSE)
     # print("MusicXML import:")
     # score.show()
-    nnotes = score.list_all(Note)
+    nnotes = score.list_all(Note, include_tied_to_notes=True)
     assert len(nnotes) == 60, f"Expected 60 notes, got {len(nnotes)}"
     dur = score.duration
     assert dur == 8.0, f"Expected duration 8.0, got {dur}"
@@ -151,10 +151,18 @@ def test_grace_trills_example():
     score = read_score(xml_file)  # , show=VERBOSE)
     print("MusicXML import with", last_used_reader())
     score.show()
-    assert len(score.list_all(Note)) == 30, "Expected 30 notes in score"
+    assert (
+        len(score.list_all(Note, include_tied_to_notes=True)) == 30
+    ), "Expected 30 notes in score"
     staffs: list[Staff] = score.list_all(Staff)  # type: ignore
     assert len(staffs) == 2, "Expected 2 staffs in score"
-    notes = staffs[0].list_all(Note)
+    notes = staffs[0].list_all(Note, include_tied_to_notes=True)
+
+    if VERBOSE:
+        print("Notes in first staff:")
+        for note in notes:
+            note.show(4)
+
     assert notes[0].get("has_trill", False)
     assert notes[0].get("trill_pitch").name_with_octave == "B4"
     assert notes[2].get("has_turn", False)

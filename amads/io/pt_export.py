@@ -130,7 +130,9 @@ def add_event_to_part(
                 " conversion; maybe octave confusion for something like B#3?"
             )
         pt_part.add(
-            pt_note, round(event.onset * DIVS), round(event.offset * DIVS)
+            pt_note,
+            round(event.onset * DIVS),
+            round((event.onset + event._duration) * DIVS),
         )
         # Track tied notes
         if ties is not None:

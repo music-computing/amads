@@ -168,7 +168,7 @@ def test_quantize():
     if VERBOSE:
         print("After quantize:")
         score.show(4)
-    assert not score.has_ties()
+    assert score.has_ties()
 
     # Check Score structure
     assert isinstance(score, Score)
