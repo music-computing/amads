@@ -15,8 +15,8 @@ def test_dropshortnotes_basic():
     notes = result.get_sorted_notes()
 
     assert len(notes) == 2
-    assert notes[0].pitch.key_num == 62  # type: ignore
-    assert notes[1].pitch.key_num == 64  # type: ignore
+    assert notes[0].pitch.midi_num == 62  # type: ignore
+    assert notes[1].pitch.midi_num == 64  # type: ignore
 
 
 def test_dropshortnotes_grace_notes():
@@ -31,7 +31,7 @@ def test_dropshortnotes_grace_notes():
     notes = result.get_sorted_notes()
 
     assert len(notes) == 1
-    assert notes[0].pitch.key_num == 62  # type: ignore
+    assert notes[0].pitch.midi_num == 62  # type: ignore
 
 
 def test_dropshortnotes_threshold_is_exclusive():
@@ -72,7 +72,7 @@ def test_dropshortnotes_tied_chain():
     notes = result.get_sorted_notes()
 
     assert len(notes) == 1
-    assert notes[0].pitch.key_num == 64  # type: ignore
+    assert notes[0].pitch.midi_num == 64  # type: ignore
 
 
 if __name__ == "__main__":

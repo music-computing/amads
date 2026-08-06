@@ -200,25 +200,25 @@ def test_quantize():
     # Check Notes in Measure 1
     n1, n2, n3 = m1.content
     assert (
-        n1.onset == 0.0 and n1.duration == 1.0 and cast(Note, n1).key_num == 60
+        n1.onset == 0.0 and n1.duration == 1.0 and cast(Note, n1).midi_num == 60
     )
     assert (
-        n2.onset == 2.0 and n2.duration == 1.0 and cast(Note, n2).key_num == 62
+        n2.onset == 2.0 and n2.duration == 1.0 and cast(Note, n2).midi_num == 62
     )
     assert (
-        n3.onset == 3.0 and n3.duration == 1.0 and cast(Note, n3).key_num == 65
+        n3.onset == 3.0 and n3.duration == 1.0 and cast(Note, n3).midi_num == 65
     )
 
     # Check Notes in Measure 2
     n4, n5, n6 = m2.content
     assert (
-        n4.onset == 5.0 and n4.duration == 1.0 and cast(Note, n4).key_num == 67
+        n4.onset == 5.0 and n4.duration == 1.0 and cast(Note, n4).midi_num == 67
     )
     assert (
-        n5.onset == 7.0 and n5.duration == 0.5 and cast(Note, n5).key_num == 69
+        n5.onset == 7.0 and n5.duration == 0.5 and cast(Note, n5).midi_num == 69
     )
     assert (
-        n6.onset == 7.5 and n6.duration == 0.5 and cast(Note, n6).key_num == 71
+        n6.onset == 7.5 and n6.duration == 0.5 and cast(Note, n6).midi_num == 71
     )
 
     # Since we have a full score here, test some other core functions:
@@ -319,18 +319,18 @@ def test_octave_setter():
     assert note2.name_with_octave == "D#3"
 
 
-def test_key_num():
+def test_midi_num():
     note1 = Note(onset=0, duration=1, pitch="C4")
-    assert note1.key_num == 60
+    assert note1.midi_num == 60
     note2 = Note(onset=0, duration=1, pitch="D#5")
-    assert note2.key_num == 75
+    assert note2.midi_num == 75
     note3 = Note(onset=0, duration=1, pitch="Fb3")
-    assert note3.key_num == 52
+    assert note3.midi_num == 52
     note4 = Note(onset=0, duration=1, pitch="G##2")
-    assert note4.key_num == 45
+    assert note4.midi_num == 45
     try:
         note5 = Note(onset=0, duration=1, pitch=None)
-        _ = note5.key_num
+        _ = note5.midi_num
     except ValueError:
         pass
     else:
@@ -660,17 +660,17 @@ def test_merge_tied_notes():
 
     assert (
         notes[0].pitch
-        and notes[0].pitch.key_num == 60
+        and notes[0].pitch.midi_num == 60
         and notes[0].duration == 1.5
     )
     assert (
         notes[1].pitch
-        and notes[1].pitch.key_num == 64
+        and notes[1].pitch.midi_num == 64
         and notes[1].duration == 2.0
     )
     assert (
         notes[2].pitch
-        and notes[2].pitch.key_num == 67
+        and notes[2].pitch.midi_num == 67
         and notes[2].duration == 1.0
     )
 
@@ -824,7 +824,7 @@ def test_collapse_parts():
     assert len(notes) == 3
 
     expected_pitches = {67, 71, 74}  # G4, B4, D5
-    actual_pitches = {note.pitch.key_num for note in notes if note.pitch}
+    actual_pitches = {note.pitch.midi_num for note in notes if note.pitch}
     assert actual_pitches == expected_pitches
 
     score: Score = score2.copy()  # type: ignore  # with has_ties=False:
@@ -842,7 +842,7 @@ def test_collapse_parts():
     assert len(notes) == 3
 
     expected_pitches = {67, 71, 74}  # G4, B4, D5
-    actual_pitches = {note.pitch.key_num for note in notes if note.pitch}
+    actual_pitches = {note.pitch.midi_num for note in notes if note.pitch}
     assert actual_pitches == expected_pitches
 
     # is_flat test
@@ -955,7 +955,7 @@ def test_remove_measures():
     ]
     assert len(top_level_notes) == 1
     assert (
-        top_level_notes[0].pitch and top_level_notes[0].pitch.key_num == 72
+        top_level_notes[0].pitch and top_level_notes[0].pitch.midi_num == 72
     )  # C5
 
     # Check that the spurious note in staff is still present
@@ -968,7 +968,7 @@ def test_remove_measures():
     ]
     assert len(spurious_notes) == 1
     assert (
-        spurious_notes[0].pitch and spurious_notes[0].pitch.key_num == 76
+        spurious_notes[0].pitch and spurious_notes[0].pitch.midi_num == 76
     )  # E5
 
 

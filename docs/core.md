@@ -115,13 +115,13 @@ The most important class is [`amads.core.basics.Note`][]. In addition to `onset`
 Pitches are complex enough to get their own class (an integer will not
 do). The pitch class has these attributes:
 
-- **`key_num`** (float) - MIDI-like key number, e.g. C4 = 60
+- **`midi_num`** (float) - MIDI-like key number, e.g. C4 = 60
 - **`alt`** (float) - alteration, e.g. one flat = -1
 
-Notice that you can always ignore `alt` and just use `key_num`, but if
+Notice that you can always ignore `alt` and just use `midi_num`, but if
 you care about note spelling, you will need `alt`.
 
-Notice also that both `key_num` and `alt` are floats, so you can express
+Notice also that both `midi_num` and `alt` are floats, so you can express
 quarter tones (a quarter tone above C4 is represented by 60.5), and the
 `alt` would be 0.5 (a quarter tone sharp).
 
@@ -149,7 +149,7 @@ There are important exceptions. Some examples:
 
 You should **never** modify a Pitch. Always construct a new one, because
 when Notes are copied, the new Note *shares* the original Note's Pitch
-object. Assigning to `pitch.key_num` might change the `pitch` of many
+object. Assigning to `pitch.midi_num` might change the `pitch` of many
 other notes.
 
 ### Accessing and Processing Scores

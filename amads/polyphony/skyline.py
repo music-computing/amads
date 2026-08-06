@@ -124,7 +124,7 @@ def skyline(score: Score, threshold: float = 0.1) -> Score:
             prev_note = note
 
         # ignore notes that are below last note in skyline
-        elif note.key_num < prev_note.key_num and (
+        elif note.midi_num < prev_note.midi_num and (
             note.onset < prev_note.offset - threshold  # overlap
             or note.onset < prev_note.onset + threshold
         ):  # concurrent
@@ -136,7 +136,7 @@ def skyline(score: Score, threshold: float = 0.1) -> Score:
         # see if note is concurrent and higher
         if (
             note.onset < prev_note.onset + threshold
-            and note.key_num >= prev_note.key_num
+            and note.midi_num >= prev_note.midi_num
         ):
             skyline.content.pop()  # replace prev_note
             skyline.content.append(note)
@@ -144,7 +144,7 @@ def skyline(score: Score, threshold: float = 0.1) -> Score:
 
         elif (
             note.onset >= prev_note.offset - threshold
-            or note.key_num >= prev_note.key_num
+            or note.midi_num >= prev_note.midi_num
         ):
             skyline.content.append(note)
             prev_note = note

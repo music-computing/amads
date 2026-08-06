@@ -982,7 +982,7 @@ class Note(Event):
             grace_info += ", rolled"
 
         return (f"Note({self._event_times()}{dynamic_info}{lyric_info}, " +
-                f"pitch={self.name_with_octave}/{self.key_num}{grace_info})")
+                f"pitch={self.name_with_octave}/{self.midi_num}{grace_info})")
 
 
     def show(self, indent: int = 0, file: Optional[TextIO] = None,
@@ -1074,7 +1074,7 @@ class Note(Event):
     def octave(self) -> int:
         """Retrieve the octave number of the note.
 
-        The note name is based on `key_num - alt`, e.g., C4 has
+        The note name is based on `midi_num - alt`, e.g., C4 has
         octave 4 while B#3 has octave 3. See also [Pitch.register]
         [amads.core.pitch.Pitch.register].
 
@@ -1108,11 +1108,11 @@ class Note(Event):
         if self.pitch is None:
             raise ValueError("Cannot set octave of unpitched note.")
         else:
-            self.pitch = Pitch(self.pitch.key_num +  # type: ignore (not None)
+            self.pitch = Pitch(self.pitch.midi_num +  # type: ignore (not None)
                                (oct - self.octave) * 12, self.pitch.alt)
 
     @property
-    def key_num(self) -> float | int:
+    def midi_num(self) -> float | int:
         """Retrieve the MIDI key number of the note, e.g., C4 = 60.
 
         If the note is unpitched (pitch is None), raise ValueError.
@@ -1124,7 +1124,7 @@ class Note(Event):
         """
         if self.pitch is None:
             raise ValueError("Unpitched note has no key number.")
-        return self.pitch.key_num  # type: ignore (not None)
+        return self.pitch.midi_num  # type: ignore (not None)
 
 
     def enharmonic(self) -> "Pitch":
@@ -3134,7 +3134,7 @@ class Score(Concurrence):
         >>> notes = score.content[0].content
         >>> len(notes)  # number of notes in first part
         8
-        >>> notes[0].key_num
+        >>> notes[0].midi_num
         60
         >>> score.duration  # last note ends at t=8
         8.0
@@ -4283,7 +4283,7 @@ class Part(EventGroup):
                     note.set("ioi_ratio", ioi / prev_ioi)  # type: ignore
                 prev_ioi = ioi  # type: ignore (ioi is bound if do_ioi) 
             if do_interval:
-                note.set("interval", note.key_num - prev_note.key_num)
+                note.set("interval", note.midi_num - prev_note.midi_num)
             prev_note = note
         return notes
 

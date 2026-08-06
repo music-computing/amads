@@ -264,7 +264,7 @@ def _build_instrument_track(
         if isinstance(dynamic, str):
             dynamic = string_to_velocity(dynamic)
         velocity = min(127, max(1, int(dynamic)))
-        note_num = min(127, max(0, round(note.key_num)))
+        note_num = min(127, max(0, round(note.midi_num)))
 
         onset_tick = round(note.onset * TICKS_PER_BEAT)
         dur = max(note.duration, 0.001)  # force non-zero duration
@@ -329,7 +329,7 @@ def mido_midi_export(
     another note at the same pitch: moving the note-off of the first note
     after the note-on of the first creates overlapping notes, which is not
     well-defined in MIDI. We solve this problem by tracking the minimum_onset
-    allowed for each pitch (key_number) and moving the onset later if it
+    allowed for each pitch (midi_number) and moving the onset later if it
     comes before the offset of a note already sounding.
 
     Parameters

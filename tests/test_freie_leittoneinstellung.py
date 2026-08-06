@@ -84,8 +84,8 @@ class TestInputCoercion:
         Here test same pitch classes/registers as the literature example,
         spelled/entered as plain integers instead of names.
         """
-        slice_1 = [63, 68, 71, 67]  # E-6 G#5 B4 G4, as key_nums
-        slice_2 = [62, 69, 72, 66]  # D6 A5 C5 F#4, as key_nums
+        slice_1 = [63, 68, 71, 67]  # E-6 G#5 B4 G4, as midi_nums
+        slice_2 = [62, 69, 72, 66]  # D6 A5 C5 F#4, as midi_nums
         assert is_freie_Leittoneinstellung(slice_1, slice_2)
 
 

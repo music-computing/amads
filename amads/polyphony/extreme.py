@@ -54,9 +54,14 @@ def extreme(score: Score, method: str = "high") -> Score:
             onset_note[onset] = note
         else:
             current = onset_note[onset]
-            if method == "high" and note.pitch.key_num > current.pitch.key_num:
+            if (
+                method == "high"
+                and note.pitch.midi_num > current.pitch.midi_num
+            ):
                 onset_note[onset] = note
-            elif method == "low" and note.pitch.key_num < current.pitch.key_num:
+            elif (
+                method == "low" and note.pitch.midi_num < current.pitch.midi_num
+            ):
                 onset_note[onset] = note
 
     # 3. Replace part content with only the extreme notes

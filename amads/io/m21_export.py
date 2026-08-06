@@ -378,7 +378,7 @@ def _get_pitch_diff(
 ) -> int:
     """factors out a common calculation for trills and mordents"""
     expr.resolveOrnamentalPitches(m21note)
-    return apitch.key_num - expr.ornamentalPitches[0].midi
+    return apitch.midi_num - expr.ornamentalPitches[0].midi
 
 
 def music21_resolve_ornaments():
@@ -408,24 +408,24 @@ def music21_resolve_ornaments():
     for item in _m21turns:
         (m21note, turn, pitches) = item
         assert len(pitches) == 2, "expected 2 Pitches in turn info"
-        p0 = pitches[0].key_num
-        p1 = pitches[1].key_num
+        p0 = pitches[0].midi_num
+        p1 = pitches[1].midi_num
         upper = max(p0, p1)
         lower = min(p0, p1)
         # see if turn pitches are correct
         m21upper, m21lower = _get_turn_pitches(turn, m21note)
 
         # start with upper pitch and accidental
-        diff = upper.key_num - m21upper.midi
+        diff = upper.midi_num - m21upper.midi
         if diff != 0:
             turn.upperAccidental = lookup_accidental(diff)
             # if there was already an accidental, we might get the wrong result
             m21upper, m21lower = _get_turn_pitches(turn, m21note)
-            diff2 = upper.key_num - m21upper.midi
+            diff2 = upper.midi_num - m21upper.midi
             if diff2 != 0:
                 turn.upperAccidental = lookup_accidental(diff + diff2)
                 m21upper, m21lower = _get_turn_pitches(turn, m21note)
-                diff3 = upper.key_num - m21upper.midi
+                diff3 = upper.midi_num - m21upper.midi
                 if diff3 != 0:
                     raise Exception(
                         "Could not resolve upper turn accidental."
@@ -436,16 +436,16 @@ def music21_resolve_ornaments():
                     )
 
         # now do lower pitch and accidental
-        diff = lower.key_num - m21lower.midi
+        diff = lower.midi_num - m21lower.midi
         if diff != 0:
             turn.lowerAccidental = lookup_accidental(diff)
             # if there was already an accidental, we might get the wrong result
             m21lower, m21lower = _get_turn_pitches(turn, m21note)
-            diff2 = lower.key_num - m21lower.midi
+            diff2 = lower.midi_num - m21lower.midi
             if diff2 != 0:
                 turn.lowerAccidental = lookup_accidental(diff + diff2)
                 m21lower, m21lower = _get_turn_pitches(turn, m21note)
-                diff3 = lower.key_num - m21lower.midi
+                diff3 = lower.midi_num - m21lower.midi
                 if diff3 != 0:
                     raise Exception(
                         "Could not resolve lower turn accidental."

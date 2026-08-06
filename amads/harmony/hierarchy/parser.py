@@ -179,7 +179,7 @@ def parse_token(token: str, key: Key) -> Terminal:
     # Rule (23): d is always V (major/dominant7) or VII (diminished/diminished7),
     if (
         key.mode == "minor"
-        and chord.root.key_num % 12 == key.degree_pc(5)
+        and chord.root.midi_num % 12 == key.degree_pc(5)
         and chord.quality in ("minor", "minor7")
     ):
         chord = Chord(
@@ -189,7 +189,7 @@ def parse_token(token: str, key: Key) -> Terminal:
     # Rule (23)/(19): d's VII-substitute is always built on the raised leading tone.
     if (
         key.mode == "minor"
-        and chord.root.key_num % 12 == key.degree_pc(7)
+        and chord.root.midi_num % 12 == key.degree_pc(7)
         and chord.quality in ("diminished", "diminished7")
     ):
         raised_root = (key.tonic_pc + 11) % 12
@@ -199,7 +199,7 @@ def parse_token(token: str, key: Key) -> Terminal:
 
 
 def _terminal_degree(chord: Chord, key: Key) -> Optional[int]:
-    interval = (chord.root.key_num - key.tonic_pc) % 12
+    interval = (chord.root.midi_num - key.tonic_pc) % 12
     scale = key.scale()
     if interval in scale:
         return scale.index(interval) + 1

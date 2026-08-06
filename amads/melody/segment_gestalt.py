@@ -125,7 +125,7 @@ def segment_gestalt(score: Score) -> tuple[list[float], list[float]]:
     for note_pair in zip(notes[:-1], notes[1:]):
         if note_pair[0].offset > note_pair[1].onset + 0.01:
             raise Exception("score not monophonic, input is not valid.")
-        pitch_diff = note_pair[1].key_num - note_pair[0].key_num
+        pitch_diff = note_pair[1].midi_num - note_pair[0].midi_num
         onset_diff = note_pair[1].onset - note_pair[0].onset
         cl_values.append(2 * onset_diff + abs(pitch_diff))
 
@@ -168,8 +168,8 @@ def segment_gestalt(score: Score) -> tuple[list[float], list[float]]:
         )
         # first of next clang to last of distance
         local_seg_dist += abs(
-            notes[cl_indices[i + 1]].key_num
-            - notes[cl_indices[i + 1] - 1].key_num
+            notes[cl_indices[i + 1]].midi_num
+            - notes[cl_indices[i + 1] - 1].midi_num
         )
         local_seg_dist += 2 * (
             notes[cl_indices[i + 1]].onset - notes[cl_indices[i + 1] - 1].onset

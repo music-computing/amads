@@ -49,7 +49,7 @@ def _pitch_name_with_octave(pitch, accidental_chars: str) -> str:
     Probably an AMADS upstream bug.
     `Pitch.get_name()` is unaffected and used here directly instead.
     """
-    if pitch.key_num is None:
+    if pitch.midi_num is None:
         return "unpitched"
     return f"{pitch.get_name(accidental_chars=accidental_chars)}{pitch.octave}"
 

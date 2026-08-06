@@ -23,15 +23,15 @@ def test_trim():
 
     # The first note should now be at 0.0
     assert notes[0].onset == 0.0
-    assert notes[0].pitch.key_num == 60
+    assert notes[0].pitch.midi_num == 60
 
     # The second note should be at 1.0
     assert notes[1].onset == 1.0
-    assert notes[1].pitch.key_num == 10
+    assert notes[1].pitch.midi_num == 10
 
     # The third note should be at 2.0
     assert notes[2].onset == 2.0
-    assert notes[2].pitch.key_num == 20
+    assert notes[2].pitch.midi_num == 20
 
     # The original score should be unchanged
     original_notes = my_score.get_sorted_notes()

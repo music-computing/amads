@@ -74,6 +74,6 @@ def test_transform_pitch_multiset_bare_pitch_class_wraps():
     assert transform_pitch_multiset((0, 4, 7), 0, -1) == (11, 4, 7)
 
 
-def test_transform_pitch_multiset_key_num_does_not_wrap():
+def test_transform_pitch_multiset_midi_num_does_not_wrap():
     """A full key number is shifted directly, without wrapping modulo 12."""
     assert transform_pitch_multiset((60, 64, 67), 0, 2) == (62, 64, 67)

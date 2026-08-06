@@ -113,7 +113,7 @@ def add_event_to_part(
                 staff=staff,
                 voice=staff,
             )  # type: ignore
-            assert pt_note.midi_pitch == event.key_num, (
+            assert pt_note.midi_pitch == event.midi_num, (
                 "internal error in pitch"
                 " conversion; maybe octave confusion for something like B#3?"
             )
@@ -125,7 +125,7 @@ def add_event_to_part(
                 staff=staff,
                 voice=staff,
             )  # type: ignore
-            assert pt_note.midi_pitch == event.key_num, (
+            assert pt_note.midi_pitch == event.midi_num, (
                 "internal error in pitch"
                 " conversion; maybe octave confusion for something like B#3?"
             )

@@ -77,7 +77,7 @@ def interval_distribution_1(
         for n in part.find_all(Note):
             note: Note = cast(Note, n)
             if prev_pitch is not None:
-                iv = round(note.key_num - prev_pitch)
+                iv = round(note.midi_num - prev_pitch)
                 if miditoolbox_compatible:
                     iv = (abs(iv) % 12) * ((iv > 0) - (iv < 0))
                 # otherwise, diff may be ignored by h.add_point
@@ -88,7 +88,7 @@ def interval_distribution_1(
                     prev_dur = dur
                 else:
                     h.add_point(iv, 1.0)
-            prev_pitch = note.key_num
+            prev_pitch = note.midi_num
             if weighted and prev_dur is None:
                 prev_dur = duraccent(note)
 

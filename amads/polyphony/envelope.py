@@ -158,7 +158,7 @@ def _extract_from_score(
 
     for note in score.find_all(Note):
         onset = float(note.onset)
-        midi = float(note.key_num)
+        midi = float(note.midi_num)
         if onset not in pairs:
             pairs[onset] = midi
         else:

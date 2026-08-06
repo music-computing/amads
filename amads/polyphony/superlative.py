@@ -75,9 +75,9 @@ def superlative(score: Score, attribute: str = "high") -> int:
     notes = score.find_all(Note)
 
     if attribute == "high":
-        return max(notes, key=lambda n: n.pitch.key_num).pitch.key_num
+        return max(notes, key=lambda n: n.pitch.midi_num).pitch.midi_num
     elif attribute == "low":
-        return min(notes, key=lambda n: n.pitch.key_num).pitch.key_num
+        return min(notes, key=lambda n: n.pitch.midi_num).pitch.midi_num
     elif attribute == "sharp":
         return max(
             notes, key=lambda n: n.pitch.fifths_from_c
