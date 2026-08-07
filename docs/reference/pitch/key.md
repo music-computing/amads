@@ -1,4 +1,3 @@
-
 ::: amads.pitch.key.profiles
     options: 
       members: False 
@@ -40,6 +39,40 @@
 ----------------
 
 ::: amads.pitch.key.keymode.keymode
+
+----------------
+
+::: amads.pitch.key.keyname
+    options:
+      members: False
+
+----------------
+
+::: amads.pitch.key.keyname.keyname
+
+----------------
+
+::: amads.pitch.key.keyname.keycode_from_kkkey
+
+----------------
+
+::: amads.pitch.key.tonality
+    options:
+      members: False
+
+----------------
+
+::: amads.pitch.key.tonality.tonality
+
+----------------
+
+::: amads.pitch.key.tonal_stability
+    options:
+      members: False
+
+----------------
+
+::: amads.pitch.key.tonal_stability.tonal_stability
 
 ----------------
 
