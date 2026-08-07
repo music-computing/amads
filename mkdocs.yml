@@ -113,6 +113,7 @@ nav:
       - reference/melody/melodic_distance.md
       - reference/melody/mobility.md
       - reference/melody/ambitus.md
+      - reference/melody/tessitura.md
     - Harmony:
       - reference/harmony/consonance.md
       - reference/harmony/root_finding.md
