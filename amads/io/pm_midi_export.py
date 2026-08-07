@@ -63,10 +63,10 @@ def add_note_to_instrument(
     dynamic = note.dynamic if note.dynamic is not None else 100
     if isinstance(dynamic, str):
         dynamic = string_to_velocity(dynamic)
-    pitch = round(note.key_num)
+    pitch = round(note.midi_num)
     start = note.onset
     # force non-zero duration so midi file is generally readable:
-    end = start + max(note.tied_duration, 0.001)
+    end = start + max(note.duration, 0.001)
     start = max(start, minimum_onset.get(pitch, 0.0))
     minimum_onset[pitch] = end  # update for next note of same pitch
 

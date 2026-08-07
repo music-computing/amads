@@ -308,7 +308,7 @@ class Distribution:
             If `pitches` is empty;
             if `weights` is provided and its length doesn't match `pitches`;
             if any entry of `pitches` is not a `Pitch`, `int`, or `float`;
-            if any `Pitch` is unpitched (`key_num is None`);
+            if any `Pitch` is unpitched (`midi_num is None`);
             or if `use_spelling=True` but not every entry of `pitches` is a `Pitch`.
 
         Examples
@@ -325,18 +325,18 @@ class Distribution:
             raise ValueError("weights must be the same length as pitches")
         counted_label = "Count" if weights is None else "Weight"
 
-        key_nums: List[float] = []
+        midi_nums: List[float] = []
         all_are_pitches = True
         for p in pitches:
             if isinstance(p, Pitch):
-                if p.key_num is None:
+                if p.midi_num is None:
                     raise ValueError(
                         "from_pitches does not support unpitched "
-                        "Pitch instances (key_num is None)"
+                        "Pitch instances (midi_num is None)"
                     )
-                key_nums.append(p.key_num)
+                midi_nums.append(p.midi_num)
             elif isinstance(p, (int, float)):
-                key_nums.append(float(p))
+                midi_nums.append(float(p))
                 all_are_pitches = False
             else:
                 raise ValueError(
@@ -351,23 +351,23 @@ class Distribution:
                 "`use_spelling=True` requires every entry in pitches to be a Pitch instance"
             )
 
-        lo = math.floor(min(key_nums)) - buffer
-        hi = math.ceil(max(key_nums)) + buffer
+        lo = math.floor(min(midi_nums)) - buffer
+        hi = math.ceil(max(midi_nums)) + buffer
         bin_centers = list(range(lo, hi + 1))
 
         hist = Histogram1D(bin_centers=bin_centers, ignore_extrema=False)
         point_weights = (
-            weights if weights is not None else [1.0] * len(key_nums)
+            weights if weights is not None else [1.0] * len(midi_nums)
         )
-        for key_num, weight in zip(key_nums, point_weights):
-            hist.add_point(key_num, weight=weight)
+        for midi_num, weight in zip(midi_nums, point_weights):
+            hist.add_point(midi_num, weight=weight)
 
         if use_spelling:
             # Prefer the actual spelling of an observed Pitch at each bin (e.g., "C#4" vs "Db4" if given);
             # fall back to the MIDI number for any bin center that wasn't actually observed.
             spellings = {}
             for p in pitches:
-                spellings.setdefault(round(p.key_num), p.name_with_octave)
+                spellings.setdefault(round(p.midi_num), p.name_with_octave)
             labels = [spellings.get(c, str(c)) for c in bin_centers]
             x_label = "Pitch (spelled)"
         else:

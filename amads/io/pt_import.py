@@ -513,7 +513,7 @@ def partitura_convert_part(
                 # Special handling for grace notes: if duration is zero, it
                 # might be placed *after* the note it is attached to, so we
                 # check the order within measure.content.
-                if note.duration == 0:
+                if note._duration == 0:
                     i = measure.content.index(note)
                     j = i - 1
                     swap_with = None
@@ -521,7 +521,7 @@ def partitura_convert_part(
                         if isclose(
                             measure.content[j].onset, note.onset, abs_tol=0.001
                         ):
-                            if measure.content[j].duration > 0:
+                            if measure.content[j]._duration > 0:
                                 swap_with = j
                         else:
                             break

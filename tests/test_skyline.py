@@ -23,15 +23,15 @@ def test_extreme():
     high_notes = high_result.get_sorted_notes()
 
     assert len(high_notes) == 2
-    assert high_notes[0].pitch.key_num == 64
-    assert high_notes[1].pitch.key_num == 67
+    assert high_notes[0].pitch.midi_num == 64
+    assert high_notes[1].pitch.midi_num == 67
 
     low_result = extreme(score, method="low")
     low_notes = low_result.get_sorted_notes()
 
     assert len(low_notes) == 2
-    assert low_notes[0].pitch.key_num == 60
-    assert low_notes[1].pitch.key_num == 67
+    assert low_notes[0].pitch.midi_num == 60
+    assert low_notes[1].pitch.midi_num == 67
 
 
 def test_extreme_monophonic():
@@ -47,7 +47,7 @@ def test_extreme_monophonic():
     notes = result.get_sorted_notes()
 
     assert len(notes) == 3
-    assert [n.pitch.key_num for n in notes] == [60, 62, 64]
+    assert [n.pitch.midi_num for n in notes] == [60, 62, 64]
 
 
 def test_superlative():

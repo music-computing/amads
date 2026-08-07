@@ -66,7 +66,7 @@ def load_pitch_multiset(
         pitch_multiset = tuple(chord)
     elif isinstance(chord, Chord):
         pitch_multiset = tuple(
-            note.pitch.key_num for note in chord.find_all(Note)
+            note.pitch.midi_num for note in chord.find_all(Note)
         )
     elif isinstance(chord, PitchCollection):
         pitch_multiset = tuple(chord.pitch_num_multiset)

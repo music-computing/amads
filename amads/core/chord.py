@@ -153,10 +153,10 @@ def _canonical_quality(quality: str) -> str:
 def _parse_root(root: Union[str, int, Pitch]) -> Pitch:
     """Return a pitch-class-level Pitch from a name, int, or Pitch."""
     if isinstance(root, Pitch):
-        return Pitch(root.key_num % 12, root.alt)
+        return Pitch(root.midi_num % 12, root.alt)
     if isinstance(root, int):
         return Pitch(root % 12)
-    return Pitch(root, octave=None)  # octave=None → pitch-class (key_num 0-11)
+    return Pitch(root, octave=None)  # octave=None → pitch-class (midi_num 0-11)
 
 
 def _parse_key(key: Union[str, int, Pitch]) -> tuple[tuple[int, ...], int]:
@@ -170,7 +170,7 @@ def _parse_key(key: Union[str, int, Pitch]) -> tuple[tuple[int, ...], int]:
 
     """
     if isinstance(key, (int, Pitch)):
-        return MAJOR_SCALE, int(_parse_root(key).key_num) % 12
+        return MAJOR_SCALE, int(_parse_root(key).midi_num) % 12
     key_str = str(key).strip()
     if key_str.lower().endswith(" minor"):
         scale, tonic_name = MINOR_SCALE, key_str[:-6].strip().capitalize()
@@ -180,7 +180,7 @@ def _parse_key(key: Union[str, int, Pitch]) -> tuple[tuple[int, ...], int]:
         scale, tonic_name = MINOR_SCALE, key_str.capitalize()
     else:
         scale, tonic_name = MAJOR_SCALE, key_str
-    return scale, int(_parse_root(tonic_name).key_num) % 12
+    return scale, int(_parse_root(tonic_name).midi_num) % 12
 
 
 # ---------------------------------------------------------------------------
@@ -353,7 +353,7 @@ class Chord:
             self.pitches = tuple(_parse_root(p) for p in pitches)
         elif self.root is not None and self.quality is not None: # Derive pitches from root + quality:
             intervals = QUALITIES[self.quality]
-            root_pc   = self.root.key_num % 12
+            root_pc   = self.root.midi_num % 12
             self.pitches = tuple(
                 Pitch((root_pc + i) % 12)
                 for i in intervals
@@ -514,8 +514,8 @@ class Chord:
         Chord
         """
         pitches = collection.pitches
-        pc_pitches: list[Pitch] = [Pitch(p.key_num % 12, p.alt) for p in pitches]
-        pc_set = frozenset(p.key_num % 12 for p in pc_pitches)
+        pc_pitches: list[Pitch] = [Pitch(p.midi_num % 12, p.alt) for p in pitches]
+        pc_set = frozenset(p.midi_num % 12 for p in pc_pitches)
 
         # try each member as potential root
         matches: list[tuple[Pitch, str]] = []
@@ -547,11 +547,11 @@ class Chord:
         Helper to try and identify quality from self.pitches, trying each member as root."""
         if not self.pitches:
             return None
-        pc_set = frozenset(int(p.key_num) % 12 for p in self.pitches)
+        pc_set = frozenset(int(p.midi_num) % 12 for p in self.pitches)
         # try root first if known
         candidates = (
-            [int(self.root.key_num) % 12] if self.root is not None
-            else [int(p.key_num) % 12 for p in self.pitches]
+            [int(self.root.midi_num) % 12] if self.root is not None
+            else [int(p.midi_num) % 12 for p in self.pitches]
         )
         for r in candidates:
             intervals = frozenset(sorted((pc - r) % 12 for pc in pc_set))
@@ -567,8 +567,8 @@ class Chord:
             return None
         target = frozenset(QUALITIES[self.quality])
         for p in self.pitches:
-            r = int(p.key_num) % 12
-            intervals = frozenset((int(q.key_num) % 12 - r) % 12 for q in self.pitches)
+            r = int(p.midi_num) % 12
+            intervals = frozenset((int(q.midi_num) % 12 - r) % 12 for q in self.pitches)
             if intervals == target:
                 return Pitch(r)
         return None
@@ -578,7 +578,7 @@ class Chord:
         """Sorted list of pitch classes, or None if pitches unknown."""
         if self.pitches is None:
             return None
-        return sorted(set(int(p.key_num) % 12 for p in self.pitches))
+        return sorted(set(int(p.midi_num) % 12 for p in self.pitches))
 
     @property
     def pitch_class_vector(self) -> Optional[tuple[int, ...]]:
@@ -595,11 +595,11 @@ class Chord:
         return [p.name for p in self.pitches]
 
     def __contains__(self, item: Union[str, int, Pitch]) -> bool:
-        pc = _parse_root(item).key_num % 12
+        pc = _parse_root(item).midi_num % 12
         if self.pitches is not None:
-            return any(int(p.key_num) % 12 == pc for p in self.pitches)
+            return any(int(p.midi_num) % 12 == pc for p in self.pitches)
         if self.root is not None and self.quality is not None:
-            root_pc = int(self.root.key_num) % 12
+            root_pc = int(self.root.midi_num) % 12
             return ((pc - root_pc) % 12) in QUALITIES[self.quality]
         return False
 
@@ -614,8 +614,8 @@ class Chord:
         """Semitone intervals above the root, or None if root unknown."""
         if self.root is None or self.pitches is None:
             return None
-        r = int(self.root.key_num) % 12
-        return tuple(sorted((int(p.key_num) % 12 - r) % 12 for p in self.pitches))
+        r = int(self.root.midi_num) % 12
+        return tuple(sorted((int(p.midi_num) % 12 - r) % 12 for p in self.pitches))
 
     @property
     def inversion(self) -> Optional[int]:
@@ -634,8 +634,8 @@ class Chord:
         )
         if bass_pitch is None:
             return None
-        bass_pc = int(bass_pitch.key_num) % 12
-        root_pc = int(self.root.key_num) % 12
+        bass_pc = int(bass_pitch.midi_num) % 12
+        root_pc = int(self.root.midi_num) % 12
         if bass_pc == root_pc:
             return 0
         if self.intervals is None:
@@ -683,8 +683,8 @@ class Chord:
 
         bass_str = ""
         if self.bass is not None:
-            bass_pc = int(self.bass.key_num) % 12
-            root_pc = int(self.root.key_num) % 12
+            bass_pc = int(self.bass.midi_num) % 12
+            root_pc = int(self.root.midi_num) % 12
             if bass_pc != root_pc:
                 bass_str = f"/{self.bass.name}"
 
@@ -696,7 +696,7 @@ class Chord:
             return None
 
         scale, tonic_pc = _parse_key(key)
-        root_pc  = int(self.root.key_num) % 12
+        root_pc  = int(self.root.midi_num) % 12
         interval = (root_pc - tonic_pc) % 12
 
         if interval not in scale:
@@ -741,7 +741,7 @@ class Chord:
                 or (
                     self.root is not None
                     and other.root is not None
-                    and self.root.key_num % 12 == other.root.key_num % 12
+                    and self.root.midi_num % 12 == other.root.midi_num % 12
                 )
             )
             and self.quality == other.quality
@@ -749,7 +749,7 @@ class Chord:
 
     def __hash__(self) -> int:
         pcs = tuple(self.pitch_class_set or [])
-        root_pc = int(self.root.key_num) % 12 if self.root is not None else None
+        root_pc = int(self.root.midi_num) % 12 if self.root is not None else None
         return hash((pcs, root_pc, self.quality))
 
 

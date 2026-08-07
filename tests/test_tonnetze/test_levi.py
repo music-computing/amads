@@ -111,28 +111,29 @@ def test_cycle_table_rows(levi, length, expected_row):
     assert table[length] == expected_row
 
 
-@pytest.mark.slow
-def test_full_appendix_table(levi):
-    """
-    The complete Eulerian tonnetz row totals,
-    lengths 6–24,
-    and their grand total of 5409 simple cycles.
-    (see Boland and Hughston, Appendix).
-    """
-    lengths = range(6, 25, 2)
-    table = levi.cycle_table(lengths, is_parallel_edge)
-    row_totals = {length: sum(table[length].values()) for length in lengths}
-    expected = {
-        6: 16,
-        8: 39,
-        10: 120,
-        12: 228,
-        14: 636,
-        16: 906,
-        18: 1500,
-        20: 1182,
-        22: 720,
-        24: 62,
-    }
-    assert row_totals == expected
-    assert sum(row_totals.values()) == 5409
+# TODO @pytest.mark.slow default not effective for all users. Resolve before restoring this test.
+# @pytest.mark.slow
+# def test_full_appendix_table(levi):
+#     """
+#     The complete Eulerian tonnetz row totals,
+#     lengths 6–24,
+#     and their grand total of 5409 simple cycles.
+#     (see Boland and Hughston, Appendix).
+#     """
+#     lengths = range(6, 25, 2)
+#     table = levi.cycle_table(lengths, is_parallel_edge)
+#     row_totals = {length: sum(table[length].values()) for length in lengths}
+#     expected = {
+#         6: 16,
+#         8: 39,
+#         10: 120,
+#         12: 228,
+#         14: 636,
+#         16: 906,
+#         18: 1500,
+#         20: 1182,
+#         22: 720,
+#         24: 62,
+#     }
+#     assert row_totals == expected
+#     assert sum(row_totals.values()) == 5409

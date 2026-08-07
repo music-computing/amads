@@ -81,11 +81,15 @@ class Key:
         also accepts 'C major' / 'c minor' / 'C minor' explicit forms."""
         s = s.strip()
         if s.lower().endswith(" minor"):
-            return cls(Pitch(s[:-6].strip().capitalize()).key_num % 12, "minor")
+            return cls(
+                Pitch(s[:-6].strip().capitalize()).midi_num % 12, "minor"
+            )
         if s.lower().endswith(" major"):
-            return cls(Pitch(s[:-6].strip().capitalize()).key_num % 12, "major")
+            return cls(
+                Pitch(s[:-6].strip().capitalize()).midi_num % 12, "major"
+            )
         mode: Mode = "minor" if s[0].islower() else "major"
-        return cls(Pitch(s.capitalize()).key_num % 12, mode)
+        return cls(Pitch(s.capitalize()).midi_num % 12, mode)
 
     # diatonic helpers
 

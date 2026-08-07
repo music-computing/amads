@@ -70,13 +70,18 @@ def _canonical_key(pc1: int, q1: str, pc2: int, q2: str) -> tuple:
 
 
 def _canonical_inversion_retro(pc1: int, q1: str, pc2: int, q2: str) -> tuple:
-    """IR — I + R: unordered pair of pcs + same/different quality flag."""
+    """
+    IR — I + R: unordered pair of pcs + same/different quality flag.
+
+    Note: this must NOT reduce to a single interval
+    (that would make it transposition-invariant, and so equivalent to IRK).
+    R alone contributes only "unordered", not "any transposition".
+    Therefore, as with plain R (no I),
+    the two absolute pitch classes are kept as an unordered pair.
+    """
+
     same_quality = q1 == q2
-    iv_fwd = (pc2 - pc1) % 12
-    iv_bwd = (pc1 - pc2) % 12
-    # Canonical: pick smaller directed-interval representative
-    canon_iv = min(iv_fwd, iv_bwd)
-    return (canon_iv, same_quality)
+    return (frozenset({pc1, pc2}), same_quality)
 
 
 def _canonical_inversion_key(pc1: int, q1: str, pc2: int, q2: str) -> tuple:

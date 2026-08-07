@@ -695,7 +695,7 @@ def score_to_arrays(score) -> Tuple[List[float], List[float], List[float]]:
     notes = score.get_sorted_notes()
 
     # Extract onset, pitch, duration for each note
-    pitches = [note.pitch.key_num for note in notes]
+    pitches = [note.pitch.midi_num for note in notes]
     starts = [note.onset for note in notes]
     ends = [note.onset + note.duration for note in notes]
 

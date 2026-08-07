@@ -452,11 +452,11 @@ def _add_notes_to_measures(
                 m_insert_i = mi + 1
                 m_insert = measures[m_insert_i]
                 note.onset = m_insert.onset
-                note.duration = offset - note.onset
+                note._duration = offset - note.onset
             remaining = 0.0
             if note.offset > m_insert.offset:  # note crosses measure boundary
                 remaining = note.offset - m_insert.offset
-                note.duration = m_insert.offset - note.onset
+                note._duration = m_insert.offset - note.onset
             m_insert.insert(note)
 
             next_i = m_insert_i + 1
@@ -474,7 +474,7 @@ def _add_notes_to_measures(
                 prev_note.tie = tied_note
                 prev_note = tied_note
                 next_i += 1
-                remaining -= tied_note.duration
+                remaining -= tied_note._duration
             i += 1
 
 

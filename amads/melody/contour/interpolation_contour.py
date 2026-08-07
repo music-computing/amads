@@ -153,7 +153,7 @@ class InterpolationContour:
             A tuple containing (onset_times, pitch_values)
         """
         notes = score.get_sorted_notes()
-        return [note.onset for note in notes], [note.key_num for note in notes]
+        return [note.onset for note in notes], [note.midi_num for note in notes]
 
     @staticmethod
     def _is_turning_point_fantastic(pitches: list[int], i: int) -> bool:

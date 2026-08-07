@@ -67,15 +67,15 @@ class _TiedNotes:
     def __init__(self):
         self.tied_notes = {}
 
-    def insert_start_note(self, key_num: int, note: Note) -> None:
-        if key_num in self.tied_notes:
-            tied_note = self.tied_notes[key_num]
+    def insert_start_note(self, midi_num: int, note: Note) -> None:
+        if midi_num in self.tied_notes:
+            tied_note = self.tied_notes[midi_num]
             if isinstance(tied_note, list):
                 tied_note.append(note)
             else:
-                self.tied_notes[key_num] = [tied_note, note]
+                self.tied_notes[midi_num] = [tied_note, note]
         else:
-            self.tied_notes[key_num] = note
+            self.tied_notes[midi_num] = note
 
     def find_and_remove_predecessor(
         self, choices: list[Note], note: Note
@@ -97,7 +97,7 @@ class _TiedNotes:
                 and abs(note.onset - candidate.offset) < best_delta
             ):
                 # test durations and tie to the shortest
-                if not best or candidate.duration < best.duration:
+                if not best or candidate._duration < best._duration:
                     best = candidate
         if best is None:
             return None
@@ -105,10 +105,10 @@ class _TiedNotes:
         choices.remove(best)
         return best
 
-    def continue_note(self, key_num: int, note: Note) -> None:
+    def continue_note(self, midi_num: int, note: Note) -> None:
         origin = None
-        if key_num in self.tied_notes:
-            origin = self.tied_notes[key_num]
+        if midi_num in self.tied_notes:
+            origin = self.tied_notes[midi_num]
             # print("continue_note: origin", origin, "note", note)
             if isinstance(origin, list):
                 origin_note = self.find_and_remove_predecessor(origin, note)
@@ -116,11 +116,11 @@ class _TiedNotes:
                 origin = origin_note  # origin might now be None
             else:  # there is only one note that can be the predecessor.
                 # since note is labeled "continue", it becomes a predecessor
-                self.tied_notes[key_num] = note
+                self.tied_notes[midi_num] = note
             if origin is not None:
                 if abs(note.onset - origin.offset > 0.1):
                     warnings.warn(
-                        f"music21 note (key_num {key_num} at beat "
+                        f"music21 note (midi_num {midi_num} at beat "
                         f"{note.onset} continues a tie but the best "
                         f"candidate for its predecessor (at beat "
                         f"{origin.onset} is not adjacent. It ends at "
@@ -129,26 +129,26 @@ class _TiedNotes:
                 origin.tie = note
         if origin is None:
             warnings.warn(
-                f"music21 note (key_num {key_num} at beat"
+                f"music21 note (midi_num {midi_num} at beat"
                 f" {note.onset}) continues a tie, but there is no"
                 " start note for that pitch. The tie is ignored."
             )
 
-    def stop_note(self, key_num: int, note: Note) -> None:
+    def stop_note(self, midi_num: int, note: Note) -> None:
         origin = None
-        if key_num in self.tied_notes:
-            origin = self.tied_notes[key_num]
+        if midi_num in self.tied_notes:
+            origin = self.tied_notes[midi_num]
             if isinstance(origin, list):
                 origin_note = self.find_and_remove_predecessor(origin, note)
                 if len(origin) == 1:  # restore to non-list single note
-                    self.tied_notes[key_num] = origin[0]
+                    self.tied_notes[midi_num] = origin[0]
                 origin = origin_note  # origin might now be None
             else:
-                del self.tied_notes[key_num]  # remove the origin
+                del self.tied_notes[midi_num]  # remove the origin
             if origin is not None:
                 if abs(note.onset - origin.offset > 0.1):
                     warnings.warn(
-                        f"music21 note (key_num {key_num} at beat "
+                        f"music21 note (midi_num {midi_num} at beat "
                         f"{note.onset} ends a tie but the best "
                         f"candidate for its predecessor (at beat "
                         f"{origin.onset} is not adjacent. It ends at "
@@ -157,7 +157,7 @@ class _TiedNotes:
                 origin.tie = note
         if origin is None:
             warnings.warn(
-                f"music21 note (key_num {key_num} at beat"
+                f"music21 note (midi_num {midi_num} at beat"
                 f" {note.onset}) ends a tie, but there is no start"
                 " note for that pitch. The tie is ignored."
             )
@@ -558,12 +558,12 @@ def music21_convert_note(m21note, measure, ignore_hidden):
     return measure.onset + m21note.offset + duration
 
 
-def music21_convert_tie(key_num: int, note: Note, tie_type: str) -> None:
+def music21_convert_tie(midi_num: int, note: Note, tie_type: str) -> None:
     """Handle tie to and/or from music21 note
 
     Parameters
     ----------
-    key_num: int
+    midi_num: int
         the MIDI key number (pitch)
     note : Note
         the note we are creating, corresponds to m21note
@@ -574,11 +574,11 @@ def music21_convert_tie(key_num: int, note: Note, tie_type: str) -> None:
     assert tied_notes is not None  # initialized in music21_convert_part
     if tie_type == "start":
         # Start of a tie
-        tied_notes.insert_start_note(key_num, note)
+        tied_notes.insert_start_note(midi_num, note)
     elif tie_type == "continue":  # Continuation of a tie
-        tied_notes.continue_note(key_num, note)
+        tied_notes.continue_note(midi_num, note)
     elif tie_type == "stop":  # End of a tie
-        tied_notes.stop_note(key_num, note)
+        tied_notes.stop_note(midi_num, note)
 
 
 def music21_convert_rest(m21rest, measure, ignore_hidden):

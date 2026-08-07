@@ -19,6 +19,7 @@ __author__ = "Mark Gotham"
 
 
 from itertools import groupby
+from typing import Iterable
 
 
 def chunk(
@@ -31,8 +32,8 @@ def chunk(
 
     If `len(user_values)` isn't evenly divisible by `sublist_length`,
     the outcome depends on `require_even_div`.
-    If `require_even_div` is True a ValueError is raised.
-    If `require_even_div` is False (default),
+    If `require_even_div` is True (default) a ValueError is raised.
+    If `require_even_div` is False,
     the final sublist will be shorter than the rest.
 
     Parameters
@@ -111,6 +112,8 @@ def find_period(user_values: list) -> int:
     If no smaller period exists,
     `p == len(user_values)` (the list is its own period).
 
+    Note: not optimised for efficiency. May refactor if applied to larger data.
+
     Parameters
     ----------
     user_values : list
@@ -138,14 +141,14 @@ def find_period(user_values: list) -> int:
     if m == 0:
         return 0
 
-    for p in range(1, m + 1):
+    for p in range(1, m // 2 + 1):  # only consider p that can repeat >= 2 times
         if all(user_values[i] == user_values[i % p] for i in range(m)):
             return p
 
     return m  # unreachable, but keeps type-checkers happy
 
 
-def chunk_by_pattern(user_values: list) -> list[list]:
+def chunk_by_pattern(user_values: Iterable) -> list[list]:
     """
     Split `user_values` into sublists using its smallest repeating period,
     detected with `find_period` (no user-specified length).
@@ -182,6 +185,14 @@ def chunk_by_pattern(user_values: list) -> list[list]:
 
     >>> chunk_by_pattern([1, 2, 3, 4, 5])
     [[1, 2, 3, 4, 5]]
+
+    Can run on strings, whether there's a pattern ...
+    >>> chunk_by_pattern("PLRLPLPLRLPLPLRLPLPLRLPL")
+    ['PLRLPL', 'PLRLPL', 'PLRLPL', 'PLRLPL']
+
+    ... or not ...
+    >>> chunk_by_pattern("PLRPLPLPRPLPLPRPLPLPRLPL")
+    ['PLRPLPLPRPLPLPRPLPLPRLPL']
     """
     period = find_period(user_values)
 
@@ -240,7 +251,9 @@ def decode(data):
     return [item for item, count in data for _ in range(count)]
 
 
-def get_size_order(numbers: list[int | None] | tuple[int | None, ...]) -> None:
+def get_size_order(
+    numbers: list[int | None] | tuple[int | None, ...]
+) -> tuple[int, ...] | None:
     """
      Given an ordered list of numbers
      (here intended for the MIDI numbers of pitches in a figuration pattern)
