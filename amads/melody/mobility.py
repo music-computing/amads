@@ -47,7 +47,7 @@ def mobility(score: Score) -> Optional[Score]:
     # hack to check if score is empty
     if not score.ismonophonic():
         return None
-    pitches = [note.key_num for note in score.get_sorted_notes()]
+    pitches = [note.midi_num for note in score.get_sorted_notes()]
     if len(pitches) < 3:
         return None
     means = [sum / (num + 1) for num, sum in enumerate(accumulate(pitches))]

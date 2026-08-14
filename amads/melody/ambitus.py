@@ -22,7 +22,7 @@ def ambitus(score: Score) -> int | None:
     """
     if next(score.find_all(Note), None) is None:
         return None
-    min_pitch = min(note.key_num for note in score.find_all(Note))
-    max_pitch = max(note.key_num for note in score.find_all(Note))
+    min_pitch = min(note.midi_num for note in score.find_all(Note))
+    max_pitch = max(note.midi_num for note in score.find_all(Note))
 
     return max_pitch - min_pitch

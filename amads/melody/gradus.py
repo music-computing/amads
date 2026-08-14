@@ -96,7 +96,7 @@ def gradus(score: Score) -> float | None:
     gradus_sum = 0
     num_intervals = 0
     for current_note, next_note in zip(current_note_iter, next_note_iter):
-        interval = next_note.key_num - current_note.key_num
+        interval = next_note.midi_num - current_note.midi_num
         # interval processed to be within an octave and always positive.
         processed_interval = abs(interval) % 12
         gradus_sum += _suavitatis(_gradus_interval_ratios[processed_interval])

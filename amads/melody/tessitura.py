@@ -139,12 +139,12 @@ def _tessitura_miditoolbox(score: Score) -> Score | None:
 
     # preprocess starting note
     median_tracker = _RunningMedian()
-    median_tracker.insert_integer(start_note.key_num)
+    median_tracker.insert_integer(start_note.midi_num)
     stdev_tracker = _WelfordStdDev()
-    stdev_tracker.add_sample(start_note.key_num)
+    stdev_tracker.add_sample(start_note.midi_num)
     start_note.set("tessitura_mtb", 0)
     for idx, note in enumerate(note_iter):
-        current_pitch = note.key_num
+        current_pitch = note.midi_num
         if idx == 0:
             tessitura_val = 0
         else:
@@ -159,7 +159,7 @@ def _tessitura_miditoolbox(score: Score) -> Score | None:
         note.set("tessitura_mtb", tessitura_val)
         # update running totals
         median_tracker.insert_integer(current_pitch)
-        stdev_tracker.add_sample(note.key_num)
+        stdev_tracker.add_sample(note.midi_num)
 
     return score
 
@@ -191,14 +191,14 @@ def _tessitura_paper(score: Score) -> Score | None:
         return None
     if next(note_iter, None):
         pitch_stdev = statistics.stdev(
-            note.key_num for note in score.find_all(Note)
+            note.midi_num for note in score.find_all(Note)
         )
     else:
         pitch_stdev = math.inf
 
-    pitch_mean = statistics.mean(note.key_num for note in score.find_all(Note))
+    pitch_mean = statistics.mean(note.midi_num for note in score.find_all(Note))
     for note in score.find_all(Note):
-        tessitura_val = (note.key_num - pitch_mean) / pitch_stdev
+        tessitura_val = (note.midi_num - pitch_mean) / pitch_stdev
         note.set("tessitura", abs(tessitura_val))
 
     return score

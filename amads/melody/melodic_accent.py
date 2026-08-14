@@ -7,12 +7,11 @@ Original doc: github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.
 """
 
 import math
-from typing import Optional
 
 from amads.core.basics import Note, Score
 
 
-def melodic_accent(score: Score) -> Optional[Score]:
+def melodic_accent(score: Score) -> Score | None:
     """
     Calculate melodic accent salience according to Thomassen's model.
 
@@ -65,8 +64,8 @@ def melodic_accent(score: Score) -> Optional[Score]:
         # obtain first 2 notes for the 3-note window
         prev_note, current_note = comparing_notes
         # Calculate intervals between adjacent notes
-        prev_interval = current_note.key_num - prev_note.key_num
-        next_interval = next_note.key_num - current_note.key_num
+        prev_interval = current_note.midi_num - prev_note.midi_num
+        next_interval = next_note.midi_num - current_note.midi_num
 
         # Assign accent values based on Thomassen's model:
         if prev_interval == 0 and next_interval == 0:
