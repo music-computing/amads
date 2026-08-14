@@ -17,6 +17,8 @@ from amads.io.readscore import (
 )
 from amads.music import example
 
+VERBOSE = False
+
 
 def test_pitch_comparison():
     set_reader_warning_level("none")
@@ -34,30 +36,26 @@ def test_read_kern():
     set_preferred_kern_reader("music21")
     kern_file = example.fullpath("krn/happy_birthday_reference.krn")
     assert kern_file is not None
-    score = read_score(kern_file)
-    # print("Music21 Kern import:")
-    # score.show()
+    print("READING KERN FILE", kern_file)
+    score = read_score(kern_file, show=VERBOSE)
+    print("Music21 Kern import:")
+    score.show()
     nnotes = score.list_all(Note)
     assert len(nnotes) == 25, f"Expected 25 notes, got {len(nnotes)}"
-    # Note: The first measure is padded with rests to give a complete measure,
-    #   which is consistent with other AMADS readers and especially helps with
-    #   MIDI files which cannot represent partial measures. The last measure is
-    #   not complete or padded with a rest, so the duration is 23.0, not 24.0
-    #   as one might expect from the time signature. This behavior may change
-    #   in the future, but for now we test for the current behavior.
+    # Note that first and last measure are shorter than time signature duration:
     dur = score.duration
-    assert dur == 27.0, f"Expected duration 27.0, got {dur}"
+    assert dur == 23.0, f"Expected duration 23.0, got {dur}"
     nmeasures = score.list_all(Measure)
     assert len(nmeasures) == 9, f"Expected 9 measures, got {len(nmeasures)}"
 
     set_preferred_kern_reader("partitura")
-    ptscore = read_score(kern_file)
+    ptscore = read_score(kern_file, show=VERBOSE)
     print("Partitura Kern import:")
-    # ptscore.show()
+    ptscore.show()
     nnotes = ptscore.list_all(Note)
     assert len(nnotes) == 25, f"Expected 25 notes, got {len(nnotes)}"
     dur = ptscore.duration
-    assert dur == 27.0, f"Expected duration 27.0, got {dur}"
+    assert dur == 23.0, f"Expected duration 23.0, got {dur}"
     nmeasures = ptscore.list_all(Measure)
     assert len(nmeasures) == 9, f"Expected 9 measures, got {len(nmeasures)}"
 
@@ -74,10 +72,10 @@ def test_read_musicxml():
     set_reader_warning_level("none")
     xml_file = example.fullpath("musicxml/bwv846m15-16.musicxml")
     assert xml_file is not None
-    score = read_score(xml_file)  # , show=True)
+    score = read_score(xml_file)  # , show=VERBOSE)
     # print("MusicXML import:")
     # score.show()
-    nnotes = score.list_all(Note)
+    nnotes = score.list_all(Note, include_tied_to_notes=True)
     assert len(nnotes) == 60, f"Expected 60 notes, got {len(nnotes)}"
     dur = score.duration
     assert dur == 8.0, f"Expected duration 8.0, got {dur}"
@@ -107,7 +105,7 @@ def test_time_tempo_example():
     set_reader_warning_level("none")
     xml_file = example.fullpath("musicxml/time_tempo_test.musicxml")
     assert xml_file is not None
-    score = read_score(xml_file)  # , show=True)
+    score = read_score(xml_file, show=VERBOSE)
     # print("MusicXML import with", last_used_reader())
     # score.show()
     assert score.time_map is not None, "Expected time map to be present"
@@ -138,7 +136,7 @@ def test_time_tempo_example():
     assert len(score.list_all(Note)) == 16, "Expected 16 notes in score"
 
     set_preferred_xml_reader("partitura")
-    ptscore = read_score(xml_file)  # , show=True)
+    ptscore = read_score(xml_file)  # , show=VERBOSE)
     print("MusicXML import with", last_used_reader())
     ptscore.show()
     assert scores_compare(score, ptscore), "Expected scores to match"
@@ -150,13 +148,21 @@ def test_grace_trills_example():
     set_reader_warning_level("none")
     xml_file = example.fullpath("musicxml/trills.musicxml")
     assert xml_file is not None
-    score = read_score(xml_file)  # , show=True)
+    score = read_score(xml_file)  # , show=VERBOSE)
     print("MusicXML import with", last_used_reader())
     score.show()
-    assert len(score.list_all(Note)) == 30, "Expected 30 notes in score"
+    assert (
+        len(score.list_all(Note, include_tied_to_notes=True)) == 30
+    ), "Expected 30 notes in score"
     staffs: list[Staff] = score.list_all(Staff)  # type: ignore
     assert len(staffs) == 2, "Expected 2 staffs in score"
-    notes = staffs[0].list_all(Note)
+    notes = staffs[0].list_all(Note, include_tied_to_notes=True)
+
+    if VERBOSE:
+        print("Notes in first staff:")
+        for note in notes:
+            note.show(4)
+
     assert notes[0].get("has_trill", False)
     assert notes[0].get("trill_pitch").name_with_octave == "B4"
     assert notes[2].get("has_turn", False)

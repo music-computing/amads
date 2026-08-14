@@ -1,10 +1,13 @@
 """
-This `skyline.py` module demonstrates a strict case retrieving the
-highest sounding notes at any given point (with caveats as noted below).
+In this directory:
+- [this module] `skyline` returns a score with the highest sounding notes at any given point.
+- `extreme` is similar, and designed to match the MIDI toolkit as exactly as possible.
+- `envelope` is a variant on skyline that could be said to constitute a "smoothed" form,
+    and (currently) operates on pitch-onset pairs only (analysis only, no score return).
+- `superlative` is the most reductive, returning only the *single* highest/lowest/sharpest/flattest value.
 
-See also `envelope` for a variant that could be said to constitute a "smoothed" form of the same.
-
-<small>**Author**: Roger Dannenberg</small>
+This module author:
+<small>**Author**: Roger Dannenberg
 """
 
 __author__ = "Roger Dannenberg"
@@ -121,7 +124,7 @@ def skyline(score: Score, threshold: float = 0.1) -> Score:
             prev_note = note
 
         # ignore notes that are below last note in skyline
-        elif note.key_num < prev_note.key_num and (
+        elif note.midi_num < prev_note.midi_num and (
             note.onset < prev_note.offset - threshold  # overlap
             or note.onset < prev_note.onset + threshold
         ):  # concurrent
@@ -133,7 +136,7 @@ def skyline(score: Score, threshold: float = 0.1) -> Score:
         # see if note is concurrent and higher
         if (
             note.onset < prev_note.onset + threshold
-            and note.key_num >= prev_note.key_num
+            and note.midi_num >= prev_note.midi_num
         ):
             skyline.content.pop()  # replace prev_note
             skyline.content.append(note)
@@ -141,7 +144,7 @@ def skyline(score: Score, threshold: float = 0.1) -> Score:
 
         elif (
             note.onset >= prev_note.offset - threshold
-            or note.key_num >= prev_note.key_num
+            or note.midi_num >= prev_note.midi_num
         ):
             skyline.content.append(note)
             prev_note = note

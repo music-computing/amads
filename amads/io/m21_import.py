@@ -1,3 +1,4 @@
+import copy
 import warnings
 from math import isclose
 from pathlib import Path
@@ -31,7 +32,7 @@ from amads.core.basics import (
     TimeSignature,
 )
 from amads.io.m21_show import music21_show
-from amads.io.readscore import _expand_first_measure, _finish_import
+from amads.io.readscore import _finish_import
 
 
 class _TiedNotes:
@@ -66,15 +67,15 @@ class _TiedNotes:
     def __init__(self):
         self.tied_notes = {}
 
-    def insert_start_note(self, key_num: int, note: Note) -> None:
-        if key_num in self.tied_notes:
-            tied_note = self.tied_notes[key_num]
+    def insert_start_note(self, midi_num: int, note: Note) -> None:
+        if midi_num in self.tied_notes:
+            tied_note = self.tied_notes[midi_num]
             if isinstance(tied_note, list):
                 tied_note.append(note)
             else:
-                self.tied_notes[key_num] = [tied_note, note]
+                self.tied_notes[midi_num] = [tied_note, note]
         else:
-            self.tied_notes[key_num] = note
+            self.tied_notes[midi_num] = note
 
     def find_and_remove_predecessor(
         self, choices: list[Note], note: Note
@@ -96,7 +97,7 @@ class _TiedNotes:
                 and abs(note.onset - candidate.offset) < best_delta
             ):
                 # test durations and tie to the shortest
-                if not best or candidate.duration < best.duration:
+                if not best or candidate._duration < best._duration:
                     best = candidate
         if best is None:
             return None
@@ -104,22 +105,22 @@ class _TiedNotes:
         choices.remove(best)
         return best
 
-    def continue_note(self, key_num: int, note: Note) -> None:
+    def continue_note(self, midi_num: int, note: Note) -> None:
         origin = None
-        if key_num in self.tied_notes:
-            origin = self.tied_notes[key_num]
-            print("continue_note: origin", origin, "note", note)
+        if midi_num in self.tied_notes:
+            origin = self.tied_notes[midi_num]
+            # print("continue_note: origin", origin, "note", note)
             if isinstance(origin, list):
                 origin_note = self.find_and_remove_predecessor(origin, note)
                 origin.append(note)  # this note is tied to something too
                 origin = origin_note  # origin might now be None
             else:  # there is only one note that can be the predecessor.
                 # since note is labeled "continue", it becomes a predecessor
-                self.tied_notes[key_num] = note
+                self.tied_notes[midi_num] = note
             if origin is not None:
                 if abs(note.onset - origin.offset > 0.1):
                     warnings.warn(
-                        f"music21 note (key_num {key_num} at beat "
+                        f"music21 note (midi_num {midi_num} at beat "
                         f"{note.onset} continues a tie but the best "
                         f"candidate for its predecessor (at beat "
                         f"{origin.onset} is not adjacent. It ends at "
@@ -128,26 +129,26 @@ class _TiedNotes:
                 origin.tie = note
         if origin is None:
             warnings.warn(
-                f"music21 note (key_num {key_num} at beat"
+                f"music21 note (midi_num {midi_num} at beat"
                 f" {note.onset}) continues a tie, but there is no"
                 " start note for that pitch. The tie is ignored."
             )
 
-    def stop_note(self, key_num: int, note: Note) -> None:
+    def stop_note(self, midi_num: int, note: Note) -> None:
         origin = None
-        if key_num in self.tied_notes:
-            origin = self.tied_notes[key_num]
+        if midi_num in self.tied_notes:
+            origin = self.tied_notes[midi_num]
             if isinstance(origin, list):
                 origin_note = self.find_and_remove_predecessor(origin, note)
                 if len(origin) == 1:  # restore to non-list single note
-                    self.tied_notes[key_num] = origin[0]
+                    self.tied_notes[midi_num] = origin[0]
                 origin = origin_note  # origin might now be None
             else:
-                del self.tied_notes[key_num]  # remove the origin
+                del self.tied_notes[midi_num]  # remove the origin
             if origin is not None:
                 if abs(note.onset - origin.offset > 0.1):
                     warnings.warn(
-                        f"music21 note (key_num {key_num} at beat "
+                        f"music21 note (midi_num {midi_num} at beat "
                         f"{note.onset} ends a tie but the best "
                         f"candidate for its predecessor (at beat "
                         f"{origin.onset} is not adjacent. It ends at "
@@ -156,7 +157,7 @@ class _TiedNotes:
                 origin.tie = note
         if origin is None:
             warnings.warn(
-                f"music21 note (key_num {key_num} at beat"
+                f"music21 note (midi_num {midi_num} at beat"
                 f" {note.onset}) ends a tie, but there is no start"
                 " note for that pitch. The tie is ignored."
             )
@@ -177,6 +178,92 @@ class _TiedNotes:
         return preds
 
 
+def _safe_expand_multistaff(score):
+    # This helper rebuilds all parts from the expanded timeline of a single
+    # "master" part. Measure numbers are not reliable across formats (pickup
+    # bars, repeated numbering, Kern's repeated =1 labels), so we map by
+    # original measure index in the master part instead.
+    master_part = score.parts[0]
+    master_measures = list(master_part.getElementsByClass(stream.Measure))
+    if not master_measures:
+        return score
+
+    # Use object identity to map master measures to stable indices.
+    master_measure_indices = {
+        id(measure): index for index, measure in enumerate(master_measures)
+    }
+
+    # Expand at score level first. For some MusicXML files with alternate
+    # endings, part-level expandRepeats can drop ending context that is
+    # preserved when expansion is done on the full score.
+    expanded_score = score.expandRepeats()
+    expanded_master = (
+        expanded_score.parts[0]
+        if hasattr(expanded_score, "parts") and len(expanded_score.parts) > 0
+        else master_part.expandRepeats()
+    )
+    performed_measure_indices = []
+    for measure in expanded_master.getElementsByClass(stream.Measure):
+        origin = (
+            measure.derivation.origin
+            if measure.derivation and measure.derivation.origin
+            else measure
+        )
+        origin_index = master_measure_indices.get(id(origin))
+        if origin_index is None:
+            origin_number = getattr(origin, "number", None)
+            numbered_matches = [
+                index
+                for index, candidate in enumerate(master_measures)
+                if candidate.number == origin_number
+            ]
+
+            # If measure number uniquely identifies a measure in this part,
+            # trust that even when stored offsets differ (which can happen
+            # with some first/second-ending encodings).
+            if len(numbered_matches) == 1:
+                origin_index = numbered_matches[0]
+            else:
+                # Fall back to matching by (number, offset) when measure
+                # numbers are reused (e.g., Kern files with repeated =1).
+                for index in numbered_matches:
+                    candidate = master_measures[index]
+                    if isclose(
+                        candidate.offset,
+                        float(getattr(origin, "offset", -999999.0)),
+                        abs_tol=1e-6,
+                    ):
+                        origin_index = index
+                        break
+        if origin_index is not None:
+            performed_measure_indices.append(origin_index)
+
+    if not performed_measure_indices:
+        return score.expandRepeats()
+
+    new_score = stream.Score()
+
+    for original_part in score.parts:
+        new_part = stream.Part()
+        original_measures = list(
+            original_part.getElementsByClass(stream.Measure)
+        )
+
+        # Copy over non-measure elements (Instruments, Clefs, spanners, etc.)
+        for element in original_part.getElementsNotOfClass(stream.Measure):
+            new_part.insert(element.offset, copy.deepcopy(element))
+
+        # Rebuild this part in the same expanded order as master.
+        for measure_index in performed_measure_indices:
+            if 0 <= measure_index < len(original_measures):
+                copied = copy.deepcopy(original_measures[measure_index])
+                new_part.append(copied)
+
+        new_score.insert(original_part.offset, new_part)
+
+    return new_score.makeNotation()
+
+
 def music21_import(
     filename: str | Path,
     format: str,
@@ -184,6 +271,7 @@ def music21_import(
     collapse: bool = False,
     show: bool = False,
     group_by_instrument: bool = True,
+    ignore_hidden: bool = False,
 ) -> Score:
     """
     Use music21 to import a file and convert it to a Score.
@@ -203,6 +291,8 @@ def music21_import(
     group_by_instrument : bool, optional
         If True, group parts by instrument name into staffs. Defaults to True.
         See music21_to_score() for more details.
+    ignore_hidden : bool, optional
+        If True, do not read notes marked in MusicXML with `print-object="no"`
 
     Returns
     -------
@@ -219,6 +309,20 @@ def music21_import(
         filename, format=format, forceSource=True, quantizePost=qp
     )
 
+    # Google AI suggests makeNotation to make the score structurally consistent
+    # before expanding if the 2nd staff is repeating the first ending and getting
+    # desynchronized. (Other, more complex methods were also suggested.)
+    # m21score.makeNotation(inPlace=True)
+
+    # But that didn't work, so here is the more complex method.
+    # Humdrum/Kern often has non-unique measure numbers (e.g., many "=1"
+    # barlines), so rebuilding by measure number can duplicate one bar and
+    # corrupt pitch content. Keep the original parsed structure for Kern.
+    if format != "humdrum":
+        m21score = _safe_expand_multistaff(m21score)
+
+    # m21score = m21score.expandRepeats()
+
     # m21score can be an Opus, but this is checked in music21_to_score, so we
     # can ignore the type error here:
     score = music21_to_score(
@@ -228,6 +332,7 @@ def music21_import(
         show,  # type: ignore
         str(filename),
         group_by_instrument=group_by_instrument,
+        ignore_hidden=ignore_hidden,
     )
     return score
 
@@ -245,6 +350,7 @@ def music21_to_score(
     show: bool = False,
     filename: Optional[str] = None,
     group_by_instrument: bool = True,
+    ignore_hidden: bool = False,
 ) -> Score:
     global _staff_id_to_part
     _staff_id_to_part = {}
@@ -273,21 +379,15 @@ def music21_to_score(
     #     to find all Parts whose Staff belong together.
 
     if isinstance(m21score, stream.Part):
-        part, shared_shift = music21_convert_part(m21score, score, duration)
+        part = music21_convert_part(m21score, score, duration, ignore_hidden)
     elif isinstance(m21score, stream.Score):
-        shared_shift = None  # used to check all parts have same time shift
         for i, m21part in enumerate(m21score.parts):
             if isinstance(m21part, stream.Part):
                 # Convert the music21 part into an AMADS Part and
                 # append it to the Score:
-                part, shift = music21_convert_part(m21part, score, duration)
-                # check that all parts have the same time shift; this should
-                # be true if all first measures have the same number of beats
-                # either as notes or rest or some combination.
-                if shared_shift is not None:
-                    assert isclose(shared_shift, shift, abs_tol=0.001)
-                else:
-                    shared_shift = shift
+                part = music21_convert_part(
+                    m21part, score, duration, ignore_hidden
+                )
                 parts.append(part)
                 m21parts.append(m21part)
                 # if m21part is a PartStaff (subclass of Part), keep
@@ -360,9 +460,7 @@ def music21_to_score(
                 from_part.remove(from_staff)
                 to_part.insert(from_staff)
 
-    if shared_shift is None:  # might happen if score is empty
-        shared_shift = 0.0
-    return _finish_import(score, flatten, collapse, shared_shift)
+    return _finish_import(score, flatten, collapse)
 
 
 _trill_types = (
@@ -393,7 +491,7 @@ def music21_set_pitches(m21note, expr, note, prop):
     note.set(prop, [Pitch(p.midi, p.alter) for p in m21pitches])
 
 
-def music21_convert_note(m21note, measure):
+def music21_convert_note(m21note, measure, ignore_hidden):
     """
     Convert a music21 note into an AMADS Note and append it to the Measure.
 
@@ -408,6 +506,10 @@ def music21_convert_note(m21note, measure):
     dynamic = m21note.volume.velocity
     if isinstance(dynamic, int):
         dynamic = min(max(dynamic, 1), 127)
+    hidden = m21note.hasStyleInformation and m21note.style.hideObjectOnPrint
+    if hidden and ignore_hidden:
+        return 0.0
+
     note = Note(
         parent=measure,
         onset=float(measure.onset + m21note.offset),
@@ -415,12 +517,14 @@ def music21_convert_note(m21note, measure):
         duration=duration,
         dynamic=dynamic,
     )
+    if hidden:
+        note.set("hide_on_print", True)
     if m21note.duration.isGrace:
         note.set("is_grace", True)
         if m21note.duration.slash:
             note.set("has_slash", True)
-        print("Converted music21 note", m21note, "to AMADS note", note)
-        print("    onset specified as", measure.onset + m21note.offset)
+        # print("Converted music21 note", m21note, "to AMADS note", note)
+        # print("    onset specified as", measure.onset + m21note.offset)
     if hasattr(m21note, "expressions"):
         for expr in m21note.expressions:
             if isinstance(expr, expressions.Trill):
@@ -451,14 +555,15 @@ def music21_convert_note(m21note, measure):
                 note.set("has_schleifer", True)
     if m21note.tie is not None:
         music21_convert_tie(m21note.pitch.midi, note, m21note.tie.type)
+    return measure.onset + m21note.offset + duration
 
 
-def music21_convert_tie(key_num: int, note: Note, tie_type: str) -> None:
+def music21_convert_tie(midi_num: int, note: Note, tie_type: str) -> None:
     """Handle tie to and/or from music21 note
 
     Parameters
     ----------
-    key_num: int
+    midi_num: int
         the MIDI key number (pitch)
     note : Note
         the note we are creating, corresponds to m21note
@@ -469,14 +574,14 @@ def music21_convert_tie(key_num: int, note: Note, tie_type: str) -> None:
     assert tied_notes is not None  # initialized in music21_convert_part
     if tie_type == "start":
         # Start of a tie
-        tied_notes.insert_start_note(key_num, note)
+        tied_notes.insert_start_note(midi_num, note)
     elif tie_type == "continue":  # Continuation of a tie
-        tied_notes.continue_note(key_num, note)
+        tied_notes.continue_note(midi_num, note)
     elif tie_type == "stop":  # End of a tie
-        tied_notes.stop_note(key_num, note)
+        tied_notes.stop_note(midi_num, note)
 
 
-def music21_convert_rest(m21rest, measure):
+def music21_convert_rest(m21rest, measure, ignore_hidden):
     """
     Convert a music21 rest into an AMADS Rest and append it to the Measure.
 
@@ -487,6 +592,13 @@ def music21_convert_rest(m21rest, measure):
     measure : Measure
         The Measure object to which the converted Rest will be appended.
     """
+    if (
+        m21rest.hasStyleInformation
+        and m21rest.style.hideObjectOnPrint
+        and ignore_hidden
+    ):
+        return 0.0
+
     duration = float(m21rest.quarterLength)
     # Create a new Rest object and associate it with the Measure
     Rest(
@@ -494,9 +606,10 @@ def music21_convert_rest(m21rest, measure):
         onset=float(measure.onset + m21rest.offset),
         duration=duration,
     )
+    return measure.onset + m21rest.offset + duration
 
 
-def music21_convert_chord(m21chord, measure, offset):
+def music21_convert_chord(m21chord, measure, offset, ignore_hidden):
     """
     Convert a music21 chord into an AMADS Chord and append it to the Measure.
     Apparently, chord notes cannot be tied, so we ignore ties.
@@ -507,7 +620,18 @@ def music21_convert_chord(m21chord, measure, offset):
         The music21 chord to convert.
     measure : Measure
         The Measure object to which the converted Chord will be appended.
+    ignore_hidden: bool
+        Whether to include hidden notes
     """
+    # it appears that you cannot hide individual notes,
+    # but perhaps you can hide the whole chord:
+    if (
+        m21chord.hasStyleInformation
+        and m21chord.style.hideObjectOnPrint
+        and ignore_hidden
+    ):
+        return 0.0
+
     duration = float(m21chord.quarterLength)
     chord = Chord(
         parent=measure,
@@ -523,6 +647,17 @@ def music21_convert_chord(m21chord, measure, offset):
         )
         if m21chord.tie is not None:
             music21_convert_tie(pitch.midi, note, m21chord.tie.type)
+
+    for exp in m21chord.expressions:
+        if isinstance(exp, expressions.ArpeggioMark):
+            chord.set("rolled", True)
+
+    # Some MusicXML arpeggiation marks are represented by music21 as
+    # ArpeggioMarkSpanner rather than per-chord ArpeggioMark expressions.
+    if m21chord.getSpannerSites(expressions.ArpeggioMarkSpanner):
+        chord.set("rolled", True)
+
+    return measure.onset + m21chord.offset + duration
 
 
 def update_part_instrument(caller_id, part, m21instr):
@@ -610,8 +745,8 @@ def _get_amads_clef_name(
 
 
 def append_items_to_measure(
-    measure: Measure, source: stream.Stream, offset: float
-) -> None:
+    measure: Measure, source: stream.Stream, offset: float, ignore_hidden
+) -> float:
     """
     Append items from a source to the Measure.
 
@@ -622,11 +757,16 @@ def append_items_to_measure(
     source : music21.stream.Stream
         The source stream containing items to append.
     """
+    endq = 0.0  # maximum end time of any element, in quarters
     for element in source.iter():
         if isinstance(element, note.Note):
-            music21_convert_note(element, measure)
+            endq = max(
+                endq, music21_convert_note(element, measure, ignore_hidden)
+            )
         elif isinstance(element, note.Rest):
-            music21_convert_rest(element, measure)
+            endq = max(
+                endq, music21_convert_rest(element, measure, ignore_hidden)
+            )
         elif isinstance(element, m21TimeSignature):
             # Create a TimeSignature object and insert into the score
             # if the TimeSignature changes at this time:
@@ -640,7 +780,15 @@ def append_items_to_measure(
                 )
             # what TimeSignature is in effect?
             ts = measure.time_signature()
-            if ts.upper != upper or ts.lower != lower:
+            if ts is None:
+                # there may be a bug here: the score has no time signature yet,
+                # but there is a time signature in this measure of the music21
+                # score. We *could* retroactively assert a default 4/4 time
+                # signature for the score, but instead we will just add the
+                # time signature for this measure:
+                ts = TimeSignature(measure.onset, upper, lower)
+                measure.score.append_time_signature(ts)  # type: ignore
+            elif ts.upper != upper or ts.lower != lower:
                 last_ts = measure.score.time_signatures[-1]  # type: ignore
                 if last_ts.quarters > measure.onset:
                     warnings.warn(
@@ -674,10 +822,18 @@ def append_items_to_measure(
             #       "parameters", clef_parameters)
             Clef(measure, measure.onset + element.offset, name, clef_parameters)
         elif isinstance(element, chord.Chord):
-            music21_convert_chord(element, measure, offset)
+            endq = max(
+                endq,
+                music21_convert_chord(element, measure, offset, ignore_hidden),
+            )
         elif isinstance(element, stream.Voice):
             # Voice containers are ignored, so promote contents to the Measure
-            append_items_to_measure(measure, element, offset + element.offset)
+            endq = max(
+                endq,
+                append_items_to_measure(
+                    measure, element, offset + element.offset, ignore_hidden
+                ),
+            )
         elif isinstance(element, tempo.MetronomeMark):
             # update tempo
             time_map = measure.score.time_map  # type: ignore (measure has
@@ -709,9 +865,10 @@ def append_items_to_measure(
                 "Music21_convert_measure ignoring non-Note element"
                 f" {element} : {element.__class__}."
             )
+    return endq
 
 
-def music21_convert_measure(m21measure, staff):
+def music21_convert_measure(m21measure, staff, ignore_hidden):
     """
     Convert a music21 measure into an AMADS Measure and append it to the Staff.
 
@@ -722,7 +879,9 @@ def music21_convert_measure(m21measure, staff):
     staff : Staff
         The Staff object to which the converted Measure will be appended.
     """
-    # Create a new Measure object and associate it with the Staff
+    # Create a new Measure object and associate it with the Staff. The
+    # measure duration is tricky: for a truncated 1st ending measure, for
+    # example, duration, barDuration, and highestTime give wrong answers.
     measure = Measure(
         parent=staff,
         onset=m21measure.offset,
@@ -730,11 +889,16 @@ def music21_convert_measure(m21measure, staff):
     )
 
     # Iterate over elements in the music21 measure
-    append_items_to_measure(measure, m21measure, m21measure.offset)
+    highest_time = append_items_to_measure(
+        measure, m21measure, m21measure.offset, ignore_hidden
+    )
+    # now that we know what's in it, fix the duration to actual duration
+    assert highest_time - measure.onset <= measure.duration + 0.001
+    measure.duration = highest_time - measure.onset
     return measure
 
 
-def music21_convert_part(m21part, score, duration):
+def music21_convert_part(m21part, score, duration, ignore_hidden):
     """
     Convert a music21 part into an AMADS Part and append it to the Score.
 
@@ -744,6 +908,10 @@ def music21_convert_part(m21part, score, duration):
         The music21 part to convert.
     score : Score
         The Score object to which the converted Part will be appended.
+    duration:
+        duration for the Part
+    ignore_hidden: bool
+        whether to convert objects marked `print-object="no"`
     """
     global tied_notes  # temporary data to track tied notes
     # Create a new Part object and associate it with the Score
@@ -759,7 +927,7 @@ def music21_convert_part(m21part, score, duration):
     for element in m21part.iter():
         if isinstance(element, stream.Measure):
             # Convert music21 Measure to our Measure class
-            music21_convert_measure(element, staff)
+            music21_convert_measure(element, staff, ignore_hidden)
         elif isinstance(element, instrument.Instrument):
             update_part_instrument("FOUND INSTRUMENT IN PART", part, element)
         else:
@@ -774,7 +942,4 @@ def music21_convert_part(m21part, score, duration):
         )
     tied_notes = None  # type: ignore , free memory used by tied notes tracking
     staff.offset = staff.content[-1].offset
-
-    shift = _expand_first_measure(staff)
-
-    return part, shift
+    return part

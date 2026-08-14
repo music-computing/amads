@@ -79,13 +79,13 @@ def _score_compare_error(
 def _pitch_dim(event: Event) -> float:
     """compute a number for sorting events if onsets are equal
 
-    We want Clef < KeySignature < Note, and Notes ordered by key_num
+    We want Clef < KeySignature < Note, and Notes ordered by midi_num
     and then alt.
 
-    This function is not completely correct because if two key_nums
+    This function is not completely correct because if two midi_nums
     are very close (on the order of 0.001), and have different alt
     values, they could be returned out of order, but in "normal" music,
-    key_num values are separated by 1 or at least some audible difference.
+    midi_num values are separated by 1 or at least some audible difference.
     """
     if isinstance(event, Clef):
         return -10
@@ -93,7 +93,7 @@ def _pitch_dim(event: Event) -> float:
         return -5
     elif isinstance(event, Note):
         pitch = event.pitch
-        return pitch.key_num - pitch.alt * 0.001 if pitch else 0
+        return pitch.midi_num - pitch.alt * 0.001 if pitch else 0
     return 0
 
 
@@ -142,6 +142,9 @@ def scores_compare(score1: Event, score2: Event, midi: bool = False) -> bool:
     If midi, EventGroups are allowed to have non-matching durations because
     some MIDI readers fill out duration to even number of measures and others
     do not.  And Staff numbers do not have to match.
+
+    If a note.dynamic is None, it is treated as 100 since this is the default
+    dynamic used when writing MIDI files in the absence of a dynamic.
 
     Parameters
     ----------
@@ -294,7 +297,7 @@ def scores_compare(score1: Event, score2: Event, midi: bool = False) -> bool:
             return False
         if isinstance(score1, Note):
             score2 = cast(Note, score2)
-            if (midi and (score1.key_num != score2.key_num)) or (
+            if (midi and (score1.midi_num != score2.midi_num)) or (
                 (not midi) and (score1.pitch != score2.pitch)
             ):
                 _score_compare_error(
@@ -306,7 +309,10 @@ def scores_compare(score1: Event, score2: Event, midi: bool = False) -> bool:
                     "pitch is",
                 )
                 return False
-            if score1.dynamic != score2.dynamic:
+            # dynamic match if one and only one score has None
+            if ((score1.dynamic is None) == (score2.dynamic is None)) and (
+                score1.dynamic != score2.dynamic
+            ):
                 _score_compare_error(
                     "Note velocities do not match:",
                     score1,
@@ -512,11 +518,18 @@ def notes_compare(
         matched notes and the maximum offset time difference observed
         between matched notes.
 
+    Raises
+    ------
+    ValueError
+        If scores do not have the same units (quarters or seconds).
+
     <small>**Author**: Roger B. Dannenberg</small>
     """
     heading = False  # have we printed a heading for unmatched reports?
-    notes1 = score1.get_sorted_notes(has_ties=score1.has_ties())
-    notes2 = score2.get_sorted_notes(has_ties=score2.has_ties())
+    if score1.units_are_seconds != score2.units_are_seconds:
+        raise ValueError("Scores must have the same unit type.")
+    notes1 = score1.get_sorted_notes()
+    notes2 = score2.get_sorted_notes()
     unmatched1 = []
     unmatched2 = []
     max_onset_diff = 0.0
@@ -560,7 +573,7 @@ def notes_compare(
             if (
                 (
                     (not spelling)
-                    and (c.key_num == n1.key_num)
+                    and (c.midi_num == n1.midi_num)
                     or (c.pitch == n1.pitch)
                 )
                 and (abs(c.onset - n1.onset) < tolerance)

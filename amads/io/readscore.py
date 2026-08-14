@@ -5,16 +5,17 @@ __author__ = "Roger B. Dannenberg"
 import tempfile
 import urllib.request
 import warnings
+from math import isclose
 from pathlib import Path
-from typing import Callable, Optional, cast
+from typing import Callable, List, Optional, cast
 
-from amads.core.basics import Chord, Measure, Note, Rest, Score, Staff
+from amads.core.basics import Event, Measure, Part, Rest, Score, Staff
 from amads.io.writescore import _suffix_to_format
 
 # This module, readscore, is regarded as a singleton class with
 # the following attributes:
 
-_default_midi_reader = "pretty_midi"
+_default_midi_reader = "mido"
 _default_xml_reader = "music21"
 _default_kern_reader = "music21"
 _default_mei_reader = "music21"
@@ -34,7 +35,7 @@ valid_score_extensions.remove(".pdf")
 valid_score_extensions.remove(".ly")  # write-only extensions
 
 allowed_subsystems = {
-    "midi": ["music21", "pretty_midi"],
+    "midi": ["music21", "pretty_midi", "mido"],
     "musicxml": ["music21", "partitura"],
     "kern": ["music21", "partitura"],
     "mei": ["music21", "partitura"],
@@ -44,6 +45,7 @@ allowed_subsystems = {
 _subsystem_map = {
     "music21": ("amads.io.m21_import", "music21_import"),
     "pretty_midi": ("amads.io.pm_midi_import", "pretty_midi_import"),
+    "mido": ("amads.io.mido_midi_import", "mido_midi_import"),
     "partitura": ("amads.io.pt_import", "partitura_import"),
 }
 
@@ -58,8 +60,8 @@ def set_preferred_midi_reader(reader: str = _default_midi_reader) -> str:
     Parameters
     ----------
     reader : str, optional
-        The name of the preferred MIDI reader; "music21" or "pretty_midi".
-        Defaults to "pretty_midi".
+        The name of the preferred MIDI reader; "music21", "pretty_midi",
+        or "mido". Defaults to "mido".
 
     Returns
     -------
@@ -72,7 +74,7 @@ def set_preferred_midi_reader(reader: str = _default_midi_reader) -> str:
         If an invalid reader is provided.
     """
     global preferred_midi_reader
-    allowed = ["music21", "pretty_midi"]
+    allowed = ["music21", "pretty_midi", "mido"]
     if reader not in allowed_subsystems["midi"]:
         raise ValueError(f"Invalid MIDI reader. Must be one of {allowed}")
 
@@ -290,6 +292,7 @@ def _import_score(
     collapse: bool = False,
     show: bool = False,
     group_by_instrument: bool = True,
+    ignore_hidden=False,
 ) -> Score:
     """Import a score file
 
@@ -305,7 +308,13 @@ def _import_score(
                 f"file={import_fn.__name__}."
             )
         return import_fn(
-            str(filename), format, flatten, collapse, show, group_by_instrument
+            str(filename),
+            format,
+            flatten,
+            collapse,
+            show,
+            group_by_instrument,
+            ignore_hidden,
         )
     elif preferred_reader:
         raise Exception(
@@ -326,6 +335,7 @@ def read_score(
     show: bool = False,
     format: Optional[str] = None,
     group_by_instrument: bool = True,
+    ignore_hidden=False,
 ) -> Score:
     """Read a file with the given format, 'musicxml', 'midi', 'kern', 'mei'.
 
@@ -352,8 +362,8 @@ def read_score(
         `'musicxml'`, `'midi'`, `'kern'`, `'mei'`)
     group_by_instrument : bool
         If True (default), when the underlying reader (e.g. for "pretty_midi",
-        "music21" or "partitura") reads Parts with the same instrument, their
-        content will be grouped into a single part. This means that if
+        "mido","music21" or "partitura") reads Parts with the same instrument,
+        their content will be grouped into a single part. This means that if
         `flatten`, then parts with the same instrument will be merged into a
         single part. If `flatten` is False, then the staffs of parts with the
         same instrument will be grouped within a single part.
@@ -369,6 +379,10 @@ def read_score(
         two Violin parts separate. Unfortunately, exact behavior depends on the
         underlying reader, MIDI track names, and/or MusicXML structure and
         naming.
+    ignore_hidden: bool
+        If False (default), MusicXML notes marked with `print-object="no"` are
+        read and marked with the "hide_on_print" property set to True.
+        If `ignore_hidden` is True, these notes are omitted from the AMADS score.
 
     Returns
     -------
@@ -386,11 +400,20 @@ def read_score(
     an anacrusis (“pickup”). This is somewhat ambiguous and does not
     translate well to MIDI which is less expressive than MusicXML.
 
-    Therefore, if the first measure read with Music21 is not a full
-    measure, a rest is inserted and the remainder is shifted to
-    form a full measure according to its time signature. Remaining
-    measures are shifted in time accordingly and Score, Part and
-    Staff durations are adjusted accordingly.
+    However, we retain the key signature and set the measure duration
+    to the actual duration, which may be shorter in the case of pickup
+    measures and short first endings (that normally are completed by
+    the content of the pickup measure).
+
+    To keep timing consistent, MIDI files with pickup measures are
+    expected to have an initial time signature that matches the
+    actual duration, so for example a 4/4 pickup measure with only
+    one quarter should be encoded as a 1/4 measure, and the next
+    measure will have a new time signature of 4/4. This produces a
+    consistent structure that MIDI editors can use to place bar lines
+    in the correct places, but has the drawback of altering the
+    indicated time signature in the pickup and possibly first ending
+    measures.
 
     General MIDI Import Notes
     -------------------------
@@ -459,6 +482,11 @@ def read_score(
     treble, soprano, alto, and tenor clefs, retaining the note
     positions on the staff, but not the original symbol.
 
+    If a MusicXML note is marked with `print-object="no"`, the
+    "hide_on_print" property will be set to True. You can access this
+    with note.get("hide_on_print", False). Hidden notes as ornaments
+    are independent of the standard ornaments described below.
+
     Grace notes are Notes marked by setting the `"is_grace"` property
     to True. AMADS also uses the `"has_slash"` property (no property
     means False) to indicate a grace note with a slash (conventionally
@@ -510,7 +538,13 @@ def read_score(
         )
 
         score = _import_score(
-            filename, format, flatten, collapse, show, group_by_instrument
+            filename,
+            format,
+            flatten,
+            collapse,
+            show,
+            group_by_instrument,
+            ignore_hidden,
         )
 
         # Warning handling
@@ -552,58 +586,181 @@ def last_used_reader() -> Optional[str]:
 # --------------- shared code for m21 and pt import -----------------
 
 
-def _expand_first_measure(staff: Staff) -> float:
-    """expand first measure to a full measure if necessary"""
-    # what is the maximum offset of the first measure?
-    shift = 0
-    if len(staff.content) > 0:
-        m1: Measure = cast(Measure, staff.content[0])
-        m1_duration = m1.time_signature().duration
-        max_offset = 0
-        for elem in m1.content:
-            max_offset = max(max_offset, elem.offset)
-        if max_offset < m1_duration - 0.001:  # need to insert rest
-            shift = m1_duration - max_offset
-            for elem in m1.content:
-                if (
-                    isinstance(elem, Note)
-                    or isinstance(elem, Rest)
-                    or isinstance(elem, Chord)
-                ):
-                    elem.time_shift(shift)
-            # insert Rest, Since m1 is first, m1.onset == 0
-            _ = Rest(m1, m1.onset, duration=shift)
-            m1.offset = m1_duration
-            # now, first measure ending may have shifted, so adjust
-            # remainder of the part
-            if len(staff.content) > 1 and shift > 0.001:
-                for m in staff.content[1:]:
-                    # score.time_signatures has not been shifted yet, so
-                    # look up the time signature for the meausure duration
-                    # before shifting. We set the measure duration because
-                    # partitura will give measure durations shorter than the
-                    # time signature duration if the measure is not full
-                    m.duration = m.time_signature().duration
-                    m.time_shift(shift)
-            staff.offset = staff.content[-1].offset
-            # update Part offset:
-            part = staff.parent
-            part.offset = max(part.offset, staff.offset)
-            # update Score offset:
-            score = part.parent
-            score.offset = max(score.duration, staff.offset)
-    return shift
+# def _expand_first_measure(staff: Staff) -> float:
+#     """expand first measure to a full measure if necessary"""
+#     # what is the maximum offset of the first measure?
+#     shift = 0
+#     if len(staff.content) > 0:
+#         m1: Measure = cast(Measure, staff.content[0])
+#         m1_duration = m1.time_signature().duration
+#         max_offset = 0
+#         for elem in m1.content:
+#             max_offset = max(max_offset, elem.offset)
+#         if max_offset < m1_duration - 0.001:  # need to insert rest
+#             shift = m1_duration - max_offset
+#             for elem in m1.content:
+#                 if (
+#                     isinstance(elem, Note)
+#                     or isinstance(elem, Rest)
+#                     or isinstance(elem, Chord)
+#                 ):
+#                     elem.time_shift(shift)
+#             # insert Rest, Since m1 is first, m1.onset == 0
+#             _ = Rest(m1, m1.onset, duration=shift)
+#             m1.offset = m1_duration
+#             # now, first measure ending may have shifted, so adjust
+#             # remainder of the part
+#             if len(staff.content) > 1 and shift > 0.001:
+#                 for m in staff.content[1:]:
+#                     # score.time_signatures has not been shifted yet, so
+#                     # look up the time signature for the meausure duration
+#                     # before shifting. We set the measure duration because
+#                     # partitura will give measure durations shorter than the
+#                     # time signature duration if the measure is not full
+#                     m.duration = m.time_signature().duration
+#                     m.time_shift(shift)
+#             staff.offset = staff.content[-1].offset
+#             # update Part offset:
+#             part = staff.parent
+#             part.offset = max(part.offset, staff.offset)
+#             # update Score offset:
+#             score = part.parent
+#             score.offset = max(score.duration, staff.offset)
+#     return shift
+
+
+def _step_to_next_measure(
+    staff_content: list[list[Event]], staff_ci: list[int]
+):
+    """Advance each staff_ci to next measure. Return done if
+    no more measures anywhere"""
+    for i in range(len(staff_ci)):
+        # advance staff_ci to find Measure
+        ci = staff_ci[i] + 1
+        staff_ci[i] = ci
+        content = staff_content[i]
+        while ci < len(content) and not isinstance(content[ci], Measure):
+            ci += 1
+            staff_ci[i] = ci
 
 
 def _finish_import(
-    score: Score, flatten: bool, collapse: bool, shift: float
+    score: Score,
+    flatten: bool,
+    collapse: bool,  # shift: float
 ) -> Score:
     """Apply some final manipulations common to m21 and pt import"""
-    if shift > 0.001:
-        # parts are shifted but not measures and time signatures.
-        # shared_shift is in beats
-        score.time_map._time_shift(shift)
-        score._timesignatures_shift(shift)
+    # check that time signatures correspond to measures.
+    # Music21 does strange things with MusicXML where measures are not full.
+    # To fix this, we first develop a list of measure onsets and durations that
+    # represents the maximum duration across all staffs for each measure and
+    # where measures are contiguous. The goal is then to shift measures and
+    # their contents to match the list of measure onsets and durations.
+    #
+    # Also check that every time signature is at the beginning of a measure.
+    # (No extras in the middle of measures.)
+    #
+    staffs = cast(List[Staff], score.list_all(Staff))
+    n = len(staffs)
+    if n > 0:
+        staff_content = [staff.content for staff in staffs]
+        # staff_ci is a list of indices into staff_content, one for each staff
+        # staff_ci is updated to point to the next measure in each staff by
+        # calling _step_to_next_measure.
+        staff_ci = [-1] * len(staffs)  # content indices
+        # all of staff_content should be measures, but we'll scan
+        # for measures just to be safe and robust
+        _step_to_next_measure(staff_content, staff_ci)
+        # Iterate until last measure was found in every staff:
+        measure_start = 0
+        measure_timing = []
+        while any(staff_ci[i] < len(staff_content[i]) for i in range(n)):
+            # build measure_timing for this measure by looking across all staffs
+            # for the maximum duration after recalculating measure durations
+            # using inherit_duration() to get the correct value for each measure
+            measure_dur = 0
+            for i, (ci, content) in enumerate(zip(staff_ci, staff_content)):
+                if ci < len(content):
+                    m = cast(Measure, content[ci])  # all ci's index Measures
+                    # calculate proper duration for content[ci] (duration could
+                    # be way off in Music21):
+                    m.inherit_duration()
+                    measure_dur = max(measure_dur, m.duration)
+            # now we have a measure duration
+            measure_timing.append((measure_start, measure_dur))
+            measure_start += measure_dur
+            _step_to_next_measure(staff_content, staff_ci)
+        score_dur = measure_start  # save the final value as correct duration
+        # now we have measure_timing, which is used to fix every staff
+        for si, content in enumerate(staff_content):  # process each staff
+            warned = False
+            # make a list of measure indices for measures in content
+            measure_indices = [
+                i for i, elem in enumerate(content) if isinstance(elem, Measure)
+            ]
+            for i, (measure_start, measure_dur) in enumerate(measure_timing):
+                if i < len(measure_indices):
+                    m = cast(Measure, content[measure_indices[i]])
+                    if not isclose(m.onset, measure_start):
+                        if not warned:
+                            warnings.warn(
+                                f"Measure {i} in staff {si} starts at "
+                                f"{m.onset} instead of {measure_start}. "
+                                "Shifting measure to correct onset. No more "
+                                "warnings will be issued for this staff."
+                            )
+                            warned = True
+                        m.time_shift(measure_start - m.onset)
+                    if not isclose(m.duration, measure_dur):
+                        if not warned:
+                            warnings.warn(
+                                f"Measure {i} in staff {si} has duration "
+                                f"{m.duration} instead of {measure_dur}. "
+                                "Inserting a rest at the end to pad measure. No"
+                                " more warnings will be issued for this staff."
+                            )
+                            warned = True
+                        _ = Rest(
+                            m,
+                            m.onset + m.duration,
+                            duration=measure_dur - m.duration,
+                        )
+                        m.duration = measure_dur
+                else:  # insert measures to pad to full length of score
+                    m = Measure(
+                        Rest(duration=measure_dur),
+                        parent=content[measure_indices[-1]].parent,
+                        onset=measure_start,
+                        duration=measure_dur,
+                    )
+
+        for p in score.find_all(Part):
+            p.duration = score_dur
+        score.duration = score_dur
+
+        # check for time signatures all on measure boundaries
+        time_sigs = score.time_signatures
+        m_index = 0
+        final_time_sigs = []
+        for ts in time_sigs:
+            # find the measure that starts at or after ts
+            while (
+                m_index < len(measure_timing)
+                and measure_timing[m_index][0] < ts.quarters - 0.01
+            ):
+                m_index += 1
+            # now m_index indexes a measure that starts at or after ts
+            if m_index >= len(measure_timing):
+                warnings.warn(f"Found and removing {ts} after last measure.")
+            elif measure_timing[m_index][0] > ts.quarters + 0.01:
+                warnings.warn(
+                    f"Found time signature {ts} "
+                    "that is not on a measure boundary."
+                )
+            else:
+                final_time_sigs.append(ts)
+        score.time_signatures = final_time_sigs
+
     if flatten or collapse:
         score = score.flatten(collapse=collapse)
     return score

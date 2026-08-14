@@ -13,7 +13,7 @@ from amads.core.basics import Score
 # This module, writescore, is regarded as a singleton class with
 # the following attributes:
 
-_default_midi_writer = "pretty_midi"
+_default_midi_writer = "mido"
 _default_xml_writer = "music21"
 _default_kern_writer = "music21"
 _default_mei_writer = "music21"
@@ -61,7 +61,7 @@ _format_to_suffix = {
 valid_score_extensions = _suffix_to_format.keys()
 
 allowed_subsystems = {
-    "midi": ["music21", "pretty_midi"],
+    "midi": ["music21", "pretty_midi", "mido"],
     "musicxml": ["music21", "partitura"],
     "kern": ["music21"],
     "mei": ["music21"],
@@ -81,6 +81,7 @@ allowed_subsystems = {
 _subsystem_map = {
     "music21": ("amads.io.m21_export", "music21_export"),
     "pretty_midi": ("amads.io.pm_midi_export", "pretty_midi_export"),
+    "mido": ("amads.io.mido_midi_export", "mido_midi_export"),
     "partitura": ("amads.io.pt_export", "partitura_export"),
     "music21-lilypond": ("amads.io.m21_pdf_export", "music21_pdf_export"),
     "music21-xml-lilypond": (
@@ -103,8 +104,8 @@ def set_preferred_midi_writer(writer: str = _default_midi_writer) -> str:
     Parameters
     ----------
     writer : str, optional
-        The name of the preferred MIDI writer. Can be "music21" or "pretty_midi".
-        Defaults to "pretty_midi".
+        The name of the preferred MIDI writer. Can be "music21",
+        "pretty_midi", or "mido". Defaults to "mido".
 
     Returns
     -------
@@ -119,12 +120,12 @@ def set_preferred_midi_writer(writer: str = _default_midi_writer) -> str:
     """
     global preferred_midi_writer
     previous_writer = preferred_midi_writer
-    if writer in ["music21", "partitura", "pretty_midi"]:
+    if writer in ["music21", "partitura", "pretty_midi", "mido"]:
         preferred_midi_writer = writer
     else:
         raise ValueError(
-            "Invalid MIDI writer. Choose 'music21', 'partitura', or "
-            "'pretty_midi'."
+            "Invalid MIDI writer. Choose 'music21', 'partitura', "
+            "'pretty_midi', or 'mido'."
         )
     return previous_writer
 
@@ -319,7 +320,10 @@ def _check_for_subsystem(
     format: str,
 ) -> tuple[
     Optional[
-        Callable[[Score, Optional[str | Path], Optional[str], bool, bool], None]
+        Callable[
+            [Score, Optional[str | Path], Optional[str], bool, float, bool],
+            None,
+        ]
     ],
     Optional[str],
 ]:
@@ -576,6 +580,20 @@ def write_score(
     Pretty MIDI also requires an instrument name. If the AMADS Part
     `instrument` attribute is `None`, then `"Unknown"` is used. The
     Pretty MIDI reader will convert `"Unknown"` back to `None`.
+
+    Music21 output to MusicXML can contain ornaments, which are
+    indicated by special properties on Notes. See `read_score`
+    documentation for a description of ornament properties. Some
+    Music21 ornaments are described in terms of accidentals rather
+    than actual pitches, which means AMADS must sometimes use a
+    generate-and-test approach to finding the correct accidental,
+    given that the actual pitch is determined by both the accidental
+    label and the current key signature. An exception is raised if
+    the ornament cannot be expressed in Music21.
+
+    Music21 output to MusicXML will set `print-object="no"` if
+    Note.get("hide_on_print", False) is True. This property is
+    set by the Music21-based MusicXML reader.
 
     """
     if not isinstance(filename, Path):

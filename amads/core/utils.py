@@ -1,3 +1,12 @@
+"""
+Shared utils
+
+<small>**Author**: Roger Dannenberg</small>
+"""
+
+__author__ = "Roger Dannenberg"
+
+
 import math
 from typing import Iterator, Optional, Union
 
@@ -35,13 +44,13 @@ def dir_to_collection(filenames: list[str]):
     return scores
 
 
-def _hz_to_key_num_single(hz: float, do_round: bool = True) -> float:
-    """Helper function for hz_to_key_num"""
-    key_num = 69 + 12 * math.log2(hz / 440.0)
-    return round(key_num) if do_round else key_num
+def _hz_to_midi_num_single(hz: float, do_round: bool = True) -> float:
+    """Helper function for hz_to_midi_num"""
+    midi_num = 69 + 12 * math.log2(hz / 440.0)
+    return round(midi_num) if do_round else midi_num
 
 
-def hz_to_key_num(
+def hz_to_midi_num(
     hertz: Union[float, list[float]], do_round: bool = True
 ) -> Union[float, list[float]]:
     """
@@ -53,7 +62,7 @@ def hz_to_key_num(
         The frequency or list of frequencies in Hertz.
 
     do_round : bool
-        Perform rounding to the nearest integer key_num.
+        Perform rounding to the nearest integer midi_num.
 
     Returns
     -------
@@ -62,18 +71,18 @@ def hz_to_key_num(
 
     Examples
     --------
-    >>> hz_to_key_num(440.0)
+    >>> hz_to_midi_num(440.0)
     69
-    >>> hz_to_key_num(260.0, False)
+    >>> hz_to_midi_num(260.0, False)
     59.89209719404554
-    >>> hz_to_key_num([440, 260], True)
+    >>> hz_to_midi_num([440, 260], True)
     [69, 60]
     """
 
     if isinstance(hertz, list):
-        return [_hz_to_key_num_single(hz, do_round) for hz in hertz]
+        return [_hz_to_midi_num_single(hz, do_round) for hz in hertz]
     else:
-        return _hz_to_key_num_single(hertz, do_round)
+        return _hz_to_midi_num_single(hertz, do_round)
 
 
 def hz_to_pitch(
@@ -88,7 +97,7 @@ def hz_to_pitch(
         The frequency or list of frequencies in Hertz.
 
     round : bool
-        Perform rounding to the nearest integer key_num.
+        Perform rounding to the nearest integer midi_num.
 
     Returns
     -------
@@ -98,17 +107,17 @@ def hz_to_pitch(
     Examples
     --------
     >>> hz_to_pitch(440)
-    Pitch(name='A4', key_num=69)
+    Pitch(name='A4', midi_num=69)
     """
-    key_nums = hz_to_key_num(hertz, round)
-    if isinstance(key_nums, list):
-        return [Pitch(kn) for kn in key_nums]
+    midi_nums = hz_to_midi_num(hertz, round)
+    if isinstance(midi_nums, list):
+        return [Pitch(kn) for kn in midi_nums]
     else:
-        return Pitch(key_nums)
+        return Pitch(midi_nums)
 
 
-def key_num_to_hz(
-    key_num: Union[float, Pitch, list[Union[float, Pitch]]]
+def midi_num_to_hz(
+    midi_num: Union[float, Pitch, list[Union[float, Pitch]]]
 ) -> Union[float, list[float]]:
     """
     Converts a Pitch object or MIDI key number to the corresponding
@@ -116,7 +125,7 @@ def key_num_to_hz(
 
     Parameters
     ----------
-    key_num : Union(Pitch, float, list(Union(Pitch, float)))
+    midi_num : Union(Pitch, float, list(Union(Pitch, float)))
         The Pitch object(s) or MIDI key number(s).
 
     Returns
@@ -126,23 +135,23 @@ def key_num_to_hz(
 
     Examples
     --------
-    >>> key_num_to_hz(69)
+    >>> midi_num_to_hz(69)
     440.0
-    >>> key_num_to_hz([Pitch("A5"), 60])
+    >>> midi_num_to_hz([Pitch("A5"), 60])
     [880.0, 261.6255653005986]
     """
 
-    def key_num_to_hz_single(k):
+    def midi_num_to_hz_single(k):
         if isinstance(k, Pitch):
-            key_num = k.key_num
+            midi_num = k.midi_num
         else:
-            key_num = k
-        return 440.0 * 2 ** ((key_num - 69) / 12)
+            midi_num = k
+        return 440.0 * 2 ** ((midi_num - 69) / 12)
 
-    if isinstance(key_num, list):
-        return [key_num_to_hz_single(k) for k in key_num]
+    if isinstance(midi_num, list):
+        return [midi_num_to_hz_single(k) for k in midi_num]
     else:
-        return key_num_to_hz_single(key_num)
+        return midi_num_to_hz_single(midi_num)
 
 
 """
@@ -150,7 +159,7 @@ For number, use Pitch(n).name or Pitch(n).name_with_octave
 For list, use [Pitch(p).name for p in n] or use 'name_with_octave'
 
 
-def key_num_to_name(n, detail="nameoctave"):
+def midi_num_to_name(n, detail="nameoctave"):
 
     Converts key numbers to key names (text).
     """ """
@@ -169,14 +178,14 @@ def key_num_to_name(n, detail="nameoctave"):
 
     Examples
     --------
-    >>> key_num_to_name(61)
+    >>> midi_num_to_name(61)
     'C#4'
 
-    >>> key_num_to_name(61, detail="nameonly")
+    >>> midi_num_to_name(61, detail="nameonly")
     'C#'
     """ """
 
-    def key_num_to_name_single(k):
+    def midi_num_to_name_single(k):
         pitch = Pitch(k)
         if detail == "nameonly":
             # Handles sharps, flats, and naturals correctly
@@ -189,9 +198,9 @@ def key_num_to_name(n, detail="nameoctave"):
             )
 
     if isinstance(n, list):
-        return [key_num_to_name_single(k) for k in n]
+        return [midi_num_to_name_single(k) for k in n]
     else:
-        return key_num_to_name_single(n)
+        return midi_num_to_name_single(n)
 """
 
 

@@ -115,13 +115,13 @@ The most important class is [`amads.core.basics.Note`][]. In addition to `onset`
 Pitches are complex enough to get their own class (an integer will not
 do). The pitch class has these attributes:
 
-- **`key_num`** (float) - MIDI-like key number, e.g. C4 = 60
+- **`midi_num`** (float) - MIDI-like key number, e.g. C4 = 60
 - **`alt`** (float) - alteration, e.g. one flat = -1
 
-Notice that you can always ignore `alt` and just use `key_num`, but if
+Notice that you can always ignore `alt` and just use `midi_num`, but if
 you care about note spelling, you will need `alt`.
 
-Notice also that both `key_num` and `alt` are floats, so you can express
+Notice also that both `midi_num` and `alt` are floats, so you can express
 quarter tones (a quarter tone above C4 is represented by 60.5), and the
 `alt` would be 0.5 (a quarter tone sharp).
 
@@ -149,7 +149,7 @@ There are important exceptions. Some examples:
 
 You should **never** modify a Pitch. Always construct a new one, because
 when Notes are copied, the new Note *shares* the original Note's Pitch
-object. Assigning to `pitch.key_num` might change the `pitch` of many
+object. Assigning to `pitch.midi_num` might change the `pitch` of many
 other notes.
 
 ### Accessing and Processing Scores
@@ -165,14 +165,19 @@ To process all notes in time order, call the Score method
 [`amads.core.basics.Score.get_sorted_notes`][], which returns a flat
 list of all notes, ordered by onset time, with ties merged.
 
-If you need notes from a particular staff or part, use
-[`amads.core.basics.Score.collapse_parts`][] to obtain a score with
-only the desired information, and then call
-[`score.find_all(Note)`][amads.core.basics.EventGroup.find_all] 
-to get an
-iterator for all notes in onset time order, or use
+To process all notes ordered by staff, use
+[`score.find_all(Note)`][amads.core.basics.EventGroup.find_all] or
 [`score.list_all(Note)`][amads.core.basics.EventGroup.list_all] 
 if you need a list rather than an iterator.
+
+If you need notes from a particular staff or part, you can use
+`staff.find_all(Note)` or `part.find_all(Note)` or
+`staff.list_all(Note)` or `part.list_all(Note)`. You can iterate
+over staffs or parts with `score.find_all(Staff)`, etc.
+
+If you want a score consisting of an extracted part or staff, use
+[`amads.core.basics.Score.collapse_parts`][]. This returns a score
+that can be passed to analysis algorithms as opposed to a note iterator.
 
 The [`score.find_all()`][amads.core.basics.EventGroup.find_all]
 and [`score.list_all()`][amads.core.basics.EventGroup.list_all]

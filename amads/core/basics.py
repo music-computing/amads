@@ -45,6 +45,8 @@ onsets are optional and default to None. To make this simple example work:
   Measure and the Chord onset is replaced with 1.0, then the Notes
   are shifted to 1.0. If the Measure is then passed in the content of
   a Staff, the Measure and all its content might be shifted again.
+
+<small>**Author**: Roger Dannenberg</small>
 """
 
 import copy
@@ -87,15 +89,15 @@ class Event:
         The containing object or None.
     _onset : float | None
         The onset (start) time.
-    duration : float
-        The duration of the event in quarters or seconds.
+    _duration : float
+        The duration of the (untied) event in quarters or seconds.
     info : Optional[Dict]
         Additional attribute/value information.
     """
-    __slots__ = ["parent", "_onset", "duration", "info"]
+    __slots__ = ["parent", "_onset", "_duration", "info"]
     parent: Optional["EventGroup"]
     _onset: float | None
-    duration: float
+    _duration: float
     info: Optional[Dict]
 
 
@@ -107,7 +109,7 @@ class Event:
         """
         self.parent = None  # set below when inserted into parent
         self._onset = onset
-        self.duration = duration
+        self._duration = duration
         self.info = None
 
         if parent:
@@ -135,9 +137,9 @@ class Event:
     def _event_times(self, dur: bool = True) -> str:
         """produce onset and duration string for __str__
         """
-        duration = self.duration
+        duration = self._duration  # using untied duration
         if duration is not None:
-            duration = f"{self.duration:0.3f}"
+            duration = f"{self._duration:0.3f}"
         return f"{self._event_onset()}, duration={duration}"
 
 
@@ -222,7 +224,7 @@ class Event:
         return (self.info is not None) and (property in self.info)
         
 
-    def time_shift(self, increment: float) -> "Event":
+    def time_shift(self, increment: float, content_only=False) -> "Event":
         """
         Change the onset by an increment.
 
@@ -230,7 +232,8 @@ class Event:
         ----------
         increment : float
             The time increment (in quarters or seconds).
-
+        content_only : bool, optional
+            This parameter is ignored. (See EventGroup.time_shift)
         Returns
         -------
         Event
@@ -306,7 +309,125 @@ class Event:
         self._onset = onset
 
 
-    def _quantize(self, divisions: int) -> "Event":
+    @property
+    def duration(self) -> float:
+        """Retrieve the duration of the event.
+
+        Returns
+        -------
+        float
+            The duration of the event in quarters or seconds.
+        """
+        return self._duration
+
+
+    @duration.setter
+    def duration(self, value: float) -> None:
+        """Set the duration of the event.
+
+        Parameters
+        ----------
+        value : float
+            The new duration of the event in quarters or seconds.
+        """
+        self._duration = value
+
+
+    def _quantize_tied_notes(self, quantized_onset: float,
+                             quantized_offset: float,
+                             divisions: int, ignore: List["Note"]) -> None:
+        """Quantize a string of tied notes. onset becomes quantized_onset,
+        final note ends at quantized_offset. Unnecessary notes are removed.
+        To make sure notes are processed only once, tied-to notes are appended
+        to the ignore list unless they are deleted. Later, when the tied-to
+        note is encountered in an iteration over the parent's content, the
+        tied-to note will be removed from ignore (to avoid building up a 
+        large list), and this method will not be called.
+        """
+        # gather the tied notes to be quantized and remove them from their
+        # parent so that those that are retained can be inserted in the proper
+        # time ordered position.
+        notes: List["Note"] = []
+        note = self
+        while note is not None:
+            parent = note.parent
+            parent.remove(note)  # type: ignore
+            # now note has no parent, but later we might want to put the
+            # note back in the parent, so remember the parent like this:
+            note.parent = parent
+            notes.append(note)
+            note = note.tie  # type: ignore
+
+        # special case is when all notes quantize to zero duration: keep the
+        # last note (because if the tie crosses a measure boundary, we want to
+        # extend into the new measure rather then extending a previous note
+        # beyond the duration of the measure. If the result would still extend
+        # outside the parent's duration, we adjust the onset earler so the
+        # note ends at the end of the measure. E.g., with 2 sixteenth notes
+        # tied across a measure boundary, we extend the 2nd one into the
+        # measure if we are quantizing to quarters. But with 2 sixteenth notes
+        # that are oddly tied to form the last 1/8 note of a measure the end
+        # of the measure, we would still drop the first, extend the 2nd note,
+        # but then adjust it back to the last beat of the measure to avoid
+        # placing it beyond the measure duration.
+        if quantized_offset < quantized_onset + 0.0001:  # type: ignore
+            # keep the last note and give it a duration of one quantum
+            keep = notes.last
+            keep.onset = quantized_onset
+            keep._duration = 1.0 / divisions
+            ignore.append(keep)  # ignore this when we get to it
+            quantized_offset += 1.0 / divisions
+            max_offset = round(keep.parent.offset * divisions) / divisions
+            if quantized_offset > max_offset + 0.0001:   # need to adjust the
+                quantized_offset = max_offset  # onset earlier within measure:
+                quantized_onset = max_offset - 1.0 / divisions
+            keep._duration = quantized_offset - quantized_onset
+            keep.onset = quantized_onset
+            # we saved the original parent in the parent attribute. To insert
+            # into a parent, the parent attribute must be None:
+            parent = keep.parent
+            keep.parent = None
+            parent.insert(keep)
+            return
+
+        # if we get here, we have tied notes spanning at least one quantum
+        # from quantized_onset to quantized_offset. We need to quantize each
+        # note onset and offset, with offset of tied-note equal to the onset
+        # of the tied-to note.  We preserve grace notes, but they have zero
+        # duration, so we need to remember which ones they are:
+        grace_notes = [note for note in notes if note._duration == 0]
+        onset = quantized_onset
+        for note in notes:
+            offset = (round((note.onset + note._duration) * divisions) / 
+                      divisions)
+            note._duration = offset - onset
+            note.onset = onset
+            onset = offset  # offset is the onset of the next (tied-to) note
+
+        # now, remove all notes that quantized to zero duration except for
+        # grace notes:
+        final_notes = [note for note in notes if (note._duration > 0 or 
+                                                  note in grace_notes)]
+
+        # final notes are going into the score. Ignore then when they are
+        # encountered when iterating through their parent's content:
+        for note in final_notes:
+            if note is not self:
+                ignore.append(note)
+
+        # put all final_notes into the score and tie them together
+        for i, note in enumerate(final_notes):
+            if i < len(final_notes) - 1:
+                note.tie = final_notes[i + 1]
+            parent = note.parent
+            note.parent = None
+            parent.insert(note)
+
+        # debug: print("After _quantize_tied_notes: final", final_notes)
+
+
+    def _quantize(self, divisions: int,
+                  ignore: Optional[List["Note"]]) -> None:
         """Modify onset and offset to a multiple of divisions per quarter note.
 
         This method modifies the Event in place. It also handles tied notes.
@@ -317,7 +438,7 @@ class Event:
         zero-length notes. See Collection.quantize for
         additional details.
 
-        self.onset and self.duration must be non-None.
+        self.onset and self._duration must be non-None.
 
         Parameters
         ----------
@@ -325,15 +446,19 @@ class Event:
             The number of divisions per quarter note, e.g., 4 for
             sixteenths, to control quantization.
 
+        ignore : Optional[List["Note"]] = None
+            The list of tied-to notes to ignore during quantization because
+            they have already been quantized.
+
         Returns
         -------
         Event
             self, after quantization.
         """
-        if self._onset is None or self.duration is None:
+        if self._onset is None or self._duration is None:
             raise ValueError(
-                "Cannot quantize Event with None onset or duration")
-        self.onset = round(self.onset * divisions) / divisions
+                "Cannot quantize Event with None onset or _duration")
+        quantized_onset = round(self.onset * divisions) / divisions
         quantized_offset = round(self.offset * divisions) / divisions
 
         # tied note cases: Given any two tied notes where the first has a
@@ -353,46 +478,34 @@ class Event:
         #     Note that since we cannot look back to see if we are at the
         # end of a tie, we need to look forward using Note.tie.
 
-        if (self.duration == 0 and
+        if (self._duration == 0 and
             (not isinstance(self, Note) or self.tie == None)):
-            return self  # do not change duration if it is originally zero
+            return  # do not change duration if it is originally zero
 
-        while isinstance(self, Note) and self.tie:  # check tied-to note:
-            tie = self.tie  # the note our tie connects to
-            onset = round(tie.onset * divisions) / divisions  # type: ignore
-            offset = round(tie.offset * divisions) / divisions  # type: ignore
-            duration = offset - onset  # quantized duration
-            # if we tie from non-zero quantized duration to zero quantized
-            # duration, eliminate the tied-to note
-            if (quantized_offset - self.onset > 0 and   # type: ignore
-                duration == 0):                         # type: ignore
-                self.tie = tie.tie  # in case tie continues
-                # remove tied_to note from its parent
-                if tie.parent:
-                    tie.parent.remove(tie)
-                # print("removed tied-to note", tied_to,
-                #       "because duration quantized to zero")
-            elif quantized_offset - self.onset == 0:    # type: ignore
-                # remove self from its parent; prefer tied_to note
-                # before removing, transfer duration from self to
-                # tied_to to avoid strange case where the tied group
-                # originally had a non-zero duration so we want the
-                # tied_to duration to be non-zero:
-                tie.duration += self.duration
-                if self.parent:
-                    self.parent.remove(self)
-                # tied_to will be revisited and quantized so no more work here
-                return self
-            else:  # both notes have non-zero durations
-                break
+        if isinstance(self, Note):
+            if self in ignore:  # type: ignore - ignore is not None
+                ignore.remove(self)  # type: ignore - ignore is not None
+                return
+            elif self.tie:
+                self._quantize_tied_notes(quantized_onset, quantized_offset,
+                                          divisions, ignore)  # type: ignore
+                return
+            # else not tied or ignored, so quantize note below
 
-        # now that potential ties are handled, set the duration of self
-        if self.duration != 0:  # only modify non-zero durations
-            self.duration = quantized_offset - self.onset  # type: ignore
-            if self.duration == 0:  # do not allow duration to become zero:
-                self.duration = 1 / divisions 
+        # if not in a tied group, set the onset and duration of self
+        self.onset = quantized_onset
+        if self._duration != 0:  # only modify non-zero durations
+            self._duration = quantized_offset - self.onset  # type: ignore
+            if self._duration == 0:  # do not allow duration to become zero:
+                self._duration = 1 / divisions
+                parent_offset = self.parent.offset  # type: ignore
+                max_offset = round(parent_offset * divisions) / divisions
+                if (not isinstance(self, (Score, Part, Staff, Measure)) and 
+                    quantized_offset > max_offset + 0.0001):
+                    # need to adjust the onset earlier within the parent:
+                    self.onset = max_offset - 1.0 / divisions
         # else: original zero duration remains zero after quantization
-        return self
+        return
 
 
     @property
@@ -433,13 +546,15 @@ class Event:
         time_map : TimeMap
             The TimeMap object used for conversion.
         """
-        if self._onset is None or self.duration is None:
+        if self._onset is None or self._duration is None:
             raise ValueError(
                 "Cannot convert Event with None onset or duration")
+        # be careful to use local _duration and not (tied) duration:
         onset_time = time_map.quarter_to_time(self.onset)       # type: ignore
-        offset_time = time_map.quarter_to_time(self.offset)     # type: ignore
+        offset_time = self.onset + self._duration  # type: ignore
+        offset_time = time_map.quarter_to_time(offset_time)     # type: ignore
         self.onset = onset_time
-        self.duration = offset_time - onset_time
+        self._duration = offset_time - onset_time
 
 
     def _convert_to_quarters(self, time_map: TimeMap) -> None:
@@ -450,13 +565,15 @@ class Event:
         time_map : TimeMap
             The TimeMap object used for conversion.
         """
-        if self._onset is None or self.duration is None:
+        if self._onset is None or self._duration is None:
             raise ValueError(
                 "Cannot convert Event with None onset or duration")
+        # be careful to use local _duration and not (tied) duration:
         onset_quarters = time_map.time_to_quarter(self.onset)
-        offset_quarters = time_map.time_to_quarter(self.offset)
+        offset_quarters = self.onset + self._duration
+        offset_quarters = time_map.time_to_quarter(offset_quarters)
         self.onset = onset_quarters
-        self.duration = offset_quarters - onset_quarters
+        self._duration = offset_quarters - onset_quarters
 
 
     @property
@@ -476,7 +593,12 @@ class Event:
 
     @offset.setter
     def offset(self, offset: float) -> None:
-        """Set the global offset (stop) time.
+        """Set the global offset (stop) time. If this note is tied, only the
+        note's local untied duration will be updated, but the offset property
+        is based on the *tied* duration, so the value returned by offset will
+        not be affected (nor will the onset of the tied-to note). If you want
+        to manipulate total (tied) note durations, it might be best to flatten
+        the score, which removes all ties.
 
         Parameters
         ----------
@@ -485,7 +607,7 @@ class Event:
         """
         if self._onset is None:
             raise ValueError("Event offset undefined (onset is None)")
-        self.duration = offset - self.onset
+        self._duration = offset - self.onset
 
 
     @property
@@ -633,9 +755,9 @@ class Note(Event):
     _onset : Optional[float]
         The onset (start) time. None represents an unspecified onset.
     duration : float
-        The duration of the note in quarters or seconds. See the
-        property `tied_duration` for the duration of an entire group
-        if the note is the first of a tied group of notes.
+        The duration of the note in quarters or seconds, including all
+        notes in a sequence of tied notes. See the `tie` property. Use
+        `_duration` directly for the duration of this note without any ties.
     pitch :  Pitch | None
         The pitch of the note. Unpitched notes have a pitch of None.
     dynamic : Optional[Union[int, str]]
@@ -766,21 +888,15 @@ class Note(Event):
 
     
     @property
-    def tied_duration(self) -> Union[float, int]:
-        """Retrieve the duration of the note in quarters or seconds.
+    def duration(self) -> Union[float, int]:
+        """Retrieve the (tied) duration of the note in quarters or seconds.
 
         If the note is the first note of a sequence of tied notes,
         return the duration of the entire sequence. However, if there are
         preceding notes tied to this note, they will not be considered
-        part of the tied sequence. If you want to avoid processing notes
-        that are tied to from earlier notes, you should either use
-        [merge_tied_notes()][amads.core.basics.Score.merge_tied_notes] to
-        eliminate them, or follow the `tie` links and add tied-to notes
-        to a set as you traverse the score so you can ignore them when
-        they are encountered. In some cases, notes can be tied across
-        staves, in which case it might require two passes to (1) find
-        all tied-to notes, and then (2) enumerate the rest of them.
-        [merge_tied_notes()][amads.core.basics.Score.merge_tied_notes]
+        part of the duration. In some cases, notes can be tied across
+        staves, in which case even `find_all(Note)` and `list_all(Note)`
+        can fail. [merge_tied_notes()][amads.core.basics.Score.merge_tied_notes]
         handles this case properly.
         
         Returns
@@ -791,27 +907,25 @@ class Note(Event):
             is returned without checking whether notes are contiguous.
 
         """
-        duration = self.duration
+        duration = self._duration
         if self.tie is not None:  # recursively sum all tied durations:
-            duration += self.tie.tied_duration
+            duration += self.tie.duration
         return duration  # type: ignore (Note duration is always float)
 
 
-    @property
-    def tied_offset(self) -> float:
-        """Retrieve the offset (stop) time of a note or tied group of notes.
+    @duration.setter
+    def duration(self, value: float) -> None:
+        """Set the duration of the note.
 
-        If the note is the first note of a sequence of tied notes,
-        return the offset of the entire sequence. However, if there are
-        preceding notes tied to this note, they will not be considered
-        part of the tied sequence.
-
-        Returns
-        -------
-        float
-            The global offset (stop) time of the note and those it is tied to.
+        Parameters
+        ----------
+        value : float
+            The new duration of the note in quarters or seconds.
         """
-        return self.onset + self.tied_duration  # type: ignore (Note onset is always float)
+        if self.tie:
+            raise ValueError(
+                    "Setting the duration of a tied note is not allowed")
+        self._duration = value
     
 
     def __str__(self) -> str:
@@ -861,8 +975,14 @@ class Note(Event):
         if self.get("has_schleifer", False):
             grace_info += ", schleifer"
 
+        if self.get("hide_on_print", False):
+            grace_info += ", hidden"
+
+        if self.get("rolled", False):
+            grace_info += ", rolled"
+
         return (f"Note({self._event_times()}{dynamic_info}{lyric_info}, " +
-                f"pitch={self.name_with_octave}/{self.key_num}{grace_info})")
+                f"pitch={self.name_with_octave}/{self.midi_num}{grace_info})")
 
 
     def show(self, indent: int = 0, file: Optional[TextIO] = None,
@@ -954,7 +1074,7 @@ class Note(Event):
     def octave(self) -> int:
         """Retrieve the octave number of the note.
 
-        The note name is based on `key_num - alt`, e.g., C4 has
+        The note name is based on `midi_num - alt`, e.g., C4 has
         octave 4 while B#3 has octave 3. See also [Pitch.register]
         [amads.core.pitch.Pitch.register].
 
@@ -988,12 +1108,11 @@ class Note(Event):
         if self.pitch is None:
             raise ValueError("Cannot set octave of unpitched note.")
         else:
-            self.pitch = Pitch(self.pitch.key_num + (oct - self.octave) * 12,
-                               self.pitch.alt)
-
+            self.pitch = Pitch(self.pitch.midi_num +  # type: ignore (not None)
+                               (oct - self.octave) * 12, self.pitch.alt)
 
     @property
-    def key_num(self) -> float | int:
+    def midi_num(self) -> float | int:
         """Retrieve the MIDI key number of the note, e.g., C4 = 60.
 
         If the note is unpitched (pitch is None), raise ValueError.
@@ -1005,7 +1124,7 @@ class Note(Event):
         """
         if self.pitch is None:
             raise ValueError("Unpitched note has no key number.")
-        return self.pitch.key_num
+        return self.pitch.midi_num  # type: ignore (not None)
 
 
     def enharmonic(self) -> "Pitch":
@@ -1109,8 +1228,13 @@ class Note(Event):
 class TimeSignature:
     """TimeSignature is an element of Score.time_signatures.
     
-    Contains time signature representation and a time in units that match
-    Score._units_are_seconds.
+    Contains time signature representation and a time in quarters,
+    whether or not score.units_are_seconds. This is the notational
+    time signature. TimeSignature.duration gives the nominal duration
+    in quarters, but the actual duration of any given measure is
+    given by Measure.duration, and may differ (for example, the
+    first measure with a pick-up note, or a first ending repeating
+    to a first measure with a pick-up note.)
 
     Parameters
     ----------
@@ -1299,7 +1423,6 @@ class EventGroup(Event):
         Elements contained within this collection.
     """
     __slots__ = ["content"]
-    duration: float
     content: list[Event]
 
 
@@ -1339,7 +1462,7 @@ class EventGroup(Event):
             duration = max_offset
             if onset:
                 duration = max_offset - onset
-        self.duration = duration  # type: ignore (duration is now number)
+        self._duration = duration  # type: ignore (duration is now number)
         self.content = content
 
 
@@ -1397,14 +1520,45 @@ class EventGroup(Event):
         original_note: Note
             The note that was copied
         """
-        for note in self.find_all(Note):
+        for note in self.find_all(Note, include_tied_to_notes=True):
             note = cast(Note, note)
-            if (note != exclude and note.onset == original_note.onset and
+            if (note != exclude and note._onset == original_note._onset and
                 note.pitch == original_note.pitch and
-                note.duration == original_note.duration):
+                note._duration == original_note._duration):
                 return note
         return None
-    
+
+
+    def _truncate_note_beginnings(self, notes: list[Note],
+                                  start: float) -> float:
+        """Helper method for slice to truncate an element according to the
+        specified mode. Makes a copy of the element (with no parent) and
+        applies the truncate method to the copy.  This algorithm clips the
+        beginning and ending in separate operations, which might result in
+        extra copies.
+
+        Returns
+        -------
+        float
+            The minimum onset of the elements
+        """
+        min_onset = float("inf")
+        for elem in notes:
+            if elem.onset < start:
+                elem._duration -= start - elem.onset
+                elem.onset = start
+            min_onset = min(min_onset, elem.onset)
+        return min_onset
+ 
+ 
+    def _truncate_note_endings(self, notes: list[Note], end: float) -> float:
+        max_offset = float("-inf")
+        for elem in notes:
+            if elem.offset > end:
+                elem._duration -= elem.offset - end
+            max_offset = max(max_offset, elem.offset)
+        return max_offset
+
 
     def _add_slice_children(self, source: "EventGroup", start: float,
             end: float, mode: str, truncate: str,
@@ -1431,15 +1585,15 @@ class EventGroup(Event):
             for elem in content:
                 if isinstance(elem, EventGroup):
                     elem_copy = elem.insert_emptycopy_into(self)
-                    e_min, e_max = elem._add_slice_children(elem_copy, start,
+                    e_min, e_max = elem_copy._add_slice_children(elem, start,
                                            end, mode, truncate, min_duration)
                     min_onset = min(min_onset, e_min)
                     max_offset = max(max_offset, e_max)
             return min_onset, max_offset
         
-        assert(isinstance(source, Sequence))  # content is a list of Notes
-
-        for elem in content:
+        assert isinstance(source, EventGroup), "expecting to find content"
+        
+        for elem in content:  # content is a list of Notes
             copied = None
             if mode == "onsets":
                 if elem.onset >= start and elem.onset < end:
@@ -1469,10 +1623,12 @@ class EventGroup(Event):
                 if elem.onset > start:
                     j = i
                     break  # now j indexes the first element with onset > start
-            min_onset = source._truncate_note_beginnings(content[0 : j], start)
+            min_onset = source._truncate_note_beginnings(
+                    content[0 : j], start)  # type: ignore (assume list[Note])
         if truncate in ["truncate", "dur", "duration", "end", "ending"]:
             # any note can end after end, so we have to look at all of them:
-            max_offset = source._truncate_note_endings(content, end)
+            max_offset = source._truncate_note_endings(
+                             content, end)  # type: ignore (assume list[Note])
 
         # now remove any notes that are too short after truncation:
         if min_duration > 0:
@@ -1502,9 +1658,7 @@ class EventGroup(Event):
             True if the list of notes is monophonic, False otherwise.
         """
         prev = None
-        notes = self.list_all(Note)
-        # Sort the notes by start time
-        notes.sort(key=lambda note: note.onset)
+        notes = self.get_sorted_notes()
         # Check for overlaps
         for note in notes:
             if prev:
@@ -1520,6 +1674,16 @@ class EventGroup(Event):
         """
         Change the onset by an increment, affecting all content.
 
+        If content_only is true, preserves EventGroup times (Score, Part,
+        Staff, but *not* Chord or Measure) and shifts only the content
+        (recursively). Otherwise, shifts this container and all content by the
+        increment. Container onsets (recursively) are not allowed to become
+        negative, so the onset time is set to zero if the increment would
+        make it negative. However, even if the onset is is not shifted by
+        increment, time_shift is still applied recursively to the content,
+        and non-EventGroup events (e.g., Notes) are allowed to have negative
+        onsets, even if this may not be well-defined for all AMADS operations.
+
         Parameters
         ----------
         increment : float
@@ -1532,11 +1696,21 @@ class EventGroup(Event):
         -------
         Event
             The object. This method modifies the `EventGroup`.
+
+        Raises
+        ------
+        ValueError
+            If the EventGroup has an unknown (None) onset and
+            content_only is false.
         """
-        if not content_only:
-            self._onset += increment  # type: ignore (onset is now number)
+        # note that Chord and Measures are special cases
+        if not content_only or isinstance(self, (Chord, Measure)):
+            if self._onset is None:
+                raise ValueError(
+                        "Cannot shift time of EventGroup with unknown onset")
+            self._onset = max(0.0, self._onset + increment)
         for elem in self.content:
-            elem.time_shift(increment)
+            elem.time_shift(increment, content_only)
         return self
 
 
@@ -1564,9 +1738,9 @@ class EventGroup(Event):
             The TimeMap object used for conversion.
         """
         onset_quarters = time_map.time_to_quarter(self.onset)
-        offset_quarters = time_map.time_to_quarter(self.onset + self.duration)
+        offset_quarters = time_map.time_to_quarter(self.offset)
         self.onset = onset_quarters
-        self.duration = offset_quarters - onset_quarters
+        self._duration = offset_quarters - onset_quarters
         for elem in self.content:
             elem._convert_to_quarters(time_map)
 
@@ -1643,6 +1817,9 @@ class EventGroup(Event):
         primarily for internal use when `expand_chords` is called recursively
         on score content.
 
+        If a chord has a "rolled" property, after expansion, the notes will
+        each have a "rolled" property.
+
         Parameters
         ----------
         parent : EventGroup
@@ -1657,8 +1834,11 @@ class EventGroup(Event):
         group = self.insert_emptycopy_into(parent)
         for item in self.content:
             if isinstance(item, Chord):
+                rolled = item.get("rolled", False)
                 for note in item.content:  # expand chord
                     note.insert_copy_into(group)
+                    if rolled:
+                        note.set("rolled", True)
             if isinstance(item, EventGroup):
                 item.expand_chords(group)  # recursion for deep copy/expand
             else:
@@ -1666,7 +1846,9 @@ class EventGroup(Event):
         return group
 
 
-    def find_all(self, elem_type: Type[Event]) -> Generator[Event, None, None]:
+    def find_all(self, elem_type: Type[Event],
+                 include_tied_to_notes: bool = False,
+                 ignore: list[Note] = []) -> Generator[Event, None, None]:
         """Find all instances of a specific type within the EventGroup.
 
         Assumes that objects of type `elem_type` are not nested within
@@ -1674,10 +1856,27 @@ class EventGroup(Event):
         in a depth-first enumeration is returned without looking at any
         children in its `content`).
 
+        If `elem_type` is `Note` and `include_tied_to_notes` is True, then
+        all Notes are returned. The default is to omit notes after the first
+        one in a string of tied notes. In the (rare) case of cross-staff ties
+        (which are possible to represent), `find_all` may return a tied-to
+        note that is encountered before its predecessor.
+
         Parameters
         ----------
         elem_type : Type[Event]
             The type of event to search for.
+
+        include_tied_to_notes : bool
+            Applies only when `elem_type` is Note, in which case tied groups
+            of notes are all returned when `include_tied_to_notes` is True, and
+            only the first note of the group is returned when False. Note that
+            the `duration` property returns the total tied group duration in the
+            case that a Note is tied.
+
+        ignore : list[Note]
+            Do not use this parameter. It is for the implementation to keep
+            track of forward references from tied notes.
 
         Yields
         -------
@@ -1689,14 +1888,27 @@ class EventGroup(Event):
         # returned since it is found first, and the content is not
         # searched. This makes it efficient, e.g., to search for
         # Parts in a Score without enumerating all Notes within.
+        
         for elem in self.content:
             if isinstance(elem, elem_type):
-                yield elem
+                if elem_type == Note:
+                    if include_tied_to_notes:
+                        yield elem
+                    else:  # ignore tied-to notes
+                        if elem.tie:
+                            ignore.append(elem.tie)
+                        if elem in ignore:
+                            ignore.remove(elem)  # type: ignore (elem is Note)
+                        else:
+                            yield elem
+                else:
+                    yield elem
             elif isinstance(elem, EventGroup):
-                yield from elem.find_all(elem_type)
+                yield from elem.find_all(elem_type, include_tied_to_notes,
+                                         ignore)
 
 
-    def get_sorted_notes(self, has_ties: bool = True) -> List[Note]:
+    def get_sorted_notes(self) -> List[Note]:
         """Return a list of sorted notes with merged ties.
 
         This should generally be called on Parts and Scores since
@@ -1704,13 +1916,6 @@ class EventGroup(Event):
         Notes retrieved with `find_all()` or `list_all()` are in
         time order. However, `get_sorted_notes` *also* sorts notes
         into increasing pitch (`keynum`) where note onsets are equal.
-
-        Parameters
-        ----------
-        has_ties: bool
-            If True (default), copy the score, merge the ties, and
-            return a list of these merged copies. If False, assume
-            there are no ties and return a list of original notes.
 
         Raises
         ------
@@ -1722,17 +1927,9 @@ class EventGroup(Event):
         list(Note)
             a list of sorted notes with merged ties
         """
-        if has_ties:
-            # after flatten, score will have one Part with all Notes:
-            return self.flatten(collapse=True).content[0].content  # type: ignore
-        else:
-            notes : List[Note] = cast(List[Note], self.list_all(Note))
-            for note in notes:
-                if note.tie is not None:
-                    raise ValueError(
-                            "tie found by get_sorted_notes with has_ties=False")
-            notes.sort(key=lambda x: (x.onset, x.pitch))
-            return notes
+        notes : List[Note] = cast(List[Note], self.list_all(Note))
+        notes.sort(key=lambda x: (x.onset, x.pitch))
+        return notes
 
 
     def has_instanceof(self, the_class: Type[Event]) -> bool:
@@ -1806,7 +2003,10 @@ class EventGroup(Event):
 
         The `duration` is set to the maximum offset (end) time of the
         children. If the EventGroup is empty, the duration is set to 0.
-        This method modifies this `EventGroup` instance.
+        For Notes with ties, use note.onset + note._duration (without ties)
+        to get the note offset (end) time so that ties across EventGroups
+        (especially Measures) are not considered for the duration of this
+        EventGroup. This method modifies this `EventGroup` instance.
 
         Returns
         -------
@@ -1816,8 +2016,9 @@ class EventGroup(Event):
         onset = 0 if self._onset == None else self._onset
         max_offset = onset
         for elem in self.content:
-            max_offset = max(max_offset, elem.offset)
-        self.duration = max_offset - onset
+            untied_offset = elem.onset + elem._duration
+            max_offset = max(max_offset, untied_offset)
+        self._duration = max_offset - onset
 
         return self
 
@@ -1899,18 +2100,33 @@ class EventGroup(Event):
         return result
 
 
-    def list_all(self, elem_type: Type[Event]) -> list[Event]:
+    def list_all(self, elem_type: Type[Event],
+                 include_tied_to_notes: bool = False) -> list[Event]:
         """Find all instances of a specific type within the EventGroup.
 
         Assumes that objects of type `elem_type` are not nested within
-        other objects of the same type.  See also
+        other objects of the same type.  If `elem_type` is nested, only
+        the outer-most object is returned. See also
         [find_all][amads.core.basics.EventGroup.find_all], which returns
         a generator instead of a list.
+
+        If `elem_type` is `Note` and `include_tied_to_notes` is True, then
+        all Notes are listed. The default is to omit notes after the first
+        one in a string of tied notes. In the (rare) case of cross-staff ties
+        (which are possible to represent), `find_all` may list a tied-to
+        note that is encountered before its predecessor.
 
         Parameters
         ----------
         elem_type : Type[Event]
             The type of event to search for.
+        
+        include_tied_to_notes : bool
+            Applies only when `elem_type` is Note, in which case tied groups
+            of notes are all returned when `include_tied_to_notes` is True, and
+            only the first note of the group is returned when False. Note that
+            the `duration` property returns the total tied group duration in the
+            case that a Note is tied.
 
         Returns
         -------
@@ -1918,7 +2134,7 @@ class EventGroup(Event):
             A list of all instances of the specified type found
             within the EventGroup.
         """
-        return list(self.find_all(elem_type))
+        return list(self.find_all(elem_type, include_tied_to_notes))
 
 
     def merge_tied_notes(self, parent: Optional["EventGroup"] = None,
@@ -1973,11 +2189,11 @@ class EventGroup(Event):
                         # copy note into group:
                         event_copy = event.insert_copy_into(group)
                         event.tie = tied_note  # restore original event
-                        # this is subtle: event.tied_duration (a property) will
+                        # this is subtle: event.duration (a property) will
                         # sum up durations of all the tied notes. Since
                         # event_copy is not tied, the sum of durations is
-                        # stored on that one event_copy:
-                        event_copy.duration = event.tied_duration
+                        # transferred to `_duration` of event_copy:
+                        event_copy._duration = event.duration
                     else:  # put the untied note into group
                         event.insert_copy_into(group)
             elif isinstance(event, EventGroup):
@@ -2006,7 +2222,7 @@ class EventGroup(Event):
             duration of self
         """
         self.onset = onset
-        self.duration = 0
+        self._duration = 0
         for elem in self.content:
             elem.onset = onset
             if isinstance(elem, EventGroup):   # either Sequence or Concurrence
@@ -2014,20 +2230,22 @@ class EventGroup(Event):
             if sequential:
                 onset += elem.duration
             else:
-                self.duration = max(self.duration, elem.duration)
+                self._duration = max(self.duration, elem.duration)
         if sequential:
-            self.duration = onset - self.onset
-        return self.duration
+            self._duration = onset - self.onset
+        return self._duration
 
 
-    def _quantize(self, divisions: int) -> "EventGroup":
+    def _quantize(self, divisions: int,
+                  ignore: List["Note"]) -> "EventGroup":
         """"Since `_quantize` is called recursively on children, this method is
         needed to redirect `EventGroup._quantize` to `quantize`
         """
         return self.quantize(divisions)
 
 
-    def quantize(self, divisions: int) -> "EventGroup":
+    def quantize(self, divisions: int,
+                 ignore: Optional[List["Note"]] = None) -> "EventGroup":
         """Align onsets and durations to a rhythmic grid.
 
         Assumes time units are quarters. (See [Score.convert_to_quarters](
@@ -2071,20 +2289,27 @@ class EventGroup(Event):
             The number of divisions per quarter note, e.g., 4 for
             sixteenths, to control quantization.
 
+        ignore: Optional[List["Note"]] = None
+            The list of tied-to notes to ignore during quantization because
+            they have already been quantized. Do not provide this parameter;
+            it is for internal implementation only.
+
         Returns
         -------
         EventGroup
             The EventGroup instance (self) with (modified in place) 
             quantized times.
         """
+        if ignore is None:
+            ignore = []
 
-        super()._quantize(divisions)
+        super()._quantize(divisions, ignore)
         # iterating through content is tricky because we may delete a
         # Note, shifting the content:
         i = 0
         while i < len(self.content):
             event = self.content[i]
-            event._quantize(divisions)
+            event._quantize(divisions, ignore)
             if event == self.content[i]:
                 i += 1
             # otherwise, we deleted event so the next event to
@@ -2228,7 +2453,8 @@ class EventGroup(Event):
                     # grace notes with the same pitch and (zero) duration,
                     # so we exclude note from the search for the copied
                     # note to avoid creating a tie from note to itself.
-                    note.tie = self._find_copied_version(note.tie, note)
+                    note.tie = self._find_copied_version(
+                            note.tie, note)  # type: ignore (note is Note)
             return min_onset, max_offset
         # we are not at the measure level, copy all content and recurse:
         for elem in source.content:
@@ -2287,7 +2513,7 @@ class EventGroup(Event):
         result will therefore contain whole measures. It is assumed that notes
         are tied across measure boundaries. The result will contain only the
         parts of tied notes that are within the specified measures, excluding
-        measure numbered by `end`.
+<        measure numbered by `end`.
 
         For any units besides "measures" or "bars", the score must be flat.
         Notes that extend beyond the start or end time are included in the
@@ -2424,9 +2650,9 @@ class EventGroup(Event):
             min_time = c_min
             max_time = c_max
         else:   
-            min_time, max_time = self._add_slice_children(self, result,
-                                                  start_time, end_time,
-                                          mode, truncate, min_duration)
+            min_time, max_time = result._add_slice_children(self, start_time,
+                                      end_time, mode, truncate, min_duration)
+        result = cast(Score, result)
         result._trim_map_and_signatures(min_time, max_time)
         if shift and min_time != float("inf") and min_time > 0:
             result.time_shift(-min_time)
@@ -2557,38 +2783,7 @@ class Sequence(EventGroup):
         return super().pack(onset, sequential)
     
 
-    def _truncate_note_beginnings(self, notes: list[Note],
-                                  start: float) -> float:
-        """Helper method for slice to truncate an element according to the
-        specified mode. Makes a copy of the element (with no parent) and
-        applies the truncate method to the copy.  This algorithm clips the
-        beginning and ending in separate operations, which might result in
-        extra copies. If very short tied notes are created, they are removed.
-
-        Returns
-        -------
-        float
-            The minimum onset of the elements
-        """
-        min_onset = float("inf")
-        for elem in notes:
-            if elem.onset < start:
-                elem.duration -= start - elem.onset
-                elem.onset = start
-            min_onset = min(min_onset, elem.onset)
-        return min_onset
  
- 
-    def _truncate_note_endings(self, notes: list[Note], end: float) -> float:
-        max_offset = float("-inf")
-        for elem in notes:
-            if elem.offset > end:
-                elem.duration -= elem.offset - end
-            max_offset = max(max_offset, elem.offset)
-        return max_offset
-
-
-
 class Concurrence(EventGroup):
     """Concurrence (abstract class) represents a group of simultaneous children.
 
@@ -2658,6 +2853,9 @@ class Chord(Concurrence):
     use a Concurrence with Note objects as elements. Each Note.tie can
     be None (no tie) or tie to a Note in another Chord or Measure.
 
+    Rolled chord annotations are encoded as the "rolled" property of the
+    Chord, and accessible as `chord.get("rolled", False)`.
+
     Parameters
     ----------
     *args : Event
@@ -2698,6 +2896,13 @@ class Chord(Concurrence):
         super().__init__(parent, onset, duration, list(args))
 
 
+    def __str__(self) -> str:
+        """Short string representation
+        """
+        rstr = ", rolled" if self.get("rolled", False) else ""
+        return f"Chord({self._event_times()}{rstr})"
+
+
     def _is_well_formed(self):
         """Test if Chord conforms to strict hierarchy of Chord-Note
         """
@@ -2715,6 +2920,8 @@ class Measure(Sequence):
 
     A Measure can contain many object types including Note, Rest, Chord,
     and (in theory) custom Events. Measures are elements of a Staff.
+
+    The duration of a measure may differ from the prevailing time signature.
 
     See <a href="#constructor-details">Constructor Details</a>.
 
@@ -2786,14 +2993,14 @@ class Measure(Sequence):
         return True
 
 
-    def time_signature(self) -> TimeSignature:
+    def time_signature(self) -> Optional[TimeSignature]:
         """Retrieve the time signature that applies to this measure.
 
         Returns
         -------
-        TimeSignature
+        Optional[TimeSignature]
             The time signature from the score corresponding to the
-            time of this measure.
+            time of this measure, or None if not found.
 
         Raises
         ------
@@ -2805,8 +3012,9 @@ class Measure(Sequence):
             raise ValueError("Measure has no Score")
         else:  # find time sig at onset + a little to avoid rounding error:
             q = self.onset
-            if self.score.units_are_seconds:
-                q = self.score.time_map.seconds_to_quarters(self.onset)
+            if self.score.units_are_seconds:  # type: ignore (score is not None)
+                q = self.score.time_map.time_to_quarter(  # type: ignore 
+                                 self.onset)              #  (score is not None)
             # use a small offset in case there is a time signature change
             # near the measure boundary, but a little bit late due to rounding:
             return score._find_time_signature(q + 0.002)
@@ -2926,7 +3134,7 @@ class Score(Concurrence):
         >>> notes = score.content[0].content
         >>> len(notes)  # number of notes in first part
         8
-        >>> notes[0].key_num
+        >>> notes[0].midi_num
         60
         >>> score.duration  # last note ends at t=8
         8.0
@@ -3146,15 +3354,20 @@ class Score(Concurrence):
         the cost of flattening *all* Parts with `flatten()`.
 
         If you are calling this method to extract notes separately for each
-        Staff, it may do extra work. It might save some computation by
-        performing a one-time
+        Staff, it may do extra work. You can call `find_all(Note)` or
+        `list_all(Note)` to get the notes from any Staff, ignoring tied-to
+        notes, and the duration property of each note includes the duration
+        of any tied sequence following that note.
+
+        Another possibility, if you really want multiple flat scores with
+        selected staffs or parts, is to save some computation by performing
+        a one-time
 
             score = score.merge_tied_notes()
 
-        and calling this method with the parameter has_ties=False. 
-        If has_ties is False, it is assumed without checking that
-        each part.has_ties() is False, allowing this method to skip
-        calls to part.merge_tied_notes() for each selected part.
+        and then call `collapse_parts` with the parameter `has_ties=False`.
+        This pays an up-front cost of merging tied notes, but saves the cost of
+        merging tied notes multiple times as each part or staff is extracted.
 
         Parameters
         ----------
@@ -3255,7 +3468,7 @@ class Score(Concurrence):
 
     
 
-    def _find_time_signature(self, when: float) -> TimeSignature:
+    def _find_time_signature(self, when: float) -> Optional[TimeSignature]:
         """Look up TimeSignature in effect at time `when`
 
         Parameters
@@ -3266,13 +3479,13 @@ class Score(Concurrence):
 
         Returns
         -------
-        TimeSignature
-            The time signature in effect at time `when`.
+        Optional[TimeSignature]
+            The time signature in effect at time `when`, or None if not found.
         """
         for ts in reversed(self.time_signatures):
             if ts.quarters <= when:
                 return ts
-        assert False, "No time signature found"
+        return None
 
     
     def flatten(self, collapse=False):
@@ -3317,6 +3530,12 @@ class Score(Concurrence):
             notes : list[Note] = score.list_all(Note)  # type: ignore
             score.content = [new_part]  # remove all other parts and events
             for note in notes:
+                # preserve "rolled" property of chord when removing notes from
+                # chords:
+                if isinstance(note.parent, Chord):
+                    rolled = note.parent.get("rolled", False)
+                    if rolled:
+                        note.set("rolled", True)
                 note.parent = new_part
             # notes with equal onset times are sorted in pitch from high to low
             notes.sort(key=lambda x: (x.onset, x.pitch))
@@ -3326,7 +3545,7 @@ class Score(Concurrence):
             # set the Part duration so it ends at the max offset of all Parts:
             offset = max((part.offset for part in self.find_all(Part)),
                          default=0)
-            new_part.duration = offset - score.onset
+            new_part._duration = offset - score.onset
 
         else:  # flatten each part separately
             for part in score.find_all(Part):
@@ -3384,10 +3603,10 @@ class Score(Concurrence):
 
         # Set the score duration to the end of the last note
         if len(onsets) > 0:
-            score.duration = float(max(onset + duration for onset, duration
+            score._duration = float(max(onset + duration for onset, duration
                                                    in zip(onsets, durations)))
         else:
-            score.duration = 0.0
+            score._duration = 0.0
 
         return score
 
@@ -3525,7 +3744,7 @@ class Score(Concurrence):
                 dur = max(dur, part.pack(onset))
             else:
                 dur = max(dur, part.duration)
-        self.duration = dur
+        self._duration = dur
         return dur
     
 
@@ -3678,6 +3897,33 @@ class Score(Concurrence):
         return self
 
 
+    def time_stretch(self, factor: float) -> "Score":
+        """
+        Scale all timing by a factor, affecting all content.
+
+        Stretching works by changing tempos, so the times in
+        quarters are not changed.
+
+        Parameters
+        ----------
+        factor : float
+            The scaling factor for timing.
+
+        Returns
+        -------
+        Score
+            The object. This method modifies the `Score`. The units are
+            not changed.
+        """
+        original_units_are_seconds = self.units_are_seconds
+        if original_units_are_seconds:
+            self.convert_to_quarters()
+        self.time_map.time_stretch(factor)
+        if original_units_are_seconds:
+            self.convert_to_seconds()
+        return self
+
+
     def _timesignatures_shift(self, quarters: float) -> None:
         """shift the time of time signatures.
 
@@ -3700,8 +3946,6 @@ class Score(Concurrence):
         # if multiple
         if last_at_zero > 0:
             self.time_signatures = self.time_signatures[last_at_zero : ]
-                
-        return self
 
 
     def _trim_map_and_signatures(self, start: float, end: float) -> None:
@@ -3736,8 +3980,13 @@ class Score(Concurrence):
         if (len(self.time_signatures) == 0 or
             (self.time_signatures[0].quarters > start_quarter + 0.001)):
             start_ts = self._find_time_signature(start_quarter)
-            start_ts = TimeSignature(start_quarter, start_ts.numerator,
-                                     start_ts.denominator)
+            if not start_ts:  # since we have a time signature at some point,
+                # we need to have a time signature throughout, so we create a
+                # default 4/4 time signature at start_quarter
+                start_ts = TimeSignature(start_quarter, 4, 4)
+            else:  # move the time_signature in effect to start_quarter
+                start_ts = TimeSignature(start_quarter, start_ts.upper,
+                                         start_ts.lower)
             self.time_signatures.insert(0, start_ts)
     
 
@@ -3892,6 +4141,12 @@ class Part(EventGroup):
         notes : List[Note] \
               = part.list_all(Note)  # type: ignore (Notes < Events)
         for note in notes:
+            # preserve "rolled" property of chord when removing notes from
+            # chords:
+            if isinstance(note.parent, Chord):
+                rolled = note.parent.get("rolled", False)
+                if rolled:
+                    note.set("rolled", True)
             note.parent = part
         notes.sort(key=lambda x: (x.onset, x.pitch))
         part.content = notes  # type: ignore (List[Note] < List[Event])
@@ -3995,8 +4250,7 @@ class Part(EventGroup):
         List[Note]
             The sorted list of Notes with calculated IOIs and IOI-ratios.
         """
-        # this will raise an exception if there are ties:
-        notes : List[Note] = self.get_sorted_notes(has_ties=False)
+        notes : List[Note] = self.get_sorted_notes()
         do_ioi = "ioi" in what or "ioi_ratio" in what
         do_interval = "interval" in what
         do_ioi_ratio = "ioi_ratio" in what
@@ -4029,7 +4283,7 @@ class Part(EventGroup):
                     note.set("ioi_ratio", ioi / prev_ioi)  # type: ignore
                 prev_ioi = ioi  # type: ignore (ioi is bound if do_ioi) 
             if do_interval:
-                note.set("interval", note.key_num - prev_note.key_num)
+                note.set("interval", note.midi_num - prev_note.midi_num)
             prev_note = note
         return notes
 
