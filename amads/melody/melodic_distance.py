@@ -1,5 +1,8 @@
 """
-Melodic accent salience according to Thomassen's model.
+Melodic distance according to features extracted from those melodies.
+
+Completely rewrites the original calculate_melodic_distance function that
+Yiwen Zhao first wrote.
 
 Ports the `melaccent` function in Midi Toolbox.
 

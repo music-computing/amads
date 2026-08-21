@@ -1,10 +1,15 @@
 """
 Calculates the degree of melodiousness (gradus suavitatis), proposed by Euler.
 
+Made some slight touchups to Yiwen Zhao's original function to bring it into
+our newer AMADS design.
+
 Ports the `gradus` function from Midi Toolbox.
 
 Original doc: github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf, page 63.
 """
+
+__author__ = "Yiwen Zhao"
 
 from amads.core.basics import Note, Score
 

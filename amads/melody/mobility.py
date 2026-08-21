@@ -1,5 +1,7 @@
 """
-Melodic accent salience according to Thomassen's model.
+Mobility measure for each tone in a melody.
+
+Completely rewrites the original mobility function that Yiwen Zhao first wrote.
 
 Ports the `mobility` function in Midi Toolbox.
 
@@ -8,14 +10,14 @@ Original doc: github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.
 
 import math
 from itertools import accumulate
-from typing import Optional, cast
+from typing import cast
 
 import numpy as np
 
 from amads.core.basics import Note, Score
 
 
-def mobility(score: Score) -> Optional[Score]:
+def mobility(score: Score) -> Score | None:
     """
     Calculate the mobility measure for each tone in a melody (von Hippel, 2000).
 

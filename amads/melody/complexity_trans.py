@@ -1,12 +1,13 @@
 """
 Complexity of pitch-class transitions within a score.
 
+Completely rewrites the original calculate_complexity_trans function that
+Yiwen Zhao first wrote.
+
 Ports the `compltrans` function in Midi Toolbox.
 
 Original doc: github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf, page 55.
 """
-
-from typing import Optional
 
 import numpy as np
 
@@ -104,7 +105,7 @@ simonton_transition_dist = Distribution(
 )
 
 
-def complexity_trans(score: Score) -> Optional[float]:
+def complexity_trans(score: Score) -> float | None:
     """
     Calculate Simonton's complexity originality score based on 2nd order
     pitch-class transition probabilities derived from classical themes.

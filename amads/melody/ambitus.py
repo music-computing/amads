@@ -1,5 +1,7 @@
 from amads.core.basics import Note, Score
 
+__author__ = "Yiwen Zhao"
+
 
 def ambitus(score: Score) -> int | None:
     """

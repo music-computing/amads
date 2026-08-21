@@ -1,6 +1,9 @@
 """
 Melodic accent salience according to Thomassen's model.
 
+Completely rewrites the original calculate_melodic_accent function that 
+Yiwen Zhao first wrote.
+
 Ports the `melaccent` function in Midi Toolbox.
 
 Original doc: github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf, page 70.
