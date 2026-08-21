@@ -131,7 +131,6 @@ def keyname(
     --------
     [kkkey][amads.pitch.key.kkkey.kkkey] : Estimate the key of a score.
     [keycode_from_kkkey][amads.pitch.key.keyname.keycode_from_kkkey] : Convert AMADS ``kkkey`` output to key codes 1--24.
-    key_num_to_name : Convert MIDI key numbers (e.g. 60 = C4) to note names.
 
     Examples
     --------

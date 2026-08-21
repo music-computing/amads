@@ -52,7 +52,7 @@ def tonal_stability(
     Calls [kkkey][amads.pitch.key.kkkey.kkkey] to choose a profile attribute
     and ``key_index``, looks up profile weights by pitch class, and stores
     each value with ``note.set(stability_prop_name, value)`` on notes from
-    [find_all][amads.core.basics.EventGroup.find_all] ``(Note)``.
+    [get_sorted_notes][amads.core.basics.Score.get_sorted_notes].
 
     Parameters
     ----------
@@ -79,8 +79,8 @@ def tonal_stability(
     Returns
     -------
     Score
-        The same score, with stability values stored on each note. Tied note
-        segments are annotated separately (ties are not merged).
+        The same score, with stability values stored on each sounding note
+        (the first note of each tied group).
 
     Raises
     ------
@@ -104,7 +104,7 @@ def tonal_stability(
     Examples
     --------
     >>> import amads.pitch.key.profiles as prof
-    >>> from amads.core.basics import Score, Note
+    >>> from amads.core.basics import Score
     >>> score = Score.from_melody([60, 62, 63, 65, 67, 68, 70, 72])
     >>> tonal_stability(
     ...     score,
@@ -112,10 +112,10 @@ def tonal_stability(
     ...     attribute_names=["natural_minor"],
     ... ) is score #check in-place
     True
-    >>> next(score.find_all(Note)).get("tonal_stability")
+    >>> score.get_sorted_notes()[0].get("tonal_stability")
     5.08
     """
-    notes: List[Note] = list(score.find_all(Note))
+    notes: List[Note] = score.get_sorted_notes()
     if not notes:
         return score
 
@@ -131,11 +131,11 @@ def tonal_stability(
 
     weights = _weights_for_key(profile, attribute, key_index)
     for note in notes:
-        if note.pitch is None or note.pitch.key_num is None:
+        if note.pitch is None or note.pitch.midi_num is None:
             raise ValueError(
                 "tonal_stability requires notes with defined pitch"
             )
-        pc = int(note.pitch.key_num) % 12
+        pc = int(note.pitch.midi_num) % 12
         note.set(stability_prop_name, float(weights[pc]))
 
     return score

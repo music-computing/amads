@@ -49,9 +49,9 @@ def _weights_c_tonic(mode: str) -> List[float]:
 
 def _stability_for_note(note: Note, weights: List[float]) -> float:
     """Return the stability value for a note."""
-    if note.pitch is None or note.pitch.key_num is None:
+    if note.pitch is None or note.pitch.midi_num is None:
         raise ValueError("tonality requires notes with defined pitch")
-    pc = int(note.pitch.key_num) % 12
+    pc = int(note.pitch.midi_num) % 12
     return float(weights[pc])
 
 
@@ -76,8 +76,8 @@ def tonality(
     Returns
     -------
     list of float
-        Stability value per note, in the same order as
-        [get_sorted_notes][amads.core.basics.Score.get_sorted_notes].
+        Stability value per sounding note (the first note of each tied
+        group).
 
     See Also
     --------
