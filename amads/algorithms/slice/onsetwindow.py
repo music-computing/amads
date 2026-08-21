@@ -58,7 +58,7 @@ def onset_window(
     >>> filtered = onset_window(score, 0.5, 2.5)
     >>> len(filtered)
     2
-    >>> [n.pitch.key_num for n in filtered]
+    >>> [n.pitch.midi_num for n in filtered]
     [62, 64]
 
     References

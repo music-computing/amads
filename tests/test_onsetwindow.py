@@ -21,7 +21,7 @@ class TestOnsetWindow:
         filtered = onset_window(score, 1.0, 3.0)
 
         assert len(filtered) == 2
-        assert [n.pitch.key_num for n in filtered] == [62, 64]
+        assert [n.pitch.midi_num for n in filtered] == [62, 64]
 
     def test_boundary_half_open(self):
         """Half-open boundary: include min, exclude max."""
@@ -32,12 +32,12 @@ class TestOnsetWindow:
 
         filtered = onset_window(score, 0.0, 1.5)
         assert len(filtered) == 2
-        assert filtered[0].pitch.key_num == 60
-        assert filtered[1].pitch.key_num == 62
+        assert filtered[0].pitch.midi_num == 60
+        assert filtered[1].pitch.midi_num == 62
 
         filtered = onset_window(score, 1.5, 3.0)
         assert len(filtered) == 1
-        assert filtered[0].pitch.key_num == 64
+        assert filtered[0].pitch.midi_num == 64
 
     def test_zero_duration_window(self):
         """Half-open with min_time == max_time returns empty."""
@@ -58,7 +58,7 @@ class TestOnsetWindow:
         filtered = onset_window(score, 0.5, 1.5)
 
         assert len(filtered) == 2
-        assert [n.pitch.key_num for n in filtered] == [62, 64]
+        assert [n.pitch.midi_num for n in filtered] == [62, 64]
 
     def test_quarters_window_after_convert_to_quarters(self):
         """Filter in quarters after converting a seconds score."""
@@ -75,7 +75,7 @@ class TestOnsetWindow:
         filtered = onset_window(score, 1.0, 3.0)
 
         assert len(filtered) == 2
-        assert [n.pitch.key_num for n in filtered] == [62, 64]
+        assert [n.pitch.midi_num for n in filtered] == [62, 64]
 
     def test_iterable_passage(self):
         """Test Iterable[Note]."""
@@ -88,7 +88,7 @@ class TestOnsetWindow:
         filtered = onset_window(notes, 1.0, 3.0)
 
         assert len(filtered) == 2
-        assert [n.pitch.key_num for n in filtered] == [62, 64]
+        assert [n.pitch.midi_num for n in filtered] == [62, 64]
 
     def test_boundary_miditoolbox_compatible(self):
         """Closed interval includes onset at max_time."""
@@ -100,7 +100,7 @@ class TestOnsetWindow:
         filtered = onset_window(score, 1.0, 3.0, miditoolbox_compatible=True)
 
         assert len(filtered) == 3
-        assert [n.pitch.key_num for n in filtered] == [62, 64, 65]
+        assert [n.pitch.midi_num for n in filtered] == [62, 64, 65]
 
     def test_miditoolbox_zero_duration_window(self):
         """Closed interval with min_time == max_time"""
@@ -109,4 +109,4 @@ class TestOnsetWindow:
         filtered = onset_window(score, 1.0, 1.0, miditoolbox_compatible=True)
 
         assert len(filtered) == 1
-        assert filtered[0].pitch.key_num == 62
+        assert filtered[0].pitch.midi_num == 62
