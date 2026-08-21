@@ -4,6 +4,7 @@ The Distribution class represents distributions and distribution metadata.
 <small>**Author**: Roger Dannenberg, Tai Nakamura, Di Wang</small>
 """
 
+import math
 from typing import Any, List, Optional, Union
 
 import matplotlib.pyplot as plt
@@ -12,38 +13,13 @@ from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 
 from amads.algorithms.norm import normalize
+from amads.core.histogram import Histogram1D
+from amads.core.pitch import Pitch
 
 # We should not force this on users as it is not compatible with all backends:
 # matplotlib.use('TkAgg')
 
 __author__ = ["Roger Dannenberg", "Tai Nakamura", "Di Wang"]
-
-
-# def norm_1d(
-#     profile: Iterable,
-#     round_places: Optional[int] = None,
-# ) -> np.ndarray:
-#     """
-#     Copied implementation from algorithms/norm.py with some modification
-#     because using the original will cause a circular dependency in the package
-
-#     Notes
-#     -----
-#     - This normalizes a 1-D vector to L1 (sum to 1). If `round_places` is
-#       provided, the result is rounded for display/consistency.
-#     """
-#     norm_ord = 1
-#     profile_array = np.asarray(profile)
-#     norm_dist = profile_array / np.linalg.norm(profile_array, ord=norm_ord)
-
-#     if round_places is None:
-#         return norm_dist
-#     elif isinstance(round_places, int):
-#         return np.round(norm_dist, round_places)
-#     else:
-#         raise ValueError(
-#             f"invalid round_places parameter {round_places}, expected int or None"
-#         )
 
 
 class Distribution:
@@ -95,18 +71,24 @@ class Distribution:
             correlations with 12 minor key profiles.
         - "symmetric_key_profile" - weights for symmetric key profiles.
             Key profiles themselves are distributions. Symmetric keys
-            use the same 12 weights for all keys (e.g., Krumhansl-Kessler),
+            use the same 12 weights for all keys (e.g.,, Krumhansl-Kessler),
             simply rotated for each key.
         - "asymmetric_key_profile" - weights for asymmetric key profiles,
-            where each key has its own set of 12 weights (e.g., Bellman-Budge).
+            where each key has its own set of 12 weights (e.g.,, Bellman-Budge).
         - "root_support_weights" - root support weights (see
             `amads.harmony.root_finding.parncutt`)
+        - "pitch" - weights over raw (MIDI) pitch numbers,
+            e.g.,, for vocal/instrumental range, as opposed to pitch *class* (as above).
+            See `Distribution.from_pitches` for a constructor that builds
+            one of these directly from a list of pitches.
 
-        This list is open-ended and is currently just informational.
-        The value is not used for plotting or any other purpose.
+        This list is open-ended (see `Distribution.KNOWN_TYPES`) and is
+        currently just informational: the value is not used to control
+        plotting, except that `distribution_type="pitch"` changes the
+        default 1-D plot style from "bar" to "line" (see `plot`).
 
     dimensions : List[int]
-        The dimensions of the distribution, e.g.
+        The dimensions of the distribution, e.g.,
         [12] for a pitch class distribution or [25, 25] for an
         interval_transition (intervals are from -12 to +12 and include
         0 for unison, intervals larger than one octave are ignored).
@@ -130,8 +112,34 @@ class Distribution:
 
     # Class variable documenting allowable 1-D plotting styles
     POSSIBLE_1D_PLOT_OPTIONS = ["bar", "line"]
+
     # Default color for 1-D bar charts
     DEFAULT_BAR_COLOR = "skyblue"
+
+    # Known/recommended distribution_type values
+    # (informational only, see `distribution_type` docs above)
+    KNOWN_TYPES = frozenset(
+        {
+            "pitch_class",
+            "pitch",
+            "interval",
+            "pitch_class_interval",
+            "duration",
+            "interval_size",
+            "interval_direction",
+            "pitch_class_transition",
+            "interval_transition",
+            "duration_transition",
+            "key_correlation",
+            "symmetric_key_profile",
+            "asymmetric_key_profile",
+            "root_support_weights",
+        }
+    )
+
+    # Special case Beyond this many semitones of span, from_pitches() thins x-axis
+    # labels down to one per octave so they stay legible.
+    PITCH_WIDE_RANGE_SEMITONES = 24
 
     def __init__(
         self,
@@ -146,6 +154,13 @@ class Distribution:
     ):
         """
         Initialize a Distribution instance.
+
+        Raises
+        ------
+        ValueError
+            If `dimensions` is not 1-D or 2-D, or if `data`,
+            `x_categories`, or `y_categories` are inconsistent with
+            `dimensions` (see `_validate`).
         """
         self.name = name
         self.data = data
@@ -155,13 +170,227 @@ class Distribution:
         self.x_label = x_label
         self.y_categories = y_categories
         self.y_label = y_label
+        self._validate()
 
-    def normalize(self):
+    def _validate(self) -> None:
         """
-        Convert weights or counts to a probability distribution that sums to 1.
+        Check that `data`, `dimensions`, `x_categories`, and `y_categories` are mutually consistent.
+        Called automatically by `__init__`;
+        also safe to call again after mutating `data` in place.
+
+        Raises
+        ------
+        ValueError
+            If any of the checks described above fail.
         """
-        self.data = normalize(self.data, "Sum").tolist()
+        dims = len(self.dimensions)
+        if dims not in (1, 2):
+            raise ValueError(
+                "Distribution only supports 1-D or 2-D data, got "
+                f"dimensions={self.dimensions}"
+            )
+
+        data_shape = np.asarray(self.data).shape
+        if data_shape != tuple(self.dimensions):
+            raise ValueError(
+                f"data shape {data_shape} does not match "
+                f"dimensions {tuple(self.dimensions)}"
+            )
+
+        if len(self.x_categories) != self.dimensions[0]:
+            raise ValueError(
+                f"x_categories has length {len(self.x_categories)}, "
+                f"expected {self.dimensions[0]} (dimensions[0])"
+            )
+
+        if dims == 1:
+            if self.y_categories is not None:
+                raise ValueError(
+                    "y_categories must be None for a 1-D distribution"
+                )
+        else:  # dims == 2
+            if self.y_categories is None:
+                raise ValueError(
+                    "y_categories is required for a 2-D distribution"
+                )
+            if len(self.y_categories) != self.dimensions[1]:
+                raise ValueError(
+                    f"y_categories has length {len(self.y_categories)}, "
+                    f"expected {self.dimensions[1]} (dimensions[1])"
+                )
+
+    def normalize(self, method: str = "Sum"):
+        """
+        Convert weights or counts to a probability distribution.
+
+        Parameters
+        ----------
+        method : str
+            Normalization method, forwarded to
+            `amads.algorithms.norm.normalize`.
+            Any value accepted there is valid here, e.g., "Sum"/"l1"
+            (values sum to 1, the default and previous hard-coded behavior),
+            "Euclidean"/"l2" (vector length 1), or "max"/"infinity"
+            (largest value becomes 1).
+
+        Returns
+        -------
+        Distribution
+            self, for chaining.
+
+        Notes
+        -----
+        For a 2-D distribution, `data` is flattened before normalizing and reshaped back afterward,
+        so e.g., the default "Sum" normalizes over the *entire* matrix
+        (all cells sum to 1), not per row or column.
+        If you want each row to be its own conditional distribution summing to 1
+        (e.g., for a transition matrix),
+        normalize each row individually before constructing the Distribution,
+        or call `normalize` on single-row slices.
+        """
+        arr = np.asarray(self.data, dtype=float)
+        flat = normalize(arr.flatten(), method)
+        self.data = np.asarray(flat).reshape(arr.shape).tolist()
         return self
+
+    @classmethod
+    def from_pitches(
+        cls,
+        pitches: List[Union[Pitch, int, float]],
+        name: str = "Pitch Distribution",
+        weights: Optional[List[float]] = None,
+        buffer: int = 2,
+        use_spelling: Optional[bool] = None,
+    ) -> "Distribution":
+        """
+        Build a 1-D `Distribution` of raw pitch (not pitch *class*) from a list of pitches,
+        e.g., to plot a vocal or instrumental range.
+        Bins are one per semitone across the observed range.
+
+        Parameters
+        ----------
+        pitches : list of Pitch | int | float
+            The pitches to histogram.
+            Entries may be `amads.core.pitch.Pitch` instances, or raw numeric MIDI key numbers
+            (usually ints; any floats are binned to the nearest semitone).
+            The two kinds may be mixed in one list.
+        name : str
+            Name used for the distribution and as the plot title.
+        weights : list of float, optional Per-pitch weights,
+            e.g., note durations, aligned element-for-element with `pitches`.
+            Defaults to a weight of 1 per pitch, i.e. a plain count histogram.
+        buffer : int
+            Semitones of empty margin added on each side of the observed min/max pitch
+            so extreme values aren't plotted right at the axis edge (default 2).
+            Use 0 for no buffer.
+        use_spelling : bool, optional
+            If True, x-axis bin labels are spelled note names (e.g., "C#4")
+            taken from the `Pitch` objects in `pitches`;
+            every entry in `pitches` must then be a `Pitch`
+            (raw numbers have no spelling to draw on).
+            If False, labels are plain MIDI key numbers.
+            If None (default), spelling is used automatically when every entry in `pitches` is a `Pitch`,
+            and MIDI numbers are used otherwise.
+
+        Returns
+        -------
+        Distribution
+            A 1-D distribution with `distribution_type="pitch"`.
+            Bin values are raw (weighted) counts; call `.normalize()` for a probability distribution.
+            Bins with no observed pitch get a value of 0.
+            For ranges wider than `Distribution.PITCH_WIDE_RANGE_SEMITONES`,
+            all but one x-axis label per octave are blanked out so they stay legible;
+            the underlying bins/data are unaffected.
+
+        Raises
+        ------
+        ValueError
+            If `pitches` is empty;
+            if `weights` is provided and its length doesn't match `pitches`;
+            if any entry of `pitches` is not a `Pitch`, `int`, or `float`;
+            if any `Pitch` is unpitched (`midi_num is None`);
+            or if `use_spelling=True` but not every entry of `pitches` is a `Pitch`.
+
+        Examples
+        --------
+        >>> from amads.core.pitch import Pitch
+        >>> notes = [Pitch("C4"), Pitch("E4"), Pitch("G4"), Pitch("C5"), Pitch("E5"), Pitch("G5")]
+        >>> dist = Distribution.from_pitches(notes, name="Soprano range example")
+        >>> dist.distribution_type
+        'pitch'
+        """
+        if not pitches:
+            raise ValueError("from_pitches requires at least one pitch")
+        if weights is not None and len(weights) != len(pitches):
+            raise ValueError("weights must be the same length as pitches")
+        counted_label = "Count" if weights is None else "Weight"
+
+        midi_nums: List[float] = []
+        all_are_pitches = True
+        for p in pitches:
+            if isinstance(p, Pitch):
+                if p.midi_num is None:
+                    raise ValueError(
+                        "from_pitches does not support unpitched "
+                        "Pitch instances (midi_num is None)"
+                    )
+                midi_nums.append(p.midi_num)
+            elif isinstance(p, (int, float)):
+                midi_nums.append(float(p))
+                all_are_pitches = False
+            else:
+                raise ValueError(
+                    "pitches must contain Pitch, int, or float "
+                    f"entries, got {type(p)}"
+                )
+
+        if use_spelling is None:
+            use_spelling = all_are_pitches
+        elif use_spelling and not all_are_pitches:
+            raise ValueError(
+                "`use_spelling=True` requires every entry in pitches to be a Pitch instance"
+            )
+
+        lo = math.floor(min(midi_nums)) - buffer
+        hi = math.ceil(max(midi_nums)) + buffer
+        bin_centers = list(range(lo, hi + 1))
+
+        hist = Histogram1D(bin_centers=bin_centers, ignore_extrema=False)
+        point_weights = (
+            weights if weights is not None else [1.0] * len(midi_nums)
+        )
+        for midi_num, weight in zip(midi_nums, point_weights):
+            hist.add_point(midi_num, weight=weight)
+
+        if use_spelling:
+            # Prefer the actual spelling of an observed Pitch at each bin (e.g., "C#4" vs "Db4" if given);
+            # fall back to the MIDI number for any bin center that wasn't actually observed.
+            spellings = {}
+            for p in pitches:
+                spellings.setdefault(round(p.midi_num), p.name_with_octave)
+            labels = [spellings.get(c, str(c)) for c in bin_centers]
+            x_label = "Pitch (spelled)"
+        else:
+            labels = [str(c) for c in bin_centers]
+            x_label = "Pitch (MIDI key number)"
+
+        # For wide ranges, thin labels to one per octave for legibility.
+        if (hi - lo) > cls.PITCH_WIDE_RANGE_SEMITONES:
+            labels = [
+                label if (c - lo) % 12 == 0 else ""
+                for c, label in zip(bin_centers, labels)
+            ]
+
+        return cls(
+            name=name,
+            data=hist.bins,
+            distribution_type="pitch",
+            dimensions=[len(bin_centers)],
+            x_categories=labels,
+            x_label=x_label,
+            y_categories=None,
+            y_label=counted_label,
+        )
 
     def plot(
         self,
@@ -233,7 +462,9 @@ class Distribution:
             if color is None:
                 color = Distribution.DEFAULT_BAR_COLOR
             if option is None:
-                option = "bar"
+                # Dense numeric ranges like raw pitch usually read
+                # better as a contour than as many individual bars.
+                option = "line" if self.distribution_type == "pitch" else "bar"
             x = range(len(self.x_categories))
             # 1-D distributions: draw either a bar chart or a line chart.
             if option == "bar":
@@ -309,13 +540,13 @@ class Distribution:
         show : bool
             Whether to call ``plt.show()`` at the end.
         options : str | list[str] | None
-            plot style per distribution (e.g. "bar" or "line"). If a single
-            string is given, it is broadcast to all distributions. If None,
-            defaults to "bar".
+            plot style per distribution (e.g., "bar" or "line").
+            If a single string is given, it is broadcast to all distributions.
+            If None, defaults to "bar".
         colors : str | list[str] | None
-            color option per distribution. If a single string is given, it is
-            broadcast to all 1-D distributions. If None, defaults to
-            the single color Distribution.DEFAULT_BAR_COLOR.
+            color option per distribution.
+            If a single string is given, it is broadcast to all 1-D distributions.
+            If None, defaults to the single color Distribution.DEFAULT_BAR_COLOR.
 
         Notes
         -----

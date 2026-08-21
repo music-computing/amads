@@ -1,9 +1,9 @@
 """
-pytest suite for ChordBigram.
+Test ChordBigram.
 
-Complements the doctests (which cover latex_label for major/major C–A pairs)
+Complements the doctests (which cover `latex_label` for major/major C–A pairs)
 by testing:
-  - canonical forms for all four equivalences
+  - canonical forms for all eight equivalences (Ø, I, R, K, IR, IK, RK, IRK)
   - equality and hashing
   - interval property
   - label (unicode) property
@@ -14,25 +14,30 @@ by testing:
   - ValueError guards (__init__ and coarsen)
   - minor quality chords
   - mixed major/minor quality (RK quality rules)
-  - R symmetry: C→A and A→C are equal under R
-  - K asymmetry: C→A and A→C are NOT equal under K
-  - RK symmetry: C→A and A→C are equal under RK
-  - Ø asymmetry: C→A and A→C are NOT equal under Ø
+  - R, RK symmetry; K, Ø asymmetry
+  - regression coverage for the IR transposition-invariance bug
+  - more
 """
 
 import pytest
 
-from amads.pitch.chord_bigram import (
+from amads.harmony.chord_bigram import (
     ChordBigram,
     _canonical_exact,
+    _canonical_inversion,
+    _canonical_inversion_key,
+    _canonical_inversion_retro,
+    _canonical_inversion_retro_key,
     _canonical_key,
     _canonical_retro,
     _canonical_retro_key,
+    _q,
+    _sub,
 )
 
 # ---------------------------------------------------------------------------
-# Minimal stubs
-# ---------------------------------------------------------------------------
+
+# Minimal stubs. Test directly on what's really needed here (see `TestRealChordProtocol`).
 
 
 class _Root:
@@ -53,8 +58,8 @@ class Chord:
 
 
 # ---------------------------------------------------------------------------
+
 # Fixtures
-# ---------------------------------------------------------------------------
 
 
 @pytest.fixture
@@ -83,8 +88,8 @@ def D():
 
 
 # ---------------------------------------------------------------------------
+
 # Canonical-form helpers
-# ---------------------------------------------------------------------------
 
 
 class TestCanonicalHelpers:
@@ -117,9 +122,9 @@ class TestCanonicalHelpers:
         )
 
     def test_key_directed_interval(self):
-        # C→A: (9-0)%12 = 9
+        # C to A: (9-0)%12 = 9
         assert _canonical_key(0, "major", 9, "major") == (9, "major", "major")
-        # A→C: (0-9)%12 = 3
+        # A to C: (0-9)%12 = 3
         assert _canonical_key(9, "major", 0, "major") == (3, "major", "major")
 
     def test_key_direction_matters(self):
@@ -128,7 +133,7 @@ class TestCanonicalHelpers:
         )
 
     def test_retro_key_picks_min(self):
-        # forward (9,major,major) vs backward (3,major,major) → min is (3,...)
+        # forward (9,major,major) vs backward (3,major,major)  to  min is (3,...)
         assert _canonical_retro_key(0, "major", 9, "major") == (
             3,
             "major",
@@ -146,9 +151,74 @@ class TestCanonicalHelpers:
         ) == _canonical_retro_key(9, "major", 0, "major")
 
 
+class TestInversionCanonicalHelpers:
+    """
+    TestCanonicalHelpers (above) covers Ø, K, R, RK directly;
+    this class closes the equivalent gap for the I-family (I, IR, IK, IRK).
+    """
+
+    def test_inversion_keeps_directed_pcs_plus_quality_flag(self):
+        assert _canonical_inversion(0, "major", 9, "major") == (0, 9, True)
+        assert _canonical_inversion(0, "major", 9, "minor") == (0, 9, False)
+
+    def test_inversion_direction_matters(self):
+        assert _canonical_inversion(
+            0, "major", 9, "major"
+        ) != _canonical_inversion(9, "major", 0, "major")
+
+    def test_inversion_ignores_which_quality_so_long_as_relation_matches(self):
+        """
+        major->major and minor->minor are both 'same_quality=True'
+        """
+        assert _canonical_inversion(
+            0, "major", 9, "major"
+        ) == _canonical_inversion(0, "minor", 9, "minor")
+
+    def test_inversion_retro_is_frozenset_of_pcs(self):
+        r = _canonical_inversion_retro(0, "major", 9, "minor")
+        assert isinstance(r[0], frozenset)
+
+    def test_inversion_retro_is_symmetric(self):
+        assert _canonical_inversion_retro(
+            0, "major", 9, "minor"
+        ) == _canonical_inversion_retro(9, "minor", 0, "major")
+
+    def test_inversion_retro_is_NOT_transposition_invariant(self):
+        """
+        IR should not be transposition-invariant (i.e., not IRK).
+        It must keep the unordered *pair of absolute pitch classes* instead,
+        mirroring R, so a bare transposition is not IR-equivalent.
+        """
+        c_to_a = _canonical_inversion_retro(0, "major", 9, "minor")
+        f_to_d = _canonical_inversion_retro(
+            5, "major", 2, "minor"
+        )  # +5 transposed
+        assert c_to_a != f_to_d
+
+    def test_inversion_retro_same_quality_flag_preserved(self):
+        assert _canonical_inversion_retro(0, "major", 9, "minor")[1] is False
+        assert _canonical_inversion_retro(0, "major", 9, "major")[1] is True
+
+    def test_inversion_key_is_transposition_invariant(self):
+        """IK legitimately collapses transposition, unlike IR"""
+        assert _canonical_inversion_key(
+            0, "major", 9, "minor"
+        ) == _canonical_inversion_key(5, "major", 2, "minor")
+
+    def test_inversion_key_direction_matters(self):
+        assert _canonical_inversion_key(
+            0, "major", 9, "major"
+        ) != _canonical_inversion_key(9, "major", 0, "major")
+
+    def test_inversion_retro_key_picks_min_and_is_symmetric(self):
+        assert _canonical_inversion_retro_key(
+            0, "major", 9, "major"
+        ) == _canonical_inversion_retro_key(9, "major", 0, "major")
+
+
 # ---------------------------------------------------------------------------
+
 # Construction and ValueError guards
-# ---------------------------------------------------------------------------
 
 
 class TestInit:
@@ -181,8 +251,8 @@ class TestInit:
 
 
 # ---------------------------------------------------------------------------
+
 # interval property
-# ---------------------------------------------------------------------------
 
 
 class TestInterval:
@@ -198,8 +268,8 @@ class TestInterval:
 
 
 # ---------------------------------------------------------------------------
+
 # Equality and hashing
-# ---------------------------------------------------------------------------
 
 
 class TestEqualityAndHashing:
@@ -257,9 +327,37 @@ class TestEqualityAndHashing:
         assert b1 == b2
 
 
+class TestIREquivalenceBugRegression:
+    """
+    IR-specific regression:
+    This is the object-level counterpart to
+    TestInversionCanonicalHelpers.test_inversion_retro_is_NOT_transposition_invariant
+    Here we test through ChordBigram itself rather than the bare helper.
+    """
+
+    def test_bare_transposition_is_not_IR_equivalent(self, C, A):
+        """
+        C major -> A major, transposed up a perfect 4th (+5 semitones),
+        quality pattern preserved (major -> major both times)
+        """
+        b1 = ChordBigram(C, A, "IR", key_pitch_class=0)
+        F_chord = Chord(5, "major", "F")
+        D_chord = Chord(2, "major", "D")
+        b2 = ChordBigram(F_chord, D_chord, "IR", key_pitch_class=0)
+        assert b1 != b2
+
+    def test_IRK_is_still_transposition_invariant(self, C, A):
+        """IRK is *supposed* to merge these"""
+        b1 = ChordBigram(C, A, "IRK")
+        F_chord = Chord(5, "major", "F")
+        D_chord = Chord(2, "major", "D")
+        b2 = ChordBigram(F_chord, D_chord, "IRK")
+        assert b1 == b2
+
+
 # ---------------------------------------------------------------------------
+
 # coarsen()
-# ---------------------------------------------------------------------------
 
 
 class TestCoarsen:
@@ -311,34 +409,34 @@ class TestCoarsen:
             b.coarsen("Z")
 
     def test_coarsen_rk_result_symmetric(self, C, A):
-        # Coarsening Ø C→A and Ø A→C to RK should give equal bigrams
+        # Coarsening Ø C to A and Ø A to C to RK should give equal bigrams
         b1 = ChordBigram(C, A, "Ø", key_pitch_class=2).coarsen("RK")
         b2 = ChordBigram(A, C, "Ø", key_pitch_class=2).coarsen("RK")
         assert b1 == b2
 
 
 # ---------------------------------------------------------------------------
+
 # labels dict
-# ---------------------------------------------------------------------------
 
 
 class TestLabels:
     def test_null_has_all_four(self, C, A):
         b = ChordBigram(C, A, "Ø", key_pitch_class=2)
         labs = b.labels
-        assert set(labs.keys()) == {"Ø", "R", "K", "RK"}
+        assert set(labs.keys()) == {"IK", "Ø", "I", "IRK", "RK", "R", "K", "IR"}
 
     def test_r_has_two(self, C, A):
         b = ChordBigram(C, A, "R", key_pitch_class=2)
-        assert set(b.labels.keys()) == {"R", "RK"}
+        assert set(b.labels.keys()) == {"RK", "IR", "R", "IRK"}
 
     def test_k_has_two(self, C, A):
         b = ChordBigram(C, A, "K")
-        assert set(b.labels.keys()) == {"K", "RK"}
+        assert set(b.labels.keys()) == {"K", "RK", "IK", "IRK"}
 
     def test_rk_has_one(self, C, A):
         b = ChordBigram(C, A, "RK")
-        assert set(b.labels.keys()) == {"RK"}
+        assert set(b.labels.keys()) == {"RK", "IRK"}
 
     def test_labels_values_are_strings(self, C, A):
         b = ChordBigram(C, A, "Ø", key_pitch_class=2)
@@ -346,53 +444,53 @@ class TestLabels:
 
 
 # ---------------------------------------------------------------------------
+
 # _q and _sub static helpers
-# ---------------------------------------------------------------------------
 
 
 class TestHelpers:
     def test_q_major(self):
-        assert ChordBigram._q("major") == "M"
+        assert _q("major") == "M"
 
     def test_q_minor(self):
-        assert ChordBigram._q("minor") == "m"
+        assert _q("minor") == "m"
 
     def test_q_invalid(self):
         with pytest.raises(ValueError):
-            ChordBigram._q("diminished")
+            _q("diminished")
 
     def test_sub_single_digit(self):
-        assert ChordBigram._sub(0) == "₀"
-        assert ChordBigram._sub(9) == "₉"
+        assert _sub(0) == "₀"
+        assert _sub(9) == "₉"
 
     def test_sub_double_digit(self):
-        assert ChordBigram._sub(10) == "₁₀"
-        assert ChordBigram._sub(11) == "₁₁"
+        assert _sub(10) == "₁₀"
+        assert _sub(11) == "₁₁"
 
 
 # ---------------------------------------------------------------------------
+
 # label (unicode) property
-# ---------------------------------------------------------------------------
 
 
 class TestLabel:
     def test_null_chronological_with_subscript(self, C, A):
-        # C→A, key=2: g1=M₁₀, iv=9, g2=M
+        """C to A, key=2 (D)"""
         b = ChordBigram(C, A, "Ø", key_pitch_class=2)
         assert b.label == "M₁₀ 9 MØ"
 
     def test_null_subscript_zero_omitted(self, C, A):
-        # A→C, key=9: A is the tonic so subscript omitted
+        """A to C, key=9: A is the tonic so subscript omitted"""
         b = ChordBigram(A, C, "Ø", key_pitch_class=9)
         assert b.label == "M 3 MØ"
 
     def test_r_near_far_with_subscript(self, C, A):
-        # key=2: near=A(d=7), far=C(d=10), iv=3
+        """key=2: near=A(d=7), far=C(d=10), iv=3"""
         b = ChordBigram(C, A, "R", key_pitch_class=2)
         assert b.label == "M₇ 3 MR"
 
     def test_r_near_is_tonic_omits_subscript(self, C, A):
-        # key=9: near=A(d=0→omit), far=C(d=3), iv=3
+        """key=9: near=A(d=0 to omit), far=C(d=3), iv=3"""
         b = ChordBigram(C, A, "R", key_pitch_class=9)
         assert b.label == "M 3 MR"
 
@@ -414,14 +512,14 @@ class TestLabel:
         assert b.label == "m 3 mRK"
 
     def test_mixed_quality_rk_glyph1_major(self, C, Am):
-        # either major → g1=M; not both major → g2=m
+        """either major  to  g1=M; not both major  to  g2=m"""
         b = ChordBigram(C, Am, "RK")
-        assert b.label == "M 3 mRK"
+        assert b.label == "M 9 mRK"
 
 
 # ---------------------------------------------------------------------------
+
 # Minor quality chords
-# ---------------------------------------------------------------------------
 
 
 class TestMinorQuality:
@@ -441,8 +539,8 @@ class TestMinorQuality:
 
 
 # ---------------------------------------------------------------------------
+
 # __str__ and __repr__
-# ---------------------------------------------------------------------------
 
 
 class TestStrRepr:
@@ -478,8 +576,8 @@ class TestStrRepr:
 
 
 # ---------------------------------------------------------------------------
+
 # canonical property
-# ---------------------------------------------------------------------------
 
 
 class TestCanonicalProperty:
@@ -499,3 +597,29 @@ class TestCanonicalProperty:
     def test_rk_canonical_is_tuple(self, C, A):
         b = ChordBigram(C, A, "RK")
         assert b.canonical == (3, "major", "major")
+
+
+# ---------------------------------------------------------------------------
+
+
+class TestRealChordProtocol:
+    """
+    Every other test in this file uses the local `Chord`/`_Root` stubs above.
+    That scenario pins down exactly the interface ChordBigram needs
+    (.quality, .root.pitch_class, .root.name)
+    It keeps the rest of the suite fast and isolated from the amads.core.chord implementation.
+
+    This single test is the bridge:
+    it confirms the stub's assumed protocol still matches the real class,
+    so a silent drift (e.g. a renamed attribute) will fail.
+
+    """
+
+    def test_stub_protocol_matches_real_chord(self):
+        from amads.core.chord import Chord as RealChord
+
+        real_c = RealChord(0, "major")
+        real_a = RealChord(9, "major")
+        b = ChordBigram(real_c, real_a, "K")
+        assert b.canonical == (9, "major", "major")
+        assert b.interval == 9

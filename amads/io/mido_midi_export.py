@@ -29,6 +29,8 @@ import mido
 
 from amads.core.basics import EventGroup, KeySignature, Note, Part, Score, Staff
 from amads.core.timemap import TimeMap  # needed for tm.changes in meta track
+from amads.io.mido_midi_import import _mido_show
+from amads.io.pm_midi_export import _get_midi_time_signatures
 
 __author__ = "Roger B. Dannenberg"
 
@@ -76,40 +78,40 @@ def string_to_velocity(dynamic: str) -> int:
     return dynamic_map.get(dynamic.lower(), 100)
 
 
-def _collect_notes_from_evgroup(evgroup: EventGroup) -> list[Note]:
-    """Recursively collect notes from an EventGroup in score order.
+# def _collect_notes_from_evgroup(evgroup: EventGroup) -> list[Note]:
+#     """Recursively collect notes from an EventGroup in score order.
 
-    Skips notes that are targets of ties (already accounted for by the
-    first note in the tied chain via ``note.tied_duration``).
+#     Skips notes that are targets of ties (already accounted for by the
+#     first note in the tied chain via ``note.tied_duration``).
 
-    Parameters
-    ----------
-    evgroup : EventGroup
-        The Part, Staff, Measure, Chord, etc. to collect from.
+#     Parameters
+#     ----------
+#     evgroup : EventGroup
+#         The Part, Staff, Measure, Chord, etc. to collect from.
 
-    Returns
-    -------
-    list[Note]
-        Notes in document order, with tied-to notes excluded.
-    """
-    global tied_to_notes
-    notes = []
-    for event in evgroup.content:
-        if isinstance(event, Note):
-            note = cast(Note, event)
-            if note in tied_to_notes:  # type: ignore
-                continue  # this note is a tied-to target; already handled
-            # Mark every note in the tie chain so it is skipped later.
-            if note.tie:
-                tied = note.tie
-                while tied:
-                    tied_to_notes[tied] = True  # type: ignore
-                    tied = tied.tie  # type: ignore
-            notes.append(note)
-        elif isinstance(event, EventGroup):
-            notes.extend(_collect_notes_from_evgroup(event))
-        # Rests, Clefs, KeySignatures, etc. are ignored here.
-    return notes
+#     Returns
+#     -------
+#     list[Note]
+#         Notes in document order, with tied-to notes excluded.
+#     """
+#     global tied_to_notes
+#     notes = []
+#     for event in evgroup.content:
+#         if isinstance(event, Note):
+#             note = cast(Note, event)
+#             if note in tied_to_notes:  # type: ignore
+#                 continue  # this note is a tied-to target; already handled
+#             # Mark every note in the tie chain so it is skipped later.
+#             if note.tie:
+#                 tied = note.tie
+#                 while tied:
+#                     tied_to_notes[tied] = True  # type: ignore
+#                     tied = tied.tie  # type: ignore
+#             notes.append(note)
+#         elif isinstance(event, EventGroup):
+#             notes.extend(_collect_notes_from_evgroup(event))
+#         # Rests, Clefs, KeySignatures, etc. are ignored here.
+#     return notes
 
 
 def _build_meta_track(score: Score, tm: TimeMap) -> mido.MidiTrack:
@@ -152,8 +154,9 @@ def _build_meta_track(score: Score, tm: TimeMap) -> mido.MidiTrack:
     # --- Time signatures ---
     # ts.quarters is always in quarter-note units (invariant under
     # convert_to_seconds), so ticks = quarters * TICKS_PER_BEAT directly.
-    for i, ts in enumerate(score.time_signatures):
-        abs_tick = round(ts.quarters * TICKS_PER_BEAT)
+    tss = _get_midi_time_signatures(score)
+    for i, ts in enumerate(tss):  # ts is (quarters, upper, lower)
+        abs_tick = round(ts[0] * TICKS_PER_BEAT)
         meta_events.append(
             (
                 abs_tick,
@@ -161,8 +164,8 @@ def _build_meta_track(score: Score, tm: TimeMap) -> mido.MidiTrack:
                 i,
                 mido.MetaMessage(
                     "time_signature",
-                    numerator=int(ts.upper),
-                    denominator=int(ts.lower),
+                    numerator=int(ts[1]),
+                    denominator=int(ts[2]),
                     time=0,
                 ),
             )
@@ -202,10 +205,7 @@ def _build_meta_track(score: Score, tm: TimeMap) -> mido.MidiTrack:
 
 
 def _build_instrument_track(
-    evgroup: EventGroup,
-    channel: int,
-    program: int,
-    name: str,
+    evgroup: EventGroup, channel: int, program: int, name: str
 ) -> mido.MidiTrack:
     """Build a MIDI track for one instrument part (Part or Staff).
 
@@ -242,7 +242,12 @@ def _build_instrument_track(
 
     # Collect notes in document order (tied-to notes already excluded by
     # _collect_notes_from_evgroup via the global tied_to_notes dict).
-    notes = _collect_notes_from_evgroup(evgroup)
+    # notes = _collect_notes_from_evgroup(evgroup)
+
+    # Collect notes from the event group. If this is a Part, there are no
+    # staffs, so find_all(Note) will be sorted by time. find_all(Note) always
+    # returns notes in time order from a Staff.
+    notes = evgroup.find_all(Note)
 
     # Build a flat event list: (abs_tick, sort_key, mido.Message)
     #
@@ -252,17 +257,24 @@ def _build_instrument_track(
     #   (1, seq*2)     — note_on (regular or grace)
     #   (1, seq*2+1)   — grace note_off (immediately after its note_on)
     events: list[tuple] = []
+    minimum_onset: dict[int, int] = {}  # pitch → earliest allowed onset tick
 
     for seq, note in enumerate(notes):
         dynamic = note.dynamic if note.dynamic is not None else 100
         if isinstance(dynamic, str):
             dynamic = string_to_velocity(dynamic)
         velocity = min(127, max(1, int(dynamic)))
-        note_num = min(127, max(0, round(note.key_num)))
+        note_num = min(127, max(0, round(note.midi_num)))
 
         onset_tick = round(note.onset * TICKS_PER_BEAT)
-        # tied_duration spans the full duration including any tied notes.
-        offset_tick = round((note.onset + note.tied_duration) * TICKS_PER_BEAT)
+        dur = max(note.duration, 0.001)  # force non-zero duration
+        offset_tick = round((note.onset + dur) * TICKS_PER_BEAT)
+
+        # check for minimum onset for this pitch
+        onset_tick = max(onset_tick, minimum_onset.get(note_num, 0))
+
+        # update minimum onset for this pitch to the new offset
+        minimum_onset[note_num] = offset_tick
 
         note_on = mido.Message(
             "note_on", channel=channel, note=note_num, velocity=velocity, time=0
@@ -296,42 +308,29 @@ def _build_instrument_track(
     return track
 
 
-def _mido_show(mid: mido.MidiFile, filename) -> None:
-    """Print a text summary of the MIDI file to stdout."""
-    print(f"MIDI file: {filename}")
-    print(
-        f"  type={mid.type}, ticks_per_beat={mid.ticks_per_beat}, "
-        f"tracks={len(mid.tracks)}"
-    )
-    for i, track in enumerate(mid.tracks):
-        label = ""
-        for msg in track:
-            if hasattr(msg, "name") and msg.type == "track_name":
-                label = f" ({msg.name})"
-                break
-        print(f"  Track {i}{label}: {len(track)} messages")
-        shown = 0
-        for msg in track:
-            print(f"    {msg}")
-            shown += 1
-            if shown >= 20:
-                remaining = len(track) - shown
-                if remaining > 0:
-                    print(f"    ... ({remaining} more messages)")
-                break
-
-
 def mido_midi_export(
-    score: Score, filename: str | Path, format: str, show: bool, is_temp: bool
-) -> None:
+    score: Score,
+    filename: str | Path,
+    format: str,
+    show: bool,
+    is_temp: bool = False,
+) -> None:  # type: ignore  (unused parameter)
     """
     Export a Score as a standard MIDI file using the MIDO library.
 
     Unlike PrettyMIDI, MIDO writes note_on and note_off events in the order
-    they are appended to a track, so zero-duration notes (grace notes) are
-    correctly encoded as a note_on immediately followed (delta=0) by a
+    they are appended to a track, so zero-duration notes (grace notes) *could*
+    be correctly encoded as a note_on immediately followed (delta=0) by a
     note_on with velocity 0, preserving the original note sequence from
-    the Score.
+    the Score. However, these files cannot be read by pretty_midi, so we
+    change the duration to 0.001 quarters.
+
+    This causes another problem if there is a zero-length note followed by
+    another note at the same pitch: moving the note-off of the first note
+    after the note-on of the first creates overlapping notes, which is not
+    well-defined in MIDI. We solve this problem by tracking the minimum_onset
+    allowed for each pitch (midi_number) and moving the onset later if it
+    comes before the offset of a note already sounding.
 
     Parameters
     ----------
@@ -350,7 +349,6 @@ def mido_midi_export(
     tied_to_notes = {}
 
     score.convert_to_quarters()  # ticks = quarters * TICKS_PER_BEAT exactly
-    score.merge_tied_notes()  # updates tied_duration; result not reassigned
 
     mid = mido.MidiFile(type=1, ticks_per_beat=TICKS_PER_BEAT)
     tm = score.time_map
@@ -388,10 +386,7 @@ def mido_midi_export(
         program = part.get("midi_program")
 
         track = _build_instrument_track(
-            evgroup,
-            channel,
-            program,
-            name if name is not None else "Unknown",
+            evgroup, channel, program, name if name is not None else "Unknown"
         )
         mid.tracks.append(track)
 

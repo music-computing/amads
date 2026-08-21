@@ -24,7 +24,7 @@ def basic_note_compare(
         if VERBOSE:
             print(
                 f"Comparing note {i}: AMADS onset {score_note.onset} "
-                f"pitch {score_note.key_num} duration {score_note.duration} | "
+                f"pitch {score_note.midi_num} duration {score_note.duration} | "
                 f"PM onset {pm_note.start} pitch {pm_note.pitch} "
                 f"duration {pm_note.end - pm_note.start}"
             )
@@ -32,11 +32,11 @@ def basic_note_compare(
             score_note.onset != pytest.approx(pm_note.start, abs=1e-3)
             or score_note.duration
             != pytest.approx(pm_note.end - pm_note.start, abs=1e-3)
-            or score_note.key_num != pm_note.pitch
+            or score_note.midi_num != pm_note.pitch
         ):
             print(f"NOTE MISMATCH IN TEST at index {i}")
             print(
-                f"AMADS note: onset {score_note.onset} pitch {score_note.key_num} "
+                f"AMADS note: onset {score_note.onset} pitch {score_note.midi_num} "
                 f"duration {score_note.duration}"
             )
             print(
@@ -55,7 +55,7 @@ def basic_note_compare(
                 pm_note.end - pm_note.start, abs=1e-3
             ), f"Duration mismatch at note {i}"
             assert (
-                score_note.key_num == pm_note.pitch
+                score_note.midi_num == pm_note.pitch
             ), f"Pitch mismatch at note {i}"
     assert len(score_notes) == len(pm_notes), (
         f"Number of notes mismatch: AMADS has {len(score_notes)} notes, "
@@ -98,7 +98,7 @@ def test_import_midi(midi_filename):
 
     # print("AMADS notes:")
     # for note in score_notes:
-    #     print(f"{note.onset / 4:0.2f} {note.key_num} {note.duration:0.2f}")
+    #     print(f"{note.onset / 4:0.2f} {note.midi_num} {note.duration:0.2f}")
 
     pmscore.convert_to_seconds()
     if VERBOSE:

@@ -1,6 +1,7 @@
 """Remove overlapping notes with the same pitch from a score."""
 
 from collections import defaultdict
+from typing import cast
 
 from amads.core.basics import Note, Part, Score
 
@@ -51,7 +52,7 @@ def remove_overlap(
 
     The score is first flattened (ties merged, notes extracted from
     measures and staves). Within each part, notes sharing the same
-    `key_num` that overlap in time are resolved:
+    `midi_num` that overlap in time are resolved:
 
     - If two notes start within `tolerance` of each other, the note that
       starts first (or the first in sorted order when onsets are equal)
@@ -75,11 +76,11 @@ def remove_overlap(
         new flat score is returned.
     tolerance : float
         Maximum onset difference (in seconds or beats depending on the
-        score's time unit) for two notes with the same `key_num` to be
+        score's time unit) for two notes with the same `midi_num` to be
         considered simultaneous.  Defaults to `0.1`.
     min_separation : float
         Minimum separation (in seconds or beats depending on the score's
-        time unit) between adjacent notes with the same `key_num`.  If
+        time unit) between adjacent notes with the same `midi_num`.  If
         `0.0`, no minimum separation is enforced.  Defaults to `0.0`.
         Must be less than half of `tolerance` to avoid introducing note
         durations less than min_separation.
@@ -155,7 +156,9 @@ def remove_overlap(
     )
 
     for part in score.find_all(Part):
-        _remove_overlap_in_part(part, tolerance, min_separation, keep_ornaments)
+        _remove_overlap_in_part(
+            cast(Part, part), tolerance, min_separation, keep_ornaments
+        )
 
     return score
 
@@ -189,11 +192,11 @@ def _remove_overlap_in_part(
         # therefore they will remain in part.content, as desired.
         notes = [n for n in notes if id(n) not in ornaments]
 
-    # Group notes by key_num.  Part.flatten() sorts by (onset, pitch), so
+    # Group notes by midi_num.  Part.flatten() sorts by (onset, pitch), so
     # each group is already onset-ordered.
     by_key: dict = defaultdict(list)
     for note in notes:
-        by_key[note.key_num].append(note)
+        by_key[note.midi_num].append(note)
 
     to_remove: set[int] = set()
 

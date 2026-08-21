@@ -13,18 +13,34 @@ Make sure you have the development dependencies installed:
 
 From the root directory of the project, run:
 
-    pytest
+    pytest tests
+    
+This is a "fast" test running everything in `tests/`, but skipping
+doctests, which take a long time to parse and create.
+
+To run *everything*, use the following:
+
+    pytest --doctest-modules --doctest-continue-on-failure amads tests
+    
 
 ### Running specific tests
 
-To run tests in a specific file:
+To run tests in a specific file (flags added to show all text
+output for debugging and inspecting):
 
-    pytest tests/test_pitch_list_transformations.py
+    pytest -s -vv -x tests/test_pitch_list_transformations.py
 
 To run a specific test function:
 
-    pytest
-    tests/test_pitch_list_transformations.py::test_function_name
+    pytest tests/test_pitch_list_transformations.py::test_function_name
+    
+Sometimes, there are multiple arguments for a single test. You can
+specify a single test with a single argument (notice the quotes, which
+are needed because of the square-bracket syntax passed to pytest):
+
+    pytest "tests/test_pitch_list_transformations.py::test_function_name[argname]"
+    
+    
 
 ## Code Coverage 
 
@@ -56,6 +72,20 @@ the far left column (pop-up description is “Testing”.
 
 Select a test or set of tests. In the selected test, there are small
 icons to run, run with debugger, or run with coverage, so pick one.
+
+### Speed up testing in VSCode
+
+Doctests take a long time to scan. I used VSCode's CHAT window to
+ask for modifications that would allow selection between fast testing
+wtih tests/ and full testing with tests/ and doctests. I have tasks
+named "Fast tests" and "Doctests", and I asked CHAT to configure the
+TESTING interface (the flask icon) to skip doctests. This is
+*substantially* faster since the doctest scanning was happening
+everytime a file was saved.
+
+These configurations are *local* and not in the repo to avoid all
+sorts of possible local configuration conflicts, so you should
+configure this yourself.
 
 ## Writing tests
 

@@ -523,8 +523,8 @@ def transition_heatmap(
     positions : list[float]
         The grid positions (row/column labels).
     matrix : list[list[float]]
-        matrix[i][j] is the syncopation score for onset at positions[i]
-        resolving at positions[j].  Diagonal entries are 0.0.
+        `matrix[i][j]` is the syncopation score for onset at `positions[i]`
+        resolving at `positions[j]`.  Diagonal entries are 0.0.
 
     Examples
     --------

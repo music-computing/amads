@@ -6,8 +6,10 @@ This is not intended to compete with fuller representations elsewhere
 but to cover here in AMADS ("in house")
 the basic functionality needed for the majority of use cases.
 
-Note that the "chord" is almost always a somewhat abstract (often analytic) category,
-even when included in notation.
+We situate this chord module within 'core' alongside basics, pitch, and the like,
+because it is sometimes notated (e.g., in leadsheets),
+while noting that the "chord" is almost always a somewhat abstract (often analytic) category,
+even when notated.
 Most symbols define limited elements.
 The inclusion of pitch class is a normal minimum.
 The root is common.
@@ -62,7 +64,7 @@ QUALITIES: dict[str, tuple[int, ...]] = {
 }
 
 
-_ALIASES: dict[str, str] = {
+ALIASES: dict[str, str] = {
     # triads
     "maj": "major", "M": "major", "": "major",
     "min": "minor", "m": "minor",
@@ -80,7 +82,7 @@ _ALIASES: dict[str, str] = {
 }
 
 #: Reverse lookup: pitch-class intervals -> canonical quality name.
-_INTERVAL_SET_TO_QUALITY: dict[frozenset[int], str] = {
+INTERVAL_SET_TO_QUALITY: dict[frozenset[int], str] = {
     frozenset(intervals): name
     for name, intervals in QUALITIES.items()
 }
@@ -88,23 +90,50 @@ _INTERVAL_SET_TO_QUALITY: dict[frozenset[int], str] = {
 
 # ---------------------------------------------------------------------------
 
-_ROMAN_TO_DEGREE: dict[str, int] = {
-    "I": 0, "II": 1, "III": 2, "IV": 3,
-    "V": 4, "VI": 5, "VII": 6,
+_ROMAN_NUMERALS = ("I", "II", "III", "IV", "V", "VI", "VII")
+
+ROMAN_TO_DEGREE: dict[str, int] = {  # NB: +1 to map from 0- to 1-index
+    name: i + 1 for i, name in enumerate(_ROMAN_NUMERALS)
 }
 
-_ROMAN_RE = re.compile(
-    r'^([b#]?)([IViv]+)([o°]?)(ø?)([\+]?)(\d*)$'
+ROMAN_RE = re.compile(
+    r'^([b#]?)([IViv]+)([o°]?)(ø?)([\+]?)([\d/]*)$'
 )
 
+
+INVERSION_FIGURES: dict[str, tuple[int, bool]] = {
+
+    "53": (0, False), # root-position triad (accept blank but avoid "5" and "3")
+    "": (0, False),
+
+    "63": (1, False), # first-inversion triad
+    "6": (1, False), "6/3": (1, False),
+
+    "64": (2, False), # second-inversion triad
+    "6/4": (2, False),
+
+    "753": (0, True), # root-position seventh
+    "7": (0, True), "7/5/3": (0, True),
+
+    "653": (1, True), # first-inversion seventh
+    "65": (1, True), "6/5/3": (1, True), "6/5": (1, True),
+
+    "643": (2, True), # second-inversion seventh
+    "43": (2, True), "6/4/3": (2, True), "4/3": (2, True), # "
+
+    "642": (3, True), # third-inversion seventh
+    "42": (3, True), "6/4/2": (3, True), "4/2": (3, True), "2": (3, True),
+}
+
+
 #: Scale intervals (minor = natural)
-_MAJOR_SCALE = (0, 2, 4, 5, 7, 9, 11)
-_MINOR_SCALE = (0, 2, 3, 5, 7, 8, 10)
+MAJOR_SCALE = (0, 2, 4, 5, 7, 9, 11)
+MINOR_SCALE = (0, 2, 3, 5, 7, 8, 10)
 
 # Diatonic triad qualities by root
-_MAJOR_TRIADS = ("major", "minor", "minor", "major",
+MAJOR_TRIADS = ("major", "minor", "minor", "major",
                  "major", "minor", "diminished")
-_MINOR_TRIADS = ("minor", "diminished", "major", "minor",
+MINOR_TRIADS = ("minor", "diminished", "major", "minor",
                  "minor", "major",  "major")
 
 
@@ -113,21 +142,21 @@ def _canonical_quality(quality: str) -> str:
     q = quality.strip()
     if q in QUALITIES:
         return q
-    if q in _ALIASES:
-        return _ALIASES[q]
+    if q in ALIASES:
+        return ALIASES[q]
     raise ValueError(
         f"Unknown chord quality {quality!r}. "
-        f"Known qualities: {sorted(QUALITIES)} and aliases: {sorted(_ALIASES)}"
+        f"Known qualities: {sorted(QUALITIES)} and aliases: {sorted(ALIASES)}"
     )
 
 
 def _parse_root(root: Union[str, int, Pitch]) -> Pitch:
     """Return a pitch-class-level Pitch from a name, int, or Pitch."""
     if isinstance(root, Pitch):
-        return Pitch(root.key_num % 12, root.alt)
+        return Pitch(root.midi_num % 12, root.alt)
     if isinstance(root, int):
         return Pitch(root % 12)
-    return Pitch(root, octave=None)  # octave=None → pitch-class (key_num 0-11)
+    return Pitch(root, octave=None)  # octave=None → pitch-class (midi_num 0-11)
 
 
 def _parse_key(key: Union[str, int, Pitch]) -> tuple[tuple[int, ...], int]:
@@ -141,17 +170,17 @@ def _parse_key(key: Union[str, int, Pitch]) -> tuple[tuple[int, ...], int]:
 
     """
     if isinstance(key, (int, Pitch)):
-        return _MAJOR_SCALE, int(_parse_root(key).key_num) % 12
+        return MAJOR_SCALE, int(_parse_root(key).midi_num) % 12
     key_str = str(key).strip()
     if key_str.lower().endswith(" minor"):
-        scale, tonic_name = _MINOR_SCALE, key_str[:-6].strip().capitalize()
+        scale, tonic_name = MINOR_SCALE, key_str[:-6].strip().capitalize()
     elif key_str.lower().endswith(" major"):
-        scale, tonic_name = _MAJOR_SCALE, key_str[:-6].strip().capitalize()
+        scale, tonic_name = MAJOR_SCALE, key_str[:-6].strip().capitalize()
     elif key_str[0].islower():
-        scale, tonic_name = _MINOR_SCALE, key_str.capitalize()
+        scale, tonic_name = MINOR_SCALE, key_str.capitalize()
     else:
-        scale, tonic_name = _MAJOR_SCALE, key_str
-    return scale, int(_parse_root(tonic_name).key_num) % 12
+        scale, tonic_name = MAJOR_SCALE, key_str
+    return scale, int(_parse_root(tonic_name).midi_num) % 12
 
 
 # ---------------------------------------------------------------------------
@@ -258,6 +287,37 @@ class Chord:
     >>> Chord.from_roman("iio7", "d").label
     'Eo7'
 
+    Figured-bass inversion figures are recognised and set the bass note accordingly:
+
+    >>> c_e = Chord.from_roman("I6", "C")   # first-inversion tonic triad
+    >>> c_e.label
+    'C/E'
+    >>> c_e.inversion
+    1
+    >>> Chord.from_roman("I64", "C").label  # second-inversion tonic triad
+    'C/G'
+    >>> Chord.from_roman("V65", "C").label  # first-inversion dominant seventh
+    'G7/B'
+    >>> Chord.from_roman("V42", "C").label  # third-inversion dominant seventh
+    'G7/F'
+
+    Some flexibiltiy in the string formatting, e.g., here simplifying to `2` and expanding to the full 642
+    >>> Chord.from_roman("V642", "C").label  # "
+    'G7/F'
+
+    >>> Chord.from_roman("V2", "C").label    # "
+    'G7/F'
+
+    >>> Chord.from_roman("V642", "C").inversion
+    3
+
+    Only specific, recognised figured-bass syntax is accepted.
+
+    >>> Chord.from_roman("I69", "C")  # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+        ...
+    ValueError: Unrecognised figure '69' in 'I69'. Recognised figures: ...
+
     3. From pitches directly, either as pitch name or pitch class:
 
     >>> Chord(pitches=["C", "Eb", "G"]).quality
@@ -293,7 +353,7 @@ class Chord:
             self.pitches = tuple(_parse_root(p) for p in pitches)
         elif self.root is not None and self.quality is not None: # Derive pitches from root + quality:
             intervals = QUALITIES[self.quality]
-            root_pc   = self.root.key_num % 12
+            root_pc   = self.root.midi_num % 12
             self.pitches = tuple(
                 Pitch((root_pc + i) % 12)
                 for i in intervals
@@ -317,20 +377,28 @@ class Chord:
         key_str = str(key).strip()  # preserved for chord.key attribute only
         raw = numeral.strip()
 
-        m = _ROMAN_RE.match(raw)
+        m = ROMAN_RE.match(raw)
         if not m:
             raise ValueError(f"Unrecognised Roman numeral {numeral!r}.")
-        accidental, core_raw, dim_flag, hdim_flag, aug_flag, num_str = m.groups()
+        accidental, core_raw, dim_flag, hdim_flag, aug_flag, figure = m.groups()
 
         core = core_raw.upper()
-        if core not in _ROMAN_TO_DEGREE:
+        if core not in ROMAN_TO_DEGREE:
             raise ValueError(f"Unrecognised Roman numeral {numeral!r}.")
 
-        add7 = bool(num_str) or seventh
-        degree = _ROMAN_TO_DEGREE[core]
+        if figure not in INVERSION_FIGURES:
+            raise ValueError(
+                f"Unrecognised figure {figure!r} in {numeral!r}. Recognised figures: "
+                f"{sorted(INVERSION_FIGURES, key=len)} (figured-bass inversion symbols, "
+                f"not arbitrary digits -- e.g. '6' is a first-inversion triad, not 'add a 6th')."
+            )
+        inversion, has_seventh = INVERSION_FIGURES[figure]
+        add7 = has_seventh or seventh
+        degree = ROMAN_TO_DEGREE[core]  # 1-index
+        scale_index = degree - 1  # 0-indexed offset into `scale`
 
         # Handle chromatic roots (bVII, #IV etc.)
-        root_pc = (tonic_pc + scale[degree]) % 12
+        root_pc = (tonic_pc + scale[scale_index]) % 12
         if accidental == 'b':
             root_pc = (root_pc - 1) % 12
         elif accidental == '#':
@@ -347,18 +415,26 @@ class Chord:
             # Derive quality by stacking scale tones
             n_tones = 4 if add7 else 3
             stacked_pcs = [
-                (tonic_pc + scale[(degree + 2 * i) % 7]) % 12
+                # (tonic_pc + scale[(degree + 2 * i) % 7]) % 12
+                (tonic_pc + scale[(scale_index + 2 * i) % 7]) % 12
                 for i in range(n_tones)
             ]
             intervals = frozenset((pc - root_pc) % 12 for pc in stacked_pcs)
-            quality = _INTERVAL_SET_TO_QUALITY.get(intervals)
+            quality = INTERVAL_SET_TO_QUALITY.get(intervals)
             if quality is None:
                 raise ValueError(
                     f"Scale-stacked intervals {intervals} for {numeral!r} in {key!r} "
                     f"don't match any known quality."
                 )
 
-        chord = cls(Pitch(root_pc), quality)
+        if inversion >= len(QUALITIES[quality]):
+            raise ValueError(
+                f"Figure {figure!r} implies inversion {inversion}, but the resolved quality "
+                f"{quality!r} only has {len(QUALITIES[quality])} tones."
+            )
+        bass = Pitch((root_pc + QUALITIES[quality][inversion]) % 12) if inversion else None
+
+        chord = cls(Pitch(root_pc), quality, bass=bass)
         chord.key = key_str
         return chord
 
@@ -438,16 +514,16 @@ class Chord:
         Chord
         """
         pitches = collection.pitches
-        pc_pitches: list[Pitch] = [Pitch(p.key_num % 12, p.alt) for p in pitches]
-        pc_set = frozenset(p.key_num % 12 for p in pc_pitches)
+        pc_pitches: list[Pitch] = [Pitch(p.midi_num % 12, p.alt) for p in pitches]
+        pc_set = frozenset(p.midi_num % 12 for p in pc_pitches)
 
         # try each member as potential root
         matches: list[tuple[Pitch, str]] = []
         for candidate_root in pc_set:
             intervals = tuple(sorted((pc - candidate_root) % 12 for pc in pc_set))
             key = frozenset(intervals)
-            if key in _INTERVAL_SET_TO_QUALITY:
-                matches.append((Pitch(candidate_root), _INTERVAL_SET_TO_QUALITY[key]))
+            if key in INTERVAL_SET_TO_QUALITY:
+                matches.append((Pitch(candidate_root), INTERVAL_SET_TO_QUALITY[key]))
 
         chord = cls.__new__(cls)
         chord.key  = None
@@ -471,16 +547,16 @@ class Chord:
         Helper to try and identify quality from self.pitches, trying each member as root."""
         if not self.pitches:
             return None
-        pc_set = frozenset(int(p.key_num) % 12 for p in self.pitches)
+        pc_set = frozenset(int(p.midi_num) % 12 for p in self.pitches)
         # try root first if known
         candidates = (
-            [int(self.root.key_num) % 12] if self.root is not None
-            else [int(p.key_num) % 12 for p in self.pitches]
+            [int(self.root.midi_num) % 12] if self.root is not None
+            else [int(p.midi_num) % 12 for p in self.pitches]
         )
         for r in candidates:
             intervals = frozenset(sorted((pc - r) % 12 for pc in pc_set))
-            if intervals in _INTERVAL_SET_TO_QUALITY:
-                return _INTERVAL_SET_TO_QUALITY[intervals]
+            if intervals in INTERVAL_SET_TO_QUALITY:
+                return INTERVAL_SET_TO_QUALITY[intervals]
         return None
 
     def _infer_root(self) -> Optional[Pitch]:
@@ -491,8 +567,8 @@ class Chord:
             return None
         target = frozenset(QUALITIES[self.quality])
         for p in self.pitches:
-            r = int(p.key_num) % 12
-            intervals = frozenset((int(q.key_num) % 12 - r) % 12 for q in self.pitches)
+            r = int(p.midi_num) % 12
+            intervals = frozenset((int(q.midi_num) % 12 - r) % 12 for q in self.pitches)
             if intervals == target:
                 return Pitch(r)
         return None
@@ -502,7 +578,7 @@ class Chord:
         """Sorted list of pitch classes, or None if pitches unknown."""
         if self.pitches is None:
             return None
-        return sorted(set(int(p.key_num) % 12 for p in self.pitches))
+        return sorted(set(int(p.midi_num) % 12 for p in self.pitches))
 
     @property
     def pitch_class_vector(self) -> Optional[tuple[int, ...]]:
@@ -519,11 +595,11 @@ class Chord:
         return [p.name for p in self.pitches]
 
     def __contains__(self, item: Union[str, int, Pitch]) -> bool:
-        pc = _parse_root(item).key_num % 12
+        pc = _parse_root(item).midi_num % 12
         if self.pitches is not None:
-            return any(int(p.key_num) % 12 == pc for p in self.pitches)
+            return any(int(p.midi_num) % 12 == pc for p in self.pitches)
         if self.root is not None and self.quality is not None:
-            root_pc = int(self.root.key_num) % 12
+            root_pc = int(self.root.midi_num) % 12
             return ((pc - root_pc) % 12) in QUALITIES[self.quality]
         return False
 
@@ -538,16 +614,28 @@ class Chord:
         """Semitone intervals above the root, or None if root unknown."""
         if self.root is None or self.pitches is None:
             return None
-        r = int(self.root.key_num) % 12
-        return tuple(sorted((int(p.key_num) % 12 - r) % 12 for p in self.pitches))
+        r = int(self.root.midi_num) % 12
+        return tuple(sorted((int(p.midi_num) % 12 - r) % 12 for p in self.pitches))
 
     @property
     def inversion(self) -> Optional[int]:
-        """0 = root position, 1 = first inversion, etc.; None if undetermined."""
-        if self.root is None or self.pitches is None or not self.pitches:
+        """
+        0 = root position, 1 = first inversion, etc.
+
+        None if undetermined.
+
+        Prefers `self.bass` when set
+        (e.g., via `from_roman`'s figured-bass parsing, or an explicit slash chord).
+        """
+        if self.root is None:
             return None
-        bass_pc = int(self.pitches[0].key_num) % 12
-        root_pc = int(self.root.key_num) % 12
+        bass_pitch = self.bass if self.bass is not None else (
+            self.pitches[0] if self.pitches else None
+        )
+        if bass_pitch is None:
+            return None
+        bass_pc = int(bass_pitch.midi_num) % 12
+        root_pc = int(self.root.midi_num) % 12
         if bass_pc == root_pc:
             return 0
         if self.intervals is None:
@@ -595,8 +683,8 @@ class Chord:
 
         bass_str = ""
         if self.bass is not None:
-            bass_pc = int(self.bass.key_num) % 12
-            root_pc = int(self.root.key_num) % 12
+            bass_pc = int(self.bass.midi_num) % 12
+            root_pc = int(self.root.midi_num) % 12
             if bass_pc != root_pc:
                 bass_str = f"/{self.bass.name}"
 
@@ -608,7 +696,7 @@ class Chord:
             return None
 
         scale, tonic_pc = _parse_key(key)
-        root_pc  = int(self.root.key_num) % 12
+        root_pc  = int(self.root.midi_num) % 12
         interval = (root_pc - tonic_pc) % 12
 
         if interval not in scale:
@@ -653,7 +741,7 @@ class Chord:
                 or (
                     self.root is not None
                     and other.root is not None
-                    and self.root.key_num % 12 == other.root.key_num % 12
+                    and self.root.midi_num % 12 == other.root.midi_num % 12
                 )
             )
             and self.quality == other.quality
@@ -661,7 +749,7 @@ class Chord:
 
     def __hash__(self) -> int:
         pcs = tuple(self.pitch_class_set or [])
-        root_pc = int(self.root.key_num) % 12 if self.root is not None else None
+        root_pc = int(self.root.midi_num) % 12 if self.root is not None else None
         return hash((pcs, root_pc, self.quality))
 
 

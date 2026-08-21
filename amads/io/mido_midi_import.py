@@ -216,6 +216,27 @@ _KEY_TO_SHARPS: dict[str, int] = {
 }
 
 
+def _mido_show(mid: mido.MidiFile, filename: str | Path) -> None:
+    """Print a text summary of the MIDI file to stdout."""
+    print(f"MIDI file: {filename}")
+    print(
+        f"  type={mid.type}, ticks_per_beat={mid.ticks_per_beat}, "
+        f"tracks={len(mid.tracks)}"
+    )
+    for i, track in enumerate(mid.tracks):
+        label = ""
+        for msg in track:
+            if hasattr(msg, "name") and msg.type == "track_name":
+                label = f" ({msg.name})"
+                break
+        print(f"  Track {i}{label}: {len(track)} messages")
+        cummulative = 0
+        for msg in track:
+            cummulative += msg.time
+            cum_qtrs = cummulative / mid.ticks_per_beat
+            print(f"    {cum_qtrs:.3f} qtrs: {msg}")
+
+
 def _parse_meta_track(
     track: mido.MidiTrack,
     tpb: int,
@@ -363,8 +384,6 @@ def _create_measures(
     cur_beat: float = 0.0
 
     k = 0  # index into ks_changes
-    kbeat = ks_changes[k][0] if k < len(ks_changes) else score_duration + 999
-
     i = 0
     while i <= len(ts_changes):
         tbeat = ts_changes[i][0] if i < len(ts_changes) else score_duration
@@ -373,16 +392,16 @@ def _create_measures(
             measure = Measure(onset=cur_beat, duration=cur_duration)
             staff.insert(measure)
 
-            # Insert key signature into this measure if one is due
-            if k < len(ks_changes) and cur_beat > kbeat - 1e-6:
+            # Insert key signature into this measure if one is due. If there
+            # are multiple key signatures due, insert only the last one.
+            while (
+                k + 1 < len(ks_changes)
+                and cur_beat > ks_changes[k + 1][0] - 1e-6
+            ):
+                k = k + 1  # skip to the next key signature change at this time
+            if k < len(ks_changes) and cur_beat > ks_changes[k][0] - 1e-6:
                 _ = KeySignature(measure, cur_beat, ks_changes[k][1])
                 k += 1
-                kbeat = (
-                    ks_changes[k][0]
-                    if k < len(ks_changes)
-                    else score_duration + 999
-                )
-
             cur_beat += cur_duration
 
         # Advance to the next time signature
@@ -433,11 +452,11 @@ def _add_notes_to_measures(
                 m_insert_i = mi + 1
                 m_insert = measures[m_insert_i]
                 note.onset = m_insert.onset
-                note.duration = offset - note.onset
+                note._duration = offset - note.onset
             remaining = 0.0
             if note.offset > m_insert.offset:  # note crosses measure boundary
                 remaining = note.offset - m_insert.offset
-                note.duration = m_insert.offset - note.onset
+                note._duration = m_insert.offset - note.onset
             m_insert.insert(note)
 
             next_i = m_insert_i + 1
@@ -455,23 +474,8 @@ def _add_notes_to_measures(
                 prev_note.tie = tied_note
                 prev_note = tied_note
                 next_i += 1
-                remaining -= tied_note.duration
+                remaining -= tied_note._duration
             i += 1
-
-
-def _mido_show(mid: mido.MidiFile, filename: str | Path) -> None:
-    """Print a text summary of a MIDO MidiFile to stdout."""
-    print(f"MIDI file: {filename}")
-    print(
-        f"  type={mid.type}  ticks_per_beat={mid.ticks_per_beat}"
-        f"  tracks={len(mid.tracks)}"
-    )
-    for i, track in enumerate(mid.tracks):
-        print(f"  Track {i}: {len(track)} messages")
-        for msg in track[:20]:
-            print(f"    {msg}")
-        if len(track) > 20:
-            print(f"    ... ({len(track) - 20} more messages)")
 
 
 def mido_midi_import(
@@ -481,6 +485,7 @@ def mido_midi_import(
     collapse: bool = False,
     show: bool = False,
     group_by_instrument: bool = True,
+    ignore_hidden=False,
 ) -> Score:
     """Import a MIDI file and return an AMADS ``Score`` using the MIDO library.
 
@@ -505,6 +510,9 @@ def mido_midi_import(
     group_by_instrument : bool, optional
         If True (default), tracks with the same instrument name are merged
         as multiple Staffs under one Part.
+    ignore_hidden: bool
+        Unused in MIDI import. See read_score() for details.
+
 
     Returns
     -------
@@ -516,8 +524,8 @@ def mido_midi_import(
     >>> from amads.io.readscore import read_score, set_preferred_midi_reader
     >>> from amads.io.readscore import set_reader_warning_level
     >>> from amads.music import example
-    >>> set_preferred_midi_reader("mido")  # already the default
-    'mido'
+    >>> # 'mido' is already the default, but make sure it is set as expected
+    >>> _ = set_preferred_midi_reader("mido")
     >>> _ = set_reader_warning_level("default")
     >>> score = read_score(example.fullpath("midi/sarabande.mid"),
     ...                    flatten=True)  # doctest: +ELLIPSIS
