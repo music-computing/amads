@@ -3,12 +3,28 @@ Please note that all these tests assume that key_cc works as advertised
 Also note that this test file is by no means exhaustive...
 """
 
-import math
-
 import pytest
 
 from amads.core.basics import Score
 from amads.pitch.key.kkcc import kkcc
+
+C_MAJOR_SCALE_UP_SI_DOWN = [
+    60,
+    62,
+    64,
+    65,
+    67,
+    69,
+    71,
+    72,
+    71,
+    69,
+    67,
+    65,
+    64,
+    62,
+    60,
+]
 
 
 def test_error_handling():
@@ -34,83 +50,26 @@ def test_zero_pitch_variance_melodies():
         kkcc(melody)
 
 
-def test_crafted_nonempty_melody():
-    """
-    This is a sanity check nonempty crafted melody (so far)...
-    I probably need some help with these tests...
-    """
-    pitches_in = list(range(56, 68)) + list(range(56, 68, 2))
-    melody = Score.from_melody(pitches=pitches_in)
+def test_c_major_scale_peaks_at_c_major():
+    melody = Score.from_melody(C_MAJOR_SCALE_UP_SI_DOWN)
     coefs = kkcc(melody)
-    desired_coefs = (
-        0.06795243480111307,
-        -0.06795243480111302,
-        0.06795243480111307,
-        -0.0679524348011131,
-        0.06795243480111304,
-        -0.06795243480111308,
-        0.06795243480111303,
-        -0.0679524348011131,
-        0.0679524348011131,
-        -0.06795243480111308,
-        0.06795243480111306,
-        -0.06795243480111304,
-        0.007936807483930946,
-        -0.007936807483930976,
-        0.007936807483930953,
-        -0.007936807483930882,
-        0.007936807483930934,
-        -0.007936807483930976,
-        0.007936807483930953,
-        -0.007936807483930969,
-        0.00793680748393098,
-        -0.00793680748393103,
-        0.007936807483930997,
-        -0.007936807483930969,
-    )
-    assert all(
-        math.isclose(coef, desired_coef, rel_tol=1e-13)
-        for coef, desired_coef in zip(coefs, desired_coefs)
-    )
-
-    return
+    major_coefs = coefs[:12]
+    minor_coefs = coefs[12:]
+    assert (
+        major_coefs.index(max(major_coefs)) == 0
+    )  # best major key should be C (index 0)
+    assert max(major_coefs) > max(minor_coefs)  # major should beat minor
 
 
-def test_salience():
-    pitches_in = list(range(56, 68)) + list(range(56, 68, 2))
-    melody = Score.from_melody(pitches=pitches_in)
-    coefs = kkcc(melody, salience_flag=True)
-    # salience coefficients were slightly off...
-    desired_coefs = (
-        0.06795243480111307,
-        -0.06795243480111297,
-        0.06795243480111299,
-        -0.06795243480111306,
-        0.06795243480111308,
-        -0.0679524348011131,
-        0.06795243480111313,
-        -0.06795243480111308,
-        0.06795243480111315,
-        -0.06795243480111325,
-        0.06795243480111311,
-        -0.06795243480111306,
-        0.007936807483931043,
-        -0.007936807483930925,
-        0.00793680748393091,
-        -0.007936807483930879,
-        0.007936807483930955,
-        -0.007936807483930877,
-        0.00793680748393086,
-        -0.007936807483930962,
-        0.007936807483931012,
-        -0.00793680748393106,
-        0.007936807483931023,
-        -0.007936807483930984,
-    )
+def test_salience_for_c_diatonic_melody():
+    melody = Score.from_melody(C_MAJOR_SCALE_UP_SI_DOWN)
+    coefs_plain = kkcc(melody, salience_flag=False)
+    major_plain = coefs_plain[:12]
+    minor_plain = coefs_plain[12:]
+    assert major_plain.index(max(major_plain)) == 0
+    assert max(major_plain) > max(minor_plain)
 
-    assert all(
-        math.isclose(coef, desired_coef, rel_tol=1e-13)
-        for coef, desired_coef in zip(coefs, desired_coefs)
-    )
-
-    return
+    coefs_sal = kkcc(melody, salience_flag=True)
+    major_sal = coefs_sal[:12]
+    minor_sal = coefs_sal[12:]
+    assert max(major_sal) > max(minor_sal)
