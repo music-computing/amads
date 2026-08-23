@@ -1239,7 +1239,7 @@ class TimeSignature:
     Parameters
     ----------
     quarters : float
-        The time in quarters of the TimeSignature.
+        The score time in quarters of the TimeSignature.
     upper : Optional[float]
         The “numerator” of the key signature: subdivisions units per
         measure, a number, which may be a fraction. Default is 4.
@@ -1252,7 +1252,7 @@ class TimeSignature:
     Attributes
     ----------
     quarters : float
-        The time in quarters of the TimeSignature
+        The score time in quarters of the TimeSignature
     upper : float
         The "numerator" of the key signature: subdivisions per measure.
     lower : int
@@ -1262,7 +1262,8 @@ class TimeSignature:
     upper: float
     lower: int
 
-    def __init__(self, quarters: float, upper: float = 4.0, lower: int = 4):
+    def __init__(self, quarters: float = 0.0,
+                 upper: float = 4.0, lower: int = 4):
         self.quarters = quarters
         self.upper = upper
         self.lower = lower
@@ -1279,7 +1280,7 @@ class TimeSignature:
 
     @property
     def duration(self) -> float:
-        """Get duration in quarters.
+        """Get nominal duration in quarters.
 
         Returns
         -------
@@ -3080,7 +3081,7 @@ class Score(Concurrence):
         super().__init__(None, onset, duration, list(args))  # parent is None
         self.time_map = time_map if time_map else TimeMap()
         self.time_signatures = (
-                time_signatures if time_signatures else [TimeSignature(0)])
+                time_signatures if time_signatures else [TimeSignature()])
         self._units_are_seconds = False
 
 
@@ -4250,6 +4251,7 @@ class Part(EventGroup):
         List[Note]
             The sorted list of Notes with calculated IOIs and IOI-ratios.
         """
+        # need to sort in case the Part has Staffs
         notes : List[Note] = self.get_sorted_notes()
         do_ioi = "ioi" in what or "ioi_ratio" in what
         do_interval = "interval" in what
@@ -4266,22 +4268,20 @@ class Part(EventGroup):
                 notes[0].set("ioi_ratio", None)
             if do_interval:
                 notes[0].set("interval", None)
-    
+
+        ioi = 0.0
+        ioi_ratio = None
         prev_ioi : Optional[float] = None
         prev_note : Note = notes[0]
         for note in notes[1 : ]:
-            if do_ioi:
+            if note.onset != prev_note.onset:  # repeat values from previous
                 ioi = note.onset - prev_note.onset
-                if ioi <= 0:
-                    raise ValueError(
-                            "Part is not monophonic; cannot compute IOIs")
+                ioi_ratio = None if prev_ioi is None else ioi / prev_ioi 
+                prev_ioi = ioi
+            if do_ioi:                     # note that is simultaneous
                 note.set("ioi", ioi)
             if do_ioi_ratio:
-                if prev_ioi is None:
-                    note.set("ioi_ratio", None)
-                else:  # ignore typing because ioi is bound earlier:
-                    note.set("ioi_ratio", ioi / prev_ioi)  # type: ignore
-                prev_ioi = ioi  # type: ignore (ioi is bound if do_ioi) 
+                note.set("ioi_ratio", ioi_ratio)
             if do_interval:
                 note.set("interval", note.midi_num - prev_note.midi_num)
             prev_note = note
