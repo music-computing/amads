@@ -335,7 +335,8 @@ class Event:
 
     def _quantize_tied_notes(self, quantized_onset: float,
                              quantized_offset: float,
-                             divisions: int, ignore: List["Note"]) -> None:
+                             divisions: int, dur_divisions: int,
+                             ignore: List["Note"]) -> None:
         """Quantize a string of tied notes. onset becomes quantized_onset,
         final note ends at quantized_offset. Unnecessary notes are removed.
         To make sure notes are processed only once, tied-to notes are appended
@@ -350,6 +351,7 @@ class Event:
         notes: List["Note"] = []
         note = self
         while note is not None:
+            note = cast("Note", note)
             parent = note.parent
             parent.remove(note)  # type: ignore
             # now note has no parent, but later we might want to put the
@@ -372,20 +374,42 @@ class Event:
         # placing it beyond the measure duration.
         if quantized_offset < quantized_onset + 0.0001:  # type: ignore
             # keep the last note and give it a duration of one quantum
-            keep = notes.last
+            keep = notes[-1]
             keep.onset = quantized_onset
-            keep._duration = 1.0 / divisions
+            keep._duration = 1.0 / dur_divisions
             ignore.append(keep)  # ignore this when we get to it
-            quantized_offset += 1.0 / divisions
-            max_offset = round(keep.parent.offset * divisions) / divisions
-            if quantized_offset > max_offset + 0.0001:   # need to adjust the
-                quantized_offset = max_offset  # onset earlier within measure:
-                quantized_onset = max_offset - 1.0 / divisions
-            keep._duration = quantized_offset - quantized_onset
+            quantized_offset += 1.0 / dur_divisions
+            measure = keep.measure
+            if measure:
+                max_offset = measure.offset
+                # There's no clear right thing to do here. We want to
+                # quantize within the measure, but the measure could
+                # be shorter than the duration quantum, and onset
+                # quanta may be smaller than duration quanta. This
+                # algorithm "slides" the onset back one onset quantum
+                # at a time until the onset + duration <=
+                # parent.offset after having set duration to one
+                # duration quantum.
+                while quantized_offset > max_offset + 0.0001:
+                    quantized_onset -= 1.0 / divisions
+                    quantized_offset -= 1.0 /divisions
+                # we may be inside a chord -- adjust the chord
+                # time. The Chord onset is not necessily the note
+                # onset, and it's not clear whether the chord should
+                # be constrained to the note or quantized
+                # independently, so this will probably do some odd
+                # things if notes in the chord have different onsets
+                # or durations and get moved around differently. It is
+                # much simpler to flatten the score, removing ties,
+                # measures and chords.
+                if isinstance(keep.parent, Chord):
+                    chord = cast(Chord, keep.parent)
+                    chord.onset = quantized_onset
             keep.onset = quantized_onset
             # we saved the original parent in the parent attribute. To insert
             # into a parent, the parent attribute must be None:
             parent = keep.parent
+            parent = cast("EventGroup", parent)
             keep.parent = None
             parent.insert(keep)
             return
@@ -398,8 +422,8 @@ class Event:
         grace_notes = [note for note in notes if note._duration == 0]
         onset = quantized_onset
         for note in notes:
-            offset = (round((note.onset + note._duration) * divisions) / 
-                      divisions)
+            offset = (round((note.onset + note._duration) * dur_divisions) / 
+                      dur_divisions)
             note._duration = offset - onset
             note.onset = onset
             onset = offset  # offset is the onset of the next (tied-to) note
@@ -419,47 +443,55 @@ class Event:
         for i, note in enumerate(final_notes):
             if i < len(final_notes) - 1:
                 note.tie = final_notes[i + 1]
+            note = cast("Note", note)
             parent = note.parent
+            parent = cast("EventGroup", parent)
             note.parent = None
             parent.insert(note)
 
         # debug: print("After _quantize_tied_notes: final", final_notes)
 
 
-    def _quantize(self, divisions: int,
-                  ignore: Optional[List["Note"]]) -> None:
+    def _quantize(self, divisions: int, dur_divisions : int,
+                  ignore: List["Note"]) -> None:
         """Modify onset and offset to a multiple of divisions per quarter note.
 
-        This method modifies the Event in place. It also handles tied notes.
+        This method modifies the Event in place. It also handles tied notes
+        by quantizing the tied duration, which may result in the removal of
+        notes at the beginning and or ending of the tied chain.
 
-        E.g., use divisions=4 for sixteenth notes. If a
-        Note tied to or from other notes quantizes to a zero
-        duration, reduce the chain of tied notes to eliminate
-        zero-length notes. See Collection.quantize for
-        additional details.
+        Use divisions=4 for sixteenth notes. If a Note tied to or from
+        other notes quantizes to a zero duration, reduce the chain of
+        tied notes to eliminate zero-length notes. See
+        EventGroup.quantize for additional details.
 
         self.onset and self._duration must be non-None.
 
         Parameters
         ----------
         divisions : int
-            The number of divisions per quarter note, e.g., 4 for
-            sixteenths, to control quantization.
+        The number of divisions per quarter note, e.g., 4 for
+        sixteenths, to control quantization.
 
-        ignore : Optional[List["Note"]] = None
-            The list of tied-to notes to ignore during quantization because
-            they have already been quantized.
+        dur_divisions : int
+        The number of divisions per quarter note to use for duration
+        quantization.
+
+        ignore : List["Note"]
+        The list of tied-to notes to ignore during quantization because
+        they have already been quantized.
 
         Returns
         -------
         Event
-            self, after quantization.
+        self, after quantization.
         """
         if self._onset is None or self._duration is None:
             raise ValueError(
                 "Cannot quantize Event with None onset or _duration")
         quantized_onset = round(self.onset * divisions) / divisions
-        quantized_offset = round(self.offset * divisions) / divisions
+        quantized_offset = (quantized_onset + 
+                round(self.duration * dur_divisions) / dur_divisions)
 
         # tied note cases: Given any two tied notes where the first has a
         # quantized duration of zero, we want to eliminate the first one
@@ -488,7 +520,7 @@ class Event:
                 return
             elif self.tie:
                 self._quantize_tied_notes(quantized_onset, quantized_offset,
-                                          divisions, ignore)  # type: ignore
+                           divisions, dur_divisions, ignore)  # type: ignore
                 return
             # else not tied or ignored, so quantize note below
 
@@ -498,12 +530,21 @@ class Event:
             self._duration = quantized_offset - self.onset  # type: ignore
             if self._duration == 0:  # do not allow duration to become zero:
                 self._duration = 1 / divisions
-                parent_offset = self.parent.offset  # type: ignore
-                max_offset = round(parent_offset * divisions) / divisions
-                if (not isinstance(self, (Score, Part, Staff, Measure)) and 
-                    quantized_offset > max_offset + 0.0001):
-                    # need to adjust the onset earlier within the parent:
-                    self.onset = max_offset - 1.0 / divisions
+                measure = self.measure
+                if (measure and
+                    not isinstance(self, (Score, Part, Staff, Measure))):
+                    max_offset = self.parent.offset  # type: ignore
+                    # same algorithm as in quantized tied notes: slide note
+                    # earlier to stay within parent bounds:
+                    while (not isinstance(self, (Score, Part, Staff, Measure)) and 
+                        quantized_offset > max_offset + 0.0001):
+                        # need to adjust the onset earlier within the parent:
+                        self.onset -= 1.0 / divisions
+                        quantized_offset -= 1.0 / divisions
+                if isinstance(self.parent, Chord):
+                    chord = cast(Chord, self.parent)
+                    chord.onset = quantized_onset
+
         # else: original zero duration remains zero after quantization
         return
 
@@ -1896,6 +1937,7 @@ class EventGroup(Event):
                     if include_tied_to_notes:
                         yield elem
                     else:  # ignore tied-to notes
+                        elem = cast(Note, elem)
                         if elem.tie:
                             ignore.append(elem.tie)
                         if elem in ignore:
@@ -1983,6 +2025,7 @@ class EventGroup(Event):
         """
         notes = self.find_all(Note)
         for note in notes:
+            note = cast(Note, note)
             if note.tie:
                 return True
         return False
@@ -2237,40 +2280,41 @@ class EventGroup(Event):
         return self._duration
 
 
-    def _quantize(self, divisions: int,
+    def _quantize(self, divisions: int, dur_divisions : int,
                   ignore: List["Note"]) -> "EventGroup":
         """"Since `_quantize` is called recursively on children, this method is
         needed to redirect `EventGroup._quantize` to `quantize`
         """
-        return self.quantize(divisions)
+        return self.quantize(divisions, dur_divisions, ignore)
 
 
-    def quantize(self, divisions: int,
+
+    def quantize(self, divisions: int, dur_divisions : Optional[int] = None,
                  ignore: Optional[List["Note"]] = None) -> "EventGroup":
         """Align onsets and durations to a rhythmic grid.
 
         Assumes time units are quarters. (See [Score.convert_to_quarters](
                 basics.md#amads.core.basics.Score.convert_to_quarters).)
 
-        Modify all times and durations to a multiple of divisions
-        per quarter note, e.g., 4 for sixteenth notes. Onsets and offsets
+        Modify all times and durations to a multiple of divisions per
+        quarter note, e.g., 4 for sixteenth notes. Onsets and offsets
         are moved to the nearest quantized time. Any resulting duration
         change is less than one quantum, but not necessarily less than
         0.5 quantum, since the onset and offset can round in opposite
-        directions by up to 0.5 quantum each. Any non-zero duration that would
-        quantize to zero duration gets a duration of one quantum since
-        zero duration is almost certainly going to cause notation and
-        visualization problems.
+        directions by up to 0.5 quantum each. Any non-zero duration that
+        would quantize to zero duration gets a duration of one duration
+        quantum since zero duration is almost certainly going to cause
+        notation and visualization problems.
         
         Special cases for zero duration:
 
         1. If the original duration is zero as in metadata or possibly
                grace notes, we preserve that.
-        2. If a tied note duration quantizes to zero, we remove the
-               tied note entirely provided some other note in the tied
-               sequence has non-zero duration. If all tied notes quantize
-               to zero, we keep the first one and set its duration to
-               one quantum.
+        2. Tied notes are treated as one: The onset and duration of the
+               tied chain is quantized. This may result in the removal of
+               the first and or last notes of the chain.
+        3. As stated above, notes or tied chains that would quantize
+               down to zero receive a duration of one duration quantum.
 
         This method modifies this EventGroup and all its content in place.
 
@@ -2290,6 +2334,11 @@ class EventGroup(Event):
             The number of divisions per quarter note, e.g., 4 for
             sixteenths, to control quantization.
 
+        dur_divisions : int
+            The number of divisions per quarter note, e.g., 4 for
+            sixteenths, to control quantization of durations. Defaults
+            to `divisions`.
+
         ignore: Optional[List["Note"]] = None
             The list of tied-to notes to ignore during quantization because
             they have already been quantized. Do not provide this parameter;
@@ -2301,16 +2350,19 @@ class EventGroup(Event):
             The EventGroup instance (self) with (modified in place) 
             quantized times.
         """
+        if dur_divisions is None:
+            dur_divisions = divisions
+
         if ignore is None:
             ignore = []
 
-        super()._quantize(divisions, ignore)
+        super()._quantize(divisions, dur_divisions, ignore)
         # iterating through content is tricky because we may delete a
         # Note, shifting the content:
         i = 0
         while i < len(self.content):
             event = self.content[i]
-            event._quantize(divisions, ignore)
+            event._quantize(divisions, dur_divisions, ignore)
             if event == self.content[i]:
                 i += 1
             # otherwise, we deleted event so the next event to
@@ -2447,6 +2499,7 @@ class EventGroup(Event):
             # the copied content, we set the copied note's tie to None to
             # truncate the note.
             for note in self.find_all(Note):
+                note = cast(Note, note)
                 if note.tie is not None: # note is copied, but it still
                     # references the original note. So pass original note
                     # to find_copied_version and update note.tie. There is
