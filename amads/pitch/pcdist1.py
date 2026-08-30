@@ -37,7 +37,7 @@ def duraccent(note: Note) -> float:
     float
         The durational accent value.
     """
-    accent = 1 - math.exp(-note.duration / 0.5) ** 2
+    accent = (1 - math.exp(-note.duration / 0.5)) ** 2
     return accent
 
 
