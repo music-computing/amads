@@ -29,3 +29,8 @@ def test_pitch_class_distribution_2_single_note_part_does_not_crash():
     dist = pitch_class_distribution_2(score, weighted=True)
     assert dist.dimensions == [12, 12]
     assert sum(v for row in dist.data for v in row) == 0.0
+
+
+if __name__ == "__main__":
+    test_pitch_class_distribution_2_weighted_does_not_crash()
+    test_pitch_class_distribution_2_single_note_part_does_not_crash()
