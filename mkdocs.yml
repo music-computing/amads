@@ -114,6 +114,7 @@ nav:
       - reference/melody/ambitus.md
       - reference/melody/tessitura.md
       - reference/melody/gradus.md
+      - reference/melody/narmour.md
     - Harmony:
       - reference/harmony/consonance.md
       - reference/harmony/root_finding.md

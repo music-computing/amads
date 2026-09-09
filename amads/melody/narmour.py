@@ -11,8 +11,6 @@ Original doc: github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.
 from collections.abc import Generator
 from enum import Enum
 
-import numpy as np
-
 from amads.core.basics import Note, Score
 
 
@@ -32,7 +30,7 @@ def _narmour_score_iter_internal(
     score: Score, annotation_str: str
 ) -> tuple[Generator[Note]] | None:
     """
-    note iterator generator specific to narmour principle calculation.
+    returns a note iterator generator specific to some narmour features.
     """
     check_note_iter = score.find_all(Note)
     obtained_notes = [next(check_note_iter, None) for _ in range(3)]
@@ -40,7 +38,11 @@ def _narmour_score_iter_internal(
         return None
     if not score.ismonophonic():
         return None
-    note_iters = (score.find_all(Note),) * 3
+    note_iters = (
+        score.find_all(Note),
+        score.find_all(Note),
+        score.find_all(Note),
+    )
     # advance the target iterators forward to where we want
     next(note_iters[1], None)
     next(note_iters[2], None)
@@ -59,6 +61,8 @@ def _registral_direction(score: Score) -> Score | None:
     else, if followed by change in direction, annotate with 1
     and if followed by same direction, annotate with -1
     (Thompson p. 248, Schellenberg 1996)
+
+    Implements the REGISTRAL_DIRECTION option.
 
     The annotated field within each note of the annotated score if successful
     is "narmour_registral_direction"
@@ -84,18 +88,16 @@ def _registral_direction(score: Score) -> Score | None:
     for notes in zip(*note_iters):
         current_diff = notes[1].midi_num - notes[0].midi_num
         next_diff = notes[2].midi_num - notes[1].midi_num
-        if abs(current_diff) <= small_interval_threshold:
+        if current_diff <= small_interval_threshold:
             notes[2].set(annotation_str, 0)
-        elif abs(
-            current_diff
-        ) > small_interval_threshold and _simple_int_sign_comparison(
-            current_diff, next_diff
+        elif (
+            current_diff > small_interval_threshold
+            and _simple_int_sign_comparison(current_diff, next_diff)
         ):
             notes[2].set(annotation_str, 1)
-        elif abs(
-            current_diff
-        ) > small_interval_threshold and not _simple_int_sign_comparison(
-            current_diff, next_diff
+        elif (
+            current_diff > small_interval_threshold
+            and not _simple_int_sign_comparison(current_diff, next_diff)
         ):
             notes[2].set(annotation_str, -1)
         else:
@@ -110,6 +112,8 @@ def _registral_return(score: Score) -> Score | None:
     first tone in the implied interval, 1 (or 1.5), others 0.
     Modifier of 1 is used in the version revised by Schellenberg (1996) and
     a better modifier (1.5, which is used) suggested by Schellengerg (1997).
+
+    Implements the REGISTRAL_RETURN option.
 
     The annotated field within each note of the annotated score if successful
     is "narmour_registral_return"
@@ -150,6 +154,8 @@ def _closure(score: Score) -> Score | None:
     if registral direction is the same, or smaller by two semitones otherwise).
     All events that satisfy this condition are assigned a score of 1, and all
     other events are assigned a score of 0.
+
+    Implements the CLOSURE option.
 
     The annotated field within each note of the annotated score if successful
     is "narmour_closure"
@@ -205,6 +211,8 @@ def _intervallic_difference(score: Score) -> Score | None:
     other events are assigned a value of 0.
     Derived from Schellenberg, 1997, p. 296-297).
 
+    Implements the INTERVALLIC_DIFFERENCE option.
+
     The annotated field within each note of the annotated score if successful
     is "narmour_intervallic_difference"
 
@@ -254,6 +262,11 @@ def _proximity(score: Score) -> Score | None:
     """
     Linear coding of pitch proximity.
 
+    Implements the PROXIMITY option.
+
+    The annotated field within each note of the annotated score if successful
+    is "narmour_proximity"
+
     Parameters
     ----------
     score : Score
@@ -275,22 +288,27 @@ def _proximity(score: Score) -> Score | None:
         return None
     if not score.ismonophonic():
         return None
-    note_iters = (score.find_all(Note),) * 2
+    note_iters = (score.find_all(Note), score.find_all(Note))
     first_note = next(note_iters[1], None)
     first_note.set(annotation_str, 0)
-    for notes in note_iters:
+    for notes in zip(*note_iters):
         current_diff = notes[1].midi_num - notes[0].midi_num
         notes[1].set(annotation_str, abs(current_diff))
 
     return score
 
 
-def _consonance(pitches: np.ndarray) -> np.ndarray:
+def _consonance(score: Score) -> Score | None:
     """
     Narmour's model under the consonance principle:
     if consonant with previous tone (see Krumhansl 1995
     "Effects of musical context on similarity and expectancy",
     Systematische musikwissenschaft or Krumhansl (1990), p. 57.
+
+    Implements the CONSONANCE option.
+
+    The annotated field within each note of the annotated score if successful
+    is "narmour_consonance"
 
     Parameters
     ----------
@@ -306,46 +324,73 @@ def _consonance(pitches: np.ndarray) -> np.ndarray:
         3 notes and is not monophonic
     """
     # Consonance ratings from Krumhansl (1995)
-    CONSONANCE_RATINGS = {
-        0: 1.0,  # unison
-        3: 0.6,  # minor third
-        4: 0.8,  # major third
-        5: 0.7,  # perfect fourth
-        7: 0.9,  # perfect fifth
-        8: 0.6,  # minor sixth
-        9: 0.7,  # major sixth
-        12: 0.9,  # octave
-    }
+    CONSONANCE_RATINGS = [
+        10,
+        1,
+        4.16,
+        6.03,
+        7.25,
+        8.03,
+        5.76,
+        9.16,
+        6.32,
+        7.76,
+        5.66,
+        3.8,
+    ]
+    annotation_str = "narmour_consonance"
 
-    expectations = np.full(len(pitches), np.nan)
-    for i in range(2, len(pitches)):
-        interval = abs(pitches[i] - pitches[i - 1]) % 12
-        expectations[i] = CONSONANCE_RATINGS.get(interval, 0.1)
-    return expectations
+    check_note_iter = score.find_all(Note)
+    obtained_notes = [next(check_note_iter, None) for _ in range(2)]
+    if not all(isinstance(note, Note) for note in obtained_notes):
+        return None
+    if not score.ismonophonic():
+        return None
+    note_iters = (score.find_all(Note), score.find_all(Note))
+    first_note = next(note_iters[1], None)
+    first_note.set(annotation_str, CONSONANCE_RATINGS[0])
+
+    for notes in zip(*note_iters):
+        rating_idx = abs(notes[1].midi_num - notes[0].midi_num) % 12
+        consonance_rating = CONSONANCE_RATINGS[rating_idx]
+        notes[1].set(annotation_str, consonance_rating)
+
+    return score
 
 
 class NarmourOption(Enum):
     """
     The specific principles and/or corrections to calculate for narmour.
 
+    The string values for all of these options contain their corresponding
+    note label string for when the call to narmour succeeds in processing a
+    score.
+
     Attributes
     ----------
-    REGISTRAL_DIRECTION: (Schellenberg 1997)
-    REGISTRAL_RETURN: (Schellenberg 1997)
-    INTERVALLIC_DIFFERENCE: intervallic difference
-    PROXIMITY: (Schellenberg 1997)
-    CONSONANCE: (Krumhansl 1995)
+    REGISTRAL_DIRECTION : (Schellenberg 1997)
+        Original 'rd' option from midi toolbox
+    REGISTRAL_RETURN : (Schellenberg 1997)
+        Original 'rr' option from midi toolbox
+    INTERVALLIC_DIFFERENCE : intervallic difference
+        Original 'id' option from midi toolbox
+    CLOSURE : closure
+        Original 'cl' option from midi toolbox
+    PROXIMITY : (Schellenberg 1997)
+        Original 'pr' option from midi toolbox
+    CONSONANCE : (Krumhansl 1995)
+        Original 'co' option from midi toolbox
     """
 
-    REGISTRAL_DIRECTION = "rd"
-    REGISTRAL_RETURN = "rr"
-    INTERVALLIC_DIFFERENCE = "id"
-    CLOSURE = "cl"
-    PROXIMITY = "pr"
-    CONSONANCE = "co"
+    REGISTRAL_DIRECTION = "narmour_registral_direction"
+    REGISTRAL_RETURN = "narmour_registral_return"
+    INTERVALLIC_DIFFERENCE = "narmour_intervallic_difference"
+    CLOSURE = "narmour_closure"
+    PROXIMITY = "narmour_proximity"
+    CONSONANCE = "narmour_consonance"
 
 
-def narmour(score: Score, principle: NarmourOption) -> Score:
+def narmour(score: Score, principle: NarmourOption) -> tuple[Score, str] | None:
     """
     Calculate prediction values for a trait in Narmour's Implication-realization
     model, and annotates the individual notes with their corresponding
@@ -357,6 +402,9 @@ def narmour(score: Score, principle: NarmourOption) -> Score:
     of melodic expectancy, including revisions by Schellenberg (1997) and
     Krumhansl (1995).
 
+    Please see the comments for the internal functions detailing what each
+    flavor of narmour is doing.
+
     Parameters
     ----------
     score : Score
@@ -366,11 +414,16 @@ def narmour(score: Score, principle: NarmourOption) -> Score:
 
     Returns
     -------
-    Score | None
-        Score where each note is annotated with a value calculated according
+    tuple[Score, str] | None
+        Returns 2 things if successful:
+        (1) Score where each note is annotated with a value calculated according
         to the desired narmour principle.
-        None if score does not satisfy the preconditions of having at least
-        3 notes and is not monophonic
+        (2) annotation string used to annotate the values obtained by that
+        particular narmour option.
+        Else:
+        None if score does not satisfy the preconditions of being monophonic
+        or if the score does not satisfy the preconditions necessary to calculate
+        the specified feature.
 
     References
     ----------
@@ -384,7 +437,7 @@ def narmour(score: Score, principle: NarmourOption) -> Score:
     """
 
     # Calculate expectations based on selected principle
-    principle_functions = {
+    feature_functions = {
         NarmourOption.REGISTRAL_DIRECTION: _registral_direction,
         NarmourOption.REGISTRAL_RETURN: _registral_return,
         NarmourOption.INTERVALLIC_DIFFERENCE: _intervallic_difference,
@@ -393,8 +446,12 @@ def narmour(score: Score, principle: NarmourOption) -> Score:
         NarmourOption.CONSONANCE: _consonance,
     }
 
-    principle_func = principle_functions.get(principle)
-    if principle_func is None:
+    feature_func = feature_functions.get(principle)
+    if feature_func is None:
+        return None
+    annotation_str = principle.value
+    result = feature_func(score)
+    if result is None:
         return None
 
-    return principle_func(score)
+    return (result, annotation_str)
