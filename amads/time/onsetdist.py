@@ -65,8 +65,11 @@ def onset_distribution(
         ignore_extrema=False
     )
 
-    for m in score.find_all(Measure):
-        for n in m.find_all(Note):
+    for n in score.find_all(Note):
+        m = n.parent
+        
+        # discards Notes that are not contained within a Measure
+        if isinstance(m, Measure):
             h.add_point(n.onset - m.onset, weight=n.duration)
     
     return Distribution(
