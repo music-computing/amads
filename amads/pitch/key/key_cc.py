@@ -168,9 +168,7 @@ def _compute_correlations(
         Correlation coefficients
     """
     # Combine pcd and profile matrix for correlation computation
-    combined_matrix = np.concatenate(
-        (pcd, profile_matrix), axis=0
-    )  # shape (25, 12)
+    combined_matrix = np.concatenate((pcd, profile_matrix), axis=0)
     correlation_matrix = np.corrcoef(combined_matrix)
 
     # Extract correlations between pcd (first row) and all profiles

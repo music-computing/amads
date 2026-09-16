@@ -1,7 +1,7 @@
 """
 Maximal correlation value's attribute and index pair from key_cc algorithm.
 
-Corresponds to kkkey in miditoolbox.
+Corresponds to ``kkkey`` in the Matlab MIDI Toolbox.
 
 Reference
 ---------
@@ -15,8 +15,6 @@ from amads.core.basics import Score
 from amads.pitch.key import profiles as prof
 from amads.pitch.key.key_cc import key_cc
 
-# TODO: include exceptions comments
-
 
 def kkkey(
     score: Score,
@@ -27,7 +25,8 @@ def kkkey(
     """
     Finds the pitch profile with the highest correlation value.
 
-    This is an implementation of the kkkey function in the Matlab MIDItoolbox.
+    This is an implementation of the ``kkkey`` function in the Matlab MIDI
+    Toolbox.
 
     Within `profile` there are multiple profiles named by attributes.
     This function returns the "best" attribute (string) and the best
@@ -52,9 +51,17 @@ def kkkey(
     tuple[str, int]
         The attribute name and key with the highest correlation coefficient.
 
+    Raises
+    ------
+    RuntimeError
+        Propagated from ``key_cc`` when correlations cannot be computed (for
+        example, a score with zero pitch-class variance or equal weights).
+
     See Also
     --------
-    key_cc
+    key_cc : Cross-correlations with key profiles.
+    keycode_from_kkkey : Convert AMADS ``kkkey`` output to key codes 1--24.
+    keyname : Convert key codes to key-name strings.
     """
     corrcoef_pairs = key_cc(score, profile, attribute_names, salience_flag)
     # list of pairs (attribute_name, [correlation coefficients])

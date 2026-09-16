@@ -79,7 +79,7 @@ def pitch_class_distribution_1(
     score = cast(Score, score.merge_tied_notes())
     if weighted:
         score.convert_to_seconds()  # need seconds for duraccent calculation
-    initial_value = 1e-12 if miditoolbox_compatible else 0.0
+    initial_value = 0.0
     bin_centers = [float(i) for i in range(12)]  # 25 bins from -12 to +12
     xcategories = CHROMATIC_NAMES
     h = Histogram1D(bin_centers, None, "linear", False, initial_value)

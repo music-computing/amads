@@ -1,5 +1,5 @@
-from amads.algorithms.dropshortnotes import dropshortnotes
 from amads.core.basics import Note, Part, Score
+from amads.time.dropshortnotes import dropshortnotes
 
 
 def test_dropshortnotes_basic():

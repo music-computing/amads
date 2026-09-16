@@ -1,1 +1,0 @@
-::: amads.algorithms.dropshortnotes.dropshortnotes

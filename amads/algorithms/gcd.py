@@ -194,12 +194,15 @@ def calculate_gcd(numbers: Sequence, max_denominator: int = 10**12) -> Fraction:
 
     Parameters
     ----------
-    numbers
+    numbers : Sequence[int | float | Fraction]
         Sequence of any numeric values (int and/or float and/or Fraction).
-    max_denominator
+    max_denominator : int
         Upper bound on the denominator used when snapping the float-derived
         result back to an exact `Fraction` for the return.
         Only applies when at least one float is present in `numbers`.
+
+    Examples
+    --------
 
     >>> calculate_gcd([1, 2])
     Fraction(1, 1)
