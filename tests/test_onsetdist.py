@@ -70,5 +70,5 @@ def test_onsetdist_tied():
         divisions=n_divisions,
     )
 
-    assert result.data[round((n1.onset - m.onset) * n_divisions)] == n1.tied_duration + n2.duration
+    assert result.data[round((n1.onset - m.onset) * n_divisions)] == n1.duration + n2.duration
     assert result.data[round((n3.onset - m.onset) * n_divisions)] == 0
