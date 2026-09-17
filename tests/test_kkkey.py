@@ -20,12 +20,10 @@ def test_zero_pitch_variance_melodies():
     return
 
 
-def test_crafted_nonempty_melody():
-    """
-    This is a sanity check using a simple C# major scale
-    """
+def test_c_sharp_major_scale_peaks_at_c_sharp_major():
+    """C# major scale should win at C# under the Krumhansl--Kessler templates."""
     pitches_in = [61, 63, 65, 66, 68, 70, 72, 73]
-    melody = Score.from_melody(pitches=pitches_in)  # type: ignore
+    melody = Score.from_melody(pitches=pitches_in)
     max_coef_pair = kkkey(melody)
     desired_result = ("major", 1)  # C# is key number 1
     assert max_coef_pair == desired_result

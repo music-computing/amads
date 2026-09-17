@@ -1,6 +1,19 @@
 """
 Pitch class usage profiles (PCP) from the literature.
 
+MIDI Toolbox ``refstat`` names for 12-element key profiles map to module-level
+instances below (use ``.major`` / ``.minor`` [PitchProfile][amads.pitch.key.profiles.PitchProfile] ``.data``):
+
+- ``kkmaj`` / ``kkmin`` → ``krumhansl_kessler`` (Krumhansl & Kessler, 1982)
+- ``kkmajt`` / ``kkmint`` → ``temperley`` (Temperley, 1999 revision)
+- ``kkmaj_as`` / ``kkmin_as`` → ``albrecht_shanahan`` (Albrecht & Shanahan, 2013)
+
+Other ``refstat`` statistics (Essen pitch-class counts, interval matrices,
+duration distributions, and so on) live in dedicated modules such as
+``pcdist1``, ``ivdist1``, and ``durdist1`` rather than here. Use
+[tonality][amads.pitch.key.tonality.tonality] with a [KeyProfile][amads.pitch.key.profiles.KeyProfile] directly instead of
+``refstat``.
+
 In almost all cases reported here, keys are assumed to be
 transpositionally equivalent, so the first (0th) entry is the tonic,
 and no key-specific information is given.  The exception is QuinnWhite

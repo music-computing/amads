@@ -1,26 +1,21 @@
-Design Considerations
-=====================
+# Design Considerations
 
 This document is an early design document, probably supplanted by
 other documentation, but reviewed and converted to Markdown on
 10 Jan 2026, so it should be accurate.
 
-Terminology and Structure
--------------------------
+## Terminology and Structure
 
 - `onset` refers to the start time of a note or other event.
-
 - `offset` refers to the ending time of a note or other event.
-
 - `duration` refers to `offset - onset`
-
 - Scores are hierarchical, but all nodes and leaves represent
-  `onset` directly in absolute beat or time (not relative to the
-  onset time of the parent). The end time is called `offset` and is
-  computed as onset + duration.  (Note that in contexts outside of
-  AMADS, "offset" is a synonym for "displacement," which is
-  essentially a "delta" or "difference," so be careful not to be
-  confused: "onset" is the beginning, "offset" is the ending!)
+`onset` directly in absolute beat or time (not relative to the
+onset time of the parent). The end time is called `offset` and is
+computed as onset + duration.  (Note that in contexts outside of
+AMADS, "offset" is a synonym for "displacement," which is
+essentially a "delta" or "difference," so be careful not to be
+confused: "onset" is the beginning, "offset" is the ending!)
 
 The use of absolute onset times makes it relatively expensive to shift
 an object in time. E.g. to move a measure to a later time, you must
@@ -61,8 +56,7 @@ the onset time of the next appended element.
 Pitch is structured and includes a representation of accidentals, so
 AMADS can disambiguate between Bb and A#, for example.
 
-Time
-----
+## Time
 
 Time is normally measured in quarters, regardless of the meter. So a
 measure in 4/16 time has a duration of 1 (not 4). Scores have a tempo
@@ -91,9 +85,7 @@ cache the location of the previous lookup in case the next one is
 nearby. Thus, we can expect to make a single pass through the
 `TimeMap` to convert each `Staff` and its children.
 
-
-Immutable Scores
-----------------
+## Immutable Scores
 
 In general, music structures in AMADS are immutable. This means that
 once you read or construct a score, you can extract data and reformat
@@ -140,9 +132,7 @@ declared attributes. We consider `info` to be mutable, so analysis
 algorithms and their users should be careful to avoid overwriting
 information there.
 
-
-Basic Representation and Simplifications
-----------------------------------------
+## Basic Representation and Simplifications
 
 The “standard” score has parts representing instrumental parts. Each
 part has 1 or more staves (e.g. a piano part would ordinarily have 2
@@ -161,24 +151,19 @@ All this hierarchy can get in the way, so we allow various
 simplifications:
 
 - Tied notes can be replaced by single notes, with durations that may
-  extend beyond a measure boundary (`merge_tied_notes()` method)
-
+extend beyond a measure boundary (`merge_tied_notes()` method)
 - Rests can be removed (`remove_rests()` method)
-
 - Staves within each part can be collapsed to a single staff
-  (currently, no method does just this)
-
+(currently, no method does just this)
 - Chords can be removed, moving notes “up” into measures
-  (`expand_chords()` method)
-
+(`expand_chords()` method)
 - Staves, measures and chords can be removed and all "leaf" notes
-  moved directly into parts (`flatten()` method, which additionally
-  removes ties as in `merge_tied_notes()` since there are no more
-  explicit measures)
-
+moved directly into parts (`flatten()` method, which additionally
+removes ties as in `merge_tied_notes()` since there are no more
+explicit measures)
 - Multiple parts can be combined into a single part (`merge_part()`
-  method, but this also does `flatten()` which implies
-  `merge_tied_notes()`)
+method, but this also does `flatten()` which implies
+`merge_tied_notes()`)
 
 So there are lots of variations all having to do with removing
 different hierarchies. We considered a hierarchy of representations,
