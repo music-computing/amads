@@ -14,7 +14,6 @@ __author__ = ["Tai Nakamura", "Di Wang"]
 
 import math
 from dataclasses import fields
-from typing import List, Optional, Tuple
 
 import numpy as np
 
@@ -26,9 +25,10 @@ from amads.pitch.pcdist1 import pitch_class_distribution_1
 def key_cc(
     score: Score,
     profile: prof.KeyProfile = prof.krumhansl_kessler,
-    attribute_names: Optional[List[str]] = None,
+    attribute_names: list[str] | None = None,
     salience_flag: bool = False,
-) -> List[Tuple[str, Optional[Tuple[float]]]]:
+    miditoolbox_compatible=False,
+) -> list[tuple[str, tuple[float] | None]]:
     """
     Calculate the correlation coefficients with specific pitch profiles.
 
@@ -61,7 +61,7 @@ def key_cc(
     profile: prof.KeyProfile
         The key profile to use for analysis.
 
-    attribute_names: Optional[List[str]]
+    attribute_names: list[str] | None
         List of attribute names that denote the particular PitchProfiles
         within the KeyProfile to compute correlations for. An example
         `attribute_names` for profile prof.vuvan could be
@@ -75,9 +75,13 @@ def key_cc(
         If True, apply salience pitch-wise bias weights to the score's
         pitch-class distribution.
 
+    miditoolbox_compatible : bool
+        If True, uses the original MIDI Toolbox method of calculation.
+        Default is False.
+
     Returns
     -------
-    List[Tuple[str, Optional[Tuple[float]]]]
+    list[tuple[str, tuple[float] | None]]
         A list of tuples where each tuple contains the attribute name, from
         parameter `attribute_names`, and the corresponding 12-tuple of
         correlation coefficients. If an attribute name does not reference
@@ -91,8 +95,12 @@ def key_cc(
         resulting in correlation not being able to be computed.
     """
 
+    pcd_data = pitch_class_distribution_1(
+        score, miditoolbox_compatible=miditoolbox_compatible
+    ).data
+
     # Get pitch-class distribution
-    pcd = np.array([pitch_class_distribution_1(score, weighted=False).data])
+    pcd = np.array([pcd_data])
 
     # Apply salience weighting if requested
     if salience_flag:

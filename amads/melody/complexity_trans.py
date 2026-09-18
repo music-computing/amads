@@ -14,7 +14,7 @@ import numpy as np
 from amads.algorithms.nnotes import nnotes
 from amads.core.basics import Note, Score
 from amads.core.distribution import Distribution
-from amads.core.pitch import CHROMATIC_NAMES, NUM_PITCH_CLASSES
+from amads.core.pitch import CHROMATIC_NAMES
 
 """
 Simonton's pitch-transition probabilities (summarized from 15618 classical music
@@ -97,7 +97,7 @@ simonton_transition_dist = Distribution(
     name="Simonton (1984)",
     data=_simonton_transitions,
     distribution_type="pitch_class_transition",
-    dimensions=(NUM_PITCH_CLASSES, NUM_PITCH_CLASSES),
+    dimensions=(12, 12),
     x_categories=CHROMATIC_NAMES,
     x_label="Starting Pitch Class",
     y_categories=CHROMATIC_NAMES,

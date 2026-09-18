@@ -82,7 +82,13 @@ def kkcc(
     assert isinstance(profile, profiles.KeyProfile)
     assert len(attribute_list) == 2
 
-    corrcoef_pairs = key_cc(score, profile, attribute_list, salience_flag)
+    corrcoef_pairs = key_cc(
+        score,
+        profile,
+        attribute_list,
+        salience_flag,
+        miditoolbox_compatible=True,
+    )
     # check integrity of corrcoef correspondences and whether or not they abide
     # to the output agreed on in key_cc
     assert len(corrcoef_pairs) == len(attribute_list)
