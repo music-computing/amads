@@ -65,7 +65,7 @@ def kkcc(
     profile = None
     attribute_list = None
     if profile_name == "KRUMHANSL-KESSLER":
-        profile = profiles.krumhansl_kessler
+        profile = profiles.miditoolbox_kkprof
         attribute_list = ["major", "minor"]
     elif profile_name == "TEMPERLEY":
         profile = profiles.temperley

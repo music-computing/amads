@@ -623,6 +623,52 @@ class KrumhanslKessler(KeyProfile):
 
 
 @dataclass
+class MidiToolbox_kkprof(KeyProfile):
+    name: str = "Test Profile (used in MidiToolbox under the name kkprofs)"
+    literature: str = "kkprofs profile values in MidiToolbox1.1"
+    about: str = (
+        "This test profile corresponds to the kkprofs profile in "
+        "miditoolbox1.1. It is included separately from Krumhansl Kessler "
+        "because it is slightly inconsistent from a normalized "
+        "krumhansl-kessler profile, which was its original intention"
+    )
+    major: PitchProfile = PitchProfile(
+        "miditoolbox_kkprof.major",
+        (
+            0.39,
+            0.14,
+            0.21,
+            0.14,
+            0.27,
+            0.25,
+            0.15,
+            0.32,
+            0.15,
+            0.22,
+            0.14,
+            0.18,
+        ),
+    )
+    minor: PitchProfile = PitchProfile(
+        "miditoolbox_kkprof.minor",
+        (
+            0.38,
+            0.16,
+            0.21,
+            0.32,
+            0.15,
+            0.21,
+            0.15,
+            0.28,
+            0.24,
+            0.16,
+            0.2,
+            0.19,
+        ),
+    )
+
+
+@dataclass
 class KrumhanslSchmuckler(KeyProfile):
     name: str = "KrumhanslSchmuckler"
     literature: str = "Krumhansl (1990)"
@@ -1587,6 +1633,7 @@ albrecht_shanahan = AlbrechtShanahan()
 bellman_budge = BellmanBudge()
 declerq_temperley = DeClerqTemperley()
 krumhansl_kessler = KrumhanslKessler()
+miditoolbox_kkprof = MidiToolbox_kkprof()
 krumhansl_schmuckler = KrumhanslSchmuckler()
 prince_schmuckler = PrinceSchumuckler()
 quinn_white = QuinnWhite()
