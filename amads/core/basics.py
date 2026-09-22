@@ -1756,6 +1756,37 @@ class EventGroup(Event):
         return self
 
 
+    def pitch_shift(self, semitones: float) -> "EventGroup":
+        """
+        Shift the pitch of every pitched note by a given value of semitones.
+
+        All note-heads in tied groups are updated. Unpitched notes
+        are skipped. KeySignatures and other non-Note
+        events are stay put. 
+
+        For transforming pitch lists expressed as integers (MIDI numbers or pitch classes),
+        see `amads.pitch.transformations.transpose_by`. Unlike that function, this method
+        updates `Note` pitches in the score in place.
+
+        Parameters
+        ----------
+        semitones : float
+            How far to shift the pitch, in semitones (1 per MIDI note).
+
+        Returns
+        -------
+        EventGroup
+            The object. This method modifies the `EventGroup`.
+        """
+        for note in self.find_all(Note, include_tied_to_notes=True):
+            note = cast(Note, note)
+            if note.pitch is None:
+                continue
+            keynum, alt = note.pitch.as_tuple()
+            note.pitch = Pitch(keynum + semitones, alt)
+        return self
+
+
     def _convert_to_seconds(self, time_map: TimeMap) -> None:
         """Convert the event's duration and onset to seconds using the
         provided TimeMap. Convert content as well.
