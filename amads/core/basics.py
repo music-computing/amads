@@ -1785,12 +1785,13 @@ class EventGroup(Event):
         Shift the pitch of every pitched note by a given value of semitones.
 
         All note-heads in tied groups are updated. Unpitched notes
-        are skipped. KeySignatures and other non-Note
-        events are stay put. 
+        are skipped. KeySignatures and other non-Note events stay put.
 
-        For transforming pitch lists expressed as integers (MIDI numbers or pitch classes),
-        see `amads.pitch.transformations.transpose_by`. Unlike that function, this method
-        updates `Note` pitches in the score in place.
+        For transforming pitch lists expressed as integers (MIDI numbers
+        or pitch classes), see
+        [transpose_by][amads.pitch.transformations.transpose_by].
+        Unlike that function, this method updates `Note` pitches in the
+        score in place.
 
         Parameters
         ----------

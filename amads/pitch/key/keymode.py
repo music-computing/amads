@@ -40,9 +40,10 @@ def keymode(
     attribute_names: Optional[List[str]]
         List of attribute names that denote the particular PitchProfiles
         within the KeyProfile and generally indicate different modes.
-        See profiles.py for more details.
+        See [profiles][amads.pitch.key.profiles] for more details.
     salience_flag: bool
-        Indicate whether we want to turn on salience weights in key_cc
+        Indicate whether we want to turn on salience weights in
+        [key_cc][amads.pitch.key.key_cc.key_cc]
         which is used to compute the cross-correlations.
 
     Returns
@@ -53,7 +54,7 @@ def keymode(
 
     See Also
     --------
-    key_cc
+    - [key_cc][amads.pitch.key.key_cc.key_cc]
     """
 
     # This algorithm is not very efficient: It computes 12 correlations
