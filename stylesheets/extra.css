@@ -1,0 +1,172 @@
+:root {
+    --amads-big-font-size: 20px;
+    --amads-bigger-font-size: 24px;
+}
+
+/* top level heading for contents on left */
+.md-nav__link, .md-nav__title {
+    font-size: 0.85rem !important;
+    font-weight: 1000 !important;
+}
+
+.md-nav--secondary > .md-nav__list > .md-nav__item > .md-nav__link {
+    font-size: 0.7rem !important;
+    color: var(--md-default-fg-color--light);
+    font-weight: normal !important;
+}
+
+.md-nav--secondary > .md-nav__list > .md-nav__item > .md-nav__link:not(:has(code)) {
+    font-size: 0.7rem !important;
+    color: var(--md-default-fg-color--light);
+    font-weight: bold !important;
+}
+
+.md-nav--secondary > .md-nav__list > .md-nav__item > .md-nav__link--passed:not(:has(code)) {
+    font-size: 0.7rem !important;
+    color: var(--md-default-fg-color--light);
+    font-weight: bold !important;
+}
+
+/* Target 3rd-level nav items (section headings under "API Reference") */
+.md-nav--primary > .md-nav__list > .md-nav__item .md-nav__list > .md-nav__item > .md-nav__link {
+    font-size: 0.8rem !important;
+    font-weight: 800 !important;
+}
+
+/* Target 4th-level nav items (subheadings under sections) */
+.md-nav--primary > .md-nav__list > .md-nav__item .md-nav__list > .md-nav__item .md-nav__list .md-nav__link {
+    font-size: 0.7rem !important;
+    color: var(--md-default-fg-color--light);
+    font-weight: normal !important;
+}
+
+
+/* Experiment: */
+/* Add module path before class/function names */
+.doc-heading::after {
+  content: " [" attr(id) "]";
+  font-size: 0.8em;
+  color: #777;
+  font-weight: normal;
+}
+
+.doc-heading-parameter::after {
+    content: "";
+}
+
+.doc-heading-property::after {
+    content: "";
+}
+
+p {
+    margin-top: 0.25rem;
+    margin-bottom: 0.5rem; /* Default is usually 1rem */
+}
+
+p:has(.doc-section-title) {
+    margin-bottom: 0rem;
+}
+
+
+.md-typeset ul {
+    margin-top: 0.25rem;
+    margin-bottom: 0.5rem !important; /* Default is usually 1rem */
+}
+
+p .doc-section-title {
+    /* I couldn't figure this out: without the display property, you can
+     * increase margin-top or padding-top and the margin will just overlap
+     * the text above and the spacing will not change. Claude suggested 
+     * inline-block, which changes the behavior to increase spacing. It
+     * does not seem like the "correct" way to do it though.
+     */
+    display: inline-block !important;
+    margin-top: 0.25rem !important;
+    margin-bottom: 0rem !important;
+}
+
+/* If you need to target the class keyword specifically */
+.doc-heading .doc-symbol-class,
+.doc-heading .doc-symbol-module,
+.doc-heading .doc-symbol-attribute,
+.doc-heading .doc-symbol-method {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  font-weight: 700;
+  color: #008800 !important; /* Green for class name */
+  font-size: var(--amads-bigger-font-size);
+}
+
+code.doc-symbol-attribute::after
+{
+    content: "prop";
+}
+
+h3 code.doc-symbol-method {
+  font-size: var(--amads-big-font-size) !important;
+  background-color: transparent !important;
+}
+
+code.doc-symbol-class {
+  background-color: transparent !important;
+}
+
+code.doc-symbol-heading {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  background-color: transparent;
+  font-weight: 700;
+  font-size: var(--amads-big-font-size);
+}
+
+.md-typeset h1 {
+    font-weight: 400;  /* default from mkdocs was 300, seemed a little thin */
+}
+
+.md-typeset h2.doc.doc-heading {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  font-weight: 700;
+  color: #0066bb;
+  font-size: var(--amads-bigger-font-size);
+  background-color: #eee;
+}
+
+.md-typeset h3.doc {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  font-weight: 700;
+  color: #0066bb;
+  background-color: #eee;
+  font-size: var(--amads-big-font-size);
+}
+
+/* Target div with both classes */
+div.doc-signature.highlight {
+  background-color: #fff598 !important;
+  --md-code-bg-color: transparent; /* remove the gray that is used by <code> */
+  --md-code-hl-function-color: #0066bb;
+}
+
+div.doc-signature.highlight .nf {
+  font-size: 16px !important;
+  font-weight: bold;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+div.doc-signature.highlight .p,
+div.doc-signature.highlight .n {
+  font-size: 16px !important;
+}
+
+div.doc-attribute div.doc-signature.highlight {
+/*  background-color: #eee !important; */
+}
+
+.md-typeset h4.doc {
+  font-size: var(--amads-big-font-size);
+}
+
+/* For attributes, we want the name to be highlighted, but it uses span.n just
+   like the type. Target the first span.n (attribute name)
+ */
+.doc-signature .n:first-of-type {
+  font-weight: bold !important;
+  color: #0066cc !important;
+}
