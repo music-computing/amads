@@ -1168,6 +1168,30 @@ class Note(Event):
         return self.pitch.midi_num  # type: ignore (not None)
 
 
+    def pitch_shift(self, semitones: float) -> "Note":
+        """
+        Shift this note's pitch by a given number of semitones.
+
+        This method does not follow `tie`; only this note is updated.
+        Tied groups should be shifted via `EventGroup.pitch_shift`.
+
+        Parameters
+        ----------
+        semitones : float
+            How far to shift the pitch, in semitones (1 per MIDI note).
+
+        Returns
+        -------
+        Note
+            The object. This method modifies the `Note`.
+        """
+        if self.pitch is None:
+            return self
+        keynum, alt = self.pitch.as_tuple()
+        self.pitch = Pitch(keynum + semitones, alt)
+        return self
+
+
     def enharmonic(self) -> "Pitch":
         """Return a `Pitch` representing the enharmonic.
 
@@ -1753,6 +1777,34 @@ class EventGroup(Event):
             self._onset = max(0.0, self._onset + increment)
         for elem in self.content:
             elem.time_shift(increment, content_only)
+        return self
+
+
+    def pitch_shift(self, semitones: float) -> "EventGroup":
+        """
+        Shift the pitch of every pitched note by a given value of semitones.
+
+        All note-heads in tied groups are updated. Unpitched notes
+        are skipped. KeySignatures and other non-Note events stay put.
+
+        For transforming pitch lists expressed as integers (MIDI numbers
+        or pitch classes), see
+        [transpose_by][amads.pitch.transformations.transpose_by].
+        Unlike that function, this method updates `Note` pitches in the
+        score in place.
+
+        Parameters
+        ----------
+        semitones : float
+            How far to shift the pitch, in semitones (1 per MIDI note).
+
+        Returns
+        -------
+        EventGroup
+            The object. This method modifies the `EventGroup`.
+        """
+        for note in self.find_all(Note, include_tied_to_notes=True):
+            cast(Note, note).pitch_shift(semitones)
         return self
 
 
