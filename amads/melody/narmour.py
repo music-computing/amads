@@ -8,8 +8,10 @@ Ports the `narmour` function from Midi Toolbox.
 Original doc: github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf, page 77.
 """
 
-from collections.abc import Generator
+from collections import deque
+from collections.abc import Iterator
 from enum import Enum
+from itertools import islice, pairwise, tee
 
 from amads.core.basics import Note, Score
 
@@ -18,6 +20,19 @@ def _simple_int_sign_comparison(val1: int, val2: int) -> bool:
     """
     super simple comparison that checks if the two integer values are of the
     same sign
+
+    Parameters
+    ----------
+    val1: int
+        Integer to compare signage
+    val2: int
+        Integer to compare signage
+
+    Returns
+    -------
+    bool
+        True if both integers are of the same sign (or are both 0)
+        False otherwise
     """
     return (
         (val1 == 0 and val2 == 0)
@@ -26,31 +41,63 @@ def _simple_int_sign_comparison(val1: int, val2: int) -> bool:
     )
 
 
-def _narmour_score_iter_internal(
+def _sliding_window(iterator: Iterator, n: int) -> Iterator:
+    """
+    Collect data of an iterator into a sliding window of fixed length.
+    Returns the data in overlapping fixed-length chunks or blocks.
+    e.g. sliding_window(iter('ABCDEFG'), 3) → ABC BCD CDE DEF EFG
+
+    Parameters
+    ----------
+    iterator: Iterator
+        iterator to return sliding window of.
+    n: int
+        length of the sliding window
+
+    Yields
+    -------
+    An n-tuple of consecutive elements from the original iterator
+    """
+    window = deque(islice(iterator, n - 1), maxlen=n)
+    for x in iterator:
+        window.append(x)
+        yield tuple(window)
+
+
+def _narmour_preprocess_score_internal(
     score: Score, annotation_str: str
-) -> tuple[Generator[Note]] | None:
+) -> Iterator[tuple[Note]] | None:
     """
-    returns a note iterator generator specific to some narmour features.
+    Does a few checks that are relevant to certain narmour options,
+    and returns an iterator useful for calculating those features.
+
+    Parameters
+    ----------
+    score: Score
+        score to be preprocessed. Must be monophonic and has at least 3 notes.
+    annotation_str:
+        string annotation label
+
+    Returns
+    -------
+    Iterator[tuple[Note]] | None
+        returns a sliding-window note iterator of length 3 specific to some
+        narmour features if the internal requirements are passed
+        Otherwise None
     """
-    check_note_iter = score.find_all(Note)
-    obtained_notes = [next(check_note_iter, None) for _ in range(3)]
-    if not all(isinstance(note, Note) for note in obtained_notes):
+    note_iter = score.find_all(Note)
+    note_iter, first_slice_iter = tee(note_iter)
+    minimum_score_length = 3
+    obtained_notes = list(islice(first_slice_iter, minimum_score_length))
+    if len(obtained_notes) != minimum_score_length:
         return None
     if not score.ismonophonic():
         return None
-    note_iters = (
-        score.find_all(Note),
-        score.find_all(Note),
-        score.find_all(Note),
-    )
-    # advance the target iterators forward to where we want
-    next(note_iters[1], None)
-    next(note_iters[2], None)
-    next(note_iters[2], None)
-
-    for note, _ in zip(obtained_notes, range(2)):
+    # code pattern obtained from sliding_window itertools documentation
+    for note in obtained_notes[:2]:
         note.set(annotation_str, 0)
-    return note_iters
+
+    return _sliding_window(note_iter, 3)
 
 
 def _registral_direction(score: Score) -> Score | None:
@@ -82,10 +129,12 @@ def _registral_direction(score: Score) -> Score | None:
     """
     annotation_str = "narmour_registral_direction"
     small_interval_threshold = 6
-    note_iters = _narmour_score_iter_internal(score, annotation_str)
-    if note_iters is None:
+    notes_window_iter = _narmour_preprocess_score_internal(
+        score, annotation_str
+    )
+    if notes_window_iter is None:
         return None
-    for notes in zip(*note_iters):
+    for notes in notes_window_iter:
         current_diff = notes[1].midi_num - notes[0].midi_num
         next_diff = notes[2].midi_num - notes[1].midi_num
         if current_diff <= small_interval_threshold:
@@ -134,10 +183,12 @@ def _registral_return(score: Score) -> Score | None:
     annotation_str = "narmour_registral_return"
     interval_symmetry_check_threshold = 2
     interval_symmetry_modifier = 1.5
-    note_iters = _narmour_score_iter_internal(score, annotation_str)
-    if note_iters is None:
+    notes_window_iter = _narmour_preprocess_score_internal(
+        score, annotation_str
+    )
+    if notes_window_iter is None:
         return None
-    for notes in zip(*note_iters):
+    for notes in notes_window_iter:
         current_diff = notes[1].midi_num - notes[0].midi_num
         next_diff = notes[2].midi_num - notes[1].midi_num
         if abs(current_diff + next_diff) <= interval_symmetry_check_threshold:
@@ -174,10 +225,12 @@ def _closure(score: Score) -> Score | None:
         3 notes and is not monophonic
     """
     annotation_str = "narmour_closure"
-    note_iters = _narmour_score_iter_internal(score, annotation_str)
-    if note_iters is None:
+    notes_window_iter = _narmour_preprocess_score_internal(
+        score, annotation_str
+    )
+    if notes_window_iter is None:
         return None
-    for notes in zip(*note_iters):
+    for notes in notes_window_iter:
         current_diff = notes[1].midi_num - notes[0].midi_num
         next_diff = notes[2].midi_num - notes[1].midi_num
         sign_compare_diffs = _simple_int_sign_comparison(
@@ -231,10 +284,12 @@ def _intervallic_difference(score: Score) -> Score | None:
     """
     annotation_str = "narmour_intervallic_difference"
     small_interval_threshold = 6
-    note_iters = _narmour_score_iter_internal(score, annotation_str)
-    if note_iters is None:
+    notes_window_iter = _narmour_preprocess_score_internal(
+        score, annotation_str
+    )
+    if notes_window_iter is None:
         return None
-    for notes in zip(*note_iters):
+    for notes in notes_window_iter:
         current_diff = notes[1].midi_num - notes[0].midi_num
         next_diff = notes[2].midi_num - notes[1].midi_num
         sign_compare_diffs = _simple_int_sign_comparison(
@@ -281,17 +336,16 @@ def _proximity(score: Score) -> Score | None:
         2 notes and is not monophonic
     """
     annotation_str = "narmour_proximity"
-
-    check_note_iter = score.find_all(Note)
-    obtained_notes = [next(check_note_iter, None) for _ in range(2)]
-    if not all(isinstance(note, Note) for note in obtained_notes):
-        return None
     if not score.ismonophonic():
         return None
-    note_iters = (score.find_all(Note), score.find_all(Note))
-    first_note = next(note_iters[1], None)
-    first_note.set(annotation_str, 0)
-    for notes in zip(*note_iters):
+
+    note_iter = score.find_all(Note)
+    check_note_iter, note_iter = tee(note_iter)
+    obtained_notes = list(islice(check_note_iter, 2))
+    if len(obtained_notes) != 2:
+        return None
+    obtained_notes[0].set(annotation_str, 0)
+    for notes in pairwise(note_iter):
         current_diff = notes[1].midi_num - notes[0].midi_num
         notes[1].set(annotation_str, abs(current_diff))
 
@@ -340,17 +394,16 @@ def _consonance(score: Score) -> Score | None:
     ]
     annotation_str = "narmour_consonance"
 
-    check_note_iter = score.find_all(Note)
-    obtained_notes = [next(check_note_iter, None) for _ in range(2)]
-    if not all(isinstance(note, Note) for note in obtained_notes):
+    note_iter = score.find_all(Note)
+    note_iter, check_note_iter = tee(note_iter)
+    obtained_notes = list(islice(check_note_iter, 2))
+    if len(obtained_notes) != 2:
         return None
     if not score.ismonophonic():
         return None
-    note_iters = (score.find_all(Note), score.find_all(Note))
-    first_note = next(note_iters[1], None)
-    first_note.set(annotation_str, CONSONANCE_RATINGS[0])
+    obtained_notes[0].set(annotation_str, CONSONANCE_RATINGS[0])
 
-    for notes in zip(*note_iters):
+    for notes in pairwise(note_iter):
         rating_idx = abs(notes[1].midi_num - notes[0].midi_num) % 12
         consonance_rating = CONSONANCE_RATINGS[rating_idx]
         notes[1].set(annotation_str, consonance_rating)

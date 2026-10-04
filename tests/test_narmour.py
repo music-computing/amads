@@ -1,7 +1,9 @@
 from amads.core.basics import Note, Score
-from amads.io.pm_midi_import import pretty_midi_import
 from amads.melody.narmour import NarmourOption, narmour
-from amads.music import example
+from tests.matlab_crosstesting_utils import (
+    load_json_results,
+    matlab_sarabande_test_score,
+)
 
 
 def obtain_annotation_values_sequence(
@@ -78,42 +80,17 @@ def test_direction_changing_melody():
 
 
 def test_matlab_sarabande():
-    score = pretty_midi_import(
-        example.fullpath("midi/sarabande.mid"), "midi", flatten=True
-    )
-
-    # obtain first 10 notes
-    notes_list = []
-    for idx, note in enumerate(score.find_all(Note)):
-        if idx >= 10:
-            break
-        notes_list.append(note)
-    pitches = [note.pitch for note in notes_list]
-    durations = [note.duration for note in notes_list]
-    onsets = [note.onset for note in notes_list]
-    time_map = score.time_map
-    time_signatures = score.time_signatures
-
-    test_score = Score.from_melody(
-        pitches=pitches,
-        durations=durations,
-        onsets=onsets,
-    )
-    assert hasattr(test_score, "time_map") and hasattr(
-        test_score, "time_signatures"
-    )
-    test_score.time_map = time_map
-    test_score.time_signatures = time_signatures
+    matlab_dict = load_json_results()
     matlab_results = [
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 1.5, 0],
-        [0, 0, 1, 1, 0, 0, 0, 1, 1, 1],
-        [0, 0, 0, 0, 1, 2, 1, 0, 1, 0],
-        [0, 2, 1, 4, 8, 1, 4, 1, 2, 2],
-        [10, 4.16, 1, 7.25, 6.32, 1, 7.25, 1, 4.16, 4.16],
+        matlab_dict["narmour_rd"],
+        matlab_dict["narmour_rr"],
+        matlab_dict["narmour_id"],
+        matlab_dict["narmour_cl"],
+        matlab_dict["narmour_pr"],
+        matlab_dict["narmour_co"],
     ]
     for option, matlab_result in zip(NarmourOption, matlab_results):
-        test_score, label = narmour(test_score, option)
+        test_score, label = narmour(matlab_sarabande_test_score, option)
         test_result = obtain_annotation_values_sequence(test_score, Note, label)
         assert all(
             desired == test for desired, test in zip(matlab_result, test_result)

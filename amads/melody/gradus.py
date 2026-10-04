@@ -11,6 +11,8 @@ Original doc: github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.
 
 __author__ = "Yiwen Zhao"
 
+from itertools import pairwise, tee
+
 from amads.core.basics import Note, Score
 
 _gradus_interval_ratios = [
@@ -94,13 +96,13 @@ def gradus(score: Score) -> float | None:
            systematic musicology. Berlin: Springer.
     """
 
-    current_note_iter = score.find_all(Note)
-    next_note_iter = score.find_all(Note)
+    note_iter = score.find_all(Note)
+    note_iter, next_note_iter = tee(note_iter)
     if next(next_note_iter, None) is None:
         return None
     gradus_sum = 0
     num_intervals = 0
-    for current_note, next_note in zip(current_note_iter, next_note_iter):
+    for current_note, next_note in pairwise(note_iter):
         interval = next_note.midi_num - current_note.midi_num
         # interval processed to be within an octave and always positive.
         processed_interval = abs(interval) % 12

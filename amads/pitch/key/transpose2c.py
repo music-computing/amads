@@ -42,7 +42,7 @@ def transpose2c(score: Score, profile_name: str = "KRUMHANSL-KESSLER") -> Score:
         return score.copy()
     corr_vals = kkcc(score, profile_name)
 
-    key_idx = corr_vals.index(max(corr_vals)) % 12
+    key_idx = corr_vals.index(max(corr_vals))
     # TODO: need to use pitch_shift which is to be implemented in Score
     score_copy = score.copy()
     for note in score_copy.find_all(Note):

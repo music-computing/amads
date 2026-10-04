@@ -9,6 +9,8 @@ Ports the `compltrans` function in Midi Toolbox.
 Original doc: github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf, page 55.
 """
 
+from itertools import pairwise, tee
+
 import numpy as np
 
 from amads.algorithms.nnotes import nnotes
@@ -145,15 +147,14 @@ def complexity_trans(score: Score) -> float | None:
         return None
 
     note_iter = score.find_all(Note)
-    next_note_iter = score.find_all(Note)
+    note_iter, next_note_iter = tee(note_iter)
     if next(next_note_iter, None) is None:
         return None
     pitch_transition_sums = np.zeros(simonton_transition_dist.dimensions)
-    for note, next_note in zip(note_iter, next_note_iter):
+    for note, next_note in pairwise(note_iter):
         assert isinstance(note, Note) and isinstance(next_note, Note)
         current_pc = note.pitch_class
         next_pc = next_note.pitch_class
-        print(f"{current_pc}, {next_pc}")
         pitch_transition_sums[current_pc, next_pc] += 1
 
     simonton_dist_data = np.array(simonton_transition_dist.data)
