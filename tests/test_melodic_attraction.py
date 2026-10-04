@@ -1,18 +1,13 @@
 import math
 
+from score_test_utils import get_annotation_values_iterator
+
 from amads.core.basics import Note, Score
 from amads.melody.melodic_attraction import melodic_attraction
 from tests.matlab_crosstesting_utils import (
     load_json_results,
     matlab_sarabande_test_score,
 )
-
-
-def _get_value_list_from_notes(score: Score, annotation_str: str) -> list:
-    value_list = []
-    for note in score.find_all(Note):
-        value_list.append(note.get(annotation_str, None))
-    return value_list
 
 
 def test_simple_score_sequences():
@@ -35,12 +30,12 @@ def test_simple_score_sequences():
     for test_melody, desired_list in zip(test_melodies, desired_results):
         test_score = Score.from_melody(test_melody)
         transposed_score = melodic_attraction(test_score)
-        value_list = _get_value_list_from_notes(
-            transposed_score, "melodic_attraction"
+        value_iter = get_annotation_values_iterator(
+            transposed_score, Note, "melodic_attraction"
         )
         assert all(
             math.isclose(value, desired)
-            for value, desired in zip(value_list, desired_list)
+            for value, desired in zip(value_iter, desired_list)
         )
 
 
@@ -49,16 +44,16 @@ def test_edge_cases():
     assert melodic_attraction(empty_score) is None
     single_note_score = Score.from_melody([60])
     transposed_score = melodic_attraction(single_note_score)
-    value_list = _get_value_list_from_notes(
-        transposed_score, "melodic_attraction"
+    value_iter = get_annotation_values_iterator(
+        transposed_score, Note, "melodic_attraction"
     )
-    assert value_list == [0.0]
+    assert list(value_iter) == [0.0]
 
 
 def test_matlab_sarabande():
     transposed_score = melodic_attraction(matlab_sarabande_test_score)
-    value_list = _get_value_list_from_notes(
-        transposed_score, "melodic_attraction"
+    value_list = get_annotation_values_iterator(
+        transposed_score, Note, "melodic_attraction"
     )
     desired_list = load_json_results()["melattraction"]
     assert all(

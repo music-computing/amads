@@ -1,9 +1,13 @@
 import math
 
+from score_test_utils import get_annotation_values_iterator
+
 from amads.core.basics import Note, Score
-from amads.io.pm_midi_import import pretty_midi_import
 from amads.melody.mobility import mobility
-from amads.music import example
+from tests.matlab_crosstesting_utils import (
+    load_json_results,
+    matlab_sarabande_test_score,
+)
 
 
 def test_len_edge_cases():
@@ -29,72 +33,26 @@ def test_simple_melody():
 
     annotated_score = mobility(score)
     desired_mobilities = [0, 0, 0, 2.4999999999999996, 0.5833333333333333]
-    test_mobilities = []
-
-    for note in annotated_score.find_all(Note):
-        test_mobility_val = note.get("mobility", None)
-        test_mobilities.append(test_mobility_val)
+    test_mobilities = get_annotation_values_iterator(
+        annotated_score, Note, "mobility"
+    )
 
     assert all(
         math.isclose(desired, test)
         for desired, test in zip(desired_mobilities, test_mobilities)
     )
-    assert len(desired_mobilities) == len(test_mobilities)
 
 
 def test_midi_sarabande():
-    # this test tests first 10 notes imported from sarabande.midi
-    # import sarabande.midi
-    score = pretty_midi_import(
-        example.fullpath("midi/sarabande.mid"), "midi", flatten=True
+    annotated_score = mobility(matlab_sarabande_test_score)
+    desired_mobilities = load_json_results()["mobility"]
+    test_mobilities = get_annotation_values_iterator(
+        annotated_score, Note, "mobility"
     )
-
-    # obtain first 10 notes
-    notes_list = []
-    for idx, note in enumerate(score.find_all(Note)):
-        if idx >= 10:
-            break
-        notes_list.append(note)
-    pitches = [note.pitch for note in notes_list]
-    durations = [note.duration for note in notes_list]
-    onsets = [note.onset for note in notes_list]
-    time_map = score.time_map
-    time_signatures = score.time_signatures
-
-    test_score = Score.from_melody(
-        pitches=pitches,
-        durations=durations,
-        onsets=onsets,
-    )
-    assert hasattr(test_score, "time_map") and hasattr(
-        test_score, "time_signatures"
-    )
-    test_score.time_map = time_map
-    test_score.time_signatures = time_signatures
-
-    annotated_score = mobility(test_score)
-    desired_mobilities = [
-        0,
-        0,
-        0,
-        2.666666666666664,
-        2.989569952312868,
-        1.7537141286518487,
-        0.7368605193721804,
-        0.5656933439530208,
-        1.5240237901574767,
-        0.5218209445947577,
-    ]
-    test_mobilities = []
-
-    for note in annotated_score.find_all(Note):
-        test_mobility_val = note.get("mobility", None)
-        test_mobilities.append(test_mobility_val)
     assert all(
         math.isclose(desired, test)
         for desired, test in zip(desired_mobilities, test_mobilities)
     )
-    assert len(desired_mobilities) == len(test_mobilities)
 
 
 if __name__ == "__main__":

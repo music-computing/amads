@@ -1,3 +1,5 @@
+from score_test_utils import get_annotation_values_iterator
+
 from amads.core.basics import Note, Score
 from amads.melody.melodic_accent import melodic_accent
 
@@ -17,12 +19,15 @@ def test_melodic_peak():
     # Create a test score
     score = Score.from_melody([60, 64, 62])
 
-    melodic_accent(score)
+    annotated_score = melodic_accent(score)
     desired_accents = [1, 0.83, 0.17]
     property = "melodic_accent"
+    annotated_iter = get_annotation_values_iterator(
+        annotated_score, Note, property
+    )
     assert all(
-        note.get(property=property, default=None) == desired
-        for note, desired in zip(score.find_all(Note), desired_accents)
+        test_val == desired
+        for test_val, desired in zip(annotated_iter, desired_accents)
     )
 
 
@@ -32,12 +37,15 @@ def test_melodic_valley():
     """
     score = Score.from_melody([64, 60, 65])
 
-    melodic_accent(score)
+    annotated_score = melodic_accent(score)
     desired_accents = [1, 0.71, 0.29]
     property = "melodic_accent"
+    annotated_iter = get_annotation_values_iterator(
+        annotated_score, Note, property
+    )
     assert all(
-        note.get(property=property, default=None) == desired
-        for note, desired in zip(score.find_all(Note), desired_accents)
+        test_val == desired
+        for test_val, desired in zip(annotated_iter, desired_accents)
     )
 
 

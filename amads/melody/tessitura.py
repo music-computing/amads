@@ -116,7 +116,7 @@ def _tessitura_miditoolbox(score: Score) -> Score | None:
     Annotates the score with the tessitura constraint as specified by the
     miditoolbox implementation.
 
-    Each note is annotated with "tessitura_ebm" if successful.
+    Each note is annotated with "tessitura_mtb" if successful.
 
     Parameters
     ----------
@@ -129,6 +129,7 @@ def _tessitura_miditoolbox(score: Score) -> Score | None:
         An annotated score where each note is annotated with the given tessitura
         values. Or None if the score does not satisfy the preconditions.
     """
+    annotation_str = "tessitura_mtb"
     note_iter = score.find_all(Note)
     start_note = next(note_iter, None)
     # Handle empty score
@@ -138,27 +139,26 @@ def _tessitura_miditoolbox(score: Score) -> Score | None:
         return None
 
     # preprocess starting note
-    median_tracker = _RunningMedian()
-    median_tracker.insert_integer(start_note.midi_num)
     stdev_tracker = _WelfordStdDev()
     stdev_tracker.add_sample(start_note.midi_num)
-    start_note.set("tessitura_mtb", 0)
+    start_note.set(annotation_str, 0)
+    running_median = start_note.midi_num
     for idx, note in enumerate(note_iter):
         current_pitch = note.midi_num
         if idx == 0:
             tessitura_val = 0
         else:
             # obtain median
-            current_median = median_tracker.obtain_current_median()
+            current_median = running_median
             # implement welford's algo here to bring this function down to
             # O(nlogn)
             current_stdev = stdev_tracker.obtain_current_stdev()
             tessitura_val = abs(
                 (current_pitch - current_median) / current_stdev
             )
-        note.set("tessitura_mtb", tessitura_val)
+        note.set(annotation_str, tessitura_val)
         # update running totals
-        median_tracker.insert_integer(current_pitch)
+        running_median = note.midi_num
         stdev_tracker.add_sample(note.midi_num)
 
     return score
@@ -182,6 +182,7 @@ def _tessitura_paper(score: Score) -> Score | None:
         An annotated score where each note is annotated with the given tessitura
         values. Or None if the score does not satisfy the preconditions.
     """
+    annotation_str = "tessitura"
     note_iter = score.find_all(Note)
     start_note = next(note_iter, None)
     # Handle empty score
@@ -199,7 +200,7 @@ def _tessitura_paper(score: Score) -> Score | None:
     pitch_mean = statistics.mean(note.midi_num for note in score.find_all(Note))
     for note in score.find_all(Note):
         tessitura_val = (note.midi_num - pitch_mean) / pitch_stdev
-        note.set("tessitura", abs(tessitura_val))
+        note.set(annotation_str, abs(tessitura_val))
 
     return score
 
