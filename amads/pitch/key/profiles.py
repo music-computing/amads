@@ -624,13 +624,14 @@ class KrumhanslKessler(KeyProfile):
 
 @dataclass
 class MidiToolbox_kkprof(KeyProfile):
-    name: str = "Test Profile (used in MidiToolbox under the name kkprofs)"
+    name: str = "MidiToolbox Test Profile (used in MidiToolbox under the name "
+    "'kkprofs')"
     literature: str = "kkprofs profile values in MidiToolbox1.1"
     about: str = (
-        "This test profile corresponds to the kkprofs profile in "
+        "This test profile corresponds to the 'kkprofs' profile in "
         "miditoolbox1.1. It is included separately from Krumhansl Kessler "
         "because it is slightly inconsistent from a normalized "
-        "krumhansl-kessler profile, which was its original intention"
+        "Krumhansl-Kessler profile, which was its original intention"
     )
     major: PitchProfile = PitchProfile(
         "miditoolbox_kkprof.major",
