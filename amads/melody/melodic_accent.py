@@ -36,6 +36,13 @@ def melodic_accent(score: Score) -> Score | None:
         A list of accent values between 0 and 1 for each note. First note
         has accent value of 1.
 
+    References
+    ----------
+    Joseph Thomassen, "Melodic accent: Experiments and a tentative model,"
+       Journal of the Acoustical Society of America, Vol. 71, No. 6 (1982) pp.1598-
+       1605; see also, Erratum, Journal of the Acoustical Society of America,
+       Vol. 73, No. 1 (1983) p.373.
+
     Examples
     --------
     >>> score = Score.from_melody([60, 64, 62])

@@ -256,6 +256,10 @@ def melodic_attraction(score: Score, key: int | None = None) -> Score | None:
     Score
         Transpose of the original score to C-major, where all the notes are
         annotated with attraction values between 0 and 1
+
+    References
+    ----------
+        Lerdahl, F. (1996). Calculating tonal tension. Music Perception, 13(3), 319-363.
     """
 
     if next(score.find_all(Note), None) is None:

@@ -22,11 +22,7 @@ from amads.pitch.pcdist2 import pitch_class_distribution_2
 
 repr = ["ivdist1", "ivdist2", "pcdist1", "pcdist2", "durdist1", "durdist2"]
 
-# calculating the numbers and putting them into the score
 
-
-# Need to think about metric... there seems to be a ton of metric problems here
-# how do I make a metric?
 def melodic_distance(
     score1: Score,
     score2: Score,
@@ -44,9 +40,6 @@ def melodic_distance(
     and combcontour repr options, which means the samples argument is
     not in use as of now. As more feature branches are included, more support
     will be included.
-
-    NOTE: (documentation for limits on repr_func and metric_func)
-    Enforce dimensionality
 
     Parameters
     ----------
