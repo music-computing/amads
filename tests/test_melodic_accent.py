@@ -1,7 +1,13 @@
+import math
+
 from score_test_utils import get_annotation_values_iterator
 
 from amads.core.basics import Note, Score
 from amads.melody.melodic_accent import melodic_accent
+from tests.matlab_crosstesting_utils import (
+    load_json_results,
+    matlab_sarabande_test_score,
+)
 
 
 def test_empty_melody():
@@ -26,7 +32,7 @@ def test_melodic_peak():
         annotated_score, Note, property
     )
     assert all(
-        test_val == desired
+        math.isclose(test_val, desired)
         for test_val, desired in zip(annotated_iter, desired_accents)
     )
 
@@ -44,8 +50,20 @@ def test_melodic_valley():
         annotated_score, Note, property
     )
     assert all(
-        test_val == desired
+        math.isclose(test_val, desired)
         for test_val, desired in zip(annotated_iter, desired_accents)
+    )
+
+
+def test_midi_sarabande():
+    annotated_score = melodic_accent(matlab_sarabande_test_score)
+    value_list = get_annotation_values_iterator(
+        annotated_score, Note, "melodic_accent"
+    )
+    desired_list = load_json_results()["melaccent"]
+    assert all(
+        math.isclose(value, desired)
+        for value, desired in zip(value_list, desired_list)
     )
 
 
@@ -53,3 +71,4 @@ if __name__ == "__main__":
     test_empty_melody()
     test_melodic_peak()
     test_melodic_valley()
+    test_midi_sarabande()

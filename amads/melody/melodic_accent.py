@@ -10,6 +10,8 @@ Original doc: github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.
 """
 
 import math
+from collections import deque
+from itertools import islice, tee
 
 from amads.core.basics import Note, Score
 
@@ -49,30 +51,25 @@ def melodic_accent(score: Score) -> Score | None:
     >>> annotated_score = melodic_accent(score)
     """
 
-    # Handle empty score
+    notes_iter = score.find_all(Note)
+    notes_iter, length_check_iter = tee(notes_iter)
+    length_check_list = list(islice(length_check_iter, 3))
+    if len(length_check_list) < 3:
+        return None
     if not score.ismonophonic():
         return None
 
-    length_req_iter = score.find_all(Note)
-    # Need at least 3 notes to form a 3-note window
-    for _ in range(3):
-        note = next(length_req_iter, None)
-        if note is None:
-            return None
-
-    notes_iter = score.find_all(Note)
-    comparing_notes = (next(notes_iter, None), next(notes_iter, None))
-    assert all(note is not None for note in comparing_notes)
-
     annotation_name = "melodic_accent"
 
-    prev_note, current_note = comparing_notes
-    prev_note.set(annotation_name, 1)
-    current_note.set(annotation_name, 0)
+    window = deque(islice(notes_iter, 3 - 1), maxlen=3)
+
+    window[0].set(annotation_name, 1)
+    window[1].set(annotation_name, 0)
     # Analyze each three-note window
-    for next_note in notes_iter:
+    for note in notes_iter:
+        window.append(note)
         # obtain first 2 notes for the 3-note window
-        prev_note, current_note = comparing_notes
+        prev_note, current_note, next_note = window
         # Calculate intervals between adjacent notes
         prev_interval = current_note.midi_num - prev_note.midi_num
         next_interval = next_note.midi_num - current_note.midi_num
@@ -115,7 +112,5 @@ def melodic_accent(score: Score) -> Score | None:
         current_note.set(annotation_name, combined_coef)
         # set initial coefficient for next note value
         next_note.set(annotation_name, next_coef)
-        # update 3-note window for next iteration
-        comparing_notes = (current_note, next_note)
 
     return score
