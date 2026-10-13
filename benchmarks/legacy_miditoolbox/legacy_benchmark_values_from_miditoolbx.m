@@ -34,6 +34,10 @@ segmentprob_m = segmentprob(m);
 boundary_m =  boundary(m);
 melaccent_m = melaccent(m);
 
+meter_default_m = meter(m);
+meter_optimal_m = meter(m, 'optimal');
+
+
 mobility_m = mobility(m);
 
 narmour_rd = narmour(m, 'rd');
@@ -84,6 +88,8 @@ data.narmour_cl = narmour_cl;
 data.narmour_pr = narmour_pr;
 data.narmour_co = narmour_co;
 data.tessitura = tessitura_m;
+data.meter_default = meter_default_m;
+data.meter_optimal = meter_optimal_m;
 
 jsonStr = jsonencode(data);
 fid = fopen('MIDI_toolbox_benchmark_sarabande.json', 'w');

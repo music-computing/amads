@@ -27,3 +27,7 @@
 -------------------
 
 ::: amads.time.meter.tatum
+
+-------------------
+
+::: amads.time.meter.meter_autocorrelation
