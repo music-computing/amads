@@ -892,9 +892,19 @@ def music21_convert_measure(m21measure, staff, ignore_hidden):
     highest_time = append_items_to_measure(
         measure, m21measure, m21measure.offset, ignore_hidden
     )
-    # now that we know what's in it, fix the duration to actual duration
-    assert highest_time - measure.onset <= measure.duration + 0.001
-    measure.duration = highest_time - measure.onset
+    # now that we know what's in it, fix the duration to actual duration.
+    # Some real-world MusicXML files have content (e.g. tuplet figuration,
+    # notation errors) that runs slightly or significantly past the
+    # notated measure duration. Rather than crash, extend the measure to
+    # fit the content and warn so the discrepancy is visible.
+    content_duration = highest_time - measure.onset
+    if content_duration > measure.duration + 0.001:
+        warnings.warn(
+            "Music21 measure content extends beyond the notated measure"
+            f" duration at onset {measure.onset}: notated duration is"
+            f" {measure.duration} but content ends at {content_duration}."
+        )
+    measure.duration = max(content_duration, measure.duration)
     return measure
 
 

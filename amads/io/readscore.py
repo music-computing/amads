@@ -467,6 +467,15 @@ def read_score(
 
     Music21 MIDI Import Notes
     -------------------------
+    Measure duration is determined by content and may differ from
+    the time signature, notably when there are pickup notes and
+    partial measures in the first ending. Some measures simply
+    have too many beats, which may be intended by the composer or
+    may be an artifact of how MusicXML was used to encode the score.
+    In these cases, the content duration is reflected in the measure
+    duration, and subsequent measures will be timed according to
+    measure duration rather than time signatures.
+
     Music21 may infer a Clef and KeySignature even though MIDI
     does not even have a meta-event for clefs, and even if the
     MIDI file has no key signature meta-event.
