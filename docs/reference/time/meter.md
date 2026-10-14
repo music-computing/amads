@@ -31,3 +31,7 @@
 -------------------
 
 ::: amads.time.meter.meter_autocorrelation
+
+-------------------
+
+::: amads.time.meter.metric_hierarchy

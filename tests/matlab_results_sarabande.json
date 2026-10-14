@@ -258,5 +258,17 @@
     0.53241390564966828
   ],
   "meter_default": 2,
-  "meter_optimal": 3
+  "meter_optimal": 3,
+  "metrichierarchy": [
+    4,
+    3,
+    5,
+    3,
+    4,
+    3,
+    5,
+    5,
+    3,
+    4
+  ]
 }

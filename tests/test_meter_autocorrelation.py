@@ -7,9 +7,6 @@ from tests.matlab_crosstesting_utils import (
     matlab_sarabande_test_score,
 )
 
-# how would one potentially test meter?!
-# I don't know...
-
 
 def test_edge_cases():
     score = Score.from_melody([60, 61, 62, 63])
@@ -23,10 +20,10 @@ def test_edge_cases():
 
 
 def test_basic_score():
-    score = Score.from_melody(list(range(60, 69)))
+    basic_score_durations = [float(i) for i in range(9)]
+    score = Score.from_melody(list(range(60, 69)), durations=basic_score_durations)
     desired_result = (2, 3)
     default_result = meter_autocorrelation(score, None)
-
     optimal_result = meter_autocorrelation(score, "Optimal")
     assert (default_result, optimal_result) == desired_result
 

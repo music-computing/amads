@@ -12,6 +12,7 @@ ivdist1_m = ivdist1(m);
 durdist1_m = durdist1(m);
 
 % Summary descriptors
+melattraction_m = melattraction(m);
 entropy_pcdist1_m = entropy(pcdist1(m));
 nnotes_m = nnotes(m);
 keymode_m = keymode(m);
@@ -27,7 +28,6 @@ notedensity_m = notedensity(m);
 nPVI_m = nPVI(m); 
 
 % Values for each note or other time-series
-melattraction_m = melattraction(m);
 melcontour_m = melcontour(m,10, 'rel'); % sample 10 points
 segmentgestalt_m = segmentgestalt(m);
 segmentprob_m = segmentprob(m);
@@ -36,6 +36,7 @@ melaccent_m = melaccent(m);
 
 meter_default_m = meter(m);
 meter_optimal_m = meter(m, 'optimal');
+metrichierarchy_m = metrichierarchy(m);
 
 
 mobility_m = mobility(m);
@@ -90,6 +91,7 @@ data.narmour_co = narmour_co;
 data.tessitura = tessitura_m;
 data.meter_default = meter_default_m;
 data.meter_optimal = meter_optimal_m;
+data.metrichierarchy = metrichierarchy_m;
 
 jsonStr = jsonencode(data);
 fid = fopen('MIDI_toolbox_benchmark_sarabande.json', 'w');
