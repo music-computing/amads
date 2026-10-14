@@ -6,6 +6,7 @@ import pytest
 
 from math import floor
 from amads.time.onsetdist import *
+from amads.core.basics import Part
 
 __author__ = "Anirudh Subramanian"
 
@@ -72,3 +73,18 @@ def test_onsetdist_tied():
 
     assert result.data[round((n1.onset - m.onset) * n_divisions)] == n1.duration + n2.duration
     assert result.data[round((n3.onset - m.onset) * n_divisions)] == 0
+
+def test_fails_on_flattened():
+    """Tests that onsetdist throws an error for flattened scores"""
+
+    score = Score()
+    p = Part(parent=score, onset=0.0)
+    m = Measure(parent=p, onset=0.0)
+    n1 = Note(parent=m, onset=0.0, duration=1.0)
+    n2 = Note(parent=m, onset=0.0, duration=2.5)
+    n3 = Note(parent=m, onset=1.0, duration=2.0)
+
+    score = score.flatten()
+    
+    with pytest.raises(ValueError):
+        onset_distribution(score)

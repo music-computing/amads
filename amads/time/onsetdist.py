@@ -16,9 +16,12 @@ def onset_distribution(
     Returns a distribution of onsets of Notes relative to the onset of
     their corresponding Measure.
     
-    If the onset of a Note lies between two divisions of a quarter note,
-    the onset rounds down to the nearest division of a quarter note (i.e.
-    the floor of the onset time).
+    If the onset of a Note falls between two divisions of a quarter note,
+    it is rounded down to the nearest division of a quarter note (i.e.
+    the floor of the onset time). Becuase onsets are measured relative to
+    the start of each measure, onsets in a pickup measure are calculated
+    relative to the start of that (incomplete) measure, which may not be
+    the desired behavior.
     
     Onsets are weighted by the duration of the corresponding Note because
     longer notes are better percieved by listeners (Thompson, 1994). Tied
@@ -45,12 +48,20 @@ def onset_distribution(
     Distribution
         containing and describing the distribution of note onsets.
     
+    Throws
+    ------
+    ValueError
+        if the provided Score is flat (i.e. does not contain Measures)
+        
     References
     ----------
     Thompson, W. F. (1994). Sensitivity to combinations of musical
         parameters: Pitch with duration, and pitch pattern with durational
         pattern. Perception & Psychophysics, 56, 363-374.
     """
+
+    if score.is_flat():
+        raise ValueError("Onset distribution requires full score.")
 
     score = score.merge_tied_notes()
 
@@ -66,10 +77,10 @@ def onset_distribution(
     )
 
     for n in score.find_all(Note):
-        m = n.parent
+        m = n.measure
         
         # discards Notes that are not contained within a Measure
-        if isinstance(m, Measure):
+        if m is not None:
             h.add_point(n.onset - m.onset, weight=n.duration)
     
     return Distribution(
