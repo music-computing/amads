@@ -69,14 +69,34 @@ def _find_adjustments(score: Score) -> List[_Adjustment]:
 def normalize(score: Score) -> Score:
     """Rescale measures that are longer than their time signature.
 
-    Each measure whose duration exceeds the nominal duration given by
-    its time signature is linearly compressed, in both onset times and
-    durations of its content, to the nominal duration. Everything after
-    a compressed measure is shifted earlier, including time signature
-    positions and time map breakpoints. Tempo is preserved, so the time
-    map is compressed in seconds by the same ratio as in quarters.
-    Measures that are shorter than nominal (e.g. pickup measures) are
-    not changed.
+    Some scores have measures with extra duration, perhaps from
+    cadenza-like runs of thirty-second notes that exceed the expected
+    measure length according to strict interpretation and the time
+    signature. Normally, this results in a score where the measure
+    duration is extended beyond the duration implied by the time
+    signature, and notes all receive their full duration according
+    to the tempo.
+
+    An alternative interpretation is to "squeeze" the notes into the
+    number of quarters indicated by the time signature, resulting in
+    faster performance of the notes within the measure, not by changing
+    the tempo, but by changing their onset times and durations. For
+    example, this could result in 37 "32nd" notes in the time of 4
+    quarters. I.e., original 32nd notes are converted to 37th notes.
+
+    This `normalize` function achieves this result for all measures
+    that are longer than indicated by the time signature. Too-short
+    measures are *not* "expanded" since they often occur correctly as
+    pick-up measures, shortened first-ending measures, or final measures.
+
+    Function behavior: Each measure whose duration exceeds the nominal
+    duration given by its time signature is linearly compressed, in both
+    onset times and durations of its content, to the nominal
+    duration. Everything after a compressed measure is shifted earlier,
+    including time signature positions and time map breakpoints. Tempo
+    is preserved, so the time map is compressed in seconds by the same
+    ratio as in quarters.  Measures that are shorter than nominal
+    (e.g. pickup measures) are not changed.
 
     The score is modified in place in a single pass over its content,
     time signatures and time map.
