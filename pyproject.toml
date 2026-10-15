@@ -41,11 +41,11 @@ test = [
     "pretty_midi",
     "pytest>=7.0.0",
     "pytest-cov",
-    "scikit-learn",
+    "scikit-learn>=1.2",
 ]
 examples = [
     "mirdata>=1.0.0",
-    "scikit-learn"
+    "scikit-learn>=1.2"
 ]
 
 [project.urls]
