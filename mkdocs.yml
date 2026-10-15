@@ -19,7 +19,6 @@ markdown_extensions:
 extra_javascript:
   - javascripts/fix-properties.js
   - javascripts/mathjax.js
-  - https://polyfill.io/v3/polyfill.min.js?features=es6
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
 extra_css:
@@ -95,9 +94,11 @@ nav:
       - Key Profiles: reference/pitch/key.md
       - Serial: reference/pitch/serial.md
     - Time:
+      - Filter: reference/time/dropshortnotes.md
       - Duration Distributions: reference/time/durations.md
       - Meter: reference/time/meter.md
       - Note Density: reference/time/notedensity.md
+      - Quantize: reference/time/quantize.md
       - Rhythm: reference/time/rhythm.md
       - Swing: reference/time/swing.md
       - Tempo: reference/time/tempo.md
@@ -113,7 +114,10 @@ nav:
       - reference/harmony/root_finding.md
     - Polyphony:
       - reference/polyphony/skyline.md
+      - reference/polyphony/envelope.md
+      - reference/polyphony/extreme.md
     - Algorithms:
+      - reference/algorithms/concur.md
       - reference/algorithms/complexity.md
       - reference/algorithms/entropy.md
       - GCD: reference/algorithms/gcd.md

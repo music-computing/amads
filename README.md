@@ -14,7 +14,9 @@ Use at your own risk!
 
 For more on the ...
 - ... package in general, see the [documentation website](https://music-computing.github.io/amads)
-- ... motivation and background, please see [the draft paper](./paper.md)
+- ... motivation and background, see [the draft paper](./paper.md)
+- ... the wider context, see
+['Keeping Score: Computational Methods for the Analysis of Encoded ("Symbolic") Musical Scores](https://doi.org/10.5281/zenodo.14938027)
 
 ## Installation
 

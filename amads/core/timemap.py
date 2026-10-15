@@ -5,7 +5,12 @@ Mapping between quarters and seconds (beats and time).
 
 Note: `amads.core` includes `amads.core.basics`, `amads.core.distribution` and
       `amads.core.timemap`.
+
+<small>**Author**: Roger Dannenberg</small>
 """
+
+__author__ = "Roger Dannenberg"
+
 
 import math
 import sys
@@ -344,10 +349,18 @@ class TimeMap:
     def quarter_to_time(self, quarter: float) -> float:
         """Convert time in quarters to time to seconds.
 
+        When score time units are quarters, it is recommended to covert
+        *everything* to seconds using `score.convert_to_seconds()`. This
+        is much faster than calling this method for every event.
+
+        If there is a particular reason to convert the time of one event,
+        you can write something like
+            `note.score.timemap.quarter_to_time(note.onset)`.
+
         Parameters
         ----------
         quarter: float
-            A score position in changes.
+            A score position in quarters.
 
         Returns
         -------
@@ -376,6 +389,25 @@ class TimeMap:
             returns the tempo on the right (after the change).
         """
         return self.get_tempo_at(self._quarter_to_insert_index(quarter) - 1)
+
+    def time_stretch(self, factor: float) -> "TimeMap":
+        """
+        Scale all tempos to increase times in seconds by a factor.
+
+        Parameters
+        ----------
+        factor : float
+            The scaling factor for timing.
+
+        Returns
+        -------
+        TimeMap
+            The object. This method modifies the `TimeMap`.
+        """
+        for change in self.changes:
+            change.time *= factor
+        self.last_tempo /= factor
+        return self
 
     # def _index_to_tempo(self, i: int) -> float:
     #     """Return the tempo at entry i in the tempo map.
@@ -418,6 +450,14 @@ class TimeMap:
 
     def time_to_quarter(self, time: float) -> float:
         """Convert time in seconds to quarter position.
+
+        When score time units are seconds, it is recommended to covert
+        *everything* to quarters using `score.convert_to_quarters()`. This
+        is much faster than calling this method for every event.
+
+        If there is a particular reason to convert the time of one event,
+        you can write something like
+            `note.score.timemap.time_to_quarter(note.onset)`.
 
         Parameters
         ----------

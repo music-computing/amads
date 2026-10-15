@@ -64,5 +64,5 @@ def scale(
         elif dim == "onset":
             elem.onset *= factor
         else:  # dim == "duration"
-            elem.duration *= factor
+            elem._duration *= factor  # modify untied duration
     return score

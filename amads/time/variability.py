@@ -427,7 +427,7 @@ def score_npvi_by_part(score: Score) -> dict[str, float]:
     results = {}
     for n, part in enumerate(score.find_all(Part)):
         name = part.instrument or f"Part {n + 1}"
-        notes = part.get_sorted_notes(has_ties=False)
+        notes = part.get_sorted_notes()
         iois = _iois_from_notes(notes)
         results[name] = normalized_pairwise_variability_index(iois)
     return results

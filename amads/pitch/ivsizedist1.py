@@ -58,7 +58,7 @@ def interval_size_distribution_1(
         name,
         isd,
         "interval_size",
-        [12],
+        [13],
         x_categories,  # type: ignore
         "Interval Size",
         None,

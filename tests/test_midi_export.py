@@ -1,15 +1,21 @@
 """test_midi_pmexport.py - some tests for pretty_midi_midi_export
 
-Testing input/output with pretty_midi (PM) and music21 (M21)
-The test sequence is:
-1. read *.mid with PM -> myscore -> write with M21 -> *_m21exported.mid
-2. read *_m21exported.mid with PM -> myscore2
-   compare myscore and myscore2
-3. read *.mid with M21 -> myscore3 -> write with PM -> *_pmexported.mid
-4. read *_pmexported.mid with M21 -> myscore4
-    compare myscore and myscore4
+Testing input/output with pretty_midi (PM), music21 (M21), and mido (MM)
+We're going to consider PM to be the "reference" reader and use PM to read
+the original MIDI file. Once we have the score as an AMADS Score, we will
+test all writer/reader combinations by writing the score with one writer
+and reading it back with each reader.  The results is compared to the original
+score read by PM.  The table below shows the combinations of writers and
+readers that are tested.
+
+writer:   PM    M21    MM
+reader:
+PM         x      x     x
+M21        x      x     x
+MM         x      x     x
 """
 
+import math
 import tempfile
 
 import pytest
@@ -45,95 +51,66 @@ def test_midi_export_and_reimport(midi_file):
     Tested with different subsystems.
     """
 
-    print("test_midi_export_and_reimport", midi_file)
+    midi_file_readers = ["pretty_midi", "music21", "mido"]
+    midi_file_writers = ["pretty_midi", "music21", "mido"]
+
+    print("==== test_midi_export_and_reimport ====", midi_file)
     midi_path = example.fullpath(midi_file)
     assert (
         midi_path is not None
     ), f"Could not find example MIDI file {midi_file}"
-    verbose_blank()
-    m21_temp_file = tempfile.NamedTemporaryFile(
-        suffix="_m21exported.mid", delete=False
-    )
-    m21_write_path = m21_temp_file.name
-    m21_temp_file.close()
-    pm_temp_file = tempfile.NamedTemporaryFile(
-        suffix="_pmexported.mid", delete=False
-    )
-    pm_write_path = pm_temp_file.name
-    pm_temp_file.close()
 
-    #
-    # test with music21 writer
-    #
     set_preferred_midi_reader("pretty_midi")
-    set_preferred_midi_writer("music21")
-
-    # Read the input MIDI file
-    verbose_blank()
-    myscore = read_score(midi_path, show=VERBOSE)
+    ref_score = read_score(midi_path, show=VERBOSE)
     if VERBOSE:
         print()
-        print("AMADS score returned from read_score by pretty_midi reader:")
-        myscore.show()
+        print(f"---- AMADS reference score from {midi_file}:")
+        ref_score.show()
+    verbose_blank()
+    ref_pitch_mean = pitch_mean(ref_score)
+    ref_weighted_pitch_mean = pitch_mean(ref_score, weighted=True)
+    print("reference pitch mean", ref_pitch_mean)
+    print("reference weighted pitch mean", ref_weighted_pitch_mean)
 
-    verbose_blank()
-    print("mean orig", pitch_mean(myscore))
-    print("weighted mean orig", pitch_mean(myscore, weighted=True))
+    # Create temp files for the different writers
+    midi_temp_file = tempfile.NamedTemporaryFile(
+        suffix="_exported.mid", delete=False
+    )
+    midi_write_path = midi_temp_file.name
+    midi_temp_file.close()
 
-    # Write the score with music21
-    verbose_blank()
-    print("AMADS score writing with music21 midi writer:")
+    for writer in midi_file_writers:
+        for reader in midi_file_readers:
+            print(f"--- Testing with writer={writer} and reader={reader}")
+            set_preferred_midi_writer(writer)
+            set_preferred_midi_reader(reader)
 
-    verbose_blank()
-    write_score(myscore, m21_write_path, show=VERBOSE)
-    verbose_blank()
-    myscore2 = read_score(m21_write_path, show=VERBOSE)
-    if VERBOSE:
-        verbose_blank()
-        print("AMADS score returned from read_score by pretty_midi:")
-        myscore2.show()
+            # Write the score with the specified writer
+            verbose_blank()
+            print(f"AMADS score writing with {writer} midi writer:")
 
-    verbose_blank()
-    print("mean music21", pitch_mean(myscore2))
-    print("weighted mean music21", pitch_mean(myscore2, weighted=True))
+            verbose_blank()
+            write_score(ref_score, midi_write_path, show=VERBOSE)
+            verbose_blank()
 
-    comparison_result = scores_compare(myscore, myscore2, True)
-    assert comparison_result
+            # Read the input MIDI file
+            verbose_blank()
+            test_score = read_score(midi_write_path, show=VERBOSE)
+            if VERBOSE:
+                print()
+                print(f"---- AMADS score read by {reader}:")
+                test_score.show()
 
-    #
-    # test with pretty_midi writer
-    #
-    set_preferred_midi_reader("music21")
-    set_preferred_midi_writer("pretty_midi")
-
-    # Read the input MIDI file
-    verbose_blank()
-    myscore3 = read_score(midi_path, show=VERBOSE)
-    if VERBOSE:
-        print()
-        print("AMADS score returned from read_score by music21 reader:")
-        myscore3.show()
-
-    verbose_blank()
-    print("mean orig", pitch_mean(myscore3))
-    print("weighted mean orig", pitch_mean(myscore3, weighted=True))
-    comparison_result = scores_compare(myscore, myscore3, True)
-    assert comparison_result
-
-    # Write the score with pretty_midi
-    print("AMADS score writing with pretty_midi midi writer:")
-    verbose_blank()
-    write_score(myscore3, pm_write_path, show=VERBOSE)
-    verbose_blank()
-    myscore4 = read_score(pm_write_path, show=VERBOSE)
-    if VERBOSE:
-        verbose_blank()
-        print("AMADS score returned from read_score by music21:")
-        myscore4.show()
-    verbose_blank()
-    print("mean pretty_midi", pitch_mean(myscore4))
-    print("weighted mean pretty_midi", pitch_mean(myscore4, weighted=True))
-    verbose_blank()
-
-    comparison_result = scores_compare(myscore, myscore4, True)
-    assert comparison_result
+            verbose_blank()
+            test_pitch_mean = pitch_mean(test_score)
+            test_weighted_pitch_mean = pitch_mean(test_score, weighted=True)
+            print("test pitch mean", test_pitch_mean)
+            print("test weighted pitch mean", test_weighted_pitch_mean)
+            print("ref score units are seconds", ref_score.units_are_seconds)
+            print("test score units are seconds", test_score.units_are_seconds)
+            assert math.isclose(test_pitch_mean, ref_pitch_mean, abs_tol=0.001)
+            assert math.isclose(
+                test_weighted_pitch_mean, ref_weighted_pitch_mean, abs_tol=0.001
+            )
+            comparison_result = scores_compare(ref_score, test_score, True)
+            assert comparison_result

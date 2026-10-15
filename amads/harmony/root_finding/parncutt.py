@@ -143,7 +143,7 @@ class ParncuttRootAnalysis:
         if isinstance(chord, list):
             pitch_set = set(chord)
         elif isinstance(chord, Chord):
-            pitch_set = set(note.key_num for note in chord.find_all(Note))  # type: ignore
+            pitch_set = set(note.midi_num for note in chord.find_all(Note))  # type: ignore
         elif isinstance(chord, PitchCollection):
             pitch_set = set(chord.pitch_num_multiset)
         else:

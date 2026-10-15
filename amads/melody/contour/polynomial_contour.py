@@ -165,7 +165,7 @@ class PolynomialContour:
             A tuple containing (onset_times, pitch_values)
         """
         notes = score.get_sorted_notes()
-        return [note.onset for note in notes], [note.key_num for note in notes]
+        return [note.onset for note in notes], [note.midi_num for note in notes]
 
     def center_onset_times(self, onsets: list[float]) -> list[float]:
         """Center onset times around their midpoint. This produces a symmetric axis

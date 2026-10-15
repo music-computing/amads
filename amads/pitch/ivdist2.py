@@ -89,7 +89,7 @@ def interval_distribution_2(
             if weighted:
                 dur = duraccent(note)
             if prev_pitch is not None:
-                iv = round(note.key_num - prev_pitch)
+                iv = round(note.midi_num - prev_pitch)
                 if miditoolbox_compatible:
                     iv = (abs(iv) % 12) * ((iv > 0) - (iv < 0))
                 if weighted:
@@ -102,7 +102,7 @@ def interval_distribution_2(
                 else:
                     prev_bin = h.add_point_2d(prev_iv, iv, 1.0, prev_bin)
                 prev_iv = None if prev_bin is None else iv
-            prev_pitch = note.key_num
+            prev_pitch = note.midi_num
             prev_dur = dur
     if miditoolbox_compatible:
         total = sum(sum(bin) for bin in h.bins) + (

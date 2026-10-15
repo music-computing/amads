@@ -28,7 +28,11 @@ def _music21_to_lilypond(
 
 
 def music21_pdf_export(
-    score: Score, filename: str | Path, format: str, show: bool, is_temp: bool
+    score: Score,
+    filename: str | Path,
+    format: str,
+    show: bool,
+    is_temp: bool = False,
 ) -> None:
     """Save a Score to a file in lilypond or PDF format using music21.
 
@@ -73,7 +77,11 @@ def music21_pdf_export(
 
 
 def music21_xml_pdf_export(
-    score: Score, filename: str | Path, format: str, show: bool, is_temp: bool
+    score: Score,
+    filename: str | Path,
+    format: str,
+    show: bool,
+    is_temp: bool = False,
 ) -> None:
     """Write Score to a file using music21, musicxml2ly and LilyPond.
 

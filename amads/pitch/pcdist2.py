@@ -15,32 +15,6 @@ from amads.core.pitch import CHROMATIC_NAMES
 from amads.pitch.pcdist1 import duraccent
 
 
-def update_pcd(pcd: list[list[float]], notes: list[Note], weighted: bool):
-    """Updates the pitch-class distribution matrix based on the given notes.
-
-    Serves as a helper function for `pitch_class_distribution_2`
-
-    Args:
-        pcd (list[list[float]]): The pitch-class distribution matrix to be
-                                 updated.
-        notes (list[Note]): The list of notes to process.
-        weighted (bool, optional): If True, the pitch-class distribution is
-                                   weighted by note durations.
-    """
-    prev = None
-    for note in notes:
-        if prev:
-            pc_curr = note.pitch_class
-            pc_prev = prev.pitch_class
-
-            if weighted:
-                pcd[pc_prev][pc_curr] += prev.duration * note.duration
-            else:
-                pcd[pc_prev][pc_curr] += 1
-
-        prev = note
-
-
 def pitch_class_distribution_2(
     score: Score,
     name: str = "Pitch Class Distribution",
@@ -76,7 +50,6 @@ def pitch_class_distribution_2(
         score is empty, the function returns a distribution with all
         elements set to zero.
     """
-    score = cast(Score, score.merge_tied_notes())
     if weighted:
         score.convert_to_seconds()  # need seconds for duraccent calculation
     bin_centers = [float(i) for i in range(12)]  # 25 bins from -12 to +12
@@ -92,9 +65,11 @@ def pitch_class_distribution_2(
         for n in part.find_all(Note):
             note: Note = cast(Note, n)
             pc = note.pitch_class
-            if weighted and prev_pc is not None:
+            if weighted:
                 dur = duraccent(note)
-                w = prev_dur + dur  # type: ignore
+                # NB: prev_dur is None until we have a second note to pair it with;
+                # only then do we have a transition to weight.
+                w = (prev_dur + dur) if prev_pc is not None else 1.0
                 prev_dur = dur
             else:
                 w = 1.0

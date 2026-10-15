@@ -9,6 +9,7 @@ from typing import Optional
 
 import partitura as pt
 from partitura import score as ptScore
+from partitura.score import unfold_part_maximal
 
 from amads.core.basics import (
     Clef,
@@ -22,7 +23,9 @@ from amads.core.basics import (
     TimeSignature,
 )
 from amads.core.pitch import Pitch
-from amads.io.readscore import _expand_first_measure, _finish_import
+
+# from amads.io.readscore import _expand_first_measure, _finish_import
+from amads.io.readscore import _finish_import
 
 # plan: multiple passes over iter_all()
 # for each part: add the part to a Concurrence
@@ -309,18 +312,18 @@ def _find_clef_name(
 
 
 def partitura_convert_part(
-    ppart: ptScore.Part, score: Score, rnd: bool = True
-) -> tuple[Part, float]:
+    ppart: ptScore.Part, score: Score, ignore_hidden, rnd: bool = True
+) -> Part:
     """Convert a Partitura part to an AMADS Part and add it to the Score.
     ppart - the Partitura part
     score - the AMADS Score to which the Part will be added
+    ignore_hidden - whether to convert MusicXML notes marked `print-object="no"`
     rnd - if True, does some select rounding for symbolic scores.
           if False (default), no rounding is done (used for MIDI import)
     Returns
     -------
-      tuple[Part, float] - the newly created AMADS Part and the shift
-          that was applied to content (but not yet to time signatures
-          and time map).
+    Part
+        the AMADS Part created from the Partitura part
     """
     # these are globals so we don't have to pass to every
     # helper function that needs to do lookups:
@@ -382,6 +385,10 @@ def partitura_convert_part(
             # find the time signature in effect at onset, add small offset
             # to avoid floating point rounding errors:
             ts = score._find_time_signature(onset + 1e-6)
+            assert ts is not None, (
+                "Internal error: could not find time signature"
+                f" at {onset} in part {part_name}"
+            )
             if ts.upper != upper or ts.lower != lower:
                 last_ts = score.time_signatures[-1]
                 if last_ts.quarters > onset:
@@ -426,7 +433,7 @@ def partitura_convert_part(
         elif isinstance(item, ptScore.Rest):
             qtr = item.start.quarter  # type: ignore
             duration = (item.end.t - item.start.t) / qtr  # type: ignore
-            notes.append(["rest", onset, duration, item.staff])
+            notes.append(["rest", onset, duration, item.staff, item])
         elif isinstance(item, ptScore.Tempo):
             # Note: partitura "bpm" is really beats per second!
             factor = 1.0  # conversion factor from partitura bpm to AMADS qps
@@ -495,73 +502,77 @@ def partitura_convert_part(
                 break  # use previous measure, but probably there is a bug here
             measure = staff.content[mindex]  # type: ignore
         if event[0] == "note":
-            note = Note(
-                parent=measure,
-                onset=event[1],
-                duration=event[2],
-                pitch=Pitch(event[4], event[5]),
-            )
-            # Special handling for grace notes: if duration is zero, it might
-            # be placed *after* the note it is attached to, so we check the
-            # order within measure.content.
-            if note.duration == 0:
-                i = measure.content.index(note)
-                j = i - 1
-                swap_with = None
-                while j >= 0:
-                    if isclose(
-                        measure.content[j].onset, note.onset, abs_tol=0.001
-                    ):
-                        if measure.content[j].duration > 0:
-                            swap_with = j
-                    else:
-                        break
-                    j = j - 1
-                # now swap_with is the earliest location of a non-grace event
-                # with the same onset as note but positive duration
-                if swap_with is not None:
-                    measure.content[i], measure.content[swap_with] = (
-                        measure.content[swap_with],
-                        measure.content[i],
-                    )
-                # now grace note is placed before the note it is attached to
             pt_note = event[8]
-            if event[2] == 0 or isinstance(pt_note, ptScore.GraceNote):
-                note.set("is_grace", True)
-            _process_ornaments(pt_note, note)
-            if event[7]:  # is tied to another note
-                # Multiple cases: 1) note is tied to next note with
-                # non-zero duration, so we put the note in pt_note_to_note
-                # so it can be patched later. 2) note is tied to a previous
-                # note, so we patch the previous note.
-                # map pt_note to [event, note], so [0] gives the event,
-                # and event[2] is duration
-                if pt_note.tie_next and pt_note_to_note[pt_note][0][2] != 0:
-                    # associate this new Note with the partitura note:
-                    pt_note_to_note[pt_note].append(note)
-                if pt_note.tie_prev:
-                    # patch the previous note
-                    pt_note = pt_note.tie_prev
-                    pt_note_to_note[pt_note][1].tie = note
+            if not ignore_hidden or pt_note.print_object != "no":
+                note = Note(
+                    parent=measure,
+                    onset=event[1],
+                    duration=event[2],
+                    pitch=Pitch(event[4], event[5]),
+                )
+                # Special handling for grace notes: if duration is zero, it
+                # might be placed *after* the note it is attached to, so we
+                # check the order within measure.content.
+                if note._duration == 0:
+                    i = measure.content.index(note)
+                    j = i - 1
+                    swap_with = None
+                    while j >= 0:
+                        if isclose(
+                            measure.content[j].onset, note.onset, abs_tol=0.001
+                        ):
+                            if measure.content[j]._duration > 0:
+                                swap_with = j
+                        else:
+                            break
+                        j = j - 1
+                    # now swap_with is the earliest location of a non-grace
+                    # event with the same onset as note but positive duration
+                    if swap_with is not None:
+                        measure.content[i], measure.content[swap_with] = (
+                            measure.content[swap_with],
+                            measure.content[i],
+                        )
+                    # now grace note is placed before the note it is attached to
+                if event[2] == 0 or isinstance(pt_note, ptScore.GraceNote):
+                    note.set("is_grace", True)
+                _process_ornaments(pt_note, note)
+                if event[7]:  # is tied to another note
+                    # Multiple cases: 1) note is tied to next note with
+                    # non-zero duration, so we put the note in pt_note_to_note
+                    # so it can be patched later. 2) note is tied to a previous
+                    # note, so we patch the previous note.
+                    # map pt_note to [event, note], so [0] gives the event,
+                    # and event[2] is duration
+                    if pt_note.tie_next and pt_note_to_note[pt_note][0][2] != 0:
+                        # associate this new Note with the partitura note:
+                        pt_note_to_note[pt_note].append(note)
+                    if pt_note.tie_prev:
+                        # patch the previous note
+                        pt_note = pt_note.tie_prev
+                        pt_note_to_note[pt_note][1].tie = note
         elif event[0] == "rest":
-            Rest(parent=measure, onset=event[1], duration=event[2])
+            pt_rest = event[4]
+            if not ignore_hidden or pt_rest.print_object != "no":
+                Rest(parent=measure, onset=event[1], duration=event[2])
         else:
             assert False, f"Unknown event type {event[0]}"
 
-    common_shift = 0
-    for staff in part.content:
-        assert isinstance(staff, Staff)
-        shift = _expand_first_measure(staff)
-        if common_shift is not None:
-            if not isclose(shift, common_shift):
-                warnings.warn(
-                    "In Partitura import, measure content duration "
-                    f"in a staff ({shift} quarters) does not match "
-                    f"duration of previous staff ({common_shift} "
-                    "quarters)."
-                )
-        common_shift = shift
-    return (part, common_shift)
+    #     common_shift = None
+    #     for staff in part.content:
+    #         assert isinstance(staff, Staff)
+    #         shift = _expand_first_measure(staff)
+    #         if common_shift is not None:
+    #             if not isclose(shift, common_shift):
+    #                 warnings.warn(
+    #                     "In Partitura import, first measure content duration "
+    #                     f"in a staff ({shift} quarters) does not match "
+    #                     f"duration of previous staff ({common_shift} "
+    #                     "quarters)."
+    #                 )
+    #         common_shift = shift
+    part.inherit_duration()
+    return part
 
 
 def partitura_import(
@@ -571,6 +582,7 @@ def partitura_import(
     collapse: bool = False,
     show: bool = False,
     group_by_instrument: bool = True,
+    ignore_hidden: bool = False,
 ) -> Score:
     """Use Partitura to import a MusicXML file.
 
@@ -591,6 +603,8 @@ def partitura_import(
         This parameter is ignored by Partitura, which automatically
         produces parts with multiple staffs. The Partitura grouping
         is respected, and `group_by_instrument` is ignored.
+    ignore_hidden : bool = False
+        Whether to ignore MusicXML notes marked `print-object="no"`
 
     Returns
     -------
@@ -616,15 +630,31 @@ def partitura_import(
     assert ptscore is not None, (
         "Partitura failed to load score from " f"{filename}"
     )
+
+    # make a list of unfolded parts for printing and conversion.
+    ptparts = []
+    for part in ptscore.parts:
+        ptparts.append(unfold_part_maximal(part))
+
     if show:
         print(f"Partitura score structure from {filename}:")
-        for ptpart in ptscore:
+        for ptpart in ptparts:
             print(ptpart.pretty())
+
     score = Score()
-    shift = 0
-    for ptpart in ptscore.parts:
-        _, shift = partitura_convert_part(ptpart, score)
+    #     common_shift = None
+    for ptpart in ptparts:
+        _ = partitura_convert_part(ptpart, score, ignore_hidden)
+    #         if shift is not None:
+    #             if not isclose(shift, common_shift):
+    #                 warnings.warn(
+    #                     "In Partitura import, first measure content duration "
+    #                     f"in a part ({shift} quarters) does not match "
+    #                     f"duration of a previous part ({common_shift} "
+    #                     "quarters)."
+    #                 )
+    #         common_shift = shift
 
     score.inherit_duration()
 
-    return _finish_import(score, flatten, collapse, shift)
+    return _finish_import(score, flatten, collapse)  # , shift)

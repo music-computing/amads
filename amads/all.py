@@ -9,6 +9,7 @@ making all their public exports available at the package level.
 from .algorithms.complexity import *
 from .algorithms.entropy import *
 from .algorithms.gcd import *
+from .algorithms.mindur import *
 from .algorithms.mtype_tokenizer import *
 from .algorithms.ngrams import *
 from .algorithms.nnotes import *
@@ -63,12 +64,15 @@ from .pitch.ivdist2 import *
 from .pitch.ivsizedist1 import *
 from .pitch.key.key_cc import *
 from .pitch.key.keymode import *
+from .pitch.key.keyname import *
 from .pitch.key.keysom import *
 from .pitch.key.keysomdata import *
 from .pitch.key.kkcc import *
 from .pitch.key.kkkey import *
 from .pitch.key.max_key_cc import *
 from .pitch.key.profiles import *
+from .pitch.key.tonal_stability import *
+from .pitch.key.tonality import *
 from .pitch.key.transpose2c import *
 from .pitch.pc_set_functions import *
 from .pitch.pc_sets import *

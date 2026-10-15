@@ -1,4 +1,10 @@
-"""clef.py implements Clef class and some clef-related functions"""
+"""
+clef.py implements Clef class and some clef-related functions
+
+<small>**Author**: Roger Dannenberg</small>
+"""
+
+__author__ = "Roger Dannenberg"
 
 from typing import Optional, TextIO
 

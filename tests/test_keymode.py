@@ -7,6 +7,25 @@ import pytest
 from amads.core.basics import Score
 from amads.pitch.key.keymode import keymode
 
+# C major diatonic: ascend to high C, descend from B (no repeated high C at the turn).
+C_MAJOR_SCALE_UP_SI_DOWN = [
+    60,
+    62,
+    64,
+    65,
+    67,
+    69,
+    71,
+    72,
+    71,
+    69,
+    67,
+    65,
+    64,
+    62,
+    60,
+]
+
 
 def test_zero_pitch_variance_melodies():
     melody = Score.from_melody([])
@@ -20,15 +39,21 @@ def test_zero_pitch_variance_melodies():
     return
 
 
-def test_crafted_nonempty_melody():
+def test_c_major_scale_mode_major():
     """
-    This is a sanity check nonempty crafted melody (so far)...
-    I probably need some help with these tests...
+    keymode assumes tonic C: it compares major vs minor using only the
+    correlation at rotation 0 (C-rooted profiles). A C major scale should
+    favor the major template.
     """
-    pitches_in = list(range(56, 68)) + list(range(56, 68, 2))
-    melody = Score.from_melody(pitches=pitches_in)
-    max_coef_pair = keymode(melody)
-    desired_result = ["major"]
-    assert max_coef_pair == desired_result
+    melody = Score.from_melody(C_MAJOR_SCALE_UP_SI_DOWN)
+    assert keymode(melody) == ["major"]
+
+    return
+
+
+def test_c_natural_minor_scale_mode_minor():
+    """C natural minor collection should favor the minor profile at C."""
+    melody = Score.from_melody([60, 62, 63, 65, 67, 68, 70, 72])
+    assert keymode(melody) == ["minor"]
 
     return

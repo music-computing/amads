@@ -41,7 +41,7 @@ def test_notes_compare():
     assert result[4] == pytest.approx(0.001)
 
     # change to an enharmonic and check for ignore spelling
-    s2_notes[10].pitch = Pitch(s2_notes[10].key_num, alt=-2)  # type: ignore
+    s2_notes[10].pitch = Pitch(s2_notes[10].midi_num, alt=-2)  # type: ignore
     result = notes_compare(
         s1, "score1", s2, "score2", tolerance=0.002, spelling=False
     )
@@ -66,8 +66,8 @@ def test_notes_compare():
     # alter a pitch in s1 and another in s2 and check that the result is
     # correct. Also alter an onset to see that max_onset_diff is correctly
     # calculated.
-    s1_notes[20].pitch = Pitch(s1_notes[20].key_num + 1)  # type: ignore
-    s2_notes[30].pitch = Pitch(s2_notes[30].key_num + 1)  # type: ignore
+    s1_notes[20].pitch = Pitch(s1_notes[20].midi_num + 1)  # type: ignore
+    s2_notes[30].pitch = Pitch(s2_notes[30].midi_num + 1)  # type: ignore
     s1_notes[40].onset += 0.0015  # type: ignore
     result = notes_compare(s1, "score1", s2, "score2", tolerance=0.002)
     assert result[0] is False

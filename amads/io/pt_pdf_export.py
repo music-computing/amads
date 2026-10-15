@@ -9,7 +9,11 @@ from amads.io.xml_lilypond_pdf import _lilipond_to_pdf, _musicxml_to_lilypond
 
 
 def partitura_xml_pdf_export(
-    score: Score, filename: str | Path, format: str, show: bool, is_temp: bool
+    score: Score,
+    filename: str | Path,
+    format: str,
+    show: bool,
+    is_temp: bool = False,
 ) -> None:
     """Save a Score to a file in Lilypond or PDF format using Partitura.
 

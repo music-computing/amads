@@ -71,7 +71,8 @@ def boundary(score: Score) -> Score:
 
     # profiles
     pp = [
-        abs(pair[1].key_num - pair[0].key_num) for pair in zip(notes, notes[1:])
+        abs(pair[1].midi_num - pair[0].midi_num)
+        for pair in zip(notes, notes[1:])
     ]
     po = [pair[1].onset - pair[0].onset for pair in zip(notes, notes[1:])]
     pr = [

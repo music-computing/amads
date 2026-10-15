@@ -80,10 +80,18 @@ def add_event_to_part(
         event = cast(Measure, event)
         name = None if event.number is None else str(event.number)
         pt_group = ptMeasure(number=id, name=name)  # no staff here
+        print(
+            "PT Adding measure",
+            event.number,
+            "onset",
+            event.onset,
+            "offset",
+            event.offset,
+        )
     if isinstance(event, EventGroup):  # e.g. Part, Staff, Measure
         if pt_group is not None:
             pt_part.add(
-                pt_group, round(event.onset) * DIVS, round(event.offset) * DIVS
+                pt_group, round(event.onset * DIVS), round(event.offset * DIVS)
             )
         subid = 1
         for subevent in event.content:
@@ -105,7 +113,7 @@ def add_event_to_part(
                 staff=staff,
                 voice=staff,
             )  # type: ignore
-            assert pt_note.midi_pitch == event.key_num, (
+            assert pt_note.midi_pitch == event.midi_num, (
                 "internal error in pitch"
                 " conversion; maybe octave confusion for something like B#3?"
             )
@@ -117,12 +125,14 @@ def add_event_to_part(
                 staff=staff,
                 voice=staff,
             )  # type: ignore
-            assert pt_note.midi_pitch == event.key_num, (
+            assert pt_note.midi_pitch == event.midi_num, (
                 "internal error in pitch"
                 " conversion; maybe octave confusion for something like B#3?"
             )
         pt_part.add(
-            pt_note, round(event.onset * DIVS), round(event.offset * DIVS)
+            pt_note,
+            round(event.onset * DIVS),
+            round((event.onset + event._duration) * DIVS),
         )
         # Track tied notes
         if ties is not None:
@@ -234,7 +244,11 @@ def _score_to_partitura(
 
 
 def partitura_export(
-    score: Score, filename: Path | str, format: str, show: bool, is_temp: bool
+    score: Score,
+    filename: Path | str,
+    format: str,
+    show: bool,
+    s_temp: bool = False,
 ) -> None:
     """Save a Score to a file in musicxml format using Partitura.
 

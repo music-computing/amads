@@ -1,6 +1,13 @@
 """
 Approximating a fraction from a float
 with a focus on the application to consonance.
+
+Note that this is specific to harmony.
+For a completely parameter-neutral algorithm (essentially Euclid),
+see `amads.algoithms.gcd`
+and for one new to AMADS that's specific to musical time,
+see `amads.time.meter.grid`.
+
 """
 
 from math import floor

@@ -6,12 +6,12 @@
 
 ----------------
 
-::: amads.core.utils.hz_to_key_num
+::: amads.core.utils.hz_to_midi_num
 
 ----------------
 
 
-::: amads.core.utils.key_num_to_hz
+::: amads.core.utils.midi_num_to_hz
 
 ----------------
 

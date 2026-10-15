@@ -154,16 +154,7 @@ def duration_distribution_1(
         cast(bool, ignore_extrema),
         initial_value,
     )  # type: ignore
-    tied_notes = set()
     for note in score.find_all(Note):
-        # Ignore notes that are tied from previous notes by keeping track
-        # of them in a set:
-        if note in tied_notes:
-            # skip tied notes
-            continue
-        if note.tie:
-            # add tied notes to set so we can skip them later
-            tied_notes.add(note)
         h.add_point(note.duration)
     # normalize
     h.normalize()

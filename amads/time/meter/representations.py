@@ -18,6 +18,7 @@ within-cycle notational conventions).
 __author__ = "Mark Gotham"
 
 import math
+from collections import Counter
 from typing import Optional, Union
 
 import numpy as np
@@ -68,28 +69,46 @@ def is_non_negative_integer_power_of_two(n: float) -> bool:
     return n > 0 and (n & (n - 1)) == 0
 
 
-def switch_pulse_length_beat_type(
-    pulse_length_or_beat_type: Union[float, np.ndarray]
-):
+def _invert_pulse(pulse_length_or_beat_type: Union[float, np.ndarray]):
     """
-    Switch between a pulse length and beat type.
+    Switch between a pulse length and beat type via 4/x.
     Accepts numeric values or numpy arrays thereof.
-    Note that a float of vale 0 will raise a
+    Note that a float of value 0 will raise a
     `ZeroDivisionError: division by zero`,
     but a numpy array will map any 0s to `inf` without error.
 
     Examples
     --------
-    >>> switch_pulse_length_beat_type(0.5)
+    >>> _invert_pulse(0.5)
     8.0
 
-    >>> switch_pulse_length_beat_type(8)
+    >>> _invert_pulse(8)
     0.5
 
-    >>> switch_pulse_length_beat_type(np.array([0.5, 8]))
+    >>> _invert_pulse(np.array([0.5, 8]))
     array([8. , 0.5])
     """
     return 4 / pulse_length_or_beat_type
+
+
+def _pulse_lengths_to_starts(
+    pulse_lengths: list,
+    cycle_length: float,
+) -> list[list]:
+    """
+    Internal helper: convert a sorted list of pulse lengths into a start hierarchy.
+
+    Thin wrapper used by `TimeSignature.to_start_hierarchy` and
+    `StartTimeHierarchy.add_faster_levels` so they don't instantiate a full
+    `PulseLengths` object just to call `to_start_hierarchy`.
+
+    Examples
+    --------
+    >>> _pulse_lengths_to_starts([4.0, 2.0, 1.0], 4.0)
+    [[0.0, 4.0], [0.0, 2.0, 4.0], [0.0, 1.0, 2.0, 3.0, 4.0]]
+    """
+    pl = PulseLengths(pulse_lengths=pulse_lengths, cycle_length=cycle_length)
+    return pl.to_start_hierarchy()
 
 
 class StartTimeHierarchy:
@@ -107,7 +126,7 @@ class StartTimeHierarchy:
         including those without 2-/3- grouping, or even nested hierarchies,
         as well as for (optionally) encoding micro-timing directly into the
         metrical structure.
-        The only “well-formed” criteria we expect are
+        The only "well-formed" criteria we expect are
         use of 0.0 and full cycle length at the top level, and
         presence of all timepoints from one level in each subsequent level.
         For creating this information from pulse lengths, time signatures,
@@ -124,7 +143,7 @@ class StartTimeHierarchy:
     cycle_length : float
         Derived from `[0][-1]` of the given `start_hierarchy`
     pulse_lengths : list or None
-        None until if/when `to_pulse_lengths()` is called explicitly.
+        None until if/when `compute_pulse_lengths()` is called explicitly.
 
     """
 
@@ -188,18 +207,16 @@ class StartTimeHierarchy:
         steps = int(cycle_length / granular_pulse)
         granular_level = [granular_pulse * count for count in range(steps)]
 
-        def count_instances(nested_list, target):
-            return sum([sublist.count(target) for sublist in nested_list])
+        counts = Counter(
+            item for sublist in self.start_hierarchy for item in sublist
+        )
 
-        coincidences = []
-        for target in granular_level:
-            coincidences.append(count_instances(self.start_hierarchy, target))
+        return [counts.get(target, 0) for target in granular_level]
 
-        return coincidences
-
-    def to_pulse_lengths(self):
+    def compute_pulse_lengths(self) -> list:
         """
         Check if levels have a regular pulse and if so, return the pulse length value.
+        Also sets `self.pulse_lengths` as a side effect.
 
         Returns
         -------
@@ -211,13 +228,11 @@ class StartTimeHierarchy:
         --------
 
         >>> hierarchy = StartTimeHierarchy([[0.0, 4.0], [0.0, 2.0, 4.0], [0.0, 1.0, 2.0, 3.0, 4.0]])
-        >>> hierarchy.to_pulse_lengths()
-        >>> hierarchy.pulse_lengths
+        >>> hierarchy.compute_pulse_lengths()
         [4.0, 2.0, 1.0]
 
         >>> uneven = StartTimeHierarchy([[0.0, 4.0], [0.0, 3.0, 4.0], [0.0, 1.0, 2.0, 3.0, 4.0]])
-        >>> uneven.to_pulse_lengths()
-        >>> uneven.pulse_lengths
+        >>> uneven.compute_pulse_lengths()
         [4.0, None, 1.0]
 
         """
@@ -231,6 +246,7 @@ class StartTimeHierarchy:
             return float(list(diffs)[0])
 
         self.pulse_lengths = [test_one(level) for level in self.start_hierarchy]
+        return self.pulse_lengths
 
     def add_faster_levels(self, minimum_beat_type: int = 64):
         """
@@ -259,8 +275,7 @@ class StartTimeHierarchy:
         >>> hierarchy.start_hierarchy
         [[0.0, 4.0], [0.0, 2.0, 4.0]]
 
-        >>> hierarchy.to_pulse_lengths()
-        >>> hierarchy.pulse_lengths
+        >>> hierarchy.compute_pulse_lengths()
         [4.0, 2.0]
 
         >>> hierarchy.add_faster_levels(minimum_beat_type=4)
@@ -281,18 +296,13 @@ class StartTimeHierarchy:
         [4.0, 2.0, 1.0, 0.5]
 
         """
-        self.to_pulse_lengths()
-        assert self.pulse_lengths is not None, ""
+        self.compute_pulse_lengths()
         fastest = self.pulse_lengths[-1]
         if fastest is None:
             raise ValueError(
                 "Fastest level is not regular. Use case unsupported."
             )
-        if not is_non_negative_integer_power_of_two(
-            switch_pulse_length_beat_type(
-                fastest
-            )  # from pulse length to beat type
-        ):
+        if not is_non_negative_integer_power_of_two(_invert_pulse(fastest)):
             raise ValueError(
                 f"Fastest level ({fastest}) is not a power of 2. Use case unsupported."
             )
@@ -301,7 +311,7 @@ class StartTimeHierarchy:
                 f"The `minimum_beat_type` ({minimum_beat_type}) is not a power of 2. Use case unsupported."
             )
 
-        fastest_beat_type = switch_pulse_length_beat_type(fastest)
+        fastest_beat_type = _invert_pulse(fastest)
         fastest_beat_type_exponent = int(math.log2(fastest_beat_type))
         minimum_beat_type_exponent = int(math.log2(minimum_beat_type))
 
@@ -311,19 +321,15 @@ class StartTimeHierarchy:
                 fastest_beat_type_exponent + 1, minimum_beat_type_exponent + 1
             )
         ]
-        new_pulses = [
-            switch_pulse_length_beat_type(beat_type)
-            for beat_type in new_beat_types
-        ]
+        new_pulses = [_invert_pulse(beat_type) for beat_type in new_beat_types]
         self.pulse_lengths += new_pulses
         self.pulse_lengths = [x for x in self.pulse_lengths if x is not None]
         self.pulse_lengths = sorted(
             list(set(self.pulse_lengths)), key=abs, reverse=True
         )
-        fake_meter = PulseLengths(
-            pulse_lengths=new_pulses, cycle_length=self.cycle_length
+        self.start_hierarchy += _pulse_lengths_to_starts(
+            new_pulses, self.cycle_length
         )
-        self.start_hierarchy += fake_meter.to_start_hierarchy()
 
 
 # ------------------------------------------------------------------------------
@@ -332,7 +338,6 @@ class StartTimeHierarchy:
 class TimeSignature:
     """
     Represent the _notational_ time signature object.
-    # TODO consider aligning and merging with basics.TimeSignature, this PR shows some of how that would work.
 
     Parameters
     ----------
@@ -352,7 +357,6 @@ class TimeSignature:
         self,
         beats: Optional[tuple[int]] = None,
         beat_type: Optional[int] = None,
-        # delta: Optional[float] = 0,  # TODO if merging with basics
         as_string: Optional[str] = None,
     ):
         self.beats = beats
@@ -365,26 +369,26 @@ class TimeSignature:
 
         self.cycle_length = sum(self.beats) * 4 / self.beat_type
         self.pulses = None
-        self.get_pulses()
+        self._init_pulses()
 
     def from_string(self):
         """
         Given a signature string, extract the constituent parts and create an object.
         The string must take the form `<beat>/<beat_type>`
-        with exactly one “/” separating the two (spaces are ignored).
+        with exactly one "/" separating the two (spaces are ignored).
         The string does not change.
 
-        The `<beat>` (“numerator”) part may be a number (including 5 and 7 which
-        are supported) or more than one number separated by the “+” symbol.
-        For example, when encoding “5/4”, use the total value only to avoid
-        segmentation above the denominator level (“5/4”)
-        or the X+Y form to explicitly distinguish between “2+3” and “3+2”.
-        I.e., “5/” time signatures have no 3+2 or 2+3 division by default.
+        The `<beat>` ("numerator") part may be a number (including 5 and 7 which
+        are supported) or more than one number separated by the "+" symbol.
+        For example, when encoding "5/4", use the total value only to avoid
+        segmentation above the denominator level ("5/4")
+        or the X+Y form to explicitly distinguish between "2+3" and "3+2".
+        I.e., "5/" time signatures have no 3+2 or 2+3 division by default.
         See examples on `TimeSignature.to_starts_hierarchy`.
 
         Finally, although we support and provide defaults for time signatures
-        in the form “2+3/8”, there is no such support for more than one “/”
-        (i.e., the user must build cases like “4/4 + 3/8” explicitly
+        in the form "2+3/8", there is no such support for more than one "/"
+        (i.e., the user must build cases like "4/4 + 3/8" explicitly
         according to how they see it).
 
         Examples
@@ -409,31 +413,40 @@ class TimeSignature:
 
          - `.beats` must be an integer or a list/tuple thereof.
          - `.beat_type` must be a single integer power of two.
+
+        Examples
+        --------
+        >>> TimeSignature(as_string="4/3")
+        Traceback (most recent call last):
+            ...
+        ValueError: Beat type set as 3 is invalid: must be a non-negative integer power of 2.
+
         """
-        # beats  # TODO this check may be overdoing it
+        # beats
         if self.beats:
             assert isinstance(self.beats, tuple)
             for b in self.beats:
                 assert isinstance(b, int)
 
-        # beat_type  # TODO this is the part we want to actively check
+        # beat_type
         if not is_non_negative_integer_power_of_two(self.beat_type):
             raise ValueError(
                 f"Beat type set as {self.beat_type} is invalid: must be a non-negative integer power of 2."
             )
 
-    def get_pulses(self):
+    def _init_pulses(self):
         """
-        Create an unordered set for the regular pulses present in this time signature.
+        Initialise `self.pulses` with the regular pulse levels present in this time signature.
+        Called once from `__init__`; not intended for direct use.
 
-        This will include the full cycle and beat type (“denominator”) value,
-        e.g., in “3/4” the pulse lengths are 3.0 (full cycle) and 1.0 (beat type).
+        This will include the full cycle and beat type ("denominator") value,
+        e.g., in "3/4" the pulse lengths are 3.0 (full cycle) and 1.0 (beat type).
         If there are other regular levels between the two, they will be added
-        only if the user has first called `fill_2s_3s` (it does not run by default).
-        For instance, the splitting of 4 into 2+2 is user choice (see `fill_2s_3s`)
-        With this split, this “4/4” has pulse lengths of 4.0 (full cycle)
+        only if the user has first called `to_start_hierarchy(filled=True)`.
+        For instance, the splitting of 4 into 2+2 is user choice.
+        With this split, "4/4" has pulse lengths of 4.0 (full cycle)
         and 1.0 (beat type) as well as 2.0 given that the two twos are of one kind.
-        In “2+3/4” there is no such 2.0 (or 3.0) regularity, and so no pulse is
+        In "2+3/4" there is no such 2.0 (or 3.0) regularity, and so no pulse is
         created for that level.
 
         Examples
@@ -442,17 +455,9 @@ class TimeSignature:
         >>> ts_4_4.pulses
         [4.0, 1.0]
 
-        >>> ts_4_4.fill_2s_3s()
-        >>> ts_4_4.pulses
-        [4.0, 2.0, 1.0]
-
         >>> ts_6_8 = TimeSignature(as_string="6/8")
         >>> ts_6_8.pulses
         [3.0, 0.5]
-
-        >>> ts_6_8.fill_2s_3s()
-        >>> ts_6_8.pulses
-        [3.0, 1.5, 0.5]
 
         """
         pulses = [float(self.cycle_length), 4 / self.beat_type]
@@ -477,9 +482,9 @@ class TimeSignature:
 
         Enforcing 2- and 3-grouping, this only applies to cases with a
         single beat in the "numerator". For instance,
-        given a “4/4” signature, this method will add the half-cycle (pulse value 2.0),
-        given a “6/8”, it will again add the half-cycle (pulse value 1.5),
-        and given a “12/8”, it will add both the half- and quarter-cycle
+        given a "4/4" signature, this method will add the half-cycle (pulse value 2.0),
+        given a "6/8", it will again add the half-cycle (pulse value 1.5),
+        and given a "12/8", it will add both the half- and quarter-cycle
         (pulse values 3.0 and 1.5),
 
         This functionality is factored out and does not run by default.
@@ -632,18 +637,13 @@ class TimeSignature:
 
         """
         # 1. Basic elements: all periodic cycles from the full cycle to the `beat_type` level.
-        pulses = (
-            PulseLengths(  # TODO consistency wrt what is added to the class.
-                pulse_lengths=self.pulses, cycle_length=self.cycle_length
-            )
+        start_hierarchy = _pulse_lengths_to_starts(
+            self.pulses, self.cycle_length
         )
-        start_hierarchy = pulses.to_start_hierarchy()
 
         # 2. irregular beat layer, if applicable.
         if len(self.beats) > 1:  # not a regular pulse e.g., (2, 3)
-            bp = BeatPattern(
-                self.beats, self.beat_type
-            )  # TODO consistency wrt what is added to the class.
+            bp = BeatPattern(self.beats, self.beat_type)
             beat_starts = bp.beat_pattern_to_start_hierarchy()
             start_hierarchy.append(beat_starts)
 
@@ -651,7 +651,6 @@ class TimeSignature:
                 list(i) for i in set(map(tuple, start_hierarchy))
             ]
             start_hierarchy.sort(key=len)
-            # TODO consider move to StartTimeHierarchy?
 
         return start_hierarchy
 
@@ -709,14 +708,14 @@ class PulseLengths:
 
         That is, the user provides pulse lengths for each level of a
         metrical hierarchy, and the algorithm expands this into a hierarchy
-        assuming equal spacing (aka “isochrony”).
+        assuming equal spacing (aka "isochrony").
 
-        This does not work for (“nonisochronous”) pulse streams of varying duration
+        This does not work for ("nonisochronous") pulse streams of varying duration
         in time signatures like 5/x, 7/x (e.g., the level of 5/4 with
         dotted/undotted 1/2 notes).
 
         It is still perfectly fine to use this for the pulse streams
-        within those meters that are regular, equally spaced (“isochronous”)
+        within those meters that are regular, equally spaced ("isochronous")
         (e.g., the 1/4 note level of 5/4).
 
         The list of pulse lengths is handled internally in decreasing order,
@@ -766,7 +765,7 @@ class PulseLengths:
 
         """
 
-        if require_2_or_3_between_levels:  # TODO consider refactor
+        if require_2_or_3_between_levels:
             for level in range(len(self.pulse_lengths) - 1):
                 if self.pulse_lengths[level] / self.pulse_lengths[
                     level + 1
@@ -797,9 +796,10 @@ class PulseLengths:
         All expressed in quarter length.
 
         Note:
-        A maximum of 4 decimal places is hardcoded.
-        This is to avoid floating point errors or the need for one line of numpy (np.arange)
-        in a module that doesn't otherwise use it.
+        A maximum of 4 decimal places is hardcoded to avoid accumulated floating-point
+        error from repeated addition.  `np.arange` with float steps has the same
+        problem (its output requires identical rounding), so plain iteration + round()
+        is preferred here to keep the dependency-free path simple.
         4 decimal points should be sufficient for all realistic use cases.
 
         Parameters
@@ -857,7 +857,7 @@ class PulseLengths:
             shape=(1, linear_positions), fill_value=tatum, dtype=np.float64
         )
         symbolic_pulse_length_array = np.array(granular_row)
-        for pulse in self.pulse_lengths[-2::-1]:  # TODO check len?
+        for pulse in self.pulse_lengths[-2::-1]:
             multiple_of_tatum = int(pulse / tatum)
             divider_of_cycle = int(linear_positions / multiple_of_tatum)
             proto_row = np.zeros((1, multiple_of_tatum))
@@ -892,7 +892,6 @@ class BeatPattern:
 
         self.beat_list = beat_list
         self.beat_type = beat_type
-        self.start_time_hierarchy = self.beat_pattern_to_start_hierarchy()
 
     def beat_pattern_to_start_hierarchy(
         self, include_cycle_length: bool = True
@@ -906,7 +905,7 @@ class BeatPattern:
         into a list of within-cycle starting positions, as defined relative
         to the start of the cycle.
         Basically, the list of beats functions like the time signature's
-        so-called “numerator”,
+        so-called "numerator",
         so for instance, `[2, 2, 3]` with the denominator `4` is a kind of 7/4.
         This equates to starting positions of
         `[0.0, 2.0, 4.0, 7.0]`.
@@ -946,7 +945,7 @@ class VariableNesting:
     Support the encoding of variably-nested list of numeric positions.
     Main operations are
     1. to store this data as is
-    2. to convert to `to_start_hierarchy` for inclusion in shared processes.
+    2. to convert to `start_hierarchy` for inclusion in shared processes.
 
     Parameters
     ----------
@@ -957,7 +956,14 @@ class VariableNesting:
 
     def __init__(self, nested: list):
         self.nested = nested
-        self.start_time_hierarchy = self.to_start_hierarchy()
+        self._start_hierarchy = None  # computed lazily
+
+    @property
+    def start_hierarchy(self) -> list[list[float]]:
+        """Compute and cache the start hierarchy on first access."""
+        if self._start_hierarchy is None:
+            self._start_hierarchy = self.to_start_hierarchy()
+        return self._start_hierarchy
 
     def to_start_hierarchy(self) -> list[list[float]]:
         """
@@ -1053,6 +1059,13 @@ def _collect_by_depth(
     The boundary values of a sub-list
     (the scalars immediately preceding and following it in the parent)
     are also recorded at the sub-list's depth, so that each level spans the full cycle.
+
+    Note:
+    The first element of a nested sub-list is treated as belonging to the
+    *parent* depth, not the child depth.
+    This is intentional: that element marks the coarser-level boundary at which the local subdivision begins,
+    so it must appear in the parent level to maintain a fully-spanning hierarchy.
+    The remaining elements of the sub-list (index 1 onward) are recursed at the child depth.
     """
     if accumulator is None:
         accumulator = {}
@@ -1071,6 +1084,8 @@ def _collect_by_depth(
                         float(boundary)
                     )
 
+            # item[0] is the coarse boundary where subdivision starts; it belongs
+            # at current_depth so the parent level remains fully spanning.
             accumulator.setdefault(current_depth, []).append(float(item[0]))
 
             _collect_by_depth(item[1:], child_depth, accumulator)
@@ -1081,7 +1096,17 @@ def _collect_by_depth(
 
 
 def _left_neighbour(items: list, index: int) -> Optional[float]:
-    """Return the nearest item to the left of *index*, or None."""
+    """
+    Return the nearest scalar item to the left of *index* in *items*, or None.
+
+    Examples
+    --------
+    >>> _left_neighbour([0, [4, 8], 12], 1)
+    0
+
+    >>> _left_neighbour([[4, 8], 12], 0) is None
+    True
+    """
     for j in range(index - 1, -1, -1):
         if not isinstance(items[j], list):
             return items[j]
@@ -1089,7 +1114,17 @@ def _left_neighbour(items: list, index: int) -> Optional[float]:
 
 
 def _right_neighbour(items: list, index: int) -> Optional[float]:
-    """Return the nearest item to the right of *index*, or None."""
+    """
+    Return the nearest scalar item to the right of *index* in *items*, or None.
+
+    Examples
+    --------
+    >>> _right_neighbour([0, [4, 8], 12], 1)
+    12
+
+    >>> _right_neighbour([0, [4, 8]], 1) is None
+    True
+    """
     for j in range(index + 1, len(items)):
         if not isinstance(items[j], list):
             return items[j]
@@ -1105,6 +1140,11 @@ def _build_hierarchy(
     Each level is the union of its own positions and all coarser levels,
     sorted and de-duplicated.  Level 0 collapses to just [first, last] (the
     cycle-span level).
+
+    Examples
+    --------
+    >>> _build_hierarchy({0: [0.0, 12.0, 24.0], 1: [0.0, 4.0, 8.0, 12.0, 24.0]})
+    [[0.0, 24.0], [0.0, 12.0, 24.0], [0.0, 4.0, 8.0, 12.0, 24.0]]
     """
     depths = sorted(positions_by_depth.keys())
     all_positions: list[float] = sorted(

@@ -163,19 +163,12 @@ def duration_distribution_2(
 
     # Ignore notes that are tied from previous notes by keeping track
     # of them in a set:
-    tied_notes = set()
     for p in score.find_all(Part):
         part: Part = cast(Part, p)
         prev_dur = None
         prev_bin = None
         for n in part.find_all(Note):
             note: Note = cast(Note, n)
-            if note in tied_notes:
-                # skip tied notes
-                continue
-            if note.tie:
-                # add tied notes to set so we can skip them later
-                tied_notes.add(note)
             dur = note.duration
             prev_bin = h.add_point_2d(prev_dur, dur, 1.0, prev_bin)
             prev_dur = dur

@@ -1,7 +1,12 @@
 """
-envelope.py
+In this directory:
+- `skyline` returns a score with the highest sounding notes at any given point.
+- `extreme` is similar, and designed to match the MIDI toolkit as exactly as possible.
+- [this module] `envelope` is a variant on skyline that could be said to constitute a "smoothed" form,
+    and (currently) operates on pitch-onset pairs only (analysis only, no score return).
+- `superlative` is the most reductive, returning only the *single* highest/lowest/sharpest/flattest value.
 
-The `skyline.py` module demonstrates a strict case retrieving the
+The `skyline.py` module demonstrates a strict case of retrieving the
 highest sounding notes at any given point (with caveats as noted there).
 
 Here, we implement a variant that could be said to constitute a "smoothed" form of the same.
@@ -17,17 +22,17 @@ Moreover, even in the absence of this implied polyphony,
 a single monodic melody often outlines a simpler shape with elaborations.
 Mozart's first piano sonata (K279) begins with the line
 C B D C E D F E G F A
-which clearly outlines (or is an elabroated form of)
+which clearly outlines (or is an elaborated form of)
 C D E F G A.
 
 Both of these scenarios are captures by the `envelope`.
 
-In the language data science, we seek the "upper and lower envelope for sequential data".
+In the language of data science, we seek the "upper and lower envelope for sequential data".
 
 Terminology
 -----------
 The `skyline` is used here to denote the upper envelope (aka the "ceiling", or "roofline").
-The `valleyline` refers to the the lower envelope (aka the "valley floor").
+The `valleyline` refers to the lower envelope (aka the "valley floor").
 
 The algorithm
 -------------
@@ -36,7 +41,7 @@ minimum — i.e. it is not strictly below BOTH of its nearest retained neighbour
 Equivalently: we iteratively remove strict local minima until none remain.
 
 This produces a piecewise-linear boundary that:
-  - passes through actual data points (not a fitted curve)
+  - passes through actual data points (not a fitted curve unlike in some other approaches to contour)
   - retains an arbitrary number of direction changes
   - excludes only points that genuinely dip below (or rise above) their context
   - is parameter-free at tolerance=0 (a tolerance>0 also removes near-flat dips)
@@ -47,9 +52,10 @@ Supported input forms
 ---------------------
 1. String of digit characters  e.g. "313131" as a toy shorthand for test cases
 2. Sequence of scalar values e.g. [3, 1, 3, 1, ...] which is more usable for MIDI pitch numbers for instance
-    (in this case a fake onset sequence is synthesised with natural numbers 1, 2, 3, ...)
-3. Sequence of (onset, pitch) pairs which data source gives us user- or score-specfied x-spacing.
-4. A `Score` object or equivalent (internally using the `.find_all(Note)` functionality to get the above data.
+    (in this case a fake onset sequence is created with natural numbers 1, 2, 3, ...)
+3. Sequence of (onset, pitch) pairs which data source gives us user- or score-specified x-spacing.
+4. A `Score` object or equivalent, in which case we
+    internally use the `.find_all(Note)` functionality to get the above data.
 
 <small>**Author**: Mark Gotham</small>
 """
@@ -152,7 +158,7 @@ def _extract_from_score(
 
     for note in score.find_all(Note):
         onset = float(note.onset)
-        midi = float(note.key_num)
+        midi = float(note.midi_num)
         if onset not in pairs:
             pairs[onset] = midi
         else:
@@ -279,21 +285,24 @@ def skyline_envelope(source, tolerance: float = 0.0) -> PointList:
 
     Parameters
     ----------
-    source : As described at the top of this module:
-        str of digits,
-        sequence of scalars,
-        sequence of (onset, pitch) pairs,
-        score object with .find_all(Note)
-    tolerance: points that dip no more than this amount below their neighbours are also removed
-        (default 0 = exact envelope)
+    source
+        (See "Supported input forms" at the top of this module.)
+
+        - str of digits,
+        - sequence of scalars,
+        - sequence of (onset, pitch) pairs,
+        - score object with .find_all(Note)
+    tolerance: float
+        points that dip no more than this amount below their neighbours
+        are also removed (default 0 = exact envelope)
 
     Returns
     -------
-    list of (onset, pitch) float pairs on the upper envelope
+    PointList
+        list of (onset, pitch) float pairs on the upper envelope
 
     Examples
     --------
-
     Test some inpute types.
 
     >>> test_case = skyline_envelope("31513")
@@ -325,11 +334,21 @@ def valleyline_envelope(source, tolerance: float = 0.0) -> PointList:
 
     Parameters
     ----------
-    See skyline_envelope
+    source
+        (See "Supported input forms" at the top of this module.)
+
+        - str of digits,
+        - sequence of scalars,
+        - sequence of (onset, pitch) pairs,
+        - score object with .find_all(Note)
+    tolerance: float
+        points that dip no more than this amount below their neighbours
+        are also removed (default 0 = exact envelope)
 
     Returns
     -------
-    list of (onset, pitch) float pairs on the lower envelope
+    PointList
+        list of (onset, pitch) float pairs on the upper envelope
 
     Examples
     --------
@@ -364,6 +383,26 @@ def valleyline_envelope(source, tolerance: float = 0.0) -> PointList:
 def skyline_values(source, tolerance: float = 0.0) -> list[float]:
     """Upper envelope as a plain list of y-values (onset coordinates omitted).
 
+    Parameters
+    ----------
+    source
+        (See "Supported input forms" at the top of this module.)
+
+        - str of digits,
+        - sequence of scalars,
+        - sequence of (onset, pitch) pairs,
+        - score object with .find_all(Note)
+    tolerance: float
+        points that dip no more than this amount below their neighbours
+        are also removed (default 0 = exact envelope)
+
+    Returns
+    -------
+    PointList
+        list of (onset, pitch) float pairs on the upper envelope
+
+    Examples
+    --------
     >>> skyline_values("31513")
     [3.0, 5.0, 3.0]
 
@@ -376,6 +415,26 @@ def skyline_values(source, tolerance: float = 0.0) -> list[float]:
 def valleyline_values(source, tolerance: float = 0.0) -> list[float]:
     """Lower envelope as a plain list of y-values (onset coordinates omitted).
 
+    Parameters
+    ----------
+    source
+        (See "Supported input forms" at the top of this module.)
+
+        - str of digits,
+        - sequence of scalars,
+        - sequence of (onset, pitch) pairs,
+        - score object with .find_all(Note)
+    tolerance: float
+        points that dip no more than this amount below their neighbours
+        are also removed (default 0 = exact envelope)
+
+    Returns
+    -------
+    PointList
+        list of (onset, pitch) float pairs on the upper envelope
+
+    Examples
+    --------
     >>> valleyline_values("31513")
     [3.0, 1.0, 1.0, 3.0]
     """
