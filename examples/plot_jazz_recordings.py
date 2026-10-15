@@ -233,12 +233,12 @@ coef_labels = [
 odds_ratios = np.exp(model.named_steps["logisticregression"].coef_.flatten())
 
 # Create the plot
-plt.bar(coef_labels, odds_ratios)
-ax = plt.gca()
+fig, ax = plt.subplots()
+ax.bar(coef_labels, odds_ratios)
 ax.set(xlabel="Feature", ylabel="Odds ratio")
 ax.tick_params(axis="x", labelrotation=90)
 ax.axhline(1, 0, 1, color="black")
-plt.tight_layout()
+fig.tight_layout()
 plt.show()
 
 # %%

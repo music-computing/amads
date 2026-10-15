@@ -125,3 +125,10 @@ def test_jazz_example_handles_all_burs_filtered_out(jazz_example):
     )
     assert np.isnan(mean)
     assert np.isnan(std)
+
+
+def test_jazz_example_uses_separate_figures(jazz_example):
+    example, _ = jazz_example
+    assert example["disp"].figure_ is not example["fig"]
+    assert example["disp"].ax_ is not example["ax"]
+    assert len(example["ax"].patches) == 7
