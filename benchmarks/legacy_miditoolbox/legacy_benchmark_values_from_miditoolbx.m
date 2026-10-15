@@ -6,6 +6,7 @@
 m = readmidi('sarabande.mid'); % music from amads package, note that this type 0 midi
 m = m(1:10,:); % for convenience, take just 10 first notes (1:10)
 
+
 % Distributions
 pcdist1_m = pcdist1(m);
 ivdist1_m = ivdist1(m);
@@ -36,6 +37,7 @@ melaccent_m = melaccent(m);
 
 meter_default_m = meter(m);
 meter_optimal_m = meter(m, 'optimal');
+meteraccent_m = meteraccent(m);
 metrichierarchy_m = metrichierarchy(m);
 
 
@@ -91,6 +93,7 @@ data.narmour_co = narmour_co;
 data.tessitura = tessitura_m;
 data.meter_default = meter_default_m;
 data.meter_optimal = meter_optimal_m;
+data.meteraccent = meteraccent_m;
 data.metrichierarchy = metrichierarchy_m;
 
 jsonStr = jsonencode(data);

@@ -40,15 +40,10 @@ def melodic_accent(score: Score) -> Score | None:
 
     References
     ----------
-    Joseph Thomassen, "Melodic accent: Experiments and a tentative model,"
-       Journal of the Acoustical Society of America, Vol. 71, No. 6 (1982) pp.1598-
-       1605; see also, Erratum, Journal of the Acoustical Society of America,
-       Vol. 73, No. 1 (1983) p.373.
-
-    Examples
-    --------
-    >>> score = Score.from_melody([60, 64, 62])
-    >>> annotated_score = melodic_accent(score)
+        Joseph Thomassen, "Melodic accent: Experiments and a tentative model,"
+            Journal of the Acoustical Society of America, Vol. 71, No. 6 (1982)
+            pp.1598-1605; see also, Erratum, Journal of the Acoustical Society 
+            of America, Vol. 73, No. 1 (1983) p.373.
     """
 
     notes_iter = score.find_all(Note)
@@ -68,7 +63,6 @@ def melodic_accent(score: Score) -> Score | None:
     # Analyze each three-note window
     for note in notes_iter:
         window.append(note)
-        # obtain first 2 notes for the 3-note window
         prev_note, current_note, next_note = window
         # Calculate intervals between adjacent notes
         prev_interval = current_note.midi_num - prev_note.midi_num

@@ -10,12 +10,18 @@ from tests.matlab_crosstesting_utils import (
 )
 
 
-def test_empty_melody():
+def test_score_size_edge_cases():
     """
-    Test empty melody
+    Test edge cases (0, 1, 2 note scores should all return None)
     """
     empty_score = Score()
     assert melodic_accent(empty_score) is None
+
+    one_note_score = Score.from_melody([60])
+    assert melodic_accent(one_note_score) is None
+
+    two_note_score = Score.from_melody([60, 62])
+    assert melodic_accent(two_note_score) is None
 
 
 def test_melodic_peak():
@@ -68,7 +74,7 @@ def test_midi_sarabande():
 
 
 if __name__ == "__main__":
-    test_empty_melody()
+    test_score_size_edge_cases()
     test_melodic_peak()
     test_melodic_valley()
     test_midi_sarabande()

@@ -91,9 +91,9 @@ def gradus(score: Score) -> float | None:
 
     References
     ----------
-    .. [1] Euler, L. (1739). Tentamen novae theoriae musicae.
-    .. [2] Leman, M. (1995). Music and schema theory: Cognitive foundations of
-           systematic musicology. Berlin: Springer.
+        Euler, L. (1739). Tentamen novae theoriae musicae.
+        Leman, M. (1995). Music and schema theory: Cognitive foundations of
+            systematic musicology. Berlin: Springer.
     """
 
     note_iter = score.find_all(Note)

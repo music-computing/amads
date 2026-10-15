@@ -35,3 +35,7 @@
 -------------------
 
 ::: amads.time.meter.metric_hierarchy
+
+-------------------
+
+::: amads.time.meter.meter_accent

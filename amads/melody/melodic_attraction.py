@@ -259,7 +259,8 @@ def melodic_attraction(score: Score, key: int | None = None) -> Score | None:
 
     References
     ----------
-        Lerdahl, F. (1996). Calculating tonal tension. Music Perception, 13(3), 319-363.
+        Lerdahl, F. (1996). Calculating tonal tension. Music Perception, 13(3),
+            319-363.
     """
 
     if next(score.find_all(Note), None) is None:
@@ -278,9 +279,7 @@ def melodic_attraction(score: Score, key: int | None = None) -> Score | None:
     # generate 4 independent tee iterators to generate the new feature iterators
     tee_note_gens = tee(note_gen, 4)
 
-    anchorweights, anchorweights_gen = _get_anchorweights(
-        tee_note_gens[0], mode_strs
-    )
+    anchorweights, anchorweights_gen = _get_anchorweights(tee_note_gens[0], mode_strs)
     direct_motion_gen = _get_directed_motion_indices(tee_note_gens[1])
     proximity_gen = _get_proximity(tee_note_gens[2])
 
@@ -320,8 +319,7 @@ def melodic_attraction(score: Score, key: int | None = None) -> Score | None:
         ]
 
         neighbor_checks = [
-            first_anchorweight < neighbor
-            for i, neighbor in enumerate(neighbors)
+            first_anchorweight < neighbor for i, neighbor in enumerate(neighbors)
         ]
         neighbor_checks[len(neighbor_checks) // 2] = False
 
@@ -340,9 +338,7 @@ def melodic_attraction(score: Score, key: int | None = None) -> Score | None:
             best_alternative = 0
             sum_of_alternatives = 0.0
             all_alternative_attraction = []
-            for i, (neighbor, check) in enumerate(
-                zip(neighbors, neighbor_checks)
-            ):
+            for i, (neighbor, check) in enumerate(zip(neighbors, neighbor_checks)):
                 if check:
                     alternative_anchor = neighbor
                     assert alternative_anchor > 0
@@ -353,9 +349,7 @@ def melodic_attraction(score: Score, key: int | None = None) -> Score | None:
                     )
                     sum_of_alternatives += alternative_attraction
                     all_alternative_attraction.append(alternative_attraction)
-                    best_alternative = max(
-                        best_alternative, alternative_attraction
-                    )
+                    best_alternative = max(best_alternative, alternative_attraction)
 
             correction = (
                 sum_of_alternatives - best_alternative

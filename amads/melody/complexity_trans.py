@@ -133,12 +133,12 @@ def complexity_trans(score: Score) -> float | None:
 
     References
     ----------
-    .. [1] Simonton, D. K. (1984). Melodic structure and note transition
-           probabilities: A content analysis of 15,618 classical themes.
-           Psychology of Music, 12, 3-16.
-    .. [2] Simonton, D. K. (1994). Computer content analysis of melodic
-           structure: Classical composers and their compositions.
-           Psychology of Music, 22, 31-43.
+        Simonton, D. K. (1984). Melodic structure and note transition
+            probabilities: A content analysis of 15,618 classical themes.
+            Psychology of Music, 12, 3-16.
+        Simonton, D. K. (1994). Computer content analysis of melodic
+            structure: Classical composers and their compositions.
+            Psychology of Music, 22, 31-43.
     """
     if not score.ismonophonic():
         return None

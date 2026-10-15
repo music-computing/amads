@@ -480,13 +480,13 @@ def narmour(score: Score, principle: NarmourOption) -> tuple[Score, str] | None:
 
     References
     ----------
-    .. [1] Narmour, E. (1990). The Analysis and cognition of basic melodic
-           structures: The Implication-realization model. Chicago: University
-           of Chicago Press.
-    .. [2] Schellenberg, E. G. (1997). Simplifying the implication-realization
-           model of melodic expectancy. Music Perception, 14, 295-318.
-    .. [3] Krumhansl, C. L. (1995). Effects of musical context on similarity
-           and expectancy. Systematische musikwissenschaft, 3, 211-250.
+        Narmour, E. (1990). The Analysis and cognition of basic melodic
+            structures: The Implication-realization model. Chicago: University
+            of Chicago Press.
+        Schellenberg, E. G. (1997). Simplifying the implication-realization
+            model of melodic expectancy. Music Perception, 14, 295-318.
+        Krumhansl, C. L. (1995). Effects of musical context on similarity
+            and expectancy. Systematische musikwissenschaft, 3, 211-250.
     """
 
     # Calculate expectations based on selected principle
