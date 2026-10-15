@@ -253,15 +253,31 @@ def _safe_expand_multistaff(score):
         for element in original_part.getElementsNotOfClass(stream.Measure):
             new_part.insert(element.offset, copy.deepcopy(element))
 
-        # Rebuild this part in the same expanded order as master.
+        # Rebuild this part in the same expanded order as master. append()
+        # would place each measure at the previous measure's highestTime,
+        # which drifts when a measure's content is shorter than its slot, so
+        # place measures using the original spacing between measure offsets.
+        cursor = 0.0
         for measure_index in performed_measure_indices:
             if 0 <= measure_index < len(original_measures):
-                copied = copy.deepcopy(original_measures[measure_index])
-                new_part.append(copied)
+                original = original_measures[measure_index]
+                copied = copy.deepcopy(original)
+                new_part.insert(cursor, copied)
+                if measure_index + 1 < len(original_measures):
+                    slot = (
+                        original_measures[measure_index + 1].offset
+                        - original.offset
+                    )
+                else:
+                    slot = max(
+                        original.barDuration.quarterLength,
+                        original.highestTime,
+                    )
+                cursor += float(slot)
 
         new_score.insert(original_part.offset, new_part)
 
-    return new_score.makeNotation()
+    return new_score
 
 
 def music21_import(
@@ -623,13 +639,19 @@ def music21_convert_chord(m21chord, measure, offset, ignore_hidden):
     ignore_hidden: bool
         Whether to include hidden notes
     """
-    # it appears that you cannot hide individual notes,
-    # but perhaps you can hide the whole chord:
-    if (
-        m21chord.hasStyleInformation
-        and m21chord.style.hideObjectOnPrint
-        and ignore_hidden
-    ):
+
+    # A music21 Chord holds individual Notes, each with its own style, so
+    # individual chord notes can be hidden even if the chord is not.
+    def is_hidden(m21obj):
+        return m21obj.hasStyleInformation and m21obj.style.hideObjectOnPrint
+
+    if is_hidden(m21chord) and ignore_hidden:
+        return 0.0
+
+    m21notes = [
+        n for n in m21chord.notes if not (ignore_hidden and is_hidden(n))
+    ]
+    if not m21notes:  # every note in the chord is hidden
         return 0.0
 
     duration = float(m21chord.quarterLength)
@@ -638,15 +660,18 @@ def music21_convert_chord(m21chord, measure, offset, ignore_hidden):
         onset=float(measure.onset + m21chord.offset),
         duration=duration,
     )
-    for pitch in m21chord.pitches:
+    for m21note in m21notes:
+        pitch = m21note.pitch
         note = Note(
             parent=chord,
             onset=float(measure.onset + m21chord.offset),
             pitch=Pitch(pitch=pitch.midi, alt=pitch.alter),
             duration=duration,
         )
-        if m21chord.tie is not None:
-            music21_convert_tie(pitch.midi, note, m21chord.tie.type)
+        if is_hidden(m21note):
+            note.set("hide_on_print", True)
+        if m21note.tie is not None:
+            music21_convert_tie(pitch.midi, note, m21note.tie.type)
 
     for exp in m21chord.expressions:
         if isinstance(exp, expressions.ArpeggioMark):
@@ -892,9 +917,19 @@ def music21_convert_measure(m21measure, staff, ignore_hidden):
     highest_time = append_items_to_measure(
         measure, m21measure, m21measure.offset, ignore_hidden
     )
-    # now that we know what's in it, fix the duration to actual duration
-    assert highest_time - measure.onset <= measure.duration + 0.001
-    measure.duration = highest_time - measure.onset
+    # now that we know what's in it, fix the duration to actual duration.
+    # Some real-world MusicXML files have content (e.g. tuplet figuration,
+    # notation errors) that runs slightly or significantly past the
+    # notated measure duration. Rather than crash, extend the measure to
+    # fit the content and warn so the discrepancy is visible.
+    content_duration = highest_time - measure.onset
+    if content_duration > measure.duration + 0.001:
+        warnings.warn(
+            "Music21 measure content extends beyond the notated measure"
+            f" duration at onset {measure.onset}: notated duration is"
+            f" {measure.duration} but content ends at {content_duration}."
+        )
+    measure.duration = max(content_duration, measure.duration)
     return measure
 
 
