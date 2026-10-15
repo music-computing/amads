@@ -8,6 +8,8 @@ Ports the `meteraccent` function from Midi Toolbox.
 Original doc: github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf, page 74.
 """
 
+from statistics import mean
+
 from amads.core.basics import Note, Score
 from amads.melody.melodic_accent import melodic_accent
 from amads.pitch.pcdist1 import duraccent
@@ -63,17 +65,14 @@ def meter_accent(score: Score, miditoolbox_compatible: bool = True) -> float:
     if not score_meter_state:
         score.convert_to_seconds()
 
-    # calculates the dot product and divides by the length of accent feature
-    # vectors
-    running_sum = 0
-    running_count = 0
-    for note in score.find_all(Note):
-        running_count += 1
-        note_hierarchy = note.get("metric_hierarchy")
-        note_accent = note.get("melodic_accent")
-        running_sum += note_accent * note_hierarchy * duraccent(note)
+    accent_mean = mean(
+        note.get("metric_hierarchy")
+        * note.get("melodic_accent")
+        * duraccent(note)
+        for note in score.find_all(Note)
+    )
 
     if not score_meter_state:
         score.convert_to_quarters()
 
-    return -1 * running_sum / running_count
+    return -1 * accent_mean

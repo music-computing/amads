@@ -5,7 +5,7 @@
 
 m = readmidi('sarabande.mid'); % music from amads package, note that this type 0 midi
 m = m(1:10,:); % for convenience, take just 10 first notes (1:10)
-
+m(:, 3) = 1;
 
 % Distributions
 pcdist1_m = pcdist1(m);

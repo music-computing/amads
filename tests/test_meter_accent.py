@@ -20,7 +20,9 @@ def test_score_size_edge_cases():
 
 
 def test_normal_scores():
-    regular_score = Score.from_melody(pitches=[60, 64, 67], durations=[1.0, 0.5, 1.0])
+    regular_score = Score.from_melody(
+        pitches=[60, 64, 67], durations=[1.0, 0.5, 1.0]
+    )
     regular_result = meter_accent(regular_score)
     desired_regular_result = -1.10080924747657
     assert math.isclose(regular_result, desired_regular_result)

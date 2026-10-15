@@ -16,9 +16,8 @@ from amads.time.meter.meter_autocorrelation import meter_autocorrelation
 
 
 def _onset_meter_estimate(
-        score: Score, 
-        miditoolbox_compatible: bool = True
-    ) -> Iterator[tuple[float, Note]]:
+    score: Score, miditoolbox_compatible: bool = True
+) -> Iterator[tuple[float, Note]]:
     """
     Returns an iterator for meter estimation according to the note onset
     and duration.
@@ -66,8 +65,9 @@ def _onset_meter_estimate(
         )
 
 
-
-def metric_hierarchy(score: Score, miditoolbox_compatible: bool = True) -> Score | None:
+def metric_hierarchy(
+    score: Score, miditoolbox_compatible: bool = True
+) -> Score | None:
     """
     Each note in the score belongs to a metric hierarchy measured from 0 to 5,
     where 5 is the strongest and 0 is the weakest in the hierarchy.

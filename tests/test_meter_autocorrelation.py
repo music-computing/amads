@@ -21,7 +21,9 @@ def test_edge_cases():
 
 def test_basic_score():
     basic_score_durations = [float(i) for i in range(9)]
-    score = Score.from_melody(list(range(60, 69)), durations=basic_score_durations)
+    score = Score.from_melody(
+        list(range(60, 69)), durations=basic_score_durations
+    )
     desired_result = (2, 3)
     default_result = meter_autocorrelation(score, None)
     optimal_result = meter_autocorrelation(score, "Optimal")

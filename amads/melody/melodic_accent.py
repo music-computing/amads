@@ -42,7 +42,7 @@ def melodic_accent(score: Score) -> Score | None:
     ----------
         Joseph Thomassen, "Melodic accent: Experiments and a tentative model,"
             Journal of the Acoustical Society of America, Vol. 71, No. 6 (1982)
-            pp.1598-1605; see also, Erratum, Journal of the Acoustical Society 
+            pp.1598-1605; see also, Erratum, Journal of the Acoustical Society
             of America, Vol. 73, No. 1 (1983) p.373.
     """
 
