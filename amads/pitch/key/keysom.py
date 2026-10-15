@@ -7,7 +7,8 @@ gradient.
 
 Unlike the original miditoolbox implementation in matlab, the SOM here
 is allowed to use any key profile as long as it contains major and
-minor pitch profile attributes. See key/profiles.py for more details.
+minor pitch profile attributes. See
+[profiles][amads.pitch.key.profiles] for more details.
 
 Warnings
 --------
