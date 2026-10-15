@@ -1,6 +1,6 @@
 from typing import List
 
-from ...core.basics import Concurrence, Note
+from amads.core.basics import Concurrence, Note
 
 
 class Slice(Concurrence):
@@ -10,6 +10,8 @@ class Slice(Concurrence):
     windowing. A slice contains a list of notes that are sounding between its start
     and end times, as well as references to the original notes from which these
     were derived.
+
+    <small>**Author**: Peter Harrison</small>
 
     Parameters
     ----------
@@ -27,5 +29,7 @@ class Slice(Concurrence):
         onset: float = 0,
         duration: float = 0,
     ):
-        super().__init__(parent=None, onset=onset, duration=duration, content=[])
+        super().__init__(
+            parent=None, onset=onset, duration=duration, content=[]
+        )
         self.original_notes = original_notes

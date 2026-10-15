@@ -4,22 +4,18 @@ This module implements the salami slice algorithm, which segments a musical scor
 into vertical slices at each note onset and offset. Each slice contains all notes
 that are sounding at that point in time.
 
-Notes
------
-The algorithm is named after the way a salami sausage is sliced into thin,
-vertical segments.
+<small>**Author**: Peter Harrison</small>
 
-Author
-------
-Peter Harrison
+**Note**: The algorithm is named after the way a salami sausage is
+sliced into thin, vertical segments.
 """
 
 from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Iterable, List, Optional, Union
 
-from ...core.basics import Note, Score
-from .slice import Slice
+from amads.algorithms.slice.slice import Slice
+from amads.core.basics import Note, Score
 
 
 @dataclass
@@ -104,7 +100,7 @@ class Timepoint:
                     note_ons=note_ons[time],
                     note_offs=note_offs[time],
                     sounding_notes=sorted(
-                        list(sounding_notes), key=lambda n: n.key_num
+                        list(sounding_notes), key=lambda n: n.midi_num
                     ),
                 )
             )

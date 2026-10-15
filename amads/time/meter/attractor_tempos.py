@@ -6,12 +6,18 @@ The "Attractor tempos" theory (Gotham 2015, [1]) proposes
  and a definition of those moderate ("Attractor") tempos that accounts for the role of the metrical structure.
 In short, it provides a model for optimizing the salience of metrical structures.
 
+<small>**Author**: Mark Gotham</small>
+
+Reference
+---------
 [1] Gotham, M. (2015). Attractor tempos for metrical structures. Journal of Mathematics and Music, 9(1), 23–44.
 https://doi.org/10.1080/17459737.2014.980343
 """
 
 __author__ = "Mark Gotham"
 
+
+from typing import Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -42,7 +48,7 @@ class MetricalSalience:
     absolute_pulses:
         An adaptation of the symbolic pulse lengths array that maps each value from symbolic to seconds.
     salience_values:
-        An adaptation of the absolute pulse lengths to the equivalent salience values (see notes a `log_gaussian`).
+        An adaptation of the absolute pulse lengths to the equivalent salience values (see notes on `log_gaussian`).
     cumulative_salience_values:
         A 1D array summation of the absolute salience values by column (one value per metrical position).
     indicator:
@@ -52,7 +58,7 @@ class MetricalSalience:
     Examples
     --------
 
-    >>> from amads.time.meter import PulseLengths
+    >>> from amads.time.meter.representations import PulseLengths
     >>> pl = [4, 2, 1, 0.5]
     >>> pls = PulseLengths(pulse_lengths=pl, cycle_length=4)
     >>> arr = pls.to_array()
@@ -77,8 +83,8 @@ class MetricalSalience:
 
     def __init__(
         self,
-        symbolic_pulses: np.array = None,
-        quarter_bpm: float = None,
+        symbolic_pulses: Optional[np.ndarray] = None,
+        quarter_bpm: Optional[float] = None,
         mu: float = 0.6,
         sig: float = 0.3,
     ):
@@ -88,7 +94,9 @@ class MetricalSalience:
         self.sig = sig
         self.absolute_pulses = self.calculate_absolute_pulse_lengths()
         self.salience_values = self.calculate_salience_values()
-        self.cumulative_salience_values = self.calculate_cumulative_salience_values()
+        self.cumulative_salience_values = (
+            self.calculate_cumulative_salience_values()
+        )
         self.indicator = self.make_indicator()
 
     def calculate_absolute_pulse_lengths(self):
@@ -118,7 +126,12 @@ class MetricalSalience:
         """
         return (self.symbolic_pulses > 0).astype(int)
 
-    def plot(self, symbolic_not_absolute: bool = False, reverse_to_plot: bool = True):
+    def plot(
+        self,
+        symbolic_not_absolute: bool = False,
+        reverse_to_plot: bool = True,
+        show: bool = True,
+    ):
         """
         Plot the salience values with their respective contribution.
 
@@ -127,6 +140,11 @@ class MetricalSalience:
         symbolic_not_absolute: If True, plot only the indicator values (one per level).
             If False (default), plot the tempo- and meter-sensitive, weighted salience values.
         reverse_to_plot: If True (default), plot the fastest values at the bottom.
+
+        Returns
+        -------
+        Figure
+            A matplotlib.figure.Figure of the plotted salience values.
         """
         if symbolic_not_absolute:
             data = self.indicator
@@ -157,14 +175,17 @@ class MetricalSalience:
         ax.set_ylabel("Weighting")
         ax.legend()
         ax.grid(True)
-        return plt, fig
+        if show:
+            plt.show()
+        return fig
 
 
 def log_gaussian(arr: np.ndarray, mu: float = 0.6, sig: float = 0.3):
     """
     Compute a log-linear Gaussian which is the basis of individual pulse salience values.
     To avoid log(0) issues, `np.clip` values to be always greater than 0.
-    See also `MetricalSalience.get_salience_values`.
+    See also [MetricalSalience.calculate_salience_values]
+    [amads.time.meter.attractor_tempos.MetricalSalience.calculate_salience_values].
 
 
     Parameters

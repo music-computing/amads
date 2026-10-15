@@ -6,9 +6,10 @@ Tests functionality for calculating salience.
 
 import numpy as np
 import pytest
+from matplotlib import pyplot as plt
 
-from amads.time.meter import PulseLengths
 from amads.time.meter.attractor_tempos import MetricalSalience, log_gaussian
+from amads.time.meter.representations import PulseLengths
 
 
 @pytest.fixture
@@ -75,11 +76,11 @@ def test_get_cumulative_salience_values(metrical_salience_instance):
 
 def test_plot(metrical_salience_instance):
     """Tests the plot method with symbolic, and then salience data, showing the difference."""
-    plt, fig = metrical_salience_instance.plot(symbolic_not_absolute=True)
+    fig = metrical_salience_instance.plot(symbolic_not_absolute=True)
     plt.close(fig)
 
     metrical_salience_instance.calculate_salience_values()
-    plt, fig = metrical_salience_instance.plot(symbolic_not_absolute=False)
+    fig = metrical_salience_instance.plot(symbolic_not_absolute=False)
     plt.close(fig)
 
 

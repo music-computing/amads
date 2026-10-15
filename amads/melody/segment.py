@@ -1,9 +1,11 @@
 from typing import List
 
-from amads.core.basics import Note, Part, Score
+from amads.core.basics import Part, Score
 
 
-def fantastic_segmenter(score: Score, phrase_gap: float, units: str) -> List[Score]:
+def fantastic_segmenter(
+    score: Score, phrase_gap: float, units: str
+) -> List[Score]:
     """Segment melody into phrases based on IOI gaps.
     Parameters
     ----------
@@ -27,8 +29,7 @@ def fantastic_segmenter(score: Score, phrase_gap: float, units: str) -> List[Sco
         )
     if units == "quarters":
         # Extract notes from score
-        flattened_score = score.flatten(collapse=True)
-        notes = list(flattened_score.find_all(Note))
+        notes = score.get_sorted_notes()
 
         # Create a dictionary to store IOI information
         ioi_data = {}
@@ -63,7 +64,9 @@ def fantastic_segmenter(score: Score, phrase_gap: float, units: str) -> List[Sco
                 start_time = current_phrase[0].onset
                 # Adjust note timings relative to phrase start
                 for phrase_note in current_phrase:
-                    new_note = phrase_note.copy()
+                    # make a parentless copy of the note so we can adjust its onset
+                    # before inserting it into the new part in proper time order
+                    new_note = phrase_note.insert_copy_into(None)
                     new_note.onset -= start_time
                     part.insert(new_note)
                 phrase_score.insert(part)  # This will set the parent
@@ -74,10 +77,12 @@ def fantastic_segmenter(score: Score, phrase_gap: float, units: str) -> List[Sco
         # Append final phrase
         if len(current_phrase) > 0:
             phrase_score = Score(onset=0, duration=None)
-            part = Part(parent=None, onset=0, duration=None)  # parent=None is required
+            part = Part(
+                parent=None, onset=0, duration=None
+            )  # parent=None is required
             start_time = current_phrase[0].onset
             for phrase_note in current_phrase:
-                new_note = phrase_note.copy()
+                new_note = phrase_note.insert_copy_into(None)
                 new_note.onset -= start_time
                 part.insert(new_note)
             phrase_score.insert(part)  # This will set the parent

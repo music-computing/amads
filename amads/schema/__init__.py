@@ -1,0 +1,1 @@
+# amads.schema package initializer

@@ -1,126 +1,156 @@
 """
-Provides the `skyline` function
+In this directory:
+- [this module] `skyline` returns a score with the highest sounding notes at any given point.
+- `extreme` is similar, and designed to match the MIDI toolkit as exactly as possible.
+- `envelope` is a variant on skyline that could be said to constitute a "smoothed" form,
+    and (currently) operates on pitch-onset pairs only (analysis only, no score return).
+- `superlative` is the most reductive, returning only the *single* highest/lowest/sharpest/flattest value.
+
+This module author:
+<small>**Author**: Roger Dannenberg
 """
 
-from ..core.basics import Part, Score
+__author__ = "Roger Dannenberg"
+
+from typing import List, Optional, cast
+
+from amads.core.basics import Note, Part, Score
 
 
-def skyline(score: Score, threshold: float = 0.1):
+def skyline(score: Score, threshold: float = 0.1) -> Score:
     """
     Finds the skyline of a musical score.
 
-    (Copy-pasted from Prof Dannenberg's email)
     Filters a score, removing any note that is below another note.
     There are tricky edge cases:
 
-    - A lower note that quickly is followed by a higher note: Probably the
-      right thing is ignore the lower note if the time to the upper note is
-      less than some threshold (maybe default to 0.1 beats) that can be set
-      through a keyword parameter.
-    - (not implemented yet) A rolled chord with 10 notes starts at the bottom,
-      and every 0.05 quarter notes, a new note enters. So the previous rule
-      applies to each note but the top note is a full 0.45 quarters after the
-      first one? Do we still ignore notes? I would say yes.
-    - A lower note is not so quickly followed by a higher note. Shorten the
-      lower note to end at the time of the upper note.
+    - A higher note can occur while a lower note is still sounding. The lower
+      note is shortened to end at the onset of the upper note.
+    - A higher note can follow a lower note very quickly: Rather than setting
+      the lower note's duration to a very small value, the lower note is
+      completely removed and ignored. The lower bound on duration is set by
+      the `threshold` parameter.
+    - A rolled chord with 10 notes starts at the bottom, and every 0.05
+      quarter notes, a new note enters. So the previous rule applies to
+      each note, making the top note is a full 0.45 quarters after the
+      first one. Even in this case, the previous rule is applied repeatedly,
+      leaving a gap (rest) of at least 0.45 quarters.
     - An upper note of a melody sustains in a legato fashion past the next,
-      but lower, note of the melody. Though musically the upper note should
-      be shortened and we should keep the lower note, the "skyline" concept
-      says the top note has priority, so shift the onset time of the lower
-      note to the end time of the upper note, and shorten the lower note
-      duration so that it still ends at the same time as before.
-    - It is common to have melodies in lower voices. This algorithm just fails
-      to find the melody.
+      but lower, note of the melody. Although, musically, the upper note
+      should be shortened and we should keep the lower note, the “skyline”
+      concept says the top note has priority, so the lower note is ignored
+      if the overlap is greater than `threshold`.
+    - It is common to have melodies in lower voices or in MIDI arrangements
+      to have very high accompaniment notes in a non-melodic track. This
+      algorithm just fails to find the melody in those cases.
 
+    Parameters
+    ----------
+    score : Score
+        The musical score to filter
+    threshold : float
+        The threshold for quickly followed notes (default 0.1) and allowed
+        overlap. Processing onsets in time order, if an onset is within
+        `threshold` of the previous onset, the two notes are considered
+        to be conconcurrent, and only the top note is considered in
+        constructing the skyline. In the case of processing a note that
+        is lower in pitch than the current skyline, we ignore the note
+        if the skyline extends more than `threshold` beyond the note's
+        onset. Otherwise, we shorten the skyline duration to end at the
+        note onset and append the note to the skyline.
 
-    Args:
-        score (Score): The musical score to filter
-        threshold (float, optional): The threshold for quickly followed notes
-                                     (default 0.1)
+    Returns
+    -------
+    Score
+        A new score containing the “skyline” notes
 
-    Returns:
-        Score: A new score containing the "skyline" notes
+    Algorithm
+    ---------
+    The basic idea is to scan notes and copy them to skyline, a Part object
+    belonging to a new Score. We can use shallow copy because notes are
+    already deep-copied from score after merge_tied_notes.
+
+    In the outer looop, we test each note to see if it is below the skyline
+    as it exists so far. Since we process in order, we know each note cannot
+    start before any note in the skyline. If the note is higher than the
+    most recent skyline note (so far), there are two cases:
+
+    1. The new note is approximately concurrent with the most recent skyline
+       note: Replace the most recent skyline note with this one.
+    2. The new note is after the most recent skyline note: Append the new
+       note to the skyline. If the previous note overlaps the new note,
+       adjust the previous note's duration to end at the onset of the new
+       note.
+
+    A consequence of this algorithm is that a very long low note will
+    be shortened to the onset time of a new note, so a piano roll like
+    this:
+    ```
+                               ----------
+             ------------------------------------------
+    ```
+    will result in this:
+    ```
+                               ----------
+             ------------------          (nothing here)
+    ```
+    rather than this:
+    ```                        ----------
+             ------------------          --------------
+    ```
+
+    Another consequence is that since skyline notes are never lengthened,
+    there can be gaps in the skyline. It can look like this, where gaps
+    (rests) can occur between notes:
+    ```
+                           ------      -----
+             --------            ------         -------
+    ```
     """
+    # this code is based on get_sorted_notes():
+    score = score.flatten(collapse=True)  # deep copies the score
+    skyline: Part = cast(
+        Part, score.content[0]
+    )  # types: ignore (retrieves the Part)
+    notes: List[Note] = cast(
+        List[Note], skyline.content
+    )  # (content is all Notes)
+    skyline.content = []  # we will construct skyline from notes here
 
-    score = score.merge_tied_notes()
-    new_score = score.emptycopy()
-    skyline = Part(parent=new_score)
-    notes = score.get_sorted_notes()
+    prev_note: Optional[Note] = None
+    for note in notes:
+        if prev_note is None:
+            skyline.content.append(note)
+            prev_note = note
 
-    # Algorithm: the basic idea is to scan notes and copy them
-    # to skyline, a Part object. We can use shallow copy
-    # because notes are already deep copied from score after
-    # merge_tied_notes.
-    #
-    # In the outer looop, we test each note to see if it is below
-    # the skyline as it exists so far. Since we process in order,
-    # we know each note starts after all notes in the skyline, so
-    # time overlap occurs when a note starts before the end of a
-    # skyline note. (Use a threshold in case the note starts at
-    # approximately the previous note end time) When a note is
-    # added to the skyline, it may be above an existing skyline
-    # note that started earlier, so the inner loop deals with
-    # this problem.
-    #
-    # In the inner loop, we remove skyline notes that started before
-    # the new note and are below it (if they were above, the new note
-    # would have been filtered out before we got to this part). Since
-    # notes have arbitrary duration, *any* skuyline note could potentially
-    # overlap in time and be below the new note, so we have to check
-    # all skyline notes. We search in reverse order so that we can remove
-    # notes from skyline without worrying about the index changing.
-    # Since we know the new note starts after all skyline notes, again we
-    # can test for time overlap by checking if the new note starts before
-    # the end of the skyline note. We remove the lower note only when
-    # the new note starts within threshold of the skuyline note. Otherwise,
-    # the lower note plays for longer than threshold before the new note:
-    # we shorten the duration of the lower note to end at the onset time
-    # of the new note.
-    #
-    # A consequence of this algorithm is that a very long low note will
-    # be shortened to the onset time of a new note, so a piano roll like
-    # this:                      ----------
-    #          ------------------------------------------
-    # will result in this:       ----------
-    #          ------------------          (nothing here)
-    # rather than this:          ----------
-    #          ------------------          --------------
-    # A faster algorithm would avoid iterating over all skyline notes
-    # (twice!) since we know the skyline is monophonic and ordered.
-
-    for i in range(len(notes)):
-        note = notes[i]
-        # ignore notes that are below another existing note in skyline
-        if any(
-            note.key_num < prev.key_num and note.onset < prev.offset - threshold
-            for prev in skyline.content
-        ):
-            print("Skipping note ", end="")
-            note.show()
+        # ignore notes that are below last note in skyline
+        elif note.midi_num < prev_note.midi_num and (
+            note.onset < prev_note.offset - threshold  # overlap
+            or note.onset < prev_note.onset + threshold
+        ):  # concurrent
             continue
 
-        # append the note to skyline
-        print("Adding note ", end="")
-        note.show()
-        note.copy(skyline)
+        elif note.duration < threshold:
+            continue
 
-        # remove notes in skyline that are below the current note
+        # see if note is concurrent and higher
+        if (
+            note.onset < prev_note.onset + threshold
+            and note.midi_num >= prev_note.midi_num
+        ):
+            skyline.content.pop()  # replace prev_note
+            skyline.content.append(note)
+            prev_note = note
 
-        for j in reversed(range(len(skyline.content))):
-            if (
-                skyline.content[j].key_num < note.key_num
-                and note.onset < skyline.content[j].offset
-            ):
-                # remove low notes quickly followed by a higher note
-                if skyline.content[j].onset > note.onset - threshold:
-                    print("Removing note ", end="")
-                    skyline.content[j].show()
-                    skyline.content.pop(j)
-                # keep low notes not so quickly followed by a higher note
-                # but shorten the duration to prevent overlap
-                else:
-                    print("Shortening note ", end="")
-                    skyline.content[j].show()
-                    skyline.content[j].offset = note.onset
+        elif (
+            note.onset >= prev_note.offset - threshold
+            or note.midi_num >= prev_note.midi_num
+        ):
+            skyline.content.append(note)
+            prev_note = note
+            if prev_note.offset > note.onset:
+                prev_note.offset = note.onset
 
-    return new_score
+        else:
+            assert False, "Unexpected condition, implementation error detected"
+    return score

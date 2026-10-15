@@ -1,11 +1,8 @@
-from types import ModuleType
-from typing import Dict, List, Optional, Union
-
-import matplotlib.pyplot as plt
-from matplotlib.figure import Figure
+from typing import Dict, List, Union
 
 from amads.core.basics import Chord, Note
-from amads.pitch import PitchCollection
+from amads.core.distribution import Distribution
+from amads.core.pitch import CHROMATIC_NAMES, PitchCollection
 
 __author__ = "Peter Harrison"
 
@@ -14,18 +11,20 @@ class ParncuttRootAnalysis:
     """
     Parncutt's (1988) model for finding the root of a chord.
 
+    <small>**Author**: Peter Harrison</small>
+
     Parameters
     ----------
-    chord : Union[List[int], Chord, PitchCollection]
+    chord: Union[List[int], Chord, PitchCollection]
         The chord to analyze. Can be represented as:
-        - A list of MIDI pitches representing a chord,
-        - A Chord object,
-        - A PitchCollection object.
-    root_support_weights : Union[str, Dict[int, float]], optional
+        A list of MIDI pitches representing a chord,
+        A Chord object, or
+        A PitchCollection object.
+    root_support_weights: Union[str, Dict[int, float]], optional
         Identifies the root support weights to use. "v1" uses the original weights
         from Parncutt (1988), "v2" uses the updated weights from Parncutt (2006),
         by default "v2".
-    exponent : float, optional
+    exponent: float, optional
         Exponent to be used when computing root ambiguities, by default 0.5.
 
     Attributes
@@ -38,6 +37,12 @@ class ParncuttRootAnalysis:
         A measure of how ambiguous the root is.
     root_strengths : List[float]
         Root support values for each pitch class.
+    root_support_weights : Union[str, Dict[int, float]]
+        Identifies the root support weights to use. "v1" uses the original weights
+        from Parncutt (1988), "v2" uses the updated weights from Parncutt (2006),
+        by default "v2".
+    exponent : float
+        Exponent to be used when computing root ambiguities, by default 0.5.
 
     Examples
     --------
@@ -76,11 +81,6 @@ class ParncuttRootAnalysis:
     >>> analysis.root_ambiguity
     2.1
 
-    >>> # Visualize the root strengths
-    >>> fig = analysis.plot(show=False)
-    >>> # plt.show() # in an interactive session, this will display the plot
-    >>> plt.close(fig) # in a non-interactive session, this is needed to close the plot
-
     >>> # Using a Chord object as the input
     >>> from amads.core.basics import Chord, Note
     >>> chord = Chord(Note(pitch=60),  # C4
@@ -91,18 +91,23 @@ class ParncuttRootAnalysis:
     0
 
     >>> # Using a PitchCollection object as the input
-    >>> from amads.pitch import Pitch, PitchCollection
-    >>> pitch_collection = PitchCollection([Pitch.from_name(x) for x in ["D4", "F4", "A4"]])
+    >>> from amads.core.pitch import Pitch, PitchCollection
+    >>> pitch_collection = PitchCollection([Pitch(x) for x in ["D4", "F4", "A4"]])
     >>> analysis = ParncuttRootAnalysis(pitch_collection)
     >>> analysis.root
     2
 
+    See as_distribution() method for plotting root support weights.
+
     References
     ----------
-    [1] Parncutt, R. (1988). Revision of Terhardt's psychoacoustical model of the root(s) of a musical chord.
-    Music Perception, 6(1), 65–93. https://doi.org/10.2307/40285416
-    [2] Parncutt, R. (2006). Commentary on Cook & Fujisawa's "The Psychophysics of Harmony Perception:
-    Harmony is a Three-Tone Phenomenon." Empirical Musicology Review, 1(4), 204–209.
+    [1] Parncutt, R. (1988). Revision of Terhardt's psychoacoustical model of
+    the root(s) of a musical chord.
+    *Music Perception*, 6(1), 65–93. https://doi.org/10.2307/40285416
+
+    [2] Parncutt, R. (2006). Commentary on Cook & Fujisawa's "The Psychophysics
+    of Harmony Perception: Harmony is a Three-Tone Phenomenon." *Empirical
+    Musicology Review*, 1(4), 204–209.
     """
 
     available_root_support_weights = {
@@ -117,7 +122,9 @@ class ParncuttRootAnalysis:
         exponent: float = 0.5,
     ):
         self.pitch_set, self.pc_set = self.load_chord(chord)
-        self.root_support_weights = self.load_root_support_weights(root_support_weights)
+        self.root_support_weights = self.load_root_support_weights(
+            root_support_weights
+        )
         self.exponent = exponent
         self.root_strengths = [self.get_root_strength(pc) for pc in range(12)]
         self.root = self.get_root()
@@ -127,12 +134,18 @@ class ParncuttRootAnalysis:
     def load_chord(
         chord: Union[List[int], Chord, PitchCollection]
     ) -> tuple[set[int], set[int]]:
+        """Normalize the chord argument into pitch and pitch-class sets.
+
+        Accepts a list of MIDI numbers, a Chord, or a PitchCollection and
+        returns a set of MIDI pitches along with its pitch-class set.
+        Raises on unknown types, empty chords, or undefined pitches.
+        """
         if isinstance(chord, list):
             pitch_set = set(chord)
         elif isinstance(chord, Chord):
-            pitch_set = set(note.key_num for note in chord.find_all(Note))
+            pitch_set = set(note.midi_num for note in chord.find_all(Note))  # type: ignore
         elif isinstance(chord, PitchCollection):
-            pitch_set = set(chord.MIDI_multiset)
+            pitch_set = set(chord.pitch_num_multiset)
         else:
             raise TypeError(
                 "Chord must be a list of MIDI pitches, a Chord object, or a PitchCollection object"
@@ -140,13 +153,20 @@ class ParncuttRootAnalysis:
 
         if len(pitch_set) == 0:
             raise ValueError("Chord must contain at least one pitch")
+        if None in pitch_set:
+            raise ValueError("Some Note in Chord has undefined pitch")
 
-        pc_set = set(pitch % 12 for pitch in pitch_set)
-        return pitch_set, pc_set
+        pc_set = set(pitch % 12 for pitch in pitch_set)  # type: ignore
+        return pitch_set, pc_set  # type: ignore
 
     def load_root_support_weights(
         self, root_support_weights: Union[str, Dict[int, float]]
     ) -> Dict[int, float]:
+        """Resolve the root-support weight table.
+
+        Accepts a version key ("v1" or "v2") or a custom mapping of
+        interval->weight values. Raises ValueError for unknown versions.
+        """
         if isinstance(root_support_weights, str):
             if root_support_weights not in self.available_root_support_weights:
                 raise ValueError(
@@ -158,6 +178,7 @@ class ParncuttRootAnalysis:
             return root_support_weights
 
     def get_root_strength(self, pc: int) -> float:
+        """Compute support for a candidate root pitch class."""
         return sum(
             support_weight
             for interval, support_weight in self.root_support_weights.items()
@@ -165,77 +186,90 @@ class ParncuttRootAnalysis:
         )
 
     def get_root(self) -> int:
+        """Return the pitch class with maximal root strength."""
         return self.root_strengths.index(max(self.root_strengths))
 
     def get_root_ambiguity(self) -> float:
+        """Measure ambiguity as the normalized sum of root strengths."""
         max_weight = max(self.root_strengths)
         if max_weight == 0:
             return 0.0
         return sum(w / max_weight for w in self.root_strengths) ** self.exponent
 
-    def plot(self, title: Optional[str] = None, show=True) -> tuple[ModuleType, Figure]:
+    def as_distribution(self) -> Distribution:
         """
-        Visualize the root support weights for a chord.
-
-        Parameters
-        ----------
-        title : Optional[str], optional
-            Title for the plot, by default None.
+        Convert root support weights to a (plot-able) Distribution
 
         Returns
         -------
-        tuple[ModuleType, Figure]
-            A tuple containing the matplotlib pyplot module and the figure containing the visualization.
+        Distribution
+            containing (12) root support weights
 
         Examples
         --------
         >>> analysis = ParncuttRootAnalysis([0, 4, 7])
-        >>> fig = analysis.plot(show=False)
+        >>> import matplotlib.pyplot as plt
+        >>> fig = analysis.as_distribution().plot(show=False)
         >>> # plt.show() # in an interactive session, this will display the plot
         >>> plt.close(fig) # in a non-interactive session, this is needed to close the plot
         """
-        # Create a bar chart
-        fig = plt.figure(figsize=(10, 6))
-        bars = plt.bar(range(12), self.root_strengths)
+        return Distribution(
+            "Root Support Weights",
+            self.root_strengths,
+            "root_support_weights",
+            [12],
+            CHROMATIC_NAMES,  # type: ignore
+            "Pitch class",  # type: ignore
+            None,
+            "Root strength",
+        )
 
-        # Highlight the root
-        bars[self.root].set_color("red")
+    # def plot(
+    #     self, title: Optional[str] = None, show=True
+    # ) -> tuple[ModuleType, Figure]:
+    #     """
+    #     Visualize the root support weights for a chord.
 
-        # Add labels
-        plt.xlabel("Pitch class")
-        plt.ylabel("Root strength")
+    #     Parameters
+    #     ----------
+    #     title: Optional[str], optional
+    #         Title for the plot, by default None.
 
-        # Add pitch class names
-        pitch_class_names = [
-            "C",
-            "C#",
-            "D",
-            "D#",
-            "E",
-            "F",
-            "F#",
-            "G",
-            "G#",
-            "A",
-            "A#",
-            "B",
-        ]
-        plt.xticks(range(12), pitch_class_names)
+    #     Returns
+    #     -------
+    #     tuple[ModuleType, Figure]
+    #         A tuple containing the matplotlib pyplot module and the figure containing the visualization.
 
-        # Add title
-        if title is None:
-            chord_str = ", ".join(
-                str(pc) for pc in sorted(set(p % 12 for p in self.pc_set))
-            )
-            title = f"Root strengths for chord [{chord_str}]"
-        plt.title(title)
+    #     """
+    #     # Create a bar chart
+    #     fig = plt.figure(figsize=(10, 6))
+    #     bars = plt.bar(range(12), self.root_strengths)
 
-        # Add grid
-        plt.grid(axis="y", linestyle="--", alpha=0.7)
+    #     # Highlight the root
+    #     bars[self.root].set_color("red")
 
-        plt.tight_layout()
+    #     # Add labels
+    #     plt.xlabel("Pitch class")
+    #     plt.ylabel("Root strength")
 
-        if show:
-            plt.show()
+    #     # Add pitch class names
+    #     pitch_class_names = CHROMATIC_NAMES
+    #     plt.xticks(range(12), pitch_class_names)
 
-        return fig
+    #     # Add title
+    #     if title is None:
+    #         chord_str = ", ".join(
+    #             str(pc) for pc in sorted(set(p % 12 for p in self.pc_set))
+    #         )
+    #         title = f"Root strengths for chord [{chord_str}]"
+    #     plt.title(title)
+
+    #     # Add grid
+    #     plt.grid(axis="y", linestyle="--", alpha=0.7)
+
+    #     plt.tight_layout()
+
+    #     if show:
+    #         plt.show()
+
+    #     return fig

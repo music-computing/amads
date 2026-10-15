@@ -3,7 +3,7 @@ Sliding window analysis
 =======================
 
 This example demonstrates how to perform a sliding window analysis on a musical
-score to compute the mean pitch height (mean key_num) from each window and plot
+score to compute the mean pitch height (mean midi_num) from each window and plot
 the result.
 """
 
@@ -13,14 +13,14 @@ the result.
 import matplotlib.pyplot as plt
 
 from amads.algorithms.slice.window import sliding_window
-from amads.io.readscore import import_midi
+from amads.io.readscore import read_score
 from amads.music import example
 
 # %%
 # Load an example MIDI file and import it using partitura.
 
 midi_file = example.fullpath("midi/twochan.mid")
-my_score = import_midi(midi_file, show=False)
+my_score = read_score(midi_file, show=False)
 
 # %%
 # Set up parameters for the sliding window analysis. We'll use a window size of
@@ -32,14 +32,14 @@ step = 0.01
 # %%
 # Flatten the score to get a single sequence of notes.
 
-flattened_score = my_score.flatten(collapse=True)
+flat_score = my_score.flatten(collapse=True)
 
 # %%
 # Perform the sliding window analysis. Each window will contain notes that are
 # sounding within its time boundaries.
 
 windows = sliding_window(
-    flattened_score,
+    flat_score,
     size=size,
     step=step,
     align="center",
@@ -57,7 +57,7 @@ for window in windows:
         continue
 
     total_duration = sum(note.duration for note in window.content)
-    weighted_sum = sum(note.key_num * note.duration for note in window.content)
+    weighted_sum = sum(note.midi_num * note.duration for note in window.content)
     mean_pitch_heights.append(weighted_sum / total_duration)
 
 # %%

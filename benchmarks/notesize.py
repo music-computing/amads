@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import psutil
 
 # from memory_profiler import memory_usage
-from amads.core import Note
+from amads.core.basics import Note
 
 """
 How big is a note?
@@ -54,7 +54,7 @@ def get_total_size(obj, seen=None):
 
 
 # Example usage
-from amads.core import Note
+from amads.core.basics import Note
 
 
 def get_process_memory():

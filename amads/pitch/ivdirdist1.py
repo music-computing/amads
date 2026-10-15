@@ -1,36 +1,63 @@
 """
+Distribution of durations in a Score.
 Provides the `ivdirdist1` function
 
-Original doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=64
+Can emulate the `ivdurdist1` function in Midi Toolbox.
+
+Original doc: https://github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf, page 65.
 """
 
-from ..core.basics import Score
-from .ivdist1 import ivdist1
+from amads.core.basics import Score
+from amads.core.distribution import Distribution
+from amads.pitch.ivdist1 import interval_distribution_1
 
 
-def ivdirdist1(score: Score, weighted=True) -> list[float]:
+def interval_direction_distribution_1(
+    score: Score,
+    name: str = "Interval Direction Distribution",
+    weighted: bool = True,
+    miditoolbox_compatible: bool = True,
+) -> Distribution:
     """
     Returns the proportion of upward intervals for each interval size
 
+    This is an implementation of the ivdirdist1 function in Matlab MIDItoolbox.
+
     Currently, intervals greater than an octave will be ignored.
 
-    Args:
-        score (Score): The musical score to analyze
-        weighted (bool, optional): If True, the interval distribution is
-                                   weighted by note durations (default True)
+    Parameters
+    ----------
+    score : Score
+        The music Score object to analyze
+    name : str
+        A name for the resulting distribution (title in distribution plot)
+    weighted : bool, optional
+        If True, the interval distribution is weighted by note durations
+        in seconds that are modified according to Parncutt's durational
+        accent model (1994), by default True.
+    miditoolbox_compatible : bool
+        Invokes interval_distribution_1 using miditoolbox_compatible=True,
+        which performs normalization slightly differently (see
+        [interval_distribution_1]
+        [amads.pitch.ivdist1.interval_distribution_1].
+        Default is False, which simply skips division when the total
+        count is zero (this also returns a zero matrix when the count
+        is zero).
 
-    Returns:
-        list[float]: A 12-element list representing the proportion of
-                     upward intervals for each interval size. The components
-                     are spaced at semitone distances with the first component
-                     representing a minor second and the last component
-                     the octave. If the score is empty, the function
-                     returns a list with all elements set to zero.
+    Returns
+    -------
+    Distribution
+        A 12-element distribution representing the proportion of
+        upward intervals for each interval size. The components
+        are spaced at semitone distances with the first component
+        representing a minor second (not unison) and the last
+        component the octave. If the score is empty, the function
+        returns a list with all elements set to zero.
     """
 
-    id = ivdist1(score, weighted)
-
-    idd = [0] * 12
+    id = interval_distribution_1(score, name, weighted, miditoolbox_compatible)
+    id = id.data  # we only need the data from the distribution
+    idd = [0.0] * 12
 
     for i in range(12):
         # id[i + 13] is the upward interval
@@ -40,4 +67,14 @@ def ivdirdist1(score: Score, weighted=True) -> list[float]:
         else:
             idd[i] = 0
 
-    return idd
+    x_categories = [str(i) for i in range(1, 13)]
+    return Distribution(
+        name,
+        idd,
+        "interval_direction",
+        [12],
+        x_categories,  # type: ignore
+        "Interval Size",
+        None,
+        "Proportion",
+    )

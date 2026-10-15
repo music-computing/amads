@@ -5,7 +5,7 @@ Parsons code for contour of musical melody by direction only.
 
 from typing import Optional
 
-from .utils import sign
+from amads.core.utils import sign
 
 __author__ = "Mark Gotham"
 
@@ -16,6 +16,8 @@ class ParsonsContour:
     Parsons categorises each step by direction only.
 
     Nothing more, nothing less.
+
+    <small>**Author**: Mark Gotham</small>
     """
 
     def __init__(
@@ -69,7 +71,7 @@ class ParsonsContour:
 
         References
         ----------
-        [1] Parsons, Denys. 1975. The Directory of Tunes and Musical Themes.
+        [1] Parsons, Denys. 1975. *The Directory of Tunes and Musical Themes*.
         """
 
         self.pitches = pitches
@@ -101,7 +103,9 @@ class ParsonsContour:
         if self.initial_asterisk:
             self.as_string += "*"
         for i in range(1, len(self.interval_sequence_sign)):
-            self.as_string += self.character_dict[self.interval_sequence_sign[i]]
+            self.as_string += self.character_dict[
+                self.interval_sequence_sign[i]
+            ]
 
 
 # ------------------------------------------------------------------------------

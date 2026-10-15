@@ -90,7 +90,9 @@ def test_check_python_package_installed():
     check_python_package_installed("sys")
 
     # Invalid package should raise ImportError
-    with pytest.raises(ImportError, match="Package 'nonexistent_package' is required"):
+    with pytest.raises(
+        ImportError, match="Package 'nonexistent_package' is required"
+    ):
         check_python_package_installed("nonexistent_package")
 
 
@@ -149,7 +151,7 @@ def test_install_r_package_cran(monkeypatch):
     # Should have called subprocess.run with Rscript
     mock_run.assert_called_once()
     call_args = mock_run.call_args[0][0]
-    assert call_args[0] == "Rscript"
+    assert call_args[0].endswith("Rscript")
     assert "jsonlite" in call_args[2]
 
 
@@ -164,7 +166,7 @@ def test_install_r_package_github(monkeypatch):
     # Should have called subprocess.run with Rscript
     mock_run.assert_called_once()
     call_args = mock_run.call_args[0][0]
-    assert call_args[0] == "Rscript"
+    assert call_args[0].endswith("Rscript")
     assert "remotes::install_github" in call_args[2]
 
 
@@ -330,7 +332,9 @@ def test_melsim_measures_transformations():
     )
 
     # Verify we got results for all combinations
-    expected_combinations = len(supported_measures) * len(supported_transformations)
+    expected_combinations = len(supported_measures) * len(
+        supported_transformations
+    )
     assert (
         len(results) == expected_combinations
     ), f"Expected {expected_combinations} results, got {len(results)}"

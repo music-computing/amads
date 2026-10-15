@@ -1,13 +1,13 @@
 import matplotlib.pyplot as plt
 
-from amads.all import import_midi, pianoroll, segment_gestalt
+from amads.all import pianoroll, read_score, segment_gestalt
 from amads.music import example
 
 my_midi_file = example.fullpath("midi/sarabande.mid")
 
 
 print("------- input from partitura")
-myscore = import_midi(my_midi_file, show=False)
+myscore = read_score(my_midi_file, show=False)
 print("------- finished input from partitura")
 
 fig = pianoroll(myscore)
@@ -18,8 +18,12 @@ print(clang_starts)
 print(segment_starts)
 xmin, xmax, ymin, ymax = plt.axis()
 
-plt.vlines(clang_starts, ymin, ymax, colors="purple", label="clang boundary starts")
-plt.vlines(segment_starts, ymin, ymax, colors="green", label="segment boundary starts")
+plt.vlines(
+    clang_starts, ymin, ymax, colors="purple", label="clang boundary starts"
+)
+plt.vlines(
+    segment_starts, ymin, ymax, colors="green", label="segment boundary starts"
+)
 plt.legend(loc="best")
 
 plt.show()

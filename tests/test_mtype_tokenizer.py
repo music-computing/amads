@@ -155,7 +155,11 @@ def test_ngram_counts():
 
     # Count the ngrams
     simple_ngrams.count_ngrams(simple_list, n=2)
-    assert simple_ngrams.get_counts() == {("0", "1"): 2, ("1", "1"): 1, ("1", "0"): 1}
+    assert simple_ngrams.get_counts() == {
+        ("0", "1"): 2,
+        ("1", "1"): 1,
+        ("1", "0"): 1,
+    }
 
     # Now the features are available
     assert simple_ngrams.yules_k is not None

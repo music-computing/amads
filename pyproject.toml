@@ -4,11 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "amads"
-version = "0.1.0dev0"
+version = "1.4.0"
 description = "A toolkit for symbolic music analysis"
 readme = "README.md"
 maintainers = [
-    { name = "Peter Harrison", email = "pmch2@cam.ac.uk"},
     { name = "Roger Dannenberg"},
     { name = "Mark Gotham"}
 ]
@@ -22,22 +21,19 @@ dependencies = [
     "numpy",
     "pandas",
     "matplotlib",
-    "scipy<1.12.0",
+    "scipy>=1.9",
     "partitura",
     "music21",
     "pretty_midi",
     "setuptools",  # required for partitura
-    "pytest",
-    "sphinx-gallery",
+    "typing_extensions",  # required for partitura
     "tenacity",
     "tqdm",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "sphinx",
-    "sphinx-book-theme",
-    "sphinx-autodoc-typehints",
+    "black",
     "myst-parser",
     "pre-commit",
 ]
@@ -45,18 +41,15 @@ test = [
     "pretty_midi",
     "pytest>=7.0.0",
     "pytest-cov",
-]
-melsim = [
-    "pandas",
+    "scikit-learn",
 ]
 examples = [
-    # Temporary fix while we wait for mirdata > 0.3.9 to be released
-    "mirdata @ git+https://github.com/mir-dataset-loaders/mirdata.git@82b9710a0cc3e4b27a6522f0ec8a92ea03f23c41",
+    "mirdata>=1.0.0",
     "scikit-learn"
 ]
 
 [project.urls]
-"GitHub" = "https://github.com/music-computing/amads"  # Update with your repo URL
+"GitHub" = "https://github.com/music-computing/amads"
 "Documentation website" = "https://music-computing.github.io/amads/"
 
 [tool.setuptools.packages.find]

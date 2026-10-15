@@ -142,7 +142,9 @@ def test_fantastic_step_contour_features():
 
 
 def test_fantastic_parsons_contour_features():
-    melody = Score.from_melody(pitches=[60, 62, 64, 65, 67, 72], durations=[1.0] * 6)
+    melody = Score.from_melody(
+        pitches=[60, 62, 64, 65, 67, 72], durations=[1.0] * 6
+    )
     features = fantastic_parsons_contour_features(melody)
     assert features is not None
 
@@ -171,7 +173,9 @@ def test_fantastic_parsons_contour_features():
 
 
 def test_fantastic_polynomial_contour_features():
-    melody = Score.from_melody(pitches=[60, 62, 64, 65, 67, 72], durations=[1.0] * 6)
+    melody = Score.from_melody(
+        pitches=[60, 62, 64, 65, 67, 72], durations=[1.0] * 6
+    )
     features = fantastic_polynomial_contour_features(melody)
     assert features is not None
 
@@ -202,7 +206,9 @@ def test_fantastic_polynomial_contour_features():
 
 
 def test_fantastic_huron_contour_features():
-    melody = Score.from_melody(pitches=[60, 62, 64, 65, 67, 72], durations=[1.0] * 6)
+    melody = Score.from_melody(
+        pitches=[60, 62, 64, 65, 67, 72], durations=[1.0] * 6
+    )
     features = fantastic_huron_contour_features(melody)
     assert features is not None
 
@@ -328,7 +334,8 @@ def test_fantastic_pitch_features():
 
     # Test with a chromatic scale
     chromatic = Score.from_melody(
-        pitches=[60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71], durations=[1.0] * 12
+        pitches=[60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71],
+        durations=[1.0] * 12,
     )
     chrom_features = fantastic_pitch_features(chromatic)
 
@@ -363,18 +370,24 @@ def test_fantastic_pitch_interval_features():
     repeated_features = fantastic_pitch_interval_features(repeated_melody)
 
     # All intervals are 2 semitones
-    assert repeated_features["absolute_interval_range"] == 0  # max(2) - min(2) = 0
+    assert (
+        repeated_features["absolute_interval_range"] == 0
+    )  # max(2) - min(2) = 0
     assert repeated_features["mean_absolute_interval"] == 2.0
     assert repeated_features["std_absolute_interval"] == 0
     assert repeated_features["modal_interval"] == 2
     assert repeated_features["interval_entropy"] == 0  # Minimum entropy
 
     # Test with alternating up/down intervals
-    zigzag = Score.from_melody(pitches=[60, 65, 60, 65, 60, 65], durations=[1.0] * 6)
+    zigzag = Score.from_melody(
+        pitches=[60, 65, 60, 65, 60, 65], durations=[1.0] * 6
+    )
     zigzag_features = fantastic_pitch_interval_features(zigzag)
 
     # All intervals are +5 or -5
-    assert zigzag_features["absolute_interval_range"] == 0  # max(5) - min(5) = 0
+    assert (
+        zigzag_features["absolute_interval_range"] == 0
+    )  # max(5) - min(5) = 0
     assert zigzag_features["mean_absolute_interval"] == 5.0
     assert zigzag_features["std_absolute_interval"] == 0
     assert zigzag_features["modal_interval"] == 5

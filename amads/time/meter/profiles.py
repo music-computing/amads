@@ -1,6 +1,62 @@
 """
-Profiles of metrical position usage provided or deduced from the literature,
-initial demonstration with Beethoven piano sonata dataset (BPSD) from their csvs.
+Profiles of metrical position usage provided or deduced from the literature.
+
+See the code for details. Data includes:
+
+ - **WorldSample16**
+       - shiko
+       - son
+       - rumba
+       - soukous
+       - gahu
+       - bossa_nova
+ - **WorldSample12**
+       - soli
+       - tambú
+       - bembé
+       - bembé_2
+       - yoruba
+       - tonada
+       - asaadua
+       - sorsonet
+       - bemba
+       - ashanti
+ - **BPSD** (Beethoven piano sonata dataset)
+       - op002No2_01
+       - op054_01
+       - op027No1_01
+       - op049No1_01
+       - op013_01
+       - op101_01
+       - op111_01
+       - op031No2_01
+       - op014No1_01
+       - op010No2_01
+       - op007_01
+       - op078_01
+       - op109_01
+       - op081a_01
+       - op028_01
+       - op002No3_01
+       - op010No1_01
+       - op090_01
+       - op031No1_01
+       - op014No2_01
+       - op010No3_01
+       - op031No3_01
+       - op110_01
+       - op026_01
+       - op049No2_01
+       - op002No1_01
+       - op027No2_01
+       - op057_01
+       - op053_01
+       - op022_01
+       - op106_01
+       - op079_01
+       - all
+
+<small>**Author**: Mark Gotham</small>
 """
 
 __author__ = "Mark Gotham"
@@ -47,13 +103,63 @@ class _MeterProfile:
 
 
 @dataclass
+class WorldSample16(_MeterProfile):
+    name: str = "WorldSample16"
+    literature: str = (
+        "Among the literature to use these values is Gomez, Melvin, Rappaport, Toussaint (2005). "
+        "Proceedings of the BRIDGES: Mathematical Connections in Art, Music and Science."
+    )
+    about: str = (
+        "A sample of rhythms from around the world, as: "
+        "1) encoded in binary (1/0),"
+        "2) on a 16 element grid, and"
+        "3) used in several studies."
+        "Currently, these rhythms are all 5-events on a 16-unit grid."
+    )
+
+    shiko = (1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0)
+    son = (1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0)
+    rumba = (1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0)
+    soukous = (1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0)
+    gahu = (1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0)
+    bossa_nova = (1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0)
+
+
+@dataclass
+class WorldSample12(_MeterProfile):
+    name: str = "WorldSample12"
+    literature: str = (
+        "Among the literature to use these values is Gomez, Melvin, Rappaport, Toussaint (2005). "
+        "Proceedings of the BRIDGES: Mathematical Connections in Art, Music and Science."
+    )
+    about: str = (
+        "A sample of rhythms from around the world, as: "
+        "1) encoded in binary (1/0), "
+        "2) on a 12 element grid, and "
+        "3) used in several studies. "
+        "Currently, these rhythms are all 7-events on a 12-unit grid."
+    )
+
+    soli = (1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1)
+    tambú = (1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1)
+    bembé = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)
+    bembé_2 = (1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0)
+    yoruba = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0)
+    tonada = (1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0)
+    asaadua = (1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0)
+    sorsonet = (1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0)
+    bemba = (1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0)
+    ashanti = (1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0)
+
+
+@dataclass
 class BPSD(_MeterProfile):
     name: str = "Beethoven piano sonata dataset"
     literature: str = (
         "Zeitler et al. (2024). Full paper (TISMIR): https://doi.org/10.5334/tismir.196"
     )
     about: str = (
-        "Measure_relative values of the BPSD dataset's csv files (example of rounded, float values)."
+        "Measure-relative values of the BPSD dataset's csv files (example of rounded, float values)."
     )
 
     op002No2_01 = Counter(

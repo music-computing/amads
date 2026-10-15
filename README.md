@@ -6,15 +6,17 @@
 
 This repository represents the very earliest stages of an attempt to collect and organise algorithms for
 music analysis and data science.
-If you are interested in participating, please get in touch with one of
-Peter Harrison (pmch2@cam.ac.uk), [Mark Gotham](https://markgotham.github.io/), or Roger Dannenberg.
+If you are interested in participating, please get in touch with
+[Mark Gotham](https://markgotham.github.io/) or Roger Dannenberg.
 
 Much functionality in this package still remains to be tested/implemented/documented.
 Use at your own risk!
 
 For more on the ...
 - ... package in general, see the [documentation website](https://music-computing.github.io/amads)
-- ... motivation and background, please see [the draft paper](./paper.md)
+- ... motivation and background, see [the draft paper](./paper.md)
+- ... the wider context, see
+['Keeping Score: Computational Methods for the Analysis of Encoded ("Symbolic") Musical Scores](https://doi.org/10.5281/zenodo.14938027)
 
 ## Installation
 
@@ -31,6 +33,7 @@ pip install -e amads
 1. We opt to create one repository, in one langauge, rather than attempting to list / direct to others.
    - It makes sense to have a single reference language for interoperability, comparison and more.
    - The sources are far-flung, in many code languages, and not interoperable.
+   - That said, we do use AMADS as a kind of meta-package to connect to external well maintained libraries (including those not in Python), reimplementaing funationality anew here only if there is no practical, existing source to connect to.
 2. The language is Python, for all the usual reasons, chief among them being it popularity.
    - some designers of computer languages programming languages may find that a rather shallow reason,
    - but commitment to access and interoperability makes a language's existing popularity critically important.

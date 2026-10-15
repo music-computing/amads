@@ -7,14 +7,14 @@ duration distribution of notes in a MIDI file.
 """
 
 from amads.algorithms import duration_distribution_2
-from amads.io import import_midi
+from amads.io import read_score
 from amads.music import example
 
 # Load example MIDI file
 my_midi_file = example.fullpath("midi/sarabande.mid")
 
 # Import MIDI using partitura
-myscore = import_midi(my_midi_file, show=False)
+myscore = read_score(my_midi_file, show=False)
 # myscore.show()
 
 # Calculate duration distribution

@@ -27,7 +27,11 @@ TEST_UPBEATS = [
         3.6,
     ],  # example 3: b1 + b4 skipped as two upbeats, b2 + b5 skipped as have no upbeat
 ]
-TEST_BURS = [[1.5, 2 / 3], [1.0, 0.25, 1.5, 1.0], [None, None, 0.5 / 0.6, None, None]]
+TEST_BURS = [
+    [1.5, 2 / 3],
+    [1.0, 0.25, 1.5, 1.0],
+    [None, None, 0.5 / 0.6, None, None],
+]
 
 
 @pytest.mark.parametrize(

@@ -2,18 +2,20 @@
 This module provides functions for analyzing tempo characteristics in musical performances.
 It includes calculations for tempo slope, tempo drift, and tempo fluctuation.
 
-References:
-    - Cheston, H., Schlichting, J. L., Cross, I., & Harrison, P. M. C. (2024).
-      Jazz Trio Database: Automated Annotation of Jazz Piano Trio Recordings Processed Using
-      Audio Source Separation. Transactions of the International Society for Music Information
-      Retrieval, 7(1), 144–158. https://doi.org/10.5334/tismir.186
+<small>**Author**: Huw Cheston (2025)</small>
 
-    - Cheston, H., Cross, I., & Harrison, P. (2024). Trade-offs in Coordination Strategies
+References
+----------
+
+- Cheston, H., Schlichting, J. L., Cross, I., & Harrison, P. M. C. (2024).
+      Jazz Trio Database: Automated Annotation of Jazz Piano Trio Recordings 
+      Processed Using Audio Source Separation. *Transactions of the International
+      Society for Music Information Retrieval*, 7(1), 144–158.
+      https://doi.org/10.5334/tismir.186
+
+- Cheston, H., Cross, I., & Harrison, P. (2024). Trade-offs in Coordination Strategies
       for Duet Jazz Performances Subject to Network Delay and Jitter.
-      Music Perception, 42(1), 48–72. https://doi.org/10.1525/mp.2024.42.1.48
-
-Author:
-    Huw Cheston (2025)
+      *Music Perception*, 42(1), 48–72. https://doi.org/10.1525/mp.2024.42.1.48
 """
 
 from typing import Iterable, Union
@@ -35,10 +37,9 @@ def tempo_slope(beats: Iterable[float]) -> float:
 
     The equation is:
 
-    .. math::
-        \hat{S} = \frac{\sum\limits_{i=1}^N (x_i - \bar{x}) (y_i - \bar{y})}{\sum\limits_{i=1}^N (x_i - \bar{x})^2},
+    $\hat{S} = \frac{\sum\limits_{i=1}^N (x_i - \bar{x}) (y_i - \bar{y})}{\sum\limits_{i=1}^N (x_i - \bar{x})^2}$,
 
-    where :math:`x_i` is the time of beat :math:`i` and :math:`y_i` is the tempo value in
+    where $x_i$ is the time of beat $i$ and $y_i$ is the tempo value in
     (quarter-note) beats-per-minute.
 
     Parameters
@@ -66,10 +67,10 @@ def tempo_fluctuation(beats: Iterable[float]) -> float:
 
     The equation is:
 
-    .. math::
-        \text{F} = \dfrac{\sqrt{\frac{1}{N-1} \sum\limits_{i=1}^N (y_i - \bar{y})^2}}{\bar{y}},
+    $\text{F} = \dfrac{\sqrt{\frac{1}{N-1}
+     \sum\limits_{i=1}^N (y_i - \bar{y})^2}}{\bar{y}}$,
 
-    where :math:`y_i` is the tempo value in (quarter-note) beats-per-minute at beat :math:`i`.
+    where $y_i$ is the tempo value in (quarter-note) beats-per-minute at beat $i$.
 
     Parameters
     ----------
@@ -96,10 +97,9 @@ def tempo_mean(beats: Iterable[float]):
 
     The mean tempo can be calculated simply as:
 
-    .. math::
-        \bar{y} = \dfrac{\sum\limits_{i=1}^N\frac{60}{x_i - x_{i-1}}}{N-1}
+    $\bar{y} = \dfrac{\sum\limits_{i=1}^N\frac{60}{x_i - x_{i-1}}}{N-1}$
 
-    where :math:`x_i` is the time of beat :math:`i` (and :math:`i \geq 1`) and :math:`N` is the number of beats.
+    where $x_i$ is the time of beat $i$ (and $i \geq 1$) and $N$ is the number of beats.
 
     Parameters
     ----------

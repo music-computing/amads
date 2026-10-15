@@ -4,8 +4,8 @@ Tests for the `break_it_up` module.
 Tests functionality for regrouping and quantizing musical durations.
 """
 
-from amads.time.meter import PulseLengths
 from amads.time.meter.break_it_up import MetricalSplitter
+from amads.time.meter.representations import PulseLengths
 
 
 def test_from_pulse_length():
@@ -57,7 +57,10 @@ def test_from_pulse_length():
     ]
 
     for entry in all_plausible:
-        start_hierarchy = PulseLengths(pulse_lengths=entry[2]).to_start_hierarchy()
+        start_hierarchy = PulseLengths(
+            pulse_lengths=entry[2],
+            # cycle_length=max(entry[2]), # Note: should not be required, but can be useful for debugging.
+        ).to_start_hierarchy()
         g = MetricalSplitter(
             note_start=entry[0],
             note_length=entry[1],

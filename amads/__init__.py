@@ -1,0 +1,1 @@
+# amads package initializer

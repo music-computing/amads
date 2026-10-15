@@ -2,7 +2,11 @@
 
 import pytest
 
-from amads.algorithms.complexity import lz77_complexity, lz77_decode, lz77_encode
+from amads.algorithms.complexity import (
+    lz77_complexity,
+    lz77_decode,
+    lz77_encode,
+)
 
 DECODED_SEQUENCES = [
     # The following four examples are from https://timguite.github.io/jekyll/update/2020/03/15/lz77-in-python.html
@@ -18,7 +22,14 @@ DECODED_SEQUENCES = [
 ENCODED_SEQUENCES = [
     [(0, 1, "a")],
     [(0, 1, "a"), (0, 1, "b"), (2, 1, "a")],
-    [(0, 1, "w"), (0, 1, "o"), (0, 1, "r"), (0, 1, "d"), (0, 1, " "), (5, 4, "w")],
+    [
+        (0, 1, "w"),
+        (0, 1, "o"),
+        (0, 1, "r"),
+        (0, 1, "d"),
+        (0, 1, " "),
+        (5, 4, "w"),
+    ],
     [(0, 1, "a"), (0, 1, "b"), (2, 6, "a")],
     [
         (0, 1, "A"),

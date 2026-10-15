@@ -1,6 +1,7 @@
-"""Calculates the Step Contour of a melody, along with related features, as implemented
-in the FANTASTIC toolbox of Müllensiefen (2009) [1] (features 20–22).
-Exemplified in Steinbeck (1982) [2], Juhász (2000) [3], Eerola and Toiviainen (2004) [4].
+"""Calculates the Step Contour of a melody, along with related
+features, as implemented in the FANTASTIC toolbox of Müllensiefen
+(2009) [1] (as features 20–22).  Exemplified in Steinbeck (1982) [2],
+Juhász (2000) [3], Eerola and Toiviainen (2004) [4].
 """
 
 __author__ = "David Whyatt"
@@ -10,10 +11,18 @@ import numpy as np
 
 class StepContour:
     """Class for calculating and analyzing the step contour of a melody.
-    A step contour is a list of MIDI pitch values, repeated proportionally to the
-    duration (measured in tatums) of each note relative to the total melody length.
-    This list is normalized to a user defined length, defaulting to 64 steps as used in
-    FANTASTIC. Rests are considered as extending the duration of the previous note.
+
+    Also related features, as implemented in the FANTASTIC toolbox of
+    Müllensiefen (2009) [1] (as features 20–22). Exemplified in Steinbeck
+    (1982) [2], Juhász (2000) [3], Eerola and Toiviainen (2004) [4].
+
+    A step contour is a list of MIDI pitch values, repeated proportionally to
+    the duration (measured in tatums) of each note relative to the total melody
+    length. This list is normalized to a user defined length, defaulting to 64
+    steps as used in FANTASTIC. Rests are considered as extending the duration
+    of the previous note.
+
+    <small>**Author**: David Whyatt</small>
 
     Examples
     --------
@@ -56,14 +65,16 @@ class StepContour:
 
         References
         ----------
-        [1] Müllensiefen, D. (2009). Fantastic: Feature ANalysis Technology Accessing
-        STatistics (In a Corpus): Technical Report v1.5
-        [2] W. Steinbeck, Struktur und Ähnlichkeit: Methoden automatisierter
-            Melodieanalyse. Bärenreiter, 1982.
-        [3] Juhász, Z. 2000. A model of variation in the music of a Hungarian ethnic
-            group. Journal of New Music Research 29(2):159-172.
-        [4] Eerola, T. & Toiviainen, P. (2004). MIDI Toolbox: MATLAB Tools for Music
-            Research. University of Jyväskylä: Kopijyvä, Jyväskylä, Finland.
+
+         1. Müllensiefen, D. (2009). Fantastic: Feature ANalysis Technology
+            Accessing STatistics (In a Corpus): Technical Report v1.5
+         2. W. Steinbeck, Struktur und Ähnlichkeit: *Methoden automatisierter
+            Melodieanalyse*. Bärenreiter, 1982.
+         3. Juhász, Z. 2000. A model of variation in the music of a Hungarian
+            ethnic group. *Journal of New Music Research* 29(2):159-172.
+         4. Eerola, T. & Toiviainen, P. (2004). MIDI Toolbox: MATLAB Tools for
+            Music Research. University of Jyväskylä: Kopijyvä, Jyväskylä,
+            Finland.
 
         Examples
         --------
@@ -229,7 +240,9 @@ class StepContour:
         >>> sc.global_direction
         -0.943
         """
-        corr = np.corrcoef(self.contour, np.arange(self._step_contour_length))[0, 1]
+        corr = np.corrcoef(self.contour, np.arange(self._step_contour_length))[
+            0, 1
+        ]
         if np.isnan(corr) and len(self.contour) > 1:
             return 0.0
         return float(corr)

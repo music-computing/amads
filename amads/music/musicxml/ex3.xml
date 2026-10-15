@@ -10,6 +10,9 @@
   </part-list>
   <part id="P1">
     <measure number="85" width="216">
+      <attributes>
+        <divisions>2</divisions>
+      </attributes>
       <print new-system="yes"/>
       <note default-x="51">
          <pitch>
