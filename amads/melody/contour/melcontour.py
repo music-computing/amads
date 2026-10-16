@@ -4,7 +4,7 @@ Melodic contour of a subsampling of a monophonic Score
 Compute the sequence of pitches of a subsampling of pitches from a
 monophonic score
 
-Ports 'melcontour' from miditoolbox.
+Ports the 'melcontour' function from miditoolbox.
 
 https://github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf, page 72-73
 """
@@ -99,9 +99,6 @@ def melodySamplingContour(
     # this algorithm can only operate on monophonic melodies
     if not ismonophonic(score):
         raise ValueError("Score must be monophonic")
-    # make a flattened and collapsed copy of the original score
-
-    assert res_type == "abs" or res_type == "rel"
 
     if res_type != "abs" and res_type != "rel":
         raise ValueError(
@@ -127,7 +124,7 @@ def melodySamplingContour(
         while next_note and next_note.onset - score.onset <= sample_time:
             current_note = next_note
             next_note = next(sample_iter, None)
-        # TODO: record current_note for the associated time sample
+        # record current_note for the associated time sample
         sampling_list.append(current_note)
         # record pitch for current sample time
         if not next_note:
@@ -137,7 +134,7 @@ def melodySamplingContour(
 
 
 def melodySamplingCorrelation(
-    score: Score, res: float, res_type: str = 'rel'
+    score: Score, res: float, res_type: str = "rel"
 ) -> list[float] | None:
     """
     Performs autocorrelation on the output computed by melodySamplingContour.

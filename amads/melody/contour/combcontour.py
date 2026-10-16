@@ -12,7 +12,9 @@ from amads.core.basics import Score
 from amads.pitch.ismonophonic import ismonophonic
 
 
-def get_pitch_comparison_contour_matrix(score: Score) -> np.array[bool] | None:
+def get_pitch_comparison_contour_matrix(
+    score: Score,
+) -> np.ndarray[bool] | None:
     """
     Computes a pairwise melodic contour matrix.
 

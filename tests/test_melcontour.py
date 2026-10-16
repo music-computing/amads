@@ -1,7 +1,3 @@
-"""
-Tests the 2 melcontour functions to ensure they work as advertised
-"""
-
 import math
 
 from amads.core.basics import Note, Score
@@ -32,7 +28,7 @@ def test_nonempty_melody_contour():
     pitches_in = list(range(56, 68, 2))
     melody = Score.from_melody(pitches=pitches_in)
     melody.time_shift(2.5)
-    result = melodySamplingContour(melody, 1, 'abs')
+    result = melodySamplingContour(melody, 1, "abs")
     desired_result = [
         Note(onset=2.500, duration=1.000, pitch=56),
         Note(onset=3.500, duration=1.000, pitch=58),
@@ -41,6 +37,7 @@ def test_nonempty_melody_contour():
         Note(onset=6.500, duration=1.000, pitch=64),
         Note(onset=7.500, duration=1.000, pitch=66),
     ]
+    assert len(result) == len(desired_result)
     assert all(
         (desired == obtained and desired is None)
         or (
@@ -60,7 +57,7 @@ def test_nonempty_melody_correlation():
     pitches_in = list(range(56, 68, 2))
     melody = Score.from_melody(pitches=pitches_in)
     melody.time_shift(2.5)
-    result = melodySamplingCorrelation(melody, 1, 'abs')
+    result = melodySamplingCorrelation(melody, 1, "abs")
     desired_result = [
         -0.3571428571428571,
         -0.4285714285714285,
@@ -74,6 +71,7 @@ def test_nonempty_melody_correlation():
         -0.4285714285714285,
         -0.3571428571428571,
     ]
+    assert len(result) == len(desired_result)
     assert all(
         math.isclose(a, b, rel_tol=1e-9, abs_tol=1e-8)
         for a, b in zip(result, desired_result)
@@ -81,8 +79,8 @@ def test_nonempty_melody_correlation():
 
 
 def test_midi_sarabande():
-    matlab_result = load_json_results()['melcontour']
-    test_result = melodySamplingContour(matlab_sarabande_test_score, 10, 'rel')
+    matlab_result = load_json_results()["melcontour"]
+    test_result = melodySamplingContour(matlab_sarabande_test_score, 10, "rel")
     test_pitch_list = [note.midi_num for note in test_result]
     assert matlab_result == test_pitch_list
 

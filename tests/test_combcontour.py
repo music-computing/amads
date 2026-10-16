@@ -1,7 +1,3 @@
-"""
-Tests combcontour module
-"""
-
 import numpy as np
 
 from amads.core.basics import Score
