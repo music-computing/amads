@@ -162,6 +162,6 @@ def melodySamplingCorrelation(
     https://github.com/miditoolbox/1.1/blob/master/miditoolbox/melcontour.m
     """
     sampling_result = melodySamplingContour(score, res, res_type)
-    if sampling_result is None:
+    if not sampling_result:
         return None
     return _autoCorrelateContour(sampling_result)

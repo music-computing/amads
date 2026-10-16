@@ -14,11 +14,14 @@ print("------- finished input from partitura")
 
 print("------- Executing melcontour")
 # we are calling melcontour with a resolution of 0.25 beats per sample tick
-contour = melodySamplingContour(myscore, 0.40)
+contour = melodySamplingContour(myscore, 0.40, "abs")
 print(contour)
 
 print("------- Executing autocorrelatecontour")
 # Note that autocorrelate contour
-autocorrelation = melodySamplingCorrelation(myscore, 0.40)
+autocorrelation = melodySamplingCorrelation(myscore, 0.40, "abs")
 print(autocorrelation)
 assert len(autocorrelation) == 2 * len(contour) - 1
+
+none_autocorrelation = melodySamplingCorrelation(myscore, 0.40)
+assert none_autocorrelation is None
