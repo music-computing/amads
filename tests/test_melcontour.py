@@ -9,6 +9,10 @@ from amads.melody.contour.melcontour import (
     melodySamplingContour,
     melodySamplingCorrelation,
 )
+from tests.matlab_crosstesting_utils import (
+    load_json_results,
+    matlab_sarabande_test_score,
+)
 
 
 def test_empty_melody():
@@ -18,7 +22,6 @@ def test_empty_melody():
     melody = Score.from_melody([])
     result = melodySamplingContour(melody, 0.5)
     assert result is None
-    return
 
 
 def test_nonempty_melody_contour():
@@ -29,7 +32,7 @@ def test_nonempty_melody_contour():
     pitches_in = list(range(56, 68, 2))
     melody = Score.from_melody(pitches=pitches_in)
     melody.time_shift(2.5)
-    result = melodySamplingContour(melody, 1)
+    result = melodySamplingContour(melody, 1, 'abs')
     desired_result = [
         Note(onset=2.500, duration=1.000, pitch=56),
         Note(onset=3.500, duration=1.000, pitch=58),
@@ -48,8 +51,6 @@ def test_nonempty_melody_contour():
         for desired, obtained in zip(desired_result, result)
     )
 
-    return
-
 
 def test_nonempty_melody_correlation():
     """
@@ -59,7 +60,7 @@ def test_nonempty_melody_correlation():
     pitches_in = list(range(56, 68, 2))
     melody = Score.from_melody(pitches=pitches_in)
     melody.time_shift(2.5)
-    result = melodySamplingCorrelation(melody, 1)
+    result = melodySamplingCorrelation(melody, 1, 'abs')
     desired_result = [
         -0.3571428571428571,
         -0.4285714285714285,
@@ -78,10 +79,16 @@ def test_nonempty_melody_correlation():
         for a, b in zip(result, desired_result)
     )
 
-    return
+
+def test_midi_sarabande():
+    matlab_result = load_json_results()['melcontour']
+    test_result = melodySamplingContour(matlab_sarabande_test_score, 10, 'rel')
+    test_pitch_list = [note.midi_num for note in test_result]
+    assert matlab_result == test_pitch_list
 
 
 if __name__ == "__main__":
     test_empty_melody()
     test_nonempty_melody_contour()
     test_nonempty_melody_correlation()
+    test_midi_sarabande()

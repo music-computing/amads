@@ -1,20 +1,10 @@
 """
 Pairwise pitch comparison melodic "contour" representation of a monophonic Score
 
-Date: [2025-01-26]
+Ports the 'combcontour' function from miditoolbox.
 
-Description:
-    Computes a combination contour matrix given a monophonic Score.
-
-Original doc: https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6e06906ca1ba0bf0ac8f2cb1a929f3be95eeadfa#page=54
-
-Reference(s):
-    Marvin, E. W. & Laprade, P. A. (1987). Relating music contours:
-        Extensions of a theory for contour. Journal of Music Theory,
-        31(2), 225-267.
+https://github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf, page 55
 """
-
-from typing import Optional
 
 import numpy as np
 
@@ -22,7 +12,7 @@ from amads.core.basics import Score
 from amads.pitch.ismonophonic import ismonophonic
 
 
-def get_pitch_comparison_contour_matrix(score: Score) -> Optional[np.array]:
+def get_pitch_comparison_contour_matrix(score: Score) -> np.array[bool] | None:
     """
     Computes a pairwise melodic contour matrix.
 
@@ -46,6 +36,12 @@ def get_pitch_comparison_contour_matrix(score: Score) -> Optional[np.array]:
         the boolean pitch comparison contour matrix
         None if the score is empty
 
+    References
+    ----------
+        Marvin, E. W. & Laprade, P. A. (1987). Relating music contours:
+            Extensions of a theory for contour. Journal of Music Theory,
+            31(2), 225-267.
+
     Notes
     -----
     Implementation based on the original MATLAB code from:
@@ -62,7 +58,7 @@ def get_pitch_comparison_contour_matrix(score: Score) -> Optional[np.array]:
     if not notes:
         return None
 
-    pitch_array = np.array([note.key_num for note in notes])
+    pitch_array = np.array([note.midi_num for note in notes])
 
     contour_mtx = np.full((len(notes), len(notes)), False, dtype=bool)
 

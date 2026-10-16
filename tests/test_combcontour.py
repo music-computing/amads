@@ -15,7 +15,6 @@ def test_empty_melody():
     melody = Score.from_melody([])
     result = get_pitch_comparison_contour_matrix(melody)
     assert result is None
-    return
 
 
 def test_nonempty_combcontour():
@@ -36,8 +35,6 @@ def test_nonempty_combcontour():
         ]
     )
     assert (result == desired_result).all()
-
-    return
 
 
 if __name__ == "__main__":
