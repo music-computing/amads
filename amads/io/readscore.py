@@ -764,7 +764,9 @@ def _finish_import(
             elif measure_timing[m_index][0] > ts.quarters + 0.01:
                 warnings.warn(
                     f"Found time signature {ts} "
-                    "that is not on a measure boundary."
+                    "that is not on a measure boundary. ts.quarters="
+                    f"{float(ts.quarters)}, measure_start="
+                    f"{measure_timing[m_index][0]}. "
                 )
             else:
                 final_time_sigs.append(ts)
