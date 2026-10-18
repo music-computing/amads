@@ -6,8 +6,13 @@ Important business first: score from URL ;)
 See more extensive tests on musicXML in test_midi_roundtrip and test_xml_export
 """
 
+from music21 import bar, meter
+from music21 import note as m21note
+from music21 import stream
+
 from amads.algorithms.scores_compare import notes_compare, scores_compare
 from amads.core.basics import Measure, Note, Staff
+from amads.io.m21_import import _safe_expand_multistaff
 from amads.io.readscore import (
     last_used_reader,
     read_score,
@@ -22,7 +27,7 @@ VERBOSE = False
 
 def test_pitch_comparison():
     set_reader_warning_level("none")
-    test_path = "https://github.com/MarkGotham/species/raw/refs/heads/main/1x1/gap_005.mxl"
+    test_path = example.fullpath("musicxml/gap_005.mxl")
     score = read_score(test_path)
     notes = score.get_sorted_notes()
     assert len(notes) == 22
@@ -226,3 +231,56 @@ def test_grace_trills_example():
     assert notes[15].get("has_turn", False)
     assert notes[15].get("turn_pitches")[0].name_with_octave == "C4"
     assert notes[15].get("turn_pitches")[1].name_with_octave == "Ab3"
+
+
+def test_expand_repeats_keeps_parts_aligned_without_make_notation():
+    """Repeated measures may have duplicate numbers and mismatched voices."""
+    score = stream.Score()
+    for part_index in range(2):
+        part = stream.Part(id=f"part-{part_index}")
+
+        first_measure = stream.Measure(number=1)
+        first_measure.insert(0, meter.TimeSignature("9/8"))
+        first_measure.leftBarline = bar.Repeat(direction="start")
+        first_voice = stream.Voice(id="1")
+        first_voice.insert(0, m21note.Note(60 + part_index * 12))
+        first_measure.insert(0, first_voice)
+        overflow_voice = stream.Voice(id="3")
+        overflow_rest = m21note.Rest()
+        overflow_rest.duration.quarterLength = 5
+        overflow_voice.insert(0, overflow_rest)
+        first_measure.insert(0, overflow_voice)
+
+        second_measure = stream.Measure(number=2)
+        second_voice = stream.Voice(id="1")
+        second_voice.insert(0, m21note.Note(61 + part_index * 12))
+        second_measure.insert(0, second_voice)
+        second_measure.rightBarline = bar.Repeat(direction="end")
+
+        part.append(first_measure)
+        part.append(second_measure)
+        score.append(part)
+
+    expanded = _safe_expand_multistaff(score)
+    measures_by_part = [
+        list(part.getElementsByClass(stream.Measure)) for part in expanded.parts
+    ]
+
+    assert len(measures_by_part) == 2
+    measure_numbers = [
+        [measure.number for measure in measures]
+        for measures in measures_by_part
+    ]
+    assert measure_numbers == [[1, 2, 1, 2], [1, 2, 1, 2]]
+    assert [
+        [float(measure.offset) for measure in measures]
+        for measures in measures_by_part
+    ][0] == [float(measure.offset) for measure in measures_by_part[1]]
+    assert [
+        [n.pitch.midi for n in measure.recurse().notes]
+        for measure in measures_by_part[0]
+    ] == [[60], [61], [60], [61]]
+    assert [
+        [n.pitch.midi for n in measure.recurse().notes]
+        for measure in measures_by_part[1]
+    ] == [[72], [73], [72], [73]]

@@ -8,6 +8,7 @@ Partitura, and pretty_midi. Use `read_score` to get the recommended
 implementation automatically.
 
 ::: amads.io.readscore 
+::: amads.io.normalize.normalize
 
 ## Output
 
