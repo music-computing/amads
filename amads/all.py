@@ -57,7 +57,6 @@ from .music.example import *
 
 # pitch
 from .pitch.hz2midi import *
-from .pitch.ismonophonic import *
 from .pitch.ivdirdist1 import *
 from .pitch.ivdist1 import *
 from .pitch.ivdist2 import *
