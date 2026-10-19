@@ -3,9 +3,11 @@ import pytest
 
 import amads.pitch.key.profiles as prof
 from amads.core.basics import Score
-from amads.io.readscore import read_score
-from amads.music import example
 from amads.pitch.key.key_cc import key_cc
+from tests.matlab_crosstesting_utils import (
+    load_json_results,
+    matlab_sarabande_test_score,
+)
 
 # C major diatonic: ascend to high C, descend from B (no repeated high C at the turn).
 C_MAJOR_SCALE_UP_SI_DOWN = [
@@ -171,58 +173,32 @@ def test_salience():
 
 
 def test_sarabande():
-    from amads.pitch.pcdist1 import pitch_class_distribution_1
-
-    my_midi_file = example.fullpath("midi/sarabande.mid")
-    myscore = read_score(my_midi_file, show=False)
-
-    pcd = np.array([pitch_class_distribution_1(myscore, False)])
-    print("Pitch-Class Distribution:", pcd)
-
-    result = key_cc(myscore, prof.krumhansl_kessler, ["major", "minor"])
+    attribute_list = ["major", "minor"]
+    result = key_cc(
+        matlab_sarabande_test_score,
+        prof.miditoolbox_kkprof,
+        attribute_list,
+        miditoolbox_compatible=True,
+    )
 
     assert isinstance(result, list)
     assert len(result) == 2
-    for (attr, corr), expected in zip(result, ["major", "minor"]):
+    for (attr, corr), expected in zip(result, attribute_list):
         assert attr == expected
         assert corr is not None
         assert len(corr) == 12
         assert all(isinstance(x, float) for x in corr)  # floats expected
 
+    matlab_result = load_json_results()["kkcc"]
+
     desired_result = [
         (
-            "major",
-            (
-                0.5701465966569734,
-                -0.6350373909991023,
-                0.4989561694555702,
-                -0.5583624148937744,
-                0.3452182334888391,
-                0.3735608918157221,
-                -0.6918840499158571,
-                0.4505249207074746,
-                -0.4440698340704534,
-                0.5336093499024387,
-                -0.22351648607025337,
-                -0.21914598607757815,
-            ),
+            attribute_list[0],
+            tuple(matlab_result[:12]),
         ),
         (
-            "minor",
-            (
-                -0.10373122765099776,
-                -0.04254052911381638,
-                0.48885123583266066,
-                -0.7134236935573177,
-                0.48607076246123854,
-                -0.118305978194992,
-                0.04629527929274351,
-                -0.19712194241307768,
-                -0.26650341101938196,
-                0.8281592118362701,
-                -0.6445761151714727,
-                0.23682640769814334,
-            ),
+            attribute_list[1],
+            tuple(matlab_result[12:]),
         ),
     ]
 

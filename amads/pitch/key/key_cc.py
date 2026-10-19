@@ -28,7 +28,7 @@ def key_cc(
     attribute_names: list[str] | None = None,
     salience_flag: bool = False,
     miditoolbox_compatible=False,
-) -> list[tuple[str, tuple[float] | None]]:
+) -> list[tuple[str, tuple[float]] | None]:
     """
     Calculate the correlation coefficients with specific pitch profiles.
 
@@ -81,7 +81,7 @@ def key_cc(
 
     Returns
     -------
-    list[tuple[str, tuple[float] | None]]
+    list[tuple[str, tuple[float]] | None]
         A list of tuples where each tuple contains the attribute name, from
         parameter `attribute_names`, and the corresponding 12-tuple of
         correlation coefficients. If an attribute name does not reference
