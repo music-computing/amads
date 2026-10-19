@@ -9,7 +9,6 @@ https://github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manu
 import numpy as np
 
 from amads.core.basics import Score
-from amads.pitch.ismonophonic import ismonophonic
 
 
 def get_pitch_comparison_contour_matrix(
@@ -50,7 +49,7 @@ def get_pitch_comparison_contour_matrix(
     https://github.com/miditoolbox/1.1/blob/master/miditoolbox/combcontour.m
     """
     # melodic analysis must be done on a monophonic score
-    if not ismonophonic(score):
+    if not score.ismonophonic():
         raise ValueError("Score must be monophonic")
 
     # extracting note references

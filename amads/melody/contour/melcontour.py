@@ -15,7 +15,6 @@ from itertools import count
 import numpy as np
 
 from amads.core.basics import Note, Score
-from amads.pitch.ismonophonic import ismonophonic
 
 
 def _autoCorrelateContour(contour_input: list[Note]) -> list[float] | None:
@@ -97,7 +96,7 @@ def melodySamplingContour(
     https://github.com/miditoolbox/1.1/blob/master/miditoolbox/melcontour.m
     """
     # this algorithm can only operate on monophonic melodies
-    if not ismonophonic(score):
+    if not score.ismonophonic():
         raise ValueError("Score must be monophonic")
 
     if res_type != "abs" and res_type != "rel":
