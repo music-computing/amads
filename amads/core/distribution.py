@@ -136,7 +136,7 @@ class Distribution:
             "symmetric_key_profile",
             "asymmetric_key_profile",
             "root_support_weights",
-            "onset_within_measure"
+            "onset_within_measure",
         }
     )
 

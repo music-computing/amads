@@ -1,10 +1,11 @@
-from amads.core.basics import Note, Score, Measure
+from fractions import Fraction
+
+from amads.core.basics import Measure, Note, Score
 from amads.core.distribution import Distribution
 from amads.core.histogram import Histogram1D
 
-from fractions import Fraction
-
 __author__ = "Anirudh Subramanian"
+
 
 def onset_distribution(
     score: Score,
@@ -15,14 +16,14 @@ def onset_distribution(
     """
     Returns a distribution of onsets of Notes relative to the onset of
     their corresponding Measure.
-    
+
     If the onset of a Note falls between two divisions of a quarter note,
     it is rounded down to the nearest division of a quarter note (i.e.
     the floor of the onset time). Becuase onsets are measured relative to
     the start of each measure, onsets in a pickup measure are calculated
     relative to the start of that (incomplete) measure, which may not be
     the desired behavior.
-    
+
     Onsets are weighted by the duration of the corresponding Note because
     longer notes are better percieved by listeners (Thompson, 1994). Tied
     notes are merged into single notes, so a tied note only counts as one
@@ -42,17 +43,17 @@ def onset_distribution(
         onset time to.
     name : str
         The name of the Distribution (purely stylistic)
-        
+
     Returns
     -------
     Distribution
         containing and describing the distribution of note onsets.
-    
+
     Throws
     ------
     ValueError
         if the provided Score is flat (i.e. does not contain Measures)
-        
+
     References
     ----------
     Thompson, W. F. (1994). Sensitivity to combinations of musical
@@ -73,16 +74,16 @@ def onset_distribution(
     h = Histogram1D(
         bin_centers=boundaries[:-1],
         bin_boundaries=boundaries,
-        ignore_extrema=False
+        ignore_extrema=False,
     )
 
     for n in score.find_all(Note):
         m = n.measure
-        
+
         # discards Notes that are not contained within a Measure
         if m is not None:
             h.add_point(n.onset - m.onset, weight=n.duration)
-    
+
     return Distribution(
         name=name,
         data=h.bins,
@@ -91,5 +92,5 @@ def onset_distribution(
         x_categories=boundaries[:-1],
         x_label="Location within measure (quarter notes)",
         y_categories=None,
-        y_label="Total duration (quarter notes)"
+        y_label="Total duration (quarter notes)",
     )

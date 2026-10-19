@@ -2,13 +2,15 @@
 Tests for amads/time/onsetdist.py
 """
 
+from math import floor
+
 import pytest
 
-from math import floor
-from amads.time.onsetdist import *
 from amads.core.basics import Part
+from amads.time.onsetdist import *
 
 __author__ = "Anirudh Subramanian"
+
 
 def test_onsetdist_flooring():
     """Onsets that are between two divisions of a quarter note round down"""
@@ -29,19 +31,26 @@ def test_onsetdist_flooring():
     assert result.data[floor((n1.onset - m.onset) * n_divisions)] == 1
     assert result.data[floor((n2.onset - m.onset) * n_divisions)] == 1
 
+
 def test_onsetdist_irregular_measures():
     """Tests that the distribution works when measures are of uneven lengths"""
 
     score = Score()
 
     m1 = Measure(parent=score, onset=1.0, duration=4.0)
-    n1 = Note(parent=m1, onset=4.0, duration=1.0) # 3.0 quarters after start of measure
+    n1 = Note(
+        parent=m1, onset=4.0, duration=1.0
+    )  # 3.0 quarters after start of measure
 
     m2 = Measure(parent=score, onset=6.0, duration=3.0)
-    n2 = Note(parent=m2, onset=7.25, duration=1.5) # 1.25 quarters after start of measure
+    n2 = Note(
+        parent=m2, onset=7.25, duration=1.5
+    )  # 1.25 quarters after start of measure
 
     m3 = Measure(parent=score, onset=10.0, duration=5.0)
-    n3 = Note(parent=m3, onset=14.5, duration=0.5) # 4.5 quarters after start of measure
+    n3 = Note(
+        parent=m3, onset=14.5, duration=0.5
+    )  # 4.5 quarters after start of measure
 
     n_divisions = 4
     result = onset_distribution(
@@ -50,9 +59,16 @@ def test_onsetdist_irregular_measures():
         divisions=n_divisions,
     )
 
-    assert result.data[floor((n1.onset - m1.onset) * n_divisions)] == n1.duration
-    assert result.data[floor((n2.onset - m2.onset) * n_divisions)] == n2.duration
-    assert result.data[floor((n3.onset - m3.onset) * n_divisions)] == n3.duration
+    assert (
+        result.data[floor((n1.onset - m1.onset) * n_divisions)] == n1.duration
+    )
+    assert (
+        result.data[floor((n2.onset - m2.onset) * n_divisions)] == n2.duration
+    )
+    assert (
+        result.data[floor((n3.onset - m3.onset) * n_divisions)] == n3.duration
+    )
+
 
 def test_onsetdist_tied():
     """Tests that tied notes are merged when calculating distribution"""
@@ -71,8 +87,12 @@ def test_onsetdist_tied():
         divisions=n_divisions,
     )
 
-    assert result.data[round((n1.onset - m.onset) * n_divisions)] == n1.duration + n2.duration
+    assert (
+        result.data[round((n1.onset - m.onset) * n_divisions)]
+        == n1.duration + n2.duration
+    )
     assert result.data[round((n3.onset - m.onset) * n_divisions)] == 0
+
 
 def test_fails_on_flattened():
     """Tests that onsetdist throws an error for flattened scores"""
@@ -85,6 +105,6 @@ def test_fails_on_flattened():
     n3 = Note(parent=m, onset=1.0, duration=2.0)
 
     score = score.flatten()
-    
+
     with pytest.raises(ValueError):
         onset_distribution(score)

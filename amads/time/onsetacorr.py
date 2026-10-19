@@ -1,9 +1,10 @@
-from amads.core.basics import Score, Note
-from amads.pitch.pcdist1 import duraccent
-
 import numpy as np
 
+from amads.core.basics import Note, Score
+from amads.pitch.pcdist1 import duraccent
+
 __author__ = "Anirudh Subramanian"
+
 
 def onset_autocorr(
     score: Score,
@@ -31,13 +32,13 @@ def onset_autocorr(
     max_lag : int
         The maximum time lag, in quarter notes, for autocorrelation
         (inclusive)
-    
+
     Return
     ------
     list[int]
         Autocorrelation values at time lag 0, ... `max_lag` in steps of
         `division`
-    
+
     References
     ----------
     Brown, J. (1992). Determination of meter of musical scores by
@@ -62,10 +63,12 @@ def onset_autocorr(
         index = round(n.onset * divisions)
         time_series[index] += duraccent(n)
 
-    autocorr = np.correlate(time_series, time_series, mode='full')
+    autocorr = np.correlate(time_series, time_series, mode="full")
     mid = autocorr.size // 2
-    autocorr = autocorr[mid : mid + max_lag * divisions + 1] # max_lag is inclusive
-    autocorr = autocorr / autocorr[0] # normalize
+    autocorr = autocorr[
+        mid : mid + max_lag * divisions + 1
+    ]  # max_lag is inclusive
+    autocorr = autocorr / autocorr[0]  # normalize
     autocorr = autocorr.tolist()
 
     return autocorr
