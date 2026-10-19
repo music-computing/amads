@@ -1,6 +1,6 @@
 from fractions import Fraction
 
-from amads.core.basics import Measure, Note, Score
+from amads.core.basics import Note, Score
 from amads.core.distribution import Distribution
 from amads.core.histogram import Histogram1D
 

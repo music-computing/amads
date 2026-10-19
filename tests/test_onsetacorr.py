@@ -5,9 +5,8 @@ Tests for amads/time/onsetacorr.py
 import pytest
 
 from amads.io.pm_midi_import import pretty_midi_import
-from amads.io.readscore import read_score
 from amads.music import example
-from amads.time.onsetacorr import *
+from amads.time.onsetacorr import onset_autocorr
 from tests.matlab_crosstesting_utils import load_json_results
 
 

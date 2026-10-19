@@ -6,8 +6,8 @@ from math import floor
 
 import pytest
 
-from amads.core.basics import Part
-from amads.time.onsetdist import *
+from amads.core.basics import Measure, Note, Part, Score
+from amads.time.onsetdist import onset_distribution
 
 __author__ = "Anirudh Subramanian"
 
@@ -100,9 +100,9 @@ def test_fails_on_flattened():
     score = Score()
     p = Part(parent=score, onset=0.0)
     m = Measure(parent=p, onset=0.0)
-    n1 = Note(parent=m, onset=0.0, duration=1.0)
-    n2 = Note(parent=m, onset=0.0, duration=2.5)
-    n3 = Note(parent=m, onset=1.0, duration=2.0)
+    _ = Note(parent=m, onset=0.0, duration=1.0)
+    _ = Note(parent=m, onset=0.0, duration=2.5)
+    _ = Note(parent=m, onset=1.0, duration=2.0)
 
     score = score.flatten()
 
