@@ -22,7 +22,6 @@ from amads.pitch.pcdist2 import pitch_class_distribution_2
 
 repr = ["ivdist1", "ivdist2", "pcdist1", "pcdist2", "durdist1", "durdist2"]
 
-
 def melodic_distance(
     score1: Score,
     score2: Score,

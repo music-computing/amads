@@ -81,6 +81,8 @@ class Distribution:
             e.g.,, for vocal/instrumental range, as opposed to pitch *class* (as above).
             See `Distribution.from_pitches` for a constructor that builds
             one of these directly from a list of pitches.
+        - "onset_within_measure" - onset of notes relative to the onset of their
+            corresponding measure, weighted by note duration
 
         This list is open-ended (see `Distribution.KNOWN_TYPES`) and is
         currently just informational: the value is not used to control
@@ -134,6 +136,7 @@ class Distribution:
             "symmetric_key_profile",
             "asymmetric_key_profile",
             "root_support_weights",
+            "onset_within_measure"
         }
     )
 
