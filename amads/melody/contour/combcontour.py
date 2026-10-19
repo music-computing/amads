@@ -6,13 +6,16 @@ Ports the 'combcontour' function from miditoolbox.
 https://github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf, page 55
 """
 
+from collections.abc import Iterator
+from itertools import tee
+
 import numpy as np
 
-from amads.core.basics import Score
+from amads.core.basics import Note, Score
 
 
 def get_pitch_comparison_contour_matrix(
-    score: Score,
+    note_iterator: Iterator[Note],
 ) -> np.ndarray[bool] | None:
     """
     Computes a pairwise melodic contour matrix.
@@ -25,8 +28,9 @@ def get_pitch_comparison_contour_matrix(
 
     Parameters
     ----------
-    score
-        Monophonic input score (class from core.basics for storing music scores)
+    note_iterator
+        Note iterator from a monophonic note input (class from core.basics for
+        storing music scores)
         For arbitrary matrix cell at (i, j):
         True if the pitch from the pitch note in the row index is smaller.
         False otherwise.
@@ -42,6 +46,44 @@ def get_pitch_comparison_contour_matrix(
         Marvin, E. W. & Laprade, P. A. (1987). Relating music contours:
             Extensions of a theory for contour. Journal of Music Theory,
             31(2), 225-267.
+    """
+    note_iterator, next_iterator = tee(note_iterator)
+    # no comparisons to be had if the score contains no notes
+    if not next(next_iterator, None):
+        return None
+
+    pitch_array = np.fromiter((note.midi_num for note in note_iterator), int)
+    pitch_len = pitch_array.size
+
+    contour_mtx = np.full((pitch_len, pitch_len), False, dtype=bool)
+
+    # perform the comparison with slicing notation for numpy array
+    for i in range(pitch_len):
+        contour_mtx[i:, i] = pitch_array[i] > pitch_array[i:]
+
+    return contour_mtx
+
+
+def combination_contour(
+    score: Score,
+) -> np.ndarray[bool] | None:
+    """
+    This function is a port of combcontour from miditoolbox and replicates
+    its functionality.
+
+    Parameters
+    ----------
+    score
+        Monophonic input score (class from core.basics for storing music scores)
+        For arbitrary matrix cell at (i, j):
+        True if the pitch from the pitch note in the row index is smaller.
+        False otherwise.
+
+    Returns
+    -------
+    Optional[np.array[bool]]
+        the boolean pitch comparison contour matrix
+        None if the score is empty
 
     Notes
     -----
@@ -52,19 +94,8 @@ def get_pitch_comparison_contour_matrix(
     if not score.ismonophonic():
         raise ValueError("Score must be monophonic")
 
-    # extracting note references
-    notes = score.get_sorted_notes()
-
     # no comparisons to be had if the score contains no notes
-    if not notes:
+    if not next(score.find_all(Note), None):
         return None
 
-    pitch_array = np.array([note.midi_num for note in notes])
-
-    contour_mtx = np.full((len(notes), len(notes)), False, dtype=bool)
-
-    # perform the comparison with slicing notation for numpy array
-    for i in range(len(notes)):
-        contour_mtx[i:, i] = pitch_array[i] > pitch_array[i:]
-
-    return contour_mtx
+    return get_pitch_comparison_contour_matrix(score.find_all(Note))

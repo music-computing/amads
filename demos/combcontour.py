@@ -1,6 +1,6 @@
 from amads.io.pianoroll import pianoroll
 from amads.io.pm_midi_import import pretty_midi_import
-from amads.melody.contour.combcontour import get_pitch_comparison_contour_matrix
+from amads.melody.contour.combcontour import combination_contour
 from amads.music import example
 
 my_midi_file = example.fullpath("midi/tones.mid")
@@ -12,6 +12,6 @@ print("------- finished input from partitura")
 fig = pianoroll(myscore)
 
 print("------- Executing combcontour")
-contour_mtx = get_pitch_comparison_contour_matrix(myscore)
+contour_mtx = combination_contour(myscore)
 
 print(contour_mtx)

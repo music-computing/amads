@@ -1,7 +1,7 @@
 import numpy as np
 
 from amads.core.basics import Score
-from amads.melody.contour.combcontour import get_pitch_comparison_contour_matrix
+from amads.melody.contour.combcontour import combination_contour
 
 
 def test_empty_melody():
@@ -9,7 +9,7 @@ def test_empty_melody():
     Edge case: Verifies melodic contour extraction using an empty melody
     """
     melody = Score.from_melody([])
-    result = get_pitch_comparison_contour_matrix(melody)
+    result = combination_contour(melody)
     assert result is None
 
 
@@ -21,7 +21,7 @@ def test_nonempty_combcontour():
     pitches_in = [55, 40, 60, 50]
     melody = Score.from_melody(pitches=pitches_in)
     melody.time_shift(2.5)
-    result = get_pitch_comparison_contour_matrix(melody)
+    result = combination_contour(melody)
     desired_result = np.array(
         [
             [False, False, False, False],
