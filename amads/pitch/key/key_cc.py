@@ -103,7 +103,7 @@ def key_cc(
     """
 
     pcd_data = pitch_class_distribution_1(
-        score, miditoolbox_compatible=miditoolbox_compatible
+        score, weighted=True, miditoolbox_compatible=miditoolbox_compatible
     ).data
 
     # Get pitch-class distribution

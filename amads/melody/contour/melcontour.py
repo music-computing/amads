@@ -51,7 +51,7 @@ def _autoCorrelateContour(contour_input: list[Note]) -> list[float] | None:
 
 
 def melodySamplingContour(
-    score: Score, res: float, res_type: str = "rel"
+    score: Score, res: int | float, res_type: str = "rel"
 ) -> list[Note] | None:
     """
     Calculates a sequence of the pitches of the last note onset up to
@@ -105,7 +105,10 @@ def melodySamplingContour(
         )
 
     if res_type == "rel":
-        res = (score.duration) / res
+        num_notes = res
+        res = score.duration / res
+    elif res_type == "abs":
+        num_notes = round(score.duration / res)
 
     sample_iter = score.find_all(Note)
     current_note = next(sample_iter, None)
@@ -115,8 +118,8 @@ def melodySamplingContour(
 
     sampling_list = []
 
-    for sample_time in count(start=0, step=res):
-        if sample_time > score.duration:
+    for sample_time, _ in zip(count(start=0, step=res), range(num_notes)):
+        if sample_time >= score.duration:
             break
         if sample_time < current_note.onset - score.onset:
             continue
@@ -125,9 +128,6 @@ def melodySamplingContour(
             next_note = next(sample_iter, None)
         # record current_note for the associated time sample
         sampling_list.append(current_note)
-        # record pitch for current sample time
-        if not next_note:
-            break
 
     return sampling_list
 
