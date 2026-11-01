@@ -972,6 +972,49 @@ def test_remove_measures():
     )  # E5
 
 
+def test_time_shift_rejects_negative_onset_on_event():
+    """Event.time_shift raises and leaves onset unchanged if result < 0."""
+    note = Note(onset=1.0, duration=1.0, pitch="C4")
+    with pytest.raises(ValueError):
+        note.time_shift(-1.5)
+    assert note.onset == 1.0
+    note.time_shift(-1.0)
+    assert note.onset == 0.0
+
+
+def test_time_shift_rejects_none_onset_on_event():
+    """Event.time_shift raises when onset is None (Note default)."""
+    note = Note(pitch="C4")
+    with pytest.raises(ValueError, match="None onset"):
+        note.time_shift(1.0)
+    assert note._onset is None
+
+
+def test_time_shift_rejects_negative_onset_on_group():
+    """EventGroup.time_shift raises when a container onset would go negative."""
+    n1 = Note(onset=0.0, duration=1.0, pitch="C4")
+    n2 = Note(onset=2.0, duration=1.0, pitch="D4")
+    part = Part(n1, n2)
+    score = Score(part)
+    with pytest.raises(ValueError):
+        score.time_shift(-0.5)
+    # tree is unchanged
+    assert score.onset == 0.0
+    assert part.onset == 0.0
+    assert n1.onset == 0.0
+    assert n2.onset == 2.0
+
+
+def test_time_shift_rejects_unknown_onset_on_group():
+    """EventGroup.time_shift raises when the container onset is None."""
+    note = Note(onset=0.0, duration=1.0, pitch="C4")
+    part = Part(note, onset=None)  # edge case
+    with pytest.raises(ValueError, match="unknown onset"):
+        part.time_shift(1.0)
+    assert part._onset is None
+    assert note.onset == 0.0
+
+
 def test_shift_content():
     """Test to see if chord content is shifted when chords are in
     sequence, and also test shifting content in a score."""

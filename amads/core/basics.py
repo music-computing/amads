@@ -234,12 +234,28 @@ class Event:
             The time increment (in quarters or seconds).
         content_only : bool, optional
             This parameter is ignored. (See EventGroup.time_shift)
+
         Returns
         -------
         Event
             The object. This method modifies the `Event`.
+
+        Raises
+        ------
+        ValueError
+            If the onset is None, or if the resulting onset would be
+            negative.
         """
-        self._onset += increment  # type: ignore
+        if self._onset is None:
+            raise ValueError(
+                "Cannot shift time of Event with None onset")
+        new_onset = self._onset + increment
+        if new_onset < 0:
+            raise ValueError(
+                "time_shift would make onset negative: "
+                f"{self._onset} + {increment} = {new_onset}"
+            )
+        self._onset = new_onset
         return self
 
 
@@ -1743,12 +1759,8 @@ class EventGroup(Event):
         If content_only is true, preserves EventGroup times (Score, Part,
         Staff, but *not* Chord or Measure) and shifts only the content
         (recursively). Otherwise, shifts this container and all content by the
-        increment. Container onsets (recursively) are not allowed to become
-        negative, so the onset time is set to zero if the increment would
-        make it negative. However, even if the onset is is not shifted by
-        increment, time_shift is still applied recursively to the content,
-        and non-EventGroup events (e.g., Notes) are allowed to have negative
-        onsets, even if this may not be well-defined for all AMADS operations.
+        increment. Onsets must not become negative; if the shift would make
+        this container's onset negative, raise ValueError.
 
         Parameters
         ----------
@@ -1760,21 +1772,28 @@ class EventGroup(Event):
 
         Returns
         -------
-        Event
+        EventGroup
             The object. This method modifies the `EventGroup`.
 
         Raises
         ------
         ValueError
             If the EventGroup has an unknown (None) onset and
-            content_only is false.
+            content_only is false, or if any resulting onset would be
+            negative.
         """
         # note that Chord and Measures are special cases
         if not content_only or isinstance(self, (Chord, Measure)):
             if self._onset is None:
                 raise ValueError(
                         "Cannot shift time of EventGroup with unknown onset")
-            self._onset = max(0.0, self._onset + increment)
+            new_onset = self._onset + increment
+            if new_onset < 0:
+                raise ValueError(
+                    "time_shift would make onset negative: "
+                    f"{self._onset} + {increment} = {new_onset}"
+                )
+            self._onset = new_onset
         for elem in self.content:
             elem.time_shift(increment, content_only)
         return self
