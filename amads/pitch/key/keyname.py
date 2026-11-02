@@ -73,8 +73,8 @@ def keycode_from_kkkey(attribute: str, key_index: int) -> int:
 
     See Also
     --------
-    [kkkey][amads.pitch.key.kkkey.kkkey] : Estimate the key of a score.
-    [keyname][amads.pitch.key.keyname.keyname] : Convert key codes to key-name strings.
+    - [kkkey][amads.pitch.key.kkkey.kkkey] : Estimate the key of a score.
+    - [keyname][amads.pitch.key.keyname.keyname] : Convert key codes to key-name strings.
 
     Examples
     --------
@@ -129,8 +129,9 @@ def keyname(
 
     See Also
     --------
-    [kkkey][amads.pitch.key.kkkey.kkkey] : Estimate the key of a score.
-    [keycode_from_kkkey][amads.pitch.key.keyname.keycode_from_kkkey] : Convert AMADS ``kkkey`` output to key codes 1--24.
+    - [kkkey][amads.pitch.key.kkkey.kkkey] : Estimate the key of a score.
+    - [keycode_from_kkkey][amads.pitch.key.keyname.keycode_from_kkkey] :
+      Convert AMADS ``kkkey`` output to key codes 1--24.
 
     Examples
     --------

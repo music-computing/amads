@@ -64,7 +64,7 @@ def tonal_stability(
     attribute_names : list of str, optional
         Profile attributes passed to [kkkey][amads.pitch.key.kkkey.kkkey].
         ``None`` (default) means all pitch-profile attributes on ``profile``.
-        Passed through to ``kkkey``; see that function for details.
+        Passed through to [kkkey][amads.pitch.key.kkkey.kkkey].
     salience_flag : bool, optional
         Passed to [kkkey][amads.pitch.key.kkkey.kkkey]. Default is ``False``.
     stability_prop_name : str, optional
@@ -90,9 +90,10 @@ def tonal_stability(
 
     See Also
     --------
-    tonality : MIDI Toolbox-compatible stability list (key of C assumed).
-    kkkey : Estimate the key of a score.
-    profiles : Key profile data, including ``krumhansl_kessler``.
+    - [tonality][amads.pitch.key.tonality.tonality] :
+      MIDI Toolbox-compatible stability list (key of C assumed).
+    - [kkkey][amads.pitch.key.kkkey.kkkey] : Estimate the key of a score.
+    - [profiles][amads.pitch.key.profiles] : Key profile data, including ``krumhansl_kessler``.
 
     References
     ----------

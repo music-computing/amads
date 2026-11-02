@@ -81,9 +81,10 @@ def tonality(
 
     See Also
     --------
-    keymode : Estimate major/minor mode (key of C assumed).
-    tonal_stability : Key-aware stability with per-note annotation.
-    profiles : Key profile data, including ``krumhansl_kessler``.
+    - [keymode][amads.pitch.key.keymode.keymode] : Estimate major/minor mode (key of C assumed).
+    - [tonal_stability][amads.pitch.key.tonal_stability.tonal_stability] :
+      Key-aware stability with per-note annotation.
+    - [profiles][amads.pitch.key.profiles] : Key profile data, including ``krumhansl_kessler``.
 
     References
     ----------

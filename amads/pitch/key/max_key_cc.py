@@ -23,8 +23,8 @@ def max_key_cc(
     salience_flag: bool = False,
 ) -> float:
     """
-    Find the maximal correlation value after calling key_cc
-    with relevant parameters (see key_cc.py for more details)
+    Find the maximal correlation value after calling
+    [key_cc][amads.pitch.key.key_cc.key_cc].
 
     This is an implementation of the maxkkcc function in Matlab MIDItoolbox.
 
@@ -37,14 +37,21 @@ def max_key_cc(
     attribute_names: Optional[List[str]]
         List of attribute names that denote the particular PitchProfiles
         within the KeyProfile to compute correlations for.
-        See key_cc for more details
+        See [key_cc][amads.pitch.key.key_cc.key_cc] for more details.
     salience_flag: bool
-        indicate whether we want to turn on salience weights in key_cc
+        Indicate whether we want to turn on salience weights in
+        [key_cc][amads.pitch.key.key_cc.key_cc].
 
     Returns
     -------
     float
-        the maximum correlation value computed in key_cc
+        The maximum correlation value computed in
+        [key_cc][amads.pitch.key.key_cc.key_cc].
+
+    See Also
+    --------
+    - [key_cc][amads.pitch.key.key_cc.key_cc] : Cross-correlations with key profiles.
+    - [kkkey][amads.pitch.key.kkkey.kkkey] : Mode and tonic of the maximum correlation.
     """
     corrcoef_pairs = key_cc(score, profile, attribute_names, salience_flag)
     nested_coefs_iter = (

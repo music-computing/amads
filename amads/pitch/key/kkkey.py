@@ -31,7 +31,7 @@ def kkkey(
     Within `profile` there are multiple profiles named by attributes.
     This function returns the "best" attribute (string) and the best
     key (int) where the int corresponds to the 12 keys in order:
-    0 -> C, 1 -> C#, ..., 11 -> B. (see key_cc.py for more details)
+    0 -> C, 1 -> C#, ..., 11 -> B (see [key_cc][amads.pitch.key.key_cc.key_cc] for more details).
 
     Parameters
     ----------
@@ -42,9 +42,10 @@ def kkkey(
     attribute_names: Optional[List[str]]
         List of attribute names that denote the particular PitchProfiles
         within the KeyProfile to compute correlations for.
-        See key_cc for more details
+        See [key_cc][amads.pitch.key.key_cc.key_cc] for more details.
     salience_flag: bool
-        indicate whether we want to turn on salience weights in key_cc
+        Indicate whether we want to turn on salience weights in
+        [key_cc][amads.pitch.key.key_cc.key_cc].
 
     Returns
     -------
@@ -54,14 +55,16 @@ def kkkey(
     Raises
     ------
     RuntimeError
-        Propagated from ``key_cc`` when correlations cannot be computed (for
-        example, a score with zero pitch-class variance or equal weights).
+        Propagated from [key_cc][amads.pitch.key.key_cc.key_cc] when
+        correlations cannot be computed (for example, a score with zero
+        pitch-class variance or equal weights).
 
     See Also
     --------
-    key_cc : Cross-correlations with key profiles.
-    keycode_from_kkkey : Convert AMADS ``kkkey`` output to key codes 1--24.
-    keyname : Convert key codes to key-name strings.
+    - [key_cc][amads.pitch.key.key_cc.key_cc] : Cross-correlations with key profiles.
+    - [keycode_from_kkkey][amads.pitch.key.keyname.keycode_from_kkkey] :
+      Convert AMADS ``kkkey`` output to key codes 1--24.
+    - [keyname][amads.pitch.key.keyname.keyname] : Convert key codes to key-name strings.
     """
     corrcoef_pairs = key_cc(score, profile, attribute_names, salience_flag)
     # list of pairs (attribute_name, [correlation coefficients])

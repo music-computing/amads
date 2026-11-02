@@ -32,11 +32,11 @@ def key_cc(
     """
     Calculate the correlation coefficients with specific pitch profiles.
 
-    This is a more general version of kkcc, which is based on the kkcc
-    function of the Matlab MIDIToolbox. See also amads.pitch.key.kkcc.
+    This is a more general version of
+    [kkcc][amads.pitch.key.kkcc.kkcc], based on MIDI Toolbox ``kkcc``.
 
     A score's pitch-class distribution is computed and generally,
-    KeyProfiles come from existing data in profiles.py. Within each
+    KeyProfiles come from [profiles][amads.pitch.key.profiles]. Within each
     KeyProfile are one or more distributions, e.g. for "major" and
     "minor" keys, so you must specify which distributions you want
     correlations for.  Return a list of tuples, each containing the
@@ -89,6 +89,13 @@ def key_cc(
     RuntimeError
         If the score or key profile contains equal pitch weights,
         resulting in correlation not being able to be computed.
+
+    See Also
+    --------
+    - [kkcc][amads.pitch.key.kkcc.kkcc] : MIDI Toolbox-compatible implementation.
+    - [kkkey][amads.pitch.key.kkkey.kkkey] : Mode and tonic of the maximum correlation.
+    - [keymode][amads.pitch.key.keymode.keymode] : Mode only, assuming key of C.
+    - [max_key_cc][amads.pitch.key.max_key_cc.max_key_cc] : Maximum correlation value.
     """
 
     # Get pitch-class distribution

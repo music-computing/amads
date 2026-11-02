@@ -23,14 +23,15 @@ def kkcc(
     salience_flag: bool = False,
 ) -> Tuple[float]:
     """
-    kkcc wrapper on key_cc that provides the exact behavior of MIDItoolbox kkcc.
+    Wrapper on [key_cc][amads.pitch.key.key_cc.key_cc] that matches
+    MIDI Toolbox ``kkcc``.
 
     This module:
 
       1. Provides 3 string options for profile names
       2. maps the `profile_name` option to the relevant profile and attribute
-         name list combination for key_cc, replicating the behavior of
-         the relevant kkcc function call in miditoolbox.
+         name list combination for [key_cc][amads.pitch.key.key_cc.key_cc],
+         replicating the relevant MIDI Toolbox ``kkcc`` call.
 
     Parameters
     ----------
@@ -57,7 +58,7 @@ def kkcc(
 
     See Also
     --------
-    key_cc
+    [key_cc][amads.pitch.key.key_cc.key_cc]
     """
     if not isinstance(score, Score):
         raise ValueError("invalid score type!")

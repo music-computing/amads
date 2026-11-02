@@ -57,7 +57,6 @@ from .music.example import *
 
 # pitch
 from .pitch.hz2midi import *
-from .pitch.ismonophonic import *
 from .pitch.ivdirdist1 import *
 from .pitch.ivdist1 import *
 from .pitch.ivdist2 import *
@@ -100,6 +99,8 @@ from .time.meter.representations import *
 from .time.meter.syncopation import *
 from .time.meter.tatum import *
 from .time.notedensity import *
+from .time.onsetacorr import *
+from .time.onsetdist import *
 from .time.rhythm import *
 from .time.swing import *
 from .time.tempo import *
