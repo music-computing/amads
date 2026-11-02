@@ -6,6 +6,7 @@ import pytest
 from amads.time.swing import (
     _validate_bur_inputs,
     beat_upbeat_ratio,
+    filter_burs,
     mean_bur,
     std_bur,
 )
@@ -108,6 +109,13 @@ def test_bounded_burs():
     upbeats = [0.5, 1.5, 2.99]
     expected = [1.0, 1.0, None]
     actual = beat_upbeat_ratio(beats, upbeats, bounded=True)
+    assert pytest.approx(actual) == expected
+
+
+def test_filter_burs():
+    burs = [0.0, 1.0, 2.0, 3.0, 5.0, None]
+    expected = [None, None, 2.0, 3.0, None, None]
+    actual = filter_burs(burs, 1.5, 3.5)
     assert pytest.approx(actual) == expected
 
 
