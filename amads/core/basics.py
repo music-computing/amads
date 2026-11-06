@@ -4008,6 +4008,43 @@ class Score(Concurrence):
             If ``content_only`` and ``shift_framework`` are both false,
             if ``content_only`` is true and the score is not flat, or if
             any resulting onset would be negative.
+
+        See Also
+        --------
+        - [trim][amads.algorithms.trim.trim] : Flatten and remove leading
+          silence (uses ``content_only=True``, ``shift_framework=True``).
+
+        Examples
+        --------
+        Full shift (default): containers, notes, and framework move.
+
+        >>> n = Note(onset=0.0, duration=1.0, pitch="C4")
+        >>> score = Score(Part(n))
+        >>> score.time_map.append_change(1.0, 120.0)
+        >>> _ = score.time_shift(2.0)
+        >>> n.onset
+        2.0
+        >>> score.time_map.changes[1].quarter
+        3.0
+
+        Content and framework (trim-like); Part stays at 0:
+
+        >>> n = Note(onset=1.0, duration=1.0, pitch="C4")
+        >>> part = Part(n)
+        >>> score = Score(part)
+        >>> score.time_map.append_change(2.0, 120.0)
+        >>> _ = score.time_shift(-1.0, content_only=True, shift_framework=True)
+        >>> (part.onset, n.onset, score.time_map.changes[1].quarter)
+        (0.0, 0.0, 1.0)
+
+        Latency: notes move, framework stays:
+
+        >>> n = Note(onset=0.0, duration=1.0, pitch="C4")
+        >>> score = Score(Part(n))
+        >>> score.time_map.append_change(2.0, 120.0)
+        >>> _ = score.time_shift(1.0, content_only=True, shift_framework=False)
+        >>> (n.onset, score.time_map.changes[1].quarter)
+        (1.0, 2.0)
         """
         if not content_only and not shift_framework:
             raise ValueError(
