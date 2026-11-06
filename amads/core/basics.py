@@ -3968,45 +3968,57 @@ class Score(Concurrence):
 
 
     def time_shift(self, increment: float,
-                   content_only: bool = False) -> "Score":
+                   content_only: bool = False,
+                   shift_framework: bool = True) -> "Score":
         """
         Change the onset by an increment, affecting all content.
 
-        This is tricky for scores because they have a time_map (tempo
-        specification). If units_are_quarters, time_shift means insert
-        initial quarters at the initial tempo, and shift all tempo
-        changes by increment quarters. If increment is negative, it is
-        assumed that all Events are at or after -increment, so they will
-        shifted to positive times. Quarters are simply removed from the
-        beginning, shifting all time signatures and tempo changes by
-        increment quarters.
+        Scores also have a time_map (tempo) and time_signatures. Whether
+        those move is controlled by ``shift_framework``. Valid modes:
 
-        If units_are_seconds, we insert increment seconds at the initial
-        tempo (positive increment), or we remove the first -increment
-        seconds (negative increment) but converting increment to quarters
-        and converting this Score to units_are_quarters.
+        - ``content_only=False``, ``shift_framework=True`` (default):
+          shift containers, content, time_map, and time_signatures.
+        - ``content_only=True``, ``shift_framework=True``: keep Score/Part
+          (and Staff) placement; shift content, time_map, and
+          time_signatures. Requires a flat score (see ``is_flat``).
+        - ``content_only=True``, ``shift_framework=False``: shift content
+          only (example: latency correction). Requires a flat score.
+        - ``content_only=False``, ``shift_framework=False``: invalid.
 
-        If content_only is true, the time_map and time_signatures are
-        left in place along with the placement of EventGroups including
-        this Score, Parts, Staffs, Measures, and even Chords, but their
-        Event content (Notes, Rests, KeySignatures, Clefs) are shifted.
-        This probably only makes sense for flattened scores without
-        Measures and Chords since Events could be shifted outside of
-        their container boundaries.
+        If units_are_seconds, convert the increment to quarters and work
+        in quarters (then convert back), as before.
 
         Parameters
         ----------
         increment : float
             The time increment (in quarters or seconds).
-        content_only: bool
-            If true, preserves this container's time and shifts only
-            the content.
+        content_only : bool
+            If true, preserve Score/Part/Staff onsets and shift content.
+        shift_framework : bool
+            If true, also shift ``time_map`` and ``time_signatures``.
 
         Returns
         -------
         Score
             The object. This method modifies the `Score`.
+
+        Raises
+        ------
+        ValueError
+            If ``content_only`` and ``shift_framework`` are both false,
+            if ``content_only`` is true and the score is not flat, or if
+            any resulting onset would be negative.
         """
+        if not content_only and not shift_framework:
+            raise ValueError(
+                "time_shift: content_only=False with shift_framework=False "
+                "is not allowed"
+            )
+        if content_only and not self.is_flat():
+            raise ValueError(
+                "time_shift: content_only=True requires a flat score"
+            )
+
         original_units_are_seconds = self.units_are_seconds
         if original_units_are_seconds:
             if increment >= 0:
@@ -4014,8 +4026,9 @@ class Score(Concurrence):
             else:
                 increment = -self.time_map.time_to_quarter(-increment)
             self.convert_to_quarters()
-        self._timesignatures_shift(increment)
-        self.time_map._time_shift(increment)
+        if shift_framework:
+            self._timesignatures_shift(increment)
+            self.time_map._time_shift(increment)
         super().time_shift(increment, content_only)
         if original_units_are_seconds:
             self.convert_to_seconds()
@@ -4280,7 +4293,10 @@ class Part(EventGroup):
 
     def is_flat(self):
         """Test if Part is flat (contains only notes without ties).
-        
+
+        A flat Part's content is Notes only (no Rest, KeySignature, Clef,
+        Chord, Staff, Measure, etc.) and no note may be tied.
+
         Returns
         -------
         bool

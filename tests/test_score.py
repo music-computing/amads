@@ -15,6 +15,7 @@ from amads.core.basics import (
     Rest,
     Score,
     Staff,
+    TimeSignature,
 )
 
 VERBOSE = False  # set to True for more debug output
@@ -1015,67 +1016,73 @@ def test_time_shift_rejects_unknown_onset_on_group():
     assert note.onset == 0.0
 
 
-def test_shift_content():
-    """Test to see if chord content is shifted when chords are in
-    sequence, and also test shifting content in a score."""
+def _flat_score_with_framework():
+    """Flat Score with a tempo/TS change after beat 0, for framework tests."""
+    n1 = Note(onset=0.0, duration=1.0, pitch="C4")
+    n2 = Note(onset=2.0, duration=1.0, pitch="D4")
+    score = Score(Part(n1, n2))
+    score.time_map.append_change(2.0, 120.0)
+    score.append_time_signature(TimeSignature(quarters=2.0, upper=3.0, lower=4))
+    return score, n1, n2
+
+
+def test_time_shift_full_default():
+    """Default: shift containers, notes, time_map, and time_signatures."""
+    score, n1, n2 = _flat_score_with_framework()
+    part = score.content[0]
+    score.time_shift(1.0)
+    assert score.onset == 1.0
+    assert part.onset == 1.0
+    assert n1.onset == 1.0
+    assert n2.onset == 3.0
+    assert score.time_map.changes[1].quarter == pytest.approx(3.0)
+    assert score.time_signatures[1].quarters == pytest.approx(3.0)
+
+
+def test_time_shift_content_and_framework():
+    """content_only + shift_framework: notes and map move; Part stays."""
+    score, n1, n2 = _flat_score_with_framework()
+    part = score.content[0]
+    score.time_shift(1.0, content_only=True, shift_framework=True)
+    assert score.onset == 0.0
+    assert part.onset == 0.0
+    assert n1.onset == 1.0
+    assert n2.onset == 3.0
+    assert score.time_map.changes[1].quarter == pytest.approx(3.0)
+    assert score.time_signatures[1].quarters == pytest.approx(3.0)
+
+
+def test_time_shift_content_only_latency():
+    """content_only without framework: notes move; map/TS stay."""
+    score, n1, n2 = _flat_score_with_framework()
+    part = score.content[0]
+    score.time_shift(1.0, content_only=True, shift_framework=False)
+    assert score.onset == 0.0
+    assert part.onset == 0.0
+    assert n1.onset == 1.0
+    assert n2.onset == 3.0
+    assert score.time_map.changes[1].quarter == pytest.approx(2.0)
+    assert score.time_signatures[1].quarters == pytest.approx(2.0)
+
+
+def test_time_shift_rejects_invalid_flag_combo():
+    score = Score(Part(Note(onset=0.0, duration=1.0, pitch="C4")))
+    with pytest.raises(ValueError, match="not allowed"):
+        score.time_shift(1.0, content_only=False, shift_framework=False)
+
+
+def test_time_shift_content_only_requires_flat():
     score = Score(
         Part(
             Staff(
                 Measure(
-                    Chord(Note(pitch="C4"), Note(pitch="E4")),
-                    Chord(Note(pitch="D4"), Note(pitch="F4")),
+                    Note(onset=0.0, duration=1.0, pitch="C4"),
                 )
             )
         )
     )
-    if VERBOSE:
-        print("Original score:")
-        score.show(4)
-    # check times in chords
-    part = score.content[0]  # type: ignore
-    staff = part.content[0]  # type: ignore
-    measure = staff.content[0]  # type: ignore
-    chord1 = measure.content[0]  # type: ignore
-    chord2 = measure.content[1]  # type: ignore
-    assert chord1.onset == 0.0
-    assert chord2.onset == 1.0
-    note1 = chord1.content[0]  # type: ignore
-    note2 = chord1.content[1]  # type: ignore
-    note3 = chord2.content[0]  # type: ignore
-    note4 = chord2.content[1]  # type: ignore
-    assert note1.onset == 0.0
-    assert note2.onset == 0.0
-    assert note3.onset == 1.0
-    assert note4.onset == 1.0
-
-    # Shift content by 2 quarters
-    score.time_shift(2.0, content_only=True)
-
-    if VERBOSE:
-        print("Modified score after shifting content by 2 quarters:")
-        score.show(4)
-
-    # Check that all notes have been shifted correctly
-    assert score.onset == 0.0
-    part = score.content[0]  # type: ignore
-    assert part.onset == 0.0
-    staff = part.content[0]  # type: ignore
-    assert staff.onset == 0.0
-    measure = staff.content[0]  # type: ignore
-    assert measure.onset == 2.0
-    chord1 = measure.content[0]  # type: ignore
-    chord2 = measure.content[1]  # type: ignore
-    assert chord1.onset == 2.0
-    assert chord2.onset == 3.0
-    note1 = chord1.content[0]  # type: ignore
-    note2 = chord1.content[1]  # type: ignore
-    note3 = chord2.content[0]  # type: ignore
-    note4 = chord2.content[1]  # type: ignore
-    assert note1.onset == 2.0
-    assert note2.onset == 2.0
-    assert note3.onset == 3.0
-    assert note4.onset == 3.0
-    assert note4.measure is measure
+    with pytest.raises(ValueError, match="flat"):
+        score.time_shift(1.0, content_only=True)
 
 
 def test_parts_are_monophonic():
