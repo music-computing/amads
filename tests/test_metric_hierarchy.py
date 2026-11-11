@@ -4,7 +4,7 @@ from tests.matlab_crosstesting_utils import (
     load_json_results,
     matlab_sarabande_test_score,
 )
-from tests.score_test_utils import get_annotation_values_iterator
+from tests.score_test_utils import get_annotation_values_list
 
 
 def test_empty_score():
@@ -21,18 +21,14 @@ def test_basic_scores():
     )
     annotated_score = metric_hierarchy(basic_score, True)
     test_result_toolbox_compatible = list(
-        get_annotation_values_iterator(
-            annotated_score, Note, "metric_hierarchy"
-        )
+        get_annotation_values_list(annotated_score, Note, "metric_hierarchy")
     )
     desired_toolbox_compatible = [5, 4, 5, 4, 5, 4, 5, 4, 5, 4]
     assert test_result_toolbox_compatible == desired_toolbox_compatible
 
     annotated_score = metric_hierarchy(basic_score, False)
     test_result = list(
-        get_annotation_values_iterator(
-            annotated_score, Note, "metric_hierarchy"
-        )
+        get_annotation_values_list(annotated_score, Note, "metric_hierarchy")
     )
     desired_result = [5, 4, 5, 4, 5, 4, 5, 4, 5, 4]
     assert test_result == desired_result
@@ -42,9 +38,7 @@ def test_midi_sarabande():
     matlab_results = load_json_results()
     annotated_score = metric_hierarchy(matlab_sarabande_test_score, True)
     result_list = list(
-        get_annotation_values_iterator(
-            annotated_score, Note, "metric_hierarchy"
-        )
+        get_annotation_values_list(annotated_score, Note, "metric_hierarchy")
     )
     assert result_list == matlab_results["metrichierarchy"]
 

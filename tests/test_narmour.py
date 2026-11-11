@@ -1,11 +1,10 @@
-from score_test_utils import get_annotation_values_iterator
-
 from amads.core.basics import Note, Score
 from amads.melody.narmour import NarmourOption, narmour
 from tests.matlab_crosstesting_utils import (
     load_json_results,
     matlab_sarabande_test_score,
 )
+from tests.score_test_utils import get_annotation_values_list
 
 
 def test_edge_cases():
@@ -29,7 +28,7 @@ def test_simple_ascending_melody():
     ]
     for option, desired_result in zip(NarmourOption, desired_results):
         score, label = narmour(score, option)
-        values = get_annotation_values_iterator(score, Note, label)
+        values = get_annotation_values_list(score, Note, label)
         assert all(
             desired == test for desired, test in zip(desired_result, values)
         )
@@ -47,7 +46,7 @@ def test_direction_changing_melody():
     ]
     for option, desired_result in zip(NarmourOption, desired_results):
         score, label = narmour(score, option)
-        values = get_annotation_values_iterator(score, Note, label)
+        values = get_annotation_values_list(score, Note, label)
         assert all(
             desired == test for desired, test in zip(desired_result, values)
         )
@@ -65,7 +64,7 @@ def test_matlab_sarabande():
     ]
     for option, matlab_result in zip(NarmourOption, matlab_results):
         test_score, label = narmour(matlab_sarabande_test_score, option)
-        test_result = get_annotation_values_iterator(test_score, Note, label)
+        test_result = get_annotation_values_list(test_score, Note, label)
         assert all(
             desired == test for desired, test in zip(matlab_result, test_result)
         )

@@ -1,13 +1,12 @@
 import math
 
-from score_test_utils import get_annotation_values_iterator
-
 from amads.core.basics import Note, Score
 from amads.melody.melodic_attraction import melodic_attraction
 from tests.matlab_crosstesting_utils import (
     load_json_results,
     matlab_sarabande_test_score,
 )
+from tests.score_test_utils import get_annotation_values_list
 
 
 def test_simple_score_sequences():
@@ -30,7 +29,7 @@ def test_simple_score_sequences():
     for test_melody, desired_list in zip(test_melodies, desired_results):
         test_score = Score.from_melody(test_melody)
         transposed_score = melodic_attraction(test_score)
-        value_iter = get_annotation_values_iterator(
+        value_iter = get_annotation_values_list(
             transposed_score, Note, "melodic_attraction"
         )
         assert all(
@@ -44,7 +43,7 @@ def test_edge_cases():
     assert melodic_attraction(empty_score) is None
     single_note_score = Score.from_melody([60])
     transposed_score = melodic_attraction(single_note_score)
-    value_iter = get_annotation_values_iterator(
+    value_iter = get_annotation_values_list(
         transposed_score, Note, "melodic_attraction"
     )
     assert list(value_iter) == [0.0]
@@ -52,7 +51,7 @@ def test_edge_cases():
 
 def test_matlab_sarabande():
     transposed_score = melodic_attraction(matlab_sarabande_test_score)
-    value_list = get_annotation_values_iterator(
+    value_list = get_annotation_values_list(
         transposed_score, Note, "melodic_attraction"
     )
     desired_list = load_json_results()["melattraction"]

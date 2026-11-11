@@ -1,13 +1,12 @@
 import math
 
-from score_test_utils import get_annotation_values_iterator
-
 from amads.core.basics import Note, Score
 from amads.melody.mobility import mobility
 from tests.matlab_crosstesting_utils import (
     load_json_results,
     matlab_sarabande_test_score,
 )
+from tests.score_test_utils import get_annotation_values_list
 
 
 def test_len_edge_cases():
@@ -33,7 +32,7 @@ def test_simple_melody():
 
     annotated_score = mobility(score)
     desired_mobilities = [0, 0, 0, 2.4999999999999996, 0.5833333333333333]
-    test_mobilities = get_annotation_values_iterator(
+    test_mobilities = get_annotation_values_list(
         annotated_score, Note, "mobility"
     )
 
@@ -46,7 +45,7 @@ def test_simple_melody():
 def test_midi_sarabande():
     annotated_score = mobility(matlab_sarabande_test_score)
     desired_mobilities = load_json_results()["mobility"]
-    test_mobilities = get_annotation_values_iterator(
+    test_mobilities = get_annotation_values_list(
         annotated_score, Note, "mobility"
     )
     assert all(

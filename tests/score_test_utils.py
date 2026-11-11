@@ -1,11 +1,9 @@
-from collections.abc import Iterator
-
 from amads.core.basics import Score
 
 
-def get_annotation_values_iterator(
+def get_annotation_values_list(
     annotated_score: Score, type: any, annotation_str: str
-) -> Iterator:
+) -> list:
     """
     Helper function to obtain annotation values in the sequence the elements
     appear in find_all.
@@ -23,10 +21,10 @@ def get_annotation_values_iterator(
 
     Returns
     -------
-    Iterator
-        Iterator of values that was annotated under the label.
+    list
+        list of values that was annotated under the label.
     """
-    return (
+    return [
         elem.get(annotation_str, None)
         for elem in annotated_score.find_all(type)
-    )
+    ]

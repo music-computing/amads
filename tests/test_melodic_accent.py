@@ -1,13 +1,12 @@
 import math
 
-from score_test_utils import get_annotation_values_iterator
-
 from amads.core.basics import Note, Score
 from amads.melody.melodic_accent import melodic_accent
 from tests.matlab_crosstesting_utils import (
     load_json_results,
     matlab_sarabande_test_score,
 )
+from tests.score_test_utils import get_annotation_values_list
 
 
 def test_score_size_edge_cases():
@@ -34,9 +33,7 @@ def test_melodic_peak():
     annotated_score = melodic_accent(score)
     desired_accents = [1, 0.83, 0.17]
     property = "melodic_accent"
-    annotated_iter = get_annotation_values_iterator(
-        annotated_score, Note, property
-    )
+    annotated_iter = get_annotation_values_list(annotated_score, Note, property)
     assert all(
         math.isclose(test_val, desired)
         for test_val, desired in zip(annotated_iter, desired_accents)
@@ -52,9 +49,7 @@ def test_melodic_valley():
     annotated_score = melodic_accent(score)
     desired_accents = [1, 0.71, 0.29]
     property = "melodic_accent"
-    annotated_iter = get_annotation_values_iterator(
-        annotated_score, Note, property
-    )
+    annotated_iter = get_annotation_values_list(annotated_score, Note, property)
     assert all(
         math.isclose(test_val, desired)
         for test_val, desired in zip(annotated_iter, desired_accents)
@@ -63,7 +58,7 @@ def test_melodic_valley():
 
 def test_midi_sarabande():
     annotated_score = melodic_accent(matlab_sarabande_test_score)
-    value_list = get_annotation_values_iterator(
+    value_list = get_annotation_values_list(
         annotated_score, Note, "melodic_accent"
     )
     desired_list = load_json_results()["melaccent"]
