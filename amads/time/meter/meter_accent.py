@@ -44,7 +44,7 @@ def meter_accent(score: Score, miditoolbox_compatible: bool = True) -> float:
     ----------
         Eerola, T., Himberg, T., Toiviainen, P., & Louhivuori, J. (2006).
             Perceived complexity of Western and African folk melodies by Western
-            and African listeners. Psychology of Music, 34(3), 341-375.
+            and African listeners. Psychology of Music, 34(3), 337-371.
         Jones, M. R. (1987). Dynamic pattern structure in music: Recent theory
             and research. Perception and Psychophysics, 41, 621-634.
     """

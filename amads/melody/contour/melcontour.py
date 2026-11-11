@@ -88,7 +88,7 @@ def melodySamplingContour(
     ----------
         Eerola, T., Himberg, T., Toiviainen, P., & Louhivuori, J. (2006).
             Perceived complexity of Western and African folk melodies by Western
-            and African listeners. Psychology of Music, 34(3), 341-375.
+            and African listeners. Psychology of Music, 34(3), 337-371.
 
     Notes
     -----
