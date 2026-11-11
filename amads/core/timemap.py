@@ -519,7 +519,11 @@ class TimeMap:
         j = i
         while j < len(self.changes) and self.changes[j].time < end:
             j = j + 1
-        self.changes = self.changes[i:j]  # copy from i to j
+        # include the default value (if necessary) and copy from i to j
+        if i > 0:
+            self.changes = [MapQuarter(0.0, 0.0)] + self.changes[i:j]
+        else:
+            self.changes = self.changes[i:j]
         self.last_tempo = final_bpm / 60.0
 
     def _time_shift(self, quarters: float) -> None:

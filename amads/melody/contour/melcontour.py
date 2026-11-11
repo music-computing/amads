@@ -105,10 +105,12 @@ def melodySamplingContour(
         )
 
     if res_type == "rel":
-        num_notes = res
+        num_notes = math.floor(res)
         res = score.duration / res
     elif res_type == "abs":
         num_notes = round(score.duration / res)
+    if num_notes < 1:
+        return None
 
     sample_iter = score.find_all(Note)
     current_note = next(sample_iter, None)

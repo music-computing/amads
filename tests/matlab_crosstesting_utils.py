@@ -5,7 +5,7 @@ matlab testing harness (for which the json file results were derived from).
 
 import json
 
-from amads.core.basics import Note, Score
+from amads.core.basics import Score
 from amads.io.pm_midi_import import pretty_midi_import
 from amads.music import example
 
@@ -21,33 +21,11 @@ def _sarabande_matlab_test_score() -> Score:
         testing harness.
     """
     # this test tests first 10 notes imported from sarabande.midi
-    # import sarabande.midi
     score = pretty_midi_import(
         example.fullpath("midi/sarabande.mid"), "midi", flatten=True
     )
-
-    # obtain first 10 notes
-    notes_list = []
-    for idx, note in enumerate(score.find_all(Note)):
-        if idx >= 10:
-            break
-        notes_list.append(note)
-    pitches = [note.pitch for note in notes_list]
-    durations = [note.duration for note in notes_list]
-    onsets = [note.onset for note in notes_list]
-    time_map = score.time_map
-    time_signatures = score.time_signatures
-
-    test_score = Score.from_melody(
-        pitches=pitches,
-        durations=durations,
-        onsets=onsets,
-    )
-    assert hasattr(test_score, "time_map") and hasattr(
-        test_score, "time_signatures"
-    )
-    test_score.time_map = time_map
-    test_score.time_signatures = time_signatures
+    test_score = score.slice(0, 6.5, "quarters")
+    test_score.convert_to_seconds()
 
     return test_score
 
