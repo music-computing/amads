@@ -48,24 +48,45 @@ def test_simple_melodies():
         assert math.isclose(dist_result, desired_dist_result)
 
 
-# def test_different_distances():
-#     score1 = Score.from_melody([61, 62, 63])
-#     score2 = Score.from_melody([62, 61, 63, 64, 68])
-#     # The cosine version is bugged...
-#     # norms = ["taxi", "euc", "cosine"]
-#     norms = ["cosine"]
-#     desired_results = []
-#     dist_reprs = ['ivdist2']
-#     for norm in norms:
-#         desired_results.append([])
-#         comb_result = melodic_distance(score1, score2, combcontour_repr, norm)
-#         desired_results[-1].append(comb_result)
-#
-#         melcontour_result = melodic_distance(score1, score2, melcontour_repr, norm)
-#         desired_results[-1].append(melcontour_result)
-#         for dist_repr in dist_reprs:
-#             dist_result = melodic_distance(score1, score2, dist_repr, norm)
-#             desired_results[-1].append(dist_result)
+def test_different_distances():
+    score1 = Score.from_melody([61, 62, 63])
+    score2 = Score.from_melody([62, 61, 63, 64, 68])
+    # The cosine version is bugged...
+    norms = ["taxi", "euc", "cosine"]
+    desired_results = [
+        [0.16666666666666666, 13.0, 1.5, 2.0, 0.8, 2.0, 0.0, 0.0],
+        [
+            0.16666666666666666,
+            5.385164807134504,
+            0.8660254037844386,
+            1.1547005383792517,
+            0.3651483716701107,
+            0.8660254037844388,
+            0.0,
+            0.0,
+        ],
+        [
+            0.16666666666666666,
+            110.7126966450998,
+            0.5000000000000001,
+            0.0,
+            0.7745966692414832,
+            0.0,
+            1.0,
+            1.0,
+        ],
+    ]
+    for norm, desired_result_list in zip(norms, desired_results):
+        comb_result = melodic_distance(score1, score2, combcontour_repr, norm)
+        assert math.isclose(desired_result_list[0], comb_result)
+
+        melcontour_result = melodic_distance(
+            score1, score2, melcontour_repr, norm
+        )
+        assert math.isclose(desired_result_list[1], melcontour_result)
+        for i, dist_repr in enumerate(distribution_repr):
+            dist_result = melodic_distance(score1, score2, dist_repr, norm)
+            assert math.isclose(desired_result_list[i + 2], dist_result)
 
 
 def test_midi_sarabande():
@@ -94,5 +115,5 @@ def test_midi_sarabande():
 if __name__ == "__main__":
     test_edge_cases()
     test_simple_melodies()
-    # test_different_distances()
+    test_different_distances()
     test_midi_sarabande()

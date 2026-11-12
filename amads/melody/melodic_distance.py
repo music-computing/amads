@@ -182,7 +182,7 @@ def melodic_distance(
                 # branch (when distance < rescale_val)
                 # Anyways, that 'potential' bug is reproduced here...
                 distance = 2 * (rescale_val - distance) + distance
-        return distance
+        return float(distance)
     else:
         raise ValueError("Unsupported representation type.")
 
@@ -203,6 +203,7 @@ def melodic_distance(
         distance = np.sum(data_vector_1.conj() * data_vector_2, axis=0) / (
             np.linalg.norm(data_vector_1) * np.linalg.norm(data_vector_2)
         )
+        distance = np.sum(distance)
         if repr in distribution_repr:
             rescale_val = 0.15
         elif repr == melcontour_repr:
@@ -231,4 +232,4 @@ def melodic_distance(
         else:
             raise ValueError(f"unimplemented option {repr}!")
 
-    return distance
+    return float(distance)
