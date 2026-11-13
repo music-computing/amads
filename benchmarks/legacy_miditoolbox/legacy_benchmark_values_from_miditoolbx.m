@@ -4,7 +4,8 @@
 % T. Eerola, 15/2/2026
 
 m = readmidi('sarabande.mid'); % music from amads package, note that this type 0 midi
-m = m(1:10,:); % for convenience, take just 10 first notes
+m = m(1:10,:); % for convenience, take just 10 first notes (1:10)
+m(:, 3) = 1;
 
 % Distributions
 pcdist1_m = pcdist1(m);
@@ -12,11 +13,13 @@ ivdist1_m = ivdist1(m);
 durdist1_m = durdist1(m);
 
 % Summary descriptors
+melattraction_m = melattraction(m);
 entropy_pcdist1_m = entropy(pcdist1(m));
 nnotes_m = nnotes(m);
 keymode_m = keymode(m);
 kkkey_m = kkkey(m);
 maxkkcc_m = maxkkcc (m);
+kkcc_m = kkcc(m);
 meldistance_m = meldistance(onsetwindow(m,0,2.5,'sec'),onsetwindow(m,2.5,5,'sec'));
 ambitus_m = ambitus(m);
 complebm_m = complebm(m);
@@ -31,9 +34,21 @@ segmentgestalt_m = segmentgestalt(m);
 segmentprob_m = segmentprob(m);
 boundary_m =  boundary(m);
 melaccent_m = melaccent(m);
-melattraction_m = melattraction(m);
+
+meter_default_m = meter(m);
+meter_optimal_m = meter(m, 'optimal');
+meteraccent_m = meteraccent(m);
+metrichierarchy_m = metrichierarchy(m);
+
+
 mobility_m = mobility(m);
-narmour_m = narmour(m);
+
+narmour_rd = narmour(m, 'rd');
+narmour_rr = narmour(m, 'rr');
+narmour_id = narmour(m, 'id');
+narmour_cl = narmour(m, 'cl');
+narmour_pr = narmour(m, 'pr');
+narmour_co = narmour(m, 'co');
 tessitura_m = tessitura(m);
 
 
@@ -51,6 +66,7 @@ data.nnotes = nnotes_m;
 data.keymode = keymode_m;
 data.kkkey = kkkey_m;
 data.maxkkcc = maxkkcc_m;
+data.kkcc = kkcc_m;
 
 data.ambitus = ambitus_m;
 data.complebm = complebm_m;
@@ -68,8 +84,17 @@ data.boundary =  boundary_m;
 data.melaccent = melaccent_m;
 data.melattraction = melattraction_m;
 data.mobility = mobility_m;
-data.narmour = narmour_m;
+data.narmour_rd = narmour_rd;
+data.narmour_rr = narmour_rr;
+data.narmour_id = narmour_id;
+data.narmour_cl = narmour_cl;
+data.narmour_pr = narmour_pr;
+data.narmour_co = narmour_co;
 data.tessitura = tessitura_m;
+data.meter_default = meter_default_m;
+data.meter_optimal = meter_optimal_m;
+data.meteraccent = meteraccent_m;
+data.metrichierarchy = metrichierarchy_m;
 
 jsonStr = jsonencode(data);
 fid = fopen('MIDI_toolbox_benchmark_sarabande.json', 'w');

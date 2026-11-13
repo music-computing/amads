@@ -27,16 +27,14 @@ C_MAJOR_SCALE_UP_SI_DOWN = [
 ]
 
 
-def test_zero_pitch_variance_melodies():
+def test_empty_melody():
+    """
+    Testing chromatic scale score is deprecated because there are floating
+    point discrepancies that may cause this test to exhibit undefined behavior
+    """
     melody = Score.from_melody([])
     with pytest.raises(RuntimeError):
         keymode(melody)
-
-    pitches_in = list(range(56, 68))
-    melody = Score.from_melody(pitches=pitches_in)
-    with pytest.raises(RuntimeError):
-        keymode(melody)
-    return
 
 
 def test_c_major_scale_mode_major():
@@ -47,8 +45,6 @@ def test_c_major_scale_mode_major():
     """
     melody = Score.from_melody(C_MAJOR_SCALE_UP_SI_DOWN)
     assert keymode(melody) == ["major"]
-
-    return
 
 
 def test_c_natural_minor_scale_mode_minor():

@@ -20,6 +20,59 @@ def test_empty_melody():
     assert result is None
 
 
+def test_simple_melodies():
+    samples = 10
+    score1 = Score.from_melody([61, 62, 63])
+    note_list1 = melodySamplingContour(score1, samples, "rel")
+    desired_note_list1 = [
+        Note(onset=0.0, duration=1.0, pitch=61),
+        Note(onset=0.0, duration=1.0, pitch=61),
+        Note(onset=0.0, duration=1.0, pitch=61),
+        Note(onset=0.0, duration=1.0, pitch=61),
+        Note(onset=1.0, duration=1.0, pitch=62),
+        Note(onset=1.0, duration=1.0, pitch=62),
+        Note(onset=1.0, duration=1.0, pitch=62),
+        Note(onset=2.0, duration=1.0, pitch=63),
+        Note(onset=2.0, duration=1.0, pitch=63),
+        Note(onset=2.0, duration=1.0, pitch=63),
+    ]
+    assert len(note_list1) == len(desired_note_list1)
+    assert all(
+        (desired == obtained and desired is None)
+        or (
+            desired.onset == obtained.onset
+            and desired.duration == obtained.duration
+            and desired.pitch == obtained.pitch
+        )
+        for desired, obtained in zip(desired_note_list1, note_list1)
+    )
+
+    score2 = Score.from_melody([62, 61, 63, 64])
+    note_list2 = melodySamplingContour(score2, samples, "rel")
+    desired_note_list2 = [
+        Note(onset=0.0, duration=1.0, pitch=62),
+        Note(onset=0.0, duration=1.0, pitch=62),
+        Note(onset=0.0, duration=1.0, pitch=62),
+        Note(onset=1.0, duration=1.0, pitch=61),
+        Note(onset=1.0, duration=1.0, pitch=61),
+        Note(onset=2.0, duration=1.0, pitch=63),
+        Note(onset=2.0, duration=1.0, pitch=63),
+        Note(onset=2.0, duration=1.0, pitch=63),
+        Note(onset=3.0, duration=1.0, pitch=64),
+        Note(onset=3.0, duration=1.0, pitch=64),
+    ]
+    assert len(note_list2) == len(desired_note_list2)
+    assert all(
+        (desired == obtained and desired is None)
+        or (
+            desired.onset == obtained.onset
+            and desired.duration == obtained.duration
+            and desired.pitch == obtained.pitch
+        )
+        for desired, obtained in zip(desired_note_list2, note_list2)
+    )
+
+
 def test_nonempty_melody_contour():
     """
     Sanity check: Verifies melodic contour extraction using a simple,
@@ -87,6 +140,7 @@ def test_midi_sarabande():
 
 if __name__ == "__main__":
     test_empty_melody()
+    test_simple_melodies()
     test_nonempty_melody_contour()
     test_nonempty_melody_correlation()
     test_midi_sarabande()

@@ -1,13 +1,26 @@
+import math
+
 from amads.core.basics import Note, Score
 from amads.melody.melodic_accent import melodic_accent
+from tests.matlab_crosstesting_utils import (
+    load_json_results,
+    matlab_sarabande_test_score,
+)
+from tests.score_test_utils import get_annotation_values_list
 
 
-def test_empty_melody():
+def test_score_size_edge_cases():
     """
-    Test empty melody
+    Test edge cases (0, 1, 2 note scores should all return None)
     """
     empty_score = Score()
     assert melodic_accent(empty_score) is None
+
+    one_note_score = Score.from_melody([60])
+    assert melodic_accent(one_note_score) is None
+
+    two_note_score = Score.from_melody([60, 62])
+    assert melodic_accent(two_note_score) is None
 
 
 def test_melodic_peak():
@@ -17,12 +30,13 @@ def test_melodic_peak():
     # Create a test score
     score = Score.from_melody([60, 64, 62])
 
-    melodic_accent(score)
+    annotated_score = melodic_accent(score)
     desired_accents = [1, 0.83, 0.17]
     property = "melodic_accent"
+    annotated_iter = get_annotation_values_list(annotated_score, Note, property)
     assert all(
-        note.get(property=property, default=None) == desired
-        for note, desired in zip(score.find_all(Note), desired_accents)
+        math.isclose(test_val, desired)
+        for test_val, desired in zip(annotated_iter, desired_accents)
     )
 
 
@@ -32,16 +46,30 @@ def test_melodic_valley():
     """
     score = Score.from_melody([64, 60, 65])
 
-    melodic_accent(score)
+    annotated_score = melodic_accent(score)
     desired_accents = [1, 0.71, 0.29]
     property = "melodic_accent"
+    annotated_iter = get_annotation_values_list(annotated_score, Note, property)
     assert all(
-        note.get(property=property, default=None) == desired
-        for note, desired in zip(score.find_all(Note), desired_accents)
+        math.isclose(test_val, desired)
+        for test_val, desired in zip(annotated_iter, desired_accents)
+    )
+
+
+def test_midi_sarabande():
+    annotated_score = melodic_accent(matlab_sarabande_test_score)
+    value_list = get_annotation_values_list(
+        annotated_score, Note, "melodic_accent"
+    )
+    desired_list = load_json_results()["melaccent"]
+    assert all(
+        math.isclose(value, desired)
+        for value, desired in zip(value_list, desired_list)
     )
 
 
 if __name__ == "__main__":
-    test_empty_melody()
+    test_score_size_edge_cases()
     test_melodic_peak()
     test_melodic_valley()
+    test_midi_sarabande()

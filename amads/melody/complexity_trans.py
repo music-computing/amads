@@ -9,12 +9,14 @@ Ports the `compltrans` function in Midi Toolbox.
 Original doc: github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.1_manual.pdf, page 55.
 """
 
+from itertools import pairwise, tee
+
 import numpy as np
 
 from amads.algorithms.nnotes import nnotes
 from amads.core.basics import Note, Score
 from amads.core.distribution import Distribution
-from amads.core.pitch import CHROMATIC_NAMES, NUM_PITCH_CLASSES
+from amads.core.pitch import CHROMATIC_NAMES
 
 """
 Simonton's pitch-transition probabilities (summarized from 15618 classical music
@@ -97,7 +99,7 @@ simonton_transition_dist = Distribution(
     name="Simonton (1984)",
     data=_simonton_transitions,
     distribution_type="pitch_class_transition",
-    dimensions=(NUM_PITCH_CLASSES, NUM_PITCH_CLASSES),
+    dimensions=(12, 12),
     x_categories=CHROMATIC_NAMES,
     x_label="Starting Pitch Class",
     y_categories=CHROMATIC_NAMES,
@@ -131,12 +133,12 @@ def complexity_trans(score: Score) -> float | None:
 
     References
     ----------
-    .. [1] Simonton, D. K. (1984). Melodic structure and note transition
-           probabilities: A content analysis of 15,618 classical themes.
-           Psychology of Music, 12, 3-16.
-    .. [2] Simonton, D. K. (1994). Computer content analysis of melodic
-           structure: Classical composers and their compositions.
-           Psychology of Music, 22, 31-43.
+        Simonton, D. K. (1984). Melodic structure and note transition
+            probabilities: A content analysis of 15,618 classical themes.
+            Psychology of Music, 12, 3-16.
+        Simonton, D. K. (1994). Computer content analysis of melodic
+            structure: Classical composers and their compositions.
+            Psychology of Music, 22, 31-43.
     """
     if not score.ismonophonic():
         return None
@@ -145,15 +147,14 @@ def complexity_trans(score: Score) -> float | None:
         return None
 
     note_iter = score.find_all(Note)
-    next_note_iter = score.find_all(Note)
+    note_iter, next_note_iter = tee(note_iter)
     if next(next_note_iter, None) is None:
         return None
     pitch_transition_sums = np.zeros(simonton_transition_dist.dimensions)
-    for note, next_note in zip(note_iter, next_note_iter):
+    for note, next_note in pairwise(note_iter):
         assert isinstance(note, Note) and isinstance(next_note, Note)
         current_pc = note.pitch_class
         next_pc = next_note.pitch_class
-        print(f"{current_pc}, {next_pc}")
         pitch_transition_sums[current_pc, next_pc] += 1
 
     simonton_dist_data = np.array(simonton_transition_dist.data)

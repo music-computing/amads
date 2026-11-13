@@ -22,6 +22,7 @@ def keymode(
     profile: prof.KeyProfile = prof.krumhansl_kessler,
     attribute_names: Optional[List[str]] = ["major", "minor"],
     salience_flag: bool = False,
+    miditoolbox_compatible: bool = False,
 ) -> List[str]:
     """
     Find the mode based on cross-correlation values.
@@ -45,6 +46,9 @@ def keymode(
         Indicate whether we want to turn on salience weights in
         [key_cc][amads.pitch.key.key_cc.key_cc]
         which is used to compute the cross-correlations.
+    miditoolbox_compatible: bool
+        boolean indicating whether or not we want midi-toolbox compatible
+        results.
 
     Returns
     -------
@@ -62,7 +66,9 @@ def keymode(
     # results, once to find the maximum, and again to form a list of
     # modes that achieve that maximum.
 
-    corrcoef_pairs = key_cc(score, profile, attribute_names, salience_flag)
+    corrcoef_pairs = key_cc(
+        score, profile, attribute_names, salience_flag, miditoolbox_compatible
+    )
 
     c_max_val_iter = (
         coefs[0] for (_, coefs) in corrcoef_pairs if coefs is not None

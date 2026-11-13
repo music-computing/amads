@@ -27,3 +27,15 @@
 -------------------
 
 ::: amads.time.meter.tatum
+
+-------------------
+
+::: amads.time.meter.meter_autocorrelation
+
+-------------------
+
+::: amads.time.meter.metric_hierarchy
+
+-------------------
+
+::: amads.time.meter.meter_accent
