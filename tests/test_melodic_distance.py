@@ -1,6 +1,8 @@
 import math
 from itertools import pairwise
 
+import pytest
+
 from amads.core.basics import Score
 from amads.melody.melodic_distance import (
     combcontour_repr,
@@ -20,6 +22,14 @@ def test_edge_cases():
         assert melodic_distance(*scores, repr) == 0.0
     assert melodic_distance(*scores, combcontour_repr) is None
     assert melodic_distance(*scores, melcontour_repr) is None
+    score1 = Score.from_melody([61, 62, 63])
+    score2 = Score.from_melody([62, 61, 63, 64])
+    with pytest.raises(ValueError):
+        melodic_distance(score1, score2, "melcontour", samples=-1)
+    with pytest.raises(ValueError):
+        melodic_distance(score1, score2, "foobar")
+    with pytest.raises(ValueError):
+        melodic_distance(score1, score2, metric="foobar")
 
 
 def test_simple_melodies():
