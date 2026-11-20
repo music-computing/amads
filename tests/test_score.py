@@ -1076,6 +1076,26 @@ def test_time_shift_content_only_latency():
     assert score.time_signatures[1].quarters == 2.0
 
 
+def test_time_shift_framework_collapses_at_cut():
+    """Backward shift"""
+    n = Note(onset=2.0, duration=1.0, pitch="C4")
+    score = Score(Part(n))
+    score.time_map.append_change(2.0, 120.0)
+    score.append_time_signature(TimeSignature(quarters=2.0, upper=3.0, lower=4))
+    part = score.content[0]
+
+    score.time_shift(-2.0, content_only=True, shift_framework=True)
+
+    assert part.onset == 0.0  # Part placement unchanged
+    assert n.onset == 0.0  # note moved from 2 to 0
+    assert len(score.time_map.changes) == 1
+    assert score.time_map.changes[0].quarter == 0.0
+    assert score.time_map.quarter_to_tempo(0.0) == 120.0
+    assert len(score.time_signatures) == 1
+    assert score.time_signatures[0].quarters == 0.0
+    assert score.time_signatures[0].upper == 3.0
+
+
 # ---------------------------------------------------------------------------
 # time_shift — Score flag / flatness guards
 # ---------------------------------------------------------------------------

@@ -12,7 +12,8 @@ def trim(score: Score) -> Score:
     """Remove leading silence from a score.
 
     Always returns a flattened copy. The first note starts at time 0.0.
-    The original ``score`` is not modified.
+    The original ``score`` is not modified. The time framework
+    (``time_map`` and ``time_signatures``) shifts with the notes.
 
     Parameters
     ----------
