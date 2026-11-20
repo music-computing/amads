@@ -30,7 +30,7 @@ def test_trim():
 
 
 def test_trim_shifts_framework():
-    """trim uses shift_framework=True so tempo/TS moves with content."""
+    """trim uses shift_framework=True so time_map and time_signatures move with content."""
     n = Note(onset=4.0, duration=1.0, pitch="C4")
     score = Score(Part(n))
     score.time_map.append_change(4.0, 120.0)

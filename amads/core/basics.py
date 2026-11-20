@@ -3974,8 +3974,9 @@ class Score(Concurrence):
         Change the onset by an increment, affecting all content.
 
         Scores also have a time_map (tempo) and time_signatures. Whether
-        those move is controlled by ``shift_framework``. Valid modes:
-
+        those move is controlled by ``shift_framework``. 
+        
+        Valid modes:
         - ``content_only=False``, ``shift_framework=True`` (default):
           shift containers, content, time_map, and time_signatures.
         - ``content_only=True``, ``shift_framework=True``: keep Score/Part

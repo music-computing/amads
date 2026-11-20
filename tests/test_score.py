@@ -973,8 +973,13 @@ def test_remove_measures():
     )  # E5
 
 
+# ---------------------------------------------------------------------------
+# time_shift — Event / EventGroup rejection cases
+# ---------------------------------------------------------------------------
+
+
 def test_time_shift_rejects_negative_onset_on_event():
-    """Event.time_shift raises and leaves onset unchanged if result < 0."""
+    """Event.time_shift raises ValueError if result < 0; onset stays unchanged."""
     note = Note(onset=1.0, duration=1.0, pitch="C4")
     with pytest.raises(ValueError):
         note.time_shift(-1.5)
@@ -984,7 +989,7 @@ def test_time_shift_rejects_negative_onset_on_event():
 
 
 def test_time_shift_rejects_none_onset_on_event():
-    """Event.time_shift raises when onset is None (Note default)."""
+    """Event.time_shift raises ValueError when onset is None."""
     note = Note(pitch="C4")
     with pytest.raises(ValueError, match="None onset"):
         note.time_shift(1.0)
@@ -992,7 +997,7 @@ def test_time_shift_rejects_none_onset_on_event():
 
 
 def test_time_shift_rejects_negative_onset_on_group():
-    """EventGroup.time_shift raises when a container onset would go negative."""
+    """EventGroup.time_shift raises ValueError if a container onset would go negative."""
     n1 = Note(onset=0.0, duration=1.0, pitch="C4")
     n2 = Note(onset=2.0, duration=1.0, pitch="D4")
     part = Part(n1, n2)
@@ -1007,7 +1012,7 @@ def test_time_shift_rejects_negative_onset_on_group():
 
 
 def test_time_shift_rejects_unknown_onset_on_group():
-    """EventGroup.time_shift raises when the container onset is None."""
+    """EventGroup.time_shift raises ValueError when the container onset is None."""
     note = Note(onset=0.0, duration=1.0, pitch="C4")
     part = Part(note, onset=None)  # edge case
     with pytest.raises(ValueError, match="unknown onset"):
@@ -1016,8 +1021,14 @@ def test_time_shift_rejects_unknown_onset_on_group():
     assert note.onset == 0.0
 
 
+# ---------------------------------------------------------------------------
+# time_shift — Score modes (content_only × shift_framework)
+# ---------------------------------------------------------------------------
+
+
 def _flat_score_with_framework():
-    """Flat Score with a tempo/TS change after beat 0, for framework tests."""
+    """Helper for the Score mode tests below.
+    Flat Score with a time_map / time_signatures change after beat 0."""
     n1 = Note(onset=0.0, duration=1.0, pitch="C4")
     n2 = Note(onset=2.0, duration=1.0, pitch="D4")
     score = Score(Part(n1, n2))
@@ -1035,12 +1046,12 @@ def test_time_shift_full_default():
     assert part.onset == 1.0
     assert n1.onset == 1.0
     assert n2.onset == 3.0
-    assert score.time_map.changes[1].quarter == pytest.approx(3.0)
-    assert score.time_signatures[1].quarters == pytest.approx(3.0)
+    assert score.time_map.changes[1].quarter == 3.0
+    assert score.time_signatures[1].quarters == 3.0
 
 
 def test_time_shift_content_and_framework():
-    """content_only + shift_framework: notes and map move; Part stays."""
+    """content_only + shift_framework: notes, time_map, time_signatures move; Part stays."""
     score, n1, n2 = _flat_score_with_framework()
     part = score.content[0]
     score.time_shift(1.0, content_only=True, shift_framework=True)
@@ -1048,12 +1059,12 @@ def test_time_shift_content_and_framework():
     assert part.onset == 0.0
     assert n1.onset == 1.0
     assert n2.onset == 3.0
-    assert score.time_map.changes[1].quarter == pytest.approx(3.0)
-    assert score.time_signatures[1].quarters == pytest.approx(3.0)
+    assert score.time_map.changes[1].quarter == 3.0
+    assert score.time_signatures[1].quarters == 3.0
 
 
 def test_time_shift_content_only_latency():
-    """content_only without framework: notes move; map/TS stay."""
+    """content_only without framework: notes move; time_map and time_signatures stay."""
     score, n1, n2 = _flat_score_with_framework()
     part = score.content[0]
     score.time_shift(1.0, content_only=True, shift_framework=False)
@@ -1061,17 +1072,24 @@ def test_time_shift_content_only_latency():
     assert part.onset == 0.0
     assert n1.onset == 1.0
     assert n2.onset == 3.0
-    assert score.time_map.changes[1].quarter == pytest.approx(2.0)
-    assert score.time_signatures[1].quarters == pytest.approx(2.0)
+    assert score.time_map.changes[1].quarter == 2.0
+    assert score.time_signatures[1].quarters == 2.0
+
+
+# ---------------------------------------------------------------------------
+# time_shift — Score flag / flatness guards
+# ---------------------------------------------------------------------------
 
 
 def test_time_shift_rejects_invalid_flag_combo():
+    """content_only=False with shift_framework=False raises ValueError."""
     score = Score(Part(Note(onset=0.0, duration=1.0, pitch="C4")))
     with pytest.raises(ValueError, match="not allowed"):
         score.time_shift(1.0, content_only=False, shift_framework=False)
 
 
 def test_time_shift_content_only_requires_flat():
+    """content_only=True on a non-flat Score raises ValueError."""
     score = Score(
         Part(
             Staff(
@@ -1083,6 +1101,11 @@ def test_time_shift_content_only_requires_flat():
     )
     with pytest.raises(ValueError, match="flat"):
         score.time_shift(1.0, content_only=True)
+
+
+# ---------------------------------------------------------------------------
+# end of time_shift tests
+# ---------------------------------------------------------------------------
 
 
 def test_parts_are_monophonic():

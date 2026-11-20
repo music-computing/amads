@@ -12,10 +12,7 @@ def trim(score: Score) -> Score:
     """Remove leading silence from a score.
 
     Always returns a flattened copy. The first note starts at time 0.0.
-    The original ``score`` is not modified. Timing uses
-    ``time_shift(-earliest, content_only=True, shift_framework=True)`` so
-    note content and the time framework (map / time signatures) move
-    together, while Part placement stays at 0.
+    The original ``score`` is not modified.
 
     Parameters
     ----------
@@ -29,11 +26,6 @@ def trim(score: Score) -> Score:
         notes, or the earliest note is already at 0.0, the flattened
         copy is returned without a further shift.
 
-    See Also
-    --------
-    - [Score.time_shift][amads.core.basics.Score.time_shift] : Shift
-      onsets with optional ``content_only`` / ``shift_framework``.
-
     Examples
     --------
     >>> from amads.algorithms.trim import trim
@@ -45,7 +37,7 @@ def trim(score: Score) -> Score:
     >>> score.get_sorted_notes()[0].onset  # original unchanged
     3.0
     """
-    flat = score.flatten()
+    flat = score.flatten()  # flattened copy of the score
     notes = flat.get_sorted_notes()
     if len(notes) == 0:
         return flat
