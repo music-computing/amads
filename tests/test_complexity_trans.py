@@ -2,6 +2,10 @@ import math
 
 from amads.core.basics import Score
 from amads.melody.complexity_trans import complexity_trans
+from tests.matlab_crosstesting_utils import (
+    load_json_results,
+    matlab_sarabande_test_score,
+)
 
 
 def test_empty_score():
@@ -33,7 +37,14 @@ def test_melody_snippets():
         assert math.isclose(desired_complexity, obtained_complexity)
 
 
+def test_matlab_sarabande():
+    obtained_complexity = complexity_trans(matlab_sarabande_test_score)
+    desired_complexity = load_json_results()["compltrans"]
+    assert math.isclose(obtained_complexity, desired_complexity)
+
+
 if __name__ == "__main__":
     test_empty_score()
     test_singleton_score()
     test_melody_snippets()
+    test_matlab_sarabande()

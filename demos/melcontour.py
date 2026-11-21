@@ -13,12 +13,12 @@ myscore = pretty_midi_import(my_midi_file, format="midi")
 print("------- finished input from partitura")
 
 print("------- Executing melcontour")
-# we are calling melcontour with a resolution of 0.25 beats per sample tick
+# we are calling melcontour with a resolution of 0.4 beats per sample
 contour = melodySamplingContour(myscore, 0.40, "abs")
 print(contour)
 
 print("------- Executing autocorrelatecontour")
-# Note that autocorrelate contour
+# Same as last call, except we take the resulting output's autocorrelation
 autocorrelation = melodySamplingCorrelation(myscore, 0.40, "abs")
 print(autocorrelation)
 assert len(autocorrelation) == 2 * len(contour) - 1

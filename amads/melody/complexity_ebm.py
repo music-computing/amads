@@ -8,24 +8,22 @@ Original doc: github.com/miditoolbox/1.1/blob/master/documentation/MIDItoolbox1.
 
 import math
 from enum import Enum
-from itertools import chain
-from typing import Optional, Tuple
+from itertools import chain, dropwhile, islice, pairwise
+from statistics import mean, stdev
 
-import numpy as np
-
-import amads.pitch.key.profiles as prof
 from amads.algorithms.entropy import entropy
 from amads.core.basics import Note, Score
 from amads.pitch.ivdist1 import interval_distribution_1
-from amads.pitch.key.keymode import keymode
+from amads.pitch.key.tonality import tonality
 from amads.pitch.pcdist1 import duraccent, pitch_class_distribution_1
 from amads.time.durdist1 import duration_distribution_1
+from amads.time.meter.meter_accent import meter_accent
 from amads.time.notedensity import note_density
 
 
 class ComplexityEBMOption(Enum):
     """
-    Calculation options for complexity_ebm functions
+    Calculation options for complexity_ebm invocation
 
     Attributes
     ----------
@@ -49,26 +47,9 @@ class ComplexityEBMOption(Enum):
 _GLOBAL_MEAN_VALUE = 5
 
 
-def _temp_tonality(
-    score: Score, profile: prof.KeyProfile = prof.krumhansl_kessler
-) -> Score:
-    """
-    Temporary tonality function for when tonality gets fully implemented
-
-    Annotation name is `profile.name + '_tonality'`
-    """
-    mode_attributes = keymode(score, profile=prof.krumhansl_kessler)
-    profile_coefs = profile[mode_attributes[0]].data
-    annotation_str = profile.name + "_tonality"
-    for note in score.find_all(Note):
-        pitch_class = note.pitch_class()
-        note.set(annotation_str, profile_coefs[pitch_class])
-    return score
-
-
 def _compute_pitch_components(
-    score: Score, profile: prof.KeyProfile
-) -> Optional[Tuple[float, float, float, float]]:
+    score: Score,
+) -> tuple[float, float, float, float] | None:
     """
     Calculate pitch-related complexity components.
 
@@ -76,8 +57,6 @@ def _compute_pitch_components(
     ----------
     score : Score
         A monophonic Score object containing the melody to analyze.
-    profile : prof.Profile
-        The Key Profile for which to measure tonality from.
 
     Returns
     -------
@@ -92,16 +71,15 @@ def _compute_pitch_components(
 
         Returns None for empty scores or single notes.
     """
-    # Extract pitch values
-    pitches = np.array([note.keynum for note in score.find_all(Note)])
-    if len(pitches) < 2:
+    # check if there are at least 2 notes in the score
+    if len(list(islice(score.find_all(Note), 2))) < 2:
         return None
 
     # Calculate pitch-related features
 
     # 1. average pitch-interval size
-    intervals = np.diff(pitches)
-    mean_interval = np.mean(intervals)
+    pitches_pairwise = pairwise(note.midi_num for note in score.find_all(Note))
+    mean_interval = mean(next - current for current, next in pitches_pairwise)
 
     # 2. relative entropy of pitch-class distribution
     score_pcdist = pitch_class_distribution_1(
@@ -113,29 +91,28 @@ def _compute_pitch_components(
     score_ivdist = interval_distribution_1(score, miditoolbox_compatible=True)
     ivdist_entropy = entropy(score_ivdist.data, miditoolbox_compatible=True)
 
-    # 4. mean tonality (weighted by accented duration)
-    annotated_score = _temp_tonality(score, profile)
+    original_timestate = score.units_are_quarters
+    if original_timestate:
+        score.convert_to_seconds()
 
-    property = profile.name + "_tonality"
-    try:
-        tonality_iter = (
-            duraccent(note) * note.get(property=property, default=None)
-            for note in annotated_score.find_all(Note)
-        )
-        mean_tonality = sum(tonality_iter) / len(pitches)
-    except TypeError:
-        raise RuntimeError(
-            "invalid results from tonality function "
-            "(not all notes have been annotated with tonality)"
-        )
+    # 4. mean tonality (weighted by accented duration)
+    tonality_list = tonality(score)
+
+    tonality_iter = (
+        duraccent(note) * tonality_val
+        for note, tonality_val in zip(score.find_all(Note), tonality_list)
+    )
+    mean_tonality = mean(tonality_iter)
+    if original_timestate:
+        score.convert_to_quarters()
 
     # Combine features with empirically derived weights
-    return mean_interval, pcdist_entropy, ivdist_entropy, 1 / mean_tonality
+    return mean_interval, pcdist_entropy, ivdist_entropy, mean_tonality
 
 
 def _compute_rhythm_components(
     score: Score,
-) -> Optional[Tuple[float, float, float, float]]:
+) -> tuple[float, float, float, float] | None:
     """
     Calculate rhythm-related complexity components.
 
@@ -158,8 +135,8 @@ def _compute_rhythm_components(
 
         Returns None for empty scores or single notes.
     """
-    notes = score.get_sorted_notes()
-    if len(notes) < 2:
+    # check if there are at least 2 notes in the score
+    if len(list(islice(score.find_all(Note), 2))) < 2:
         return None
 
     # Extract duration values
@@ -173,28 +150,27 @@ def _compute_rhythm_components(
     note_dens = note_density(score, timetype="seconds")
 
     # 3. rhythmic variation throughout the score
-    original_timestate = score.units_are_quarters()
+    original_timestate = score.units_are_quarters
     if original_timestate:
         score.convert_to_seconds()
-    assert score.units_are_seconds()
     value_iter = (
         math.log(note.duration) if note.duration > 0 else math.nan
         for note in score.find_all(Note)
     )
-    rhythm_variation = np.nanstd(np.array(value_iter))
+
+    rhythm_variation = stdev(dropwhile(lambda a: math.isnan(a), value_iter))
+
     if original_timestate:
         score.convert_to_quarters()
 
     # 4. meter accent
-    # ! TODO: get meter accent implemented...
-    score_meter_accent = 0
+    score_meter_accent = meter_accent(score)
 
     return durdist_entropy, note_dens, rhythm_variation, score_meter_accent
 
 
 def complexity_ebm(
     score: Score,
-    profile: prof.Profile = prof.KrumhanslKessler,
     method: ComplexityEBMOption = ComplexityEBMOption.OPTIMAL_MIX,
 ) -> float:
     """
@@ -205,17 +181,19 @@ def complexity_ebm(
     or their optimal combination. The output is calibrated against the Essen
     collection (mean=5, std=1).
 
+    The miditoolbox version contains a bug in the optimal ('o') option, where the
+    entropy of the pitch-class distribution (through pcdist1) was calculated
+    as entropy of the interval distribution (through ivdist1).
+
     Parameters
     ----------
     score : Score
         A monophonic Score object containing the melody to analyze.
-    profile : prof.Profile
-        The Key Profile for which to measure tonality from.
     method : ComplEBMOption
         The method to use for complexity calculation:
-        - ComplEBMOption.PITCH: pitch-related components only
-        - ComplEBMOption.RHYTHM: rhythm-related components only
-        - ComplEBMOption.OPTIMAL_MIX: linear combination of pitch
+        - ComplexityEBMOption.PITCH: pitch-related components only
+        - ComplexityEBMOption.RHYTHM: rhythm-related components only
+        - ComplexityEBMOption.OPTIMAL_MIX: linear combination of pitch
         complexity and rhythm complexity with predetermined weights
         (default; as to what it's supposed to be optimal in, that beats me...)
 
@@ -228,17 +206,10 @@ def complexity_ebm(
 
     References
     ----------
-    .. [1] Eerola, T. & North, A. C. (2000). Expectancy-Based Model of Melodic
-           Complexity. In Proceedings of the Sixth International Conference on
-           Music Perception and Cognition.
-    .. [2] Schaffrath, H. (1995). The Essen folksong collection in kern format.
-
-    Examples
-    --------
-    >>> score = Score.from_melody([60, 64, 67])
-    >>> complexity = compl_ebm(score, ComplEBMOption.PITCH)
-    >>> print(complexity)
-    4.8
+        Eerola, T. & North, A. C. (2000). Expectancy-Based Model of Melodic
+            Complexity. In Proceedings of the Sixth International Conference on
+            Music Perception and Cognition.
+        Schaffrath, H. (1995). The Essen folksong collection in kern format.
     """
 
     if not score.ismonophonic():
@@ -249,10 +220,10 @@ def complexity_ebm(
         case ComplexityEBMOption.PITCH:
             # the linear weights assigned to the different pitch components
             # in pitch complexity
-            weights = (0.3, 1, 0.8, 1)
+            weights = (0.3, 1, 0.8, -1)
             offset = -0.2407
             divisor = 0.9040  # standard deviation of pitches (in Essen)?
-            pitch_components = _compute_pitch_components(score, profile)
+            pitch_components = _compute_pitch_components(score)
             if pitch_components is None:
                 return None
             complexity = offset + sum(
@@ -280,7 +251,7 @@ def complexity_ebm(
             offset = -1.9025
             divisor = 1.5034
 
-            pitch_components = _compute_pitch_components(score, profile)
+            pitch_components = _compute_pitch_components(score)
             rhythm_components = _compute_rhythm_components(score)
             if pitch_components is None or rhythm_components is None:
                 return None

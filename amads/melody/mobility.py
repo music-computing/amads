@@ -42,9 +42,9 @@ def mobility(score: Score) -> Score | None:
 
     References
     ----------
-    .. [1] von Hippel, P. (2000). Redefining pitch proximity: Tessitura and
-           mobility as constraints on melodic interval size. Music Perception,
-           17 (3), 315-327.
+        von Hippel, P. (2000). Redefining pitch proximity: Tessitura and
+            mobility as constraints on melodic interval size. Music Perception,
+            17 (3), 315-327.
     """
     # hack to check if score is empty
     if not score.ismonophonic():

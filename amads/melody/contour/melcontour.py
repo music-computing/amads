@@ -15,7 +15,6 @@ from itertools import count
 import numpy as np
 
 from amads.core.basics import Note, Score
-from amads.pitch.ismonophonic import ismonophonic
 
 
 def _autoCorrelateContour(contour_input: list[Note]) -> list[float] | None:
@@ -52,7 +51,7 @@ def _autoCorrelateContour(contour_input: list[Note]) -> list[float] | None:
 
 
 def melodySamplingContour(
-    score: Score, res: float, res_type: str = "rel"
+    score: Score, res: int | float, res_type: str = "rel"
 ) -> list[Note] | None:
     """
     Calculates a sequence of the pitches of the last note onset up to
@@ -89,7 +88,7 @@ def melodySamplingContour(
     ----------
         Eerola, T., Himberg, T., Toiviainen, P., & Louhivuori, J. (2006).
             Perceived complexity of Western and African folk melodies by Western
-            and African listeners. Psychology of Music, 34(3), 341-375.
+            and African listeners. Psychology of Music, 34(3), 337-371.
 
     Notes
     -----
@@ -97,7 +96,7 @@ def melodySamplingContour(
     https://github.com/miditoolbox/1.1/blob/master/miditoolbox/melcontour.m
     """
     # this algorithm can only operate on monophonic melodies
-    if not ismonophonic(score):
+    if not score.ismonophonic():
         raise ValueError("Score must be monophonic")
 
     if res_type != "abs" and res_type != "rel":
@@ -106,7 +105,12 @@ def melodySamplingContour(
         )
 
     if res_type == "rel":
-        res = (score.duration) / res
+        num_notes = math.floor(res)
+        res = score.duration / res
+    elif res_type == "abs":
+        num_notes = round(score.duration / res)
+    if num_notes < 1:
+        return None
 
     sample_iter = score.find_all(Note)
     current_note = next(sample_iter, None)
@@ -116,7 +120,7 @@ def melodySamplingContour(
 
     sampling_list = []
 
-    for sample_time in count(start=0, step=res):
+    for sample_time, _ in zip(count(start=0, step=res), range(num_notes)):
         if sample_time >= score.duration:
             break
         if sample_time < current_note.onset - score.onset:
@@ -126,9 +130,6 @@ def melodySamplingContour(
             next_note = next(sample_iter, None)
         # record current_note for the associated time sample
         sampling_list.append(current_note)
-        # record pitch for current sample time
-        if not next_note:
-            break
 
     return sampling_list
 

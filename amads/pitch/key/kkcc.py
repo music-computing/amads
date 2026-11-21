@@ -66,7 +66,7 @@ def kkcc(
     profile = None
     attribute_list = None
     if profile_name == "KRUMHANSL-KESSLER":
-        profile = profiles.krumhansl_kessler
+        profile = profiles.miditoolbox_kkprof
         attribute_list = ["major", "minor"]
     elif profile_name == "TEMPERLEY":
         profile = profiles.temperley
@@ -83,7 +83,13 @@ def kkcc(
     assert isinstance(profile, profiles.KeyProfile)
     assert len(attribute_list) == 2
 
-    corrcoef_pairs = key_cc(score, profile, attribute_list, salience_flag)
+    corrcoef_pairs = key_cc(
+        score,
+        profile,
+        attribute_list,
+        salience_flag,
+        miditoolbox_compatible=True,
+    )
     # check integrity of corrcoef correspondences and whether or not they abide
     # to the output agreed on in key_cc
     assert len(corrcoef_pairs) == len(attribute_list)
