@@ -507,40 +507,9 @@ def music21_set_pitches(m21note, expr, note, prop):
     note.set(prop, [Pitch(p.midi, p.alter) for p in m21pitches])
 
 
-def music21_convert_note(m21note, measure, ignore_hidden):
-    """
-    Convert a music21 note into an AMADS Note and append it to the Measure.
-
-    Parameters
-    ----------
-    m21note : music21.note.Note
-        The music21 note to convert.
-    measure : Measure
-        The Measure object to which the converted Note will be appended.
-    """
-    duration = float(m21note.duration.quarterLength)
-    dynamic = m21note.volume.velocity
-    if isinstance(dynamic, int):
-        dynamic = min(max(dynamic, 1), 127)
-    hidden = m21note.hasStyleInformation and m21note.style.hideObjectOnPrint
-    if hidden and ignore_hidden:
-        return 0.0
-
-    note = Note(
-        parent=measure,
-        onset=float(measure.onset + m21note.offset),
-        pitch=Pitch(pitch=m21note.pitch.midi, alt=m21note.pitch.alter),
-        duration=duration,
-        dynamic=dynamic,
-    )
-    if hidden:
-        note.set("hide_on_print", True)
-    if m21note.duration.isGrace:
-        note.set("is_grace", True)
-        if m21note.duration.slash:
-            note.set("has_slash", True)
-        # print("Converted music21 note", m21note, "to AMADS note", note)
-        # print("    onset specified as", measure.onset + m21note.offset)
+def music21_set_ornaments(m21note, note):
+    """Copy the ornaments (trill, turn, mordent, ...) of a music21 note to an
+    AMADS Note."""
     if hasattr(m21note, "expressions"):
         for expr in m21note.expressions:
             if isinstance(expr, expressions.Trill):
@@ -569,8 +538,153 @@ def music21_convert_note(m21note, measure, ignore_hidden):
                 note.set("has_shake", True)
             elif isinstance(expr, expressions.Schleifer):
                 note.set("has_schleifer", True)
-    if m21note.tie is not None:
-        music21_convert_tie(m21note.pitch.midi, note, m21note.tie.type)
+
+
+def _has_ornament(m21note) -> bool:
+    """True if a music21 note carries ornaments or starts a trill extension."""
+    return bool(getattr(m21note, "expressions", None)) or (
+        _starts_trill_extension(m21note)
+    )
+
+
+def _starts_trill_extension(m21note) -> bool:
+    """True if the music21 note is the first element of a TrillExtension."""
+    # After repeat expansion, spanners may still refer to the original copy
+    # of the note, so compare by equality as well as identity.
+    return any(
+        sp.isFirst(m21note) or sp.getFirst() == m21note
+        for sp in m21note.getSpannerSites([expressions.TrillExtension])
+    )
+
+
+def music21_transfer_hidden_ornaments(measure, hidden_ornaments):
+    """
+    Attach ornaments found on hidden notes to the visible notes they realize.
+
+    MusicXML written by notation software (e.g., the ASAP dataset) often
+    contains a hidden, written-out realization of an ornament (voice 2 with
+    `print-object="no"`), with the trill-mark attached to the first hidden
+    note rather than to the notated note. When hidden notes are omitted, the
+    ornament is moved to a visible note in the measure starting at the same
+    time, preferring one with the same pitch.
+
+    Parameters
+    ----------
+    measure : Measure
+        The converted measure, containing the visible notes.
+    hidden_ornaments : list of (float, music21.note.Note)
+        Onset and music21 note for each omitted hidden note that has an
+        ornament.
+    """
+    if not hidden_ornaments:
+        return
+    visible = list(measure.find_all(Note))
+    for onset, m21note in hidden_ornaments:
+        candidates = [
+            n for n in visible if isclose(n.onset, onset, abs_tol=0.001)
+        ]
+        if not candidates:
+            continue
+        midi = m21note.pitch.midi
+        same_pitch = [n for n in candidates if n.pitch.midi_num == midi]
+        target = (same_pitch or candidates)[0]
+        music21_set_ornaments(m21note, target)
+        if _starts_trill_extension(m21note):
+            target.set("has_trill_extension", True)
+
+
+def _tremolo_durations(m21obj) -> Optional[list[float]]:
+    """Return the durations that a single-note (slashed-stem) tremolo expands
+    into, or None if m21obj has no tremolo or is too short to subdivide.
+
+    Each slash (mark) halves the note value: 1 mark gives eighths, 2 gives
+    sixteenths, etc., regardless of the written duration, e.g. a half note
+    with 1 mark gives 4 eighths, a quarter with 2 marks gives 4 sixteenths.
+    """
+    total = float(m21obj.duration.quarterLength)
+    for expr in getattr(m21obj, "expressions", ()):
+        if isinstance(expr, expressions.Tremolo) and expr.numberOfMarks > 0:
+            each = 2.0**-expr.numberOfMarks
+            if total <= each + 1e-6:
+                return None
+            count = int(total / each + 1e-6)
+            durations = [each] * count
+            remainder = total - each * count
+            if remainder > 1e-6:
+                durations.append(remainder)
+            return durations
+    return None
+
+
+def _tremolo_tie_types(tie_type: Optional[str], index: int, count: int):
+    """Tie type for piece index of count pieces of a tremolo-expanded note.
+    Only the first piece can continue a tie from the previous note and only
+    the last can start a tie to the next note; inner pieces are untied."""
+    if tie_type is None:
+        return None
+    ties_in = tie_type in ("stop", "continue") and index == 0
+    ties_out = tie_type in ("start", "continue") and index == count - 1
+    if ties_in and ties_out:
+        return "continue"
+    return "stop" if ties_in else "start" if ties_out else None
+
+
+def music21_convert_note(
+    m21note, measure, ignore_hidden, hidden_ornaments=None
+):
+    """
+    Convert a music21 note into an AMADS Note and append it to the Measure.
+
+    Parameters
+    ----------
+    m21note : music21.note.Note
+        The music21 note to convert.
+    measure : Measure
+        The Measure object to which the converted Note will be appended.
+    ignore_hidden : bool
+        If true, hidden notes are not converted.
+    hidden_ornaments : list, optional
+        If given, omitted hidden notes that have ornaments are appended as
+        (onset, m21note) so the ornaments can be moved to visible notes.
+    """
+    duration = float(m21note.duration.quarterLength)
+    dynamic = m21note.volume.velocity
+    if isinstance(dynamic, int):
+        dynamic = min(max(dynamic, 1), 127)
+    hidden = m21note.hasStyleInformation and m21note.style.hideObjectOnPrint
+    if hidden and ignore_hidden:
+        if hidden_ornaments is not None and _has_ornament(m21note):
+            hidden_ornaments.append(
+                (float(measure.onset + m21note.offset), m21note)
+            )
+        return 0.0
+
+    pieces = _tremolo_durations(m21note) or [duration]
+    onset = float(measure.onset + m21note.offset)
+    # expand stem with slashes into multiple notes (not done by music21)
+    # for normal notes, the loop body runs once and simply adds one note
+    # to the measure.
+    for i, piece_duration in enumerate(pieces):
+        note = Note(
+            parent=measure,
+            onset=onset,
+            pitch=Pitch(pitch=m21note.pitch.midi, alt=m21note.pitch.alter),
+            duration=piece_duration,
+            dynamic=dynamic,
+        )
+        onset += piece_duration
+        if hidden:
+            note.set("hide_on_print", True)
+        if m21note.duration.isGrace:
+            note.set("is_grace", True)
+            if m21note.duration.slash:
+                note.set("has_slash", True)
+        if i == 0:
+            music21_set_ornaments(m21note, note)
+        if m21note.tie is not None:
+            tie_type = _tremolo_tie_types(m21note.tie.type, i, len(pieces))
+            if tie_type is not None:
+                music21_convert_tie(m21note.pitch.midi, note, tie_type)
     return measure.onset + m21note.offset + duration
 
 
@@ -655,32 +769,39 @@ def music21_convert_chord(m21chord, measure, offset, ignore_hidden):
         return 0.0
 
     duration = float(m21chord.quarterLength)
-    chord = Chord(
-        parent=measure,
-        onset=float(measure.onset + m21chord.offset),
-        duration=duration,
-    )
-    for m21note in m21notes:
-        pitch = m21note.pitch
-        note = Note(
-            parent=chord,
-            onset=float(measure.onset + m21chord.offset),
-            pitch=Pitch(pitch=pitch.midi, alt=pitch.alter),
-            duration=duration,
-        )
-        if is_hidden(m21note):
-            note.set("hide_on_print", True)
-        if m21note.tie is not None:
-            music21_convert_tie(pitch.midi, note, m21note.tie.type)
-
-    for exp in m21chord.expressions:
-        if isinstance(exp, expressions.ArpeggioMark):
-            chord.set("rolled", True)
+    pieces = _tremolo_durations(m21chord) or [duration]
+    onset = float(measure.onset + m21chord.offset)
+    chords = []
+    # as with notes, chords can have slash through the stem, which is expanded
+    # into multiple chords. For normal cases, the loop body runs once and
+    # simply adds one chord to the measure, populating it with the notes of
+    # the music21 chord.
+    for i, piece_duration in enumerate(pieces):
+        chord = Chord(parent=measure, onset=onset, duration=piece_duration)
+        chords.append(chord)
+        for m21note in m21notes:
+            pitch = m21note.pitch
+            note = Note(
+                parent=chord,
+                onset=onset,
+                pitch=Pitch(pitch=pitch.midi, alt=pitch.alter),
+                duration=piece_duration,
+            )
+            if is_hidden(m21note):
+                note.set("hide_on_print", True)
+            if m21note.tie is not None:
+                tie_type = _tremolo_tie_types(m21note.tie.type, i, len(pieces))
+                if tie_type is not None:
+                    music21_convert_tie(pitch.midi, note, tie_type)
+        onset += piece_duration
 
     # Some MusicXML arpeggiation marks are represented by music21 as
     # ArpeggioMarkSpanner rather than per-chord ArpeggioMark expressions.
-    if m21chord.getSpannerSites(expressions.ArpeggioMarkSpanner):
-        chord.set("rolled", True)
+    if any(
+        isinstance(exp, expressions.ArpeggioMark)
+        for exp in m21chord.expressions
+    ) or m21chord.getSpannerSites(expressions.ArpeggioMarkSpanner):
+        chords[0].set("rolled", True)
 
     return measure.onset + m21chord.offset + duration
 
@@ -770,7 +891,11 @@ def _get_amads_clef_name(
 
 
 def append_items_to_measure(
-    measure: Measure, source: stream.Stream, offset: float, ignore_hidden
+    measure: Measure,
+    source: stream.Stream,
+    offset: float,
+    ignore_hidden,
+    hidden_ornaments=None,
 ) -> float:
     """
     Append items from a source to the Measure.
@@ -781,12 +906,17 @@ def append_items_to_measure(
         The Measure object to which items will be appended.
     source : music21.stream.Stream
         The source stream containing items to append.
+    hidden_ornaments : list, optional
+        Collects (onset, m21note) for omitted hidden notes with ornaments.
     """
     endq = 0.0  # maximum end time of any element, in quarters
     for element in source.iter():
         if isinstance(element, note.Note):
             endq = max(
-                endq, music21_convert_note(element, measure, ignore_hidden)
+                endq,
+                music21_convert_note(
+                    element, measure, ignore_hidden, hidden_ornaments
+                ),
             )
         elif isinstance(element, note.Rest):
             endq = max(
@@ -856,7 +986,11 @@ def append_items_to_measure(
             endq = max(
                 endq,
                 append_items_to_measure(
-                    measure, element, offset + element.offset, ignore_hidden
+                    measure,
+                    element,
+                    offset + element.offset,
+                    ignore_hidden,
+                    hidden_ornaments,
                 ),
             )
         elif isinstance(element, tempo.MetronomeMark):
@@ -914,9 +1048,11 @@ def music21_convert_measure(m21measure, staff, ignore_hidden):
     )
 
     # Iterate over elements in the music21 measure
+    hidden_ornaments: list = []
     highest_time = append_items_to_measure(
-        measure, m21measure, m21measure.offset, ignore_hidden
+        measure, m21measure, m21measure.offset, ignore_hidden, hidden_ornaments
     )
+    music21_transfer_hidden_ornaments(measure, hidden_ornaments)
     # now that we know what's in it, fix the duration to actual duration.
     # Some real-world MusicXML files have content (e.g. tuplet figuration,
     # notation errors) that runs slightly or significantly past the

@@ -594,8 +594,8 @@ def write_score(
     Music21 output to MusicXML will set `print-object="no"` if
     Note.get("hide_on_print", False) is True. This property is
     set by the Music21-based MusicXML reader.
-
     """
+    was_seconds = score.units_are_seconds
     if not isinstance(filename, Path):
         if filename:
             filename = Path(filename)
@@ -629,6 +629,8 @@ def write_score(
                     warning.lineno,
                 )
                 print(formatted, end="")
+    if was_seconds:
+        score.convert_to_seconds()
     return cast(Path, filename)
 
 
