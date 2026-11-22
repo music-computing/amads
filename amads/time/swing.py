@@ -18,7 +18,7 @@ References
 """
 
 from math import log2 as log2_
-from typing import Iterable
+from typing import Iterable, Optional
 
 import numpy as np
 
@@ -33,8 +33,8 @@ LOW_BUR, HIGH_BUR = (
 
 # flake8: noqa: W605
 def beat_upbeat_ratio(
-    beats: Iterable[float],
-    upbeats: Iterable[float],
+    beats: Iterable[Optional[float]],
+    upbeats: Iterable[Optional[float]],
     log2: bool = False,
     bounded: bool = False,
     lower_bound: float = LOW_BUR,
@@ -73,9 +73,9 @@ def beat_upbeat_ratio(
 
     Parameters
     ----------
-    beats : Iterable[float]
+    beats : Iterable[Optional[float]]
         An array of beat timestamps. Should not overlap with `upbeats`.
-    upbeats : Iterable[float]
+    upbeats : Iterable[Optional[float]]
         An array of upbeat timestamps.
     log2 : bool, optional
         If True, computes the log base 2 of BUR values, as used in [2].
@@ -146,11 +146,24 @@ def beat_upbeat_ratio(
     # Apply our filtering if required
     # Filter before log_2 transform to make things simpler
     if bounded:
-        burs = [i if lower_bound < i < upper_bound else None for i in burs]
+        burs = filter_burs(burs, lower_bound, upper_bound)
     # Express as base-2 log if required
     if log2:
         burs = [log2_(b) if b is not None else None for b in burs]
     return burs
+
+
+def filter_burs(
+    burs: list[Optional[float]], lower_bound: float, upper_bound: float
+) -> list[Optional[float]]:
+    """Filters a list of BURS between lower_bound < BUR < upper_bound."""
+    newburs = []
+    for b in burs:
+        if isinstance(b, float) and lower_bound < b < upper_bound:
+            newburs.append(b)
+        else:
+            newburs.append(None)
+    return newburs
 
 
 def mean_bur(
