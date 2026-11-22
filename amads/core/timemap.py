@@ -549,13 +549,15 @@ class TimeMap:
         elif quarters < 0:
             i = self._quarter_to_insert_index(-quarters)
             seconds = self.quarter_to_time(-quarters)
-            # i is the breakpoint before -quarters, but if a breakpoint
-            # already exists, it's at i - 1:
-            if i > 0 and math.isclose(self.changes[i - 1].quarter, -quarters):
+            # i is the breakpoint after -quarters, but if a breakpoint
+            # already exists at -quarters, it is at i - 1:
+            if i > 0 and math.isclose(
+                self.changes[i - 1].quarter, -quarters
+            ):  # already exists
                 i -= 1
             else:  # need to insert at i
-                self.changes.insert(0, MapQuarter(seconds, -quarters))
-            # i is now a breakpoint at -quarters with (seconds, -quarters)
+                self.changes.insert(i, MapQuarter(seconds, -quarters))
+            # i now a breakpoint at -quarters with (seconds, -quarters)
             self.changes = self.changes[i:]
             for change in self.changes:
                 change.time -= seconds

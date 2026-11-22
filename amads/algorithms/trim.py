@@ -5,47 +5,44 @@ Original Document: https://github.com/miditoolbox/1.1/blob/master/documentation/
 
 """
 
-from typing import cast
-
-from amads.core.basics import Part, Score
+from amads.core.basics import Score
 
 
 def trim(score: Score) -> Score:
-    """
-    Removes all leading silence from a given score.
+    """Remove leading silence from a score.
 
-    trim() returns a flattened score with the first note starting at time 0.0.
+    Always returns a flattened copy. The first note starts at time 0.0.
+    The original ``score`` is not modified. The time framework
+    (``time_map`` and ``time_signatures``) shifts with the notes.
 
     Parameters
     ----------
-    score: Score
+    score : Score
         The score that is to be trimmed.
 
     Returns
     -------
     Score
-        A flattened score with the first note starting at 0.0. The original score is
-        returned if it is already flat and its first note starts at 0.0; otherwise,
-        a time-shifted flat copy is returned.
+        A flattened score with the first note at 0.0. If there are no
+        notes, or the earliest note is already at 0.0, the flattened
+        copy is returned without a further shift.
+
+    Examples
+    --------
+    >>> from amads.algorithms.trim import trim
+    >>> from amads.core.basics import Note, Part, Score
+    >>> score = Score(Part(Note(onset=3.0, duration=1.0, pitch="C4")))
+    >>> trimmed = trim(score)
+    >>> trimmed.get_sorted_notes()[0].onset
+    0.0
+    >>> score.get_sorted_notes()[0].onset  # original unchanged
+    3.0
     """
-    # Make sure the score is flat:
-    flat = score
-    if not score.is_flat():
-        flat = score.flatten()
-
-    # 2. Find earliest note
-    SENTINAL = 1.0e10
-    earliest = SENTINAL
-    for part in flat.find_all(Part):
-        part = cast(Part, part)
-        if len(part.content) > 0:
-            earliest = min(earliest, part.content[0].onset)
-
-    # 2a. If it's empty, return the original or possibly flattened copy:
-    if earliest == SENTINAL:
+    flat = score.flatten()  # flattened copy of the score
+    notes = flat.get_sorted_notes()
+    if len(notes) == 0:
         return flat
-
-    # 3. Shift the score by -earliest to make it start at time
-    if flat == score:
-        flat = score.copy()  # already know it is flat, so just copy it
-    return flat.time_shift(-earliest, content_only=True)  # type: ignore
+    earliest = notes[0].onset
+    if earliest == 0.0:
+        return flat
+    return flat.time_shift(-earliest, content_only=True, shift_framework=True)
